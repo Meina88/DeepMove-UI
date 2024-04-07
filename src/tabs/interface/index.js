@@ -400,6 +400,9 @@ const InterfaceTab = () => {
                                                                     label={T(
                                                                         fieldData.label
                                                                     )}
+                                                                    depend={
+                                                                        fieldData.depend
+                                                                    }
                                                                 >
                                                                     {Object.keys(
                                                                         fieldData.value
