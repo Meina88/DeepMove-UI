@@ -119,7 +119,7 @@ const commands = {
         }
     },
     filterResult: (data, path) => {
-        console.log(data)
+        //console.log(data)
         const res = {}
         res.files = sortedFilesList(filterResultFiles(data.files, path), false)
         res.status = formatStatus(data.status)

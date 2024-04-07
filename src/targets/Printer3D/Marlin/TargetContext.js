@@ -251,6 +251,7 @@ const TargetContextProvider = ({ children }) => {
         if (type === 'response') {
             //check if the response is a command answer
             if (data[0] === '{') {
+                console.log('response', data)
                 if (isStreamingStatus(data)) {
                     setStatus({ printState: null })
                     const preStatus = getStreamingStatus(data)
@@ -415,7 +416,7 @@ const TargetContextProvider = ({ children }) => {
         fanSpeed: {
             current: fanSpeed,
             set: (index, value) => {
-                console.log('set fan speed', index, '=', value)
+                //console.log('set fan speed', index, '=', value)
                 fansSpeed[index] = value
                 setFanSpeed(fanSpeed)
             },

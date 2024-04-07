@@ -83,7 +83,7 @@ const capabilities = {
 
 const commands = {
     list: (path, filename) => {
-        console.log("path: ", path)
+        //console.log("path: ", path)
         const spath = (path + (path == '/' ? '' : '/')).replaceAll('//', '/')
         const cmd =   "echo BeginFiles;"+useUiContextFn.getValue('sdextlistcmd').replace("#",spath).replaceAll('//', '/')+";echo EndFiles"
         return {

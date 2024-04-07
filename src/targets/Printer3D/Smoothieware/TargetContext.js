@@ -190,7 +190,7 @@ const TargetContextProvider = ({ children }) => {
                         value: cap.value,
                     })
                 })
-                console.log(printerCapabilities)
+                //console.log(printerCapabilities)
             }
         } else if (type === "core") {
             if (isSensor(data)) {
@@ -306,7 +306,7 @@ const TargetContextProvider = ({ children }) => {
         fanSpeed: {
             current: fanSpeed,
             set: (index, value) => {
-                console.log("set fan speed", index, "=", value)
+                //console.log("set fan speed", index, "=", value)
                 fansSpeed[index] = value
                 setFanSpeed(fanSpeed)
             },
