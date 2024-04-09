@@ -253,7 +253,7 @@ const TargetContextProvider = ({ children }) => {
             if (data[0] === '{') {
                 console.log('response', data)
                 if (isStreamingStatus(data)) {
-                    setStatus({ printState: null })
+                    
                     const preStatus = getStreamingStatus(data)
                     const name = preStatus.name
                     const status = preStatus.status
@@ -294,6 +294,10 @@ const TargetContextProvider = ({ children }) => {
                         printLeftTime,
                     }
                     setStreamStatus(fullstatus)
+                    if (status!="no stream"){ 
+                        setStatus({ printState: null })
+                        
+                    }    
                 }
             }
         }

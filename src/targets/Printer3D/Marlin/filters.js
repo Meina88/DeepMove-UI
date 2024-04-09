@@ -360,7 +360,7 @@ const getSensor = (str) => {
 //
 // Streaming status
 const isStreamingStatus = (str) => {
-    console.log('isStreamingStatus', str)
+    //console.log('isStreamingStatus', str)
     try {
         const res = JSON.parse(str)
         if (res.cmd == '701' && typeof res.data != 'undefined') {
@@ -376,9 +376,9 @@ const isStreamingStatus = (str) => {
 }
 
 const getStreamingStatus = (str) => {
-    console.log('getStreamingStatus', str)
+    //console.log('getStreamingStatus', str)
     const res = JSON.parse(str)
-    console.log('getStreamingStatus', res)
+    //console.log('getStreamingStatus', res)
     if (res.data.status) return res.data
     return { status: res.data }
 }
