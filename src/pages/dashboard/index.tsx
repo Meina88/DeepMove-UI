@@ -307,7 +307,11 @@ const Dashboard: FunctionalComponent = (): JSX.Element => {
 
     return (
         <div id="dashboard">
-            <div class="buttons-bar m-2">
+            {
+            
+//descomentar lo de abajo para recuperar el dropdown con la lista de paneles y el QuickButton
+
+            /* <div class="buttons-bar m-2">
                 {panels.list.length > 0 && (
                     <div class="dropdown">
                         <span
@@ -442,7 +446,7 @@ const Dashboard: FunctionalComponent = (): JSX.Element => {
                     </div>
                 )}
                 <QuickButtonsBar />
-            </div>
+            </div> */}
             <div class="panels-container m-2">
                 {panels.visibles.map((panel: any) => {
                     return <Fragment key={panel.id}>{panel.content as any}</Fragment>
