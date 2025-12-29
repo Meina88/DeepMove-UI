@@ -15,3 +15,47 @@
         background-color: blue !important;
     }
 }
+
+//se agregó desde desde 19 a 61, para hacer que sea una pantalla por panel.
+@media (max-width: 480px) {
+
+    /* El dashboard maneja el scroll */
+    #dashboard {
+        height: 100dvh;
+        overflow-y: auto;
+        scroll-snap-type: y mandatory;
+    }
+
+    /* El contenedor de panels NO scrollea */
+    .panels-container {
+        height: auto;
+        overflow: visible;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Panel = 1 pantalla */
+    .panel {
+        height: 100dvh !important;
+        max-height: 100dvh !important;
+
+        overflow: hidden !important;   /* 🔥 anula el scroll interno */
+        margin: 0 !important;
+
+        scroll-snap-align: start;
+
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Header del panel */
+    .panel > .navbar {
+        flex: 0 0 auto;
+    }
+
+    /* Body del panel (jog-container, files, etc) */
+    .panel > :not(.navbar) {
+        flex: 1 1 auto;
+        overflow: hidden; /* luego lo abrimos panel por panel */
+    }
+}
