@@ -26,6 +26,8 @@ import { iconsFeather } from "../../components/Images"
 import { defaultPanelsList, iconsTarget, QuickButtonsBar } from "../../targets"
 import { ExtraPanelElement } from "../../components/Panels/ExtraPanel"
 import { showModal } from "../../components/Modal"
+import PanelNavigator from "../../components/Controls/PanelNavigator"
+
 
 interface KeyTracker {
     keybListenerCounter: number
@@ -452,6 +454,7 @@ const Dashboard: FunctionalComponent = (): JSX.Element => {
                     return <Fragment key={panel.id}>{panel.content as any}</Fragment>
                 })}
             </div>
+              <PanelNavigator />
         </div>
     )
 }

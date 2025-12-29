@@ -1,32 +1,50 @@
 @media (max-width: 480px) {
+
+    /* utilidades */
     .hide-low {
         display: none !important;
     }
+
     .show-low {
         display: block !important;
     }
+
     section .active,
     li .active {
         background-color: rgba(100, 100, 100, 0.1) !important;
     }
+
     .btn-header,
     .btn-close {
         color: white !important;
         background-color: blue !important;
     }
-}
 
-//se agregó desde desde 19 a 61, para hacer que sea una pantalla por panel.
-@media (max-width: 480px) {
+    /* ======================================================
+       SCROLLER REAL + SNAP (1 panel = 1 pantalla)
+       ====================================================== */
 
-    /* El dashboard maneja el scroll */
-    #dashboard {
+    /* ESTE es el scroller real */
+    #main.main-page-container {
         height: 100dvh;
         overflow-y: auto;
+
+        /* aire entre header y primer panel */
+        padding-top: 16px;
+        box-sizing: border-box;
+
+        /* scroll snap */
         scroll-snap-type: y mandatory;
+        scroll-padding-top: 16px; /* 🔥 clave: mismo valor que padding-top */
     }
 
-    /* El contenedor de panels NO scrollea */
+    /* dashboard NO scrollea */
+    #dashboard {
+        height: auto;
+        overflow: visible;
+    }
+
+    /* contenedor de panels */
     .panels-container {
         height: auto;
         overflow: visible;
@@ -34,28 +52,31 @@
         padding: 0;
     }
 
-    /* Panel = 1 pantalla */
+    /* ======================================================
+       PANEL = 1 PANTALLA
+       ====================================================== */
+
     .panel {
-        height: 100dvh !important;
+        height: 86dvh !important;        /* altura visible del panel */
         max-height: 100dvh !important;
 
-        overflow: hidden !important;   /* 🔥 anula el scroll interno */
-        margin: 0 !important;
-
         scroll-snap-align: start;
+
+        overflow: hidden !important;     /* sin scroll interno */
+        margin: 0 0 6dvh 0 !important;   /* aire entre panels */
 
         display: flex;
         flex-direction: column;
     }
 
-    /* Header del panel */
+    /* header del panel */
     .panel > .navbar {
         flex: 0 0 auto;
     }
 
-    /* Body del panel (jog-container, files, etc) */
+    /* body del panel */
     .panel > :not(.navbar) {
         flex: 1 1 auto;
-        overflow: hidden; /* luego lo abrimos panel por panel */
+        overflow: hidden;
     }
 }
