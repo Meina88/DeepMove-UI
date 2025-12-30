@@ -48,84 +48,98 @@ const selectableAxisLettersList = ["A", "B", "C", "U", "V", "W"]
 //A separate control to avoid the full panel to be updated when the positions are updated
 interface PositionsControlsProps {
     onWPosClick: (letter: string, position: string) => void
+    onHomeAxis: (axis: string) => void
+    onZeroAxis: (axis: string) => void
 }
 
-const PositionsControls = ({ onWPosClick }: PositionsControlsProps) => {
-    const { positions } = useTargetContext()
-    const posLines = [
-        ["x", "y", "z"],
-        ["a", "b", "c"],
-        ["u", "v", "w"],
-    ]
+
+const PositionsControls = ({
+    onWPosClick,
+    onHomeAxis,
+    onZeroAxis,
+}: PositionsControlsProps) => {
+    const { positions } = useTargetContext()   // ✅ acá adentro
+
     return (
         <Fragment>
-            {posLines.map((line) => {
-                if (
-                    typeof positions[line[0]] != "undefined" ||
-                    typeof positions[`w${line[0]}`] != "undefined"
-                )
-                    return (
-                        <div key={line.join('')} class="jog-positions-ctrls m-1">
-                            {line.map((letter) => {
-                                if (
-                                    (typeof positions[letter] != "undefined" ||
-                                        typeof positions[`w${letter}`] !=
-                                            "undefined") &&
-                                    useUiContextFn.getValue(`show${letter}`)
-                                ) {
-                                    return (
-                                        <div key={letter} class="jog-position-ctrl">
-                                            {typeof positions[letter] !=
-                                                "undefined" && (
-                                                <Fragment>
-                                                    <div class="jog-position-sub-header">
-                                                        MPos{" "}
-                                                        {letter.toUpperCase()}
-                                                    </div>
-                                                    <div class="m-1 jog-position-value">
-                                                        {positions[letter]}
-                                                    </div>
-                                                </Fragment>
-                                            )}
-                                            {typeof positions[`w${letter}`] !=
-                                                "undefined" && (
-                                                <Fragment>
-                                                    <div class="jog-position-sub-header">
-                                                        WPos{" "}
-                                                        {letter.toUpperCase()}
-                                                    </div>
-                                                    <div
-                                                        class="m-1 jog-position-value jog-position-clickable"
-                                                        onClick={() => {
-                                                            useUiContextFn.haptic()
-                                                            onWPosClick(letter, positions[
-                                                                `w${letter}`
-                                                            ])
-                                                        }}
-                                                    >
-                                                        {
-                                                            positions[
-                                                                `w${letter}`
-                                                            ]
-                                                        }
-                                                    </div>
-                                                </Fragment>
-                                            )}
-                                        </div>
-                                    )
-                                }
-                            })}
+            {["x", "y", "z"].map((letter) => {
+                const hasM = typeof positions[letter] !== "undefined"
+                const hasW = typeof positions[`w${letter}`] !== "undefined"
+
+                if (!hasM && !hasW) return null
+                if (!useUiContextFn.getValue(`show${letter}`)) return null
+
+                const axis = letter.toUpperCase()
+
+                return (
+                    <div key={letter} class="jog-positions-ctrls m-1">
+                        {/* MPos */}
+                        <div class="jog-position-row">
+                            <Button
+                                m1
+                                class="jog-position-action"
+                                tooltip
+                                data-tooltip={T("CN10")}
+                                onClick={() => {
+                                    useUiContextFn.haptic()
+                                    onHomeAxis(axis)
+                                }}
+                            >
+                                <Home size={"0.9rem" as any} />
+                            </Button>
+
+                            <div class="jog-position-ctrl">
+                                <div class="jog-position-sub-header">
+                                    MPos {axis}
+                                </div>
+                                <div class="jog-position-value">
+                                    {positions[letter]}
+                                </div>
+                            </div>
                         </div>
-                    )
+
+                        {/* WPos */}
+                        <div class="jog-position-row">
+                            <div class="jog-position-ctrl">
+                                <div class="jog-position-sub-header">
+                                    WPos {axis}
+                                </div>
+                                <div
+                                    class="jog-position-value jog-position-clickable"
+                                    onClick={() => {
+                                        useUiContextFn.haptic()
+                                        onWPosClick(letter, positions[`w${letter}`])
+                                    }}
+                                >
+                                    {positions[`w${letter}`]}
+                                </div>
+                            </div>
+
+                            <Button
+                                m1
+                                class="jog-position-action"
+                                tooltip
+                                data-tooltip={T("CN19")}
+                                onClick={() => {
+                                    useUiContextFn.haptic()
+                                    onZeroAxis(axis)
+                                }}
+                            >
+                                &Oslash;
+                            </Button>
+                        </div>
+                    </div>
+                )
             })}
         </Fragment>
     )
 }
 
+
 const JogPanel = () => {
-    const { modals } = useModalsContext()
-    const [currentSelectedAxis, setCurrentSelectedAxis] = useState(currentAxis)
     const { positions } = useTargetContext()
+    const { modals } = useModalsContext()
+    const [currentSelectedAxis, setCurrentSelectedAxis] = useState(currentAxis)    
     const id = "jogPanel"
 
     const onChangeAxis = (e: any) => {
@@ -459,7 +473,13 @@ const JogPanel = () => {
                 </span>
             </div>
             <div class="m-1 jog-container">
-                <PositionsControls onWPosClick={showMoveToDialog} />
+                <PositionsControls
+                    onWPosClick={showMoveToDialog}
+                    onHomeAxis={sendHomeCommand}
+                    onZeroAxis={sendZeroCommand}
+                />
+
+
                 <div class="m-1">
                     <div class="jog-buttons-main-container">
                         {/* XY Group */}
@@ -488,43 +508,8 @@ const JogPanel = () => {
                                         >
                                             +{letter}
                                         </Button>
-                                        {useUiContextFn.getValue(
-                                            "homesingleaxis"
-                                        ) && (
-                                            <Button
-                                                m2
-                                                tooltip
-                                                data-tooltip={T("CN10")}
-                                                id={`btnH${letter}`}
-                                                onClick={(e: any) => {
-                                                    useUiContextFn.haptic();
-                                                    (e.target as HTMLElement).blur();
-                                                    sendHomeCommand(letter)
-                                                }}
-                                            >
-                                                <Home size={"1rem" as any} />
-                                                <span class="text-tiny">
-                                                    {letter.toLowerCase()}
-                                                </span>
-                                            </Button>
-                                        )}
 
-                                        <Button
-                                            m2
-                                            tooltip
-                                            data-tooltip={T("CN19")}
-                                            id={`btnZ${letter}`}
-                                            onClick={(e: any) => {
-                                                useUiContextFn.haptic();
-                                                (e.target as HTMLElement).blur();
-                                                sendZeroCommand(letter)
-                                            }}
-                                        >
-                                            &Oslash;
-                                            <span class="text-tiny">
-                                                {letter.toLowerCase()}
-                                            </span>
-                                        </Button>
+
                                         <Button
                                             m2
                                             tooltip
@@ -657,36 +642,7 @@ const JogPanel = () => {
                                     >
                                         +Z
                                     </Button>
-                                    {useUiContextFn.getValue("homesingleaxis") && (
-                                        <Button
-                                            m2
-                                            tooltip
-                                            data-tooltip={T("CN10")}
-                                            id="btnHZ"
-                                            onClick={(e: any) => {
-                                                useUiContextFn.haptic();
-                                                (e.target as HTMLElement).blur();
-                                                sendHomeCommand("Z")
-                                            }}
-                                        >
-                                            <Home size={"1rem" as any} />
-                                            <span class="text-tiny">z</span>
-                                        </Button>
-                                    )}
-                                    <Button
-                                        m2
-                                        tooltip
-                                        data-tooltip={T("CN19")}
-                                        id="btnZZ"
-                                        onClick={(e: any) => {
-                                            useUiContextFn.haptic();
-                                            (e.target as HTMLElement).blur();
-                                            sendZeroCommand("Z")
-                                        }}
-                                    >
-                                        &Oslash;
-                                        <span class="text-tiny">z</span>
-                                    </Button>
+
                                     <Button
                                         m2
                                         tooltip
@@ -867,39 +823,7 @@ const JogPanel = () => {
                         >
                             +{currentSelectedAxis}
                         </Button>
-                        {useUiContextFn.getValue("homesingleaxis") && (
-                            <Button
-                                m2
-                                tooltip
-                                data-tooltip={T("CN10")}
-                                id="btnHaxis"
-                                onClick={(e: any) => {
-                                    useUiContextFn.haptic();
-                                    (e.target as HTMLElement).blur();
-                                    sendHomeCommand("Axis")
-                                }}
-                            >
-                                <Home size={"1rem" as any} />
-                                <span class="text-tiny">
-                                    {currentSelectedAxis}
-                                </span>
-                            </Button>
-                        )}
 
-                        <Button
-                            m2
-                            tooltip
-                            data-tooltip={T("CN19")}
-                            id="btnZaxis"
-                            onClick={(e: any) => {
-                                useUiContextFn.haptic();
-                                (e.target as HTMLElement).blur();
-                                sendZeroCommand("Axis")
-                            }}
-                        >
-                            &Oslash;
-                            <span class="text-tiny">{currentSelectedAxis}</span>
-                        </Button>
                         <Button
                             m2
                             tooltip

@@ -195,3 +195,13 @@
 #selectAxisList{
     border-color: #005b96!important
 }
+// proximas 10 filas reacomodan los botones de Wpos por eje y Mpos por eje.
+.jog-position-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.jog-position-action {
+    height: fit-content;
+}
