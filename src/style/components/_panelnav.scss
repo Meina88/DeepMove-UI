@@ -1,24 +1,30 @@
 /* =========================
-   PANEL NAVIGATOR
+   PANEL NAVIGATOR (Mobile)
    ========================= */
 
-/* Por defecto: oculto (desktop) */
+/* Por defecto: oculto en desktop */
 .panel-navigator {
     display: none;
 }
 
-/* Mobile */
+/* =========================
+   MOBILE
+   ========================= */
 @media (max-width: 480px) {
+
     .panel-navigator {
-        display: flex;
+        display: grid;
+        grid-template-columns: repeat(7, 1fr); /* 🔥 7 botones fijos */
+
         position: fixed;
-        bottom: 12px;
         left: 50%;
         transform: translateX(-50%);
+        bottom: env(safe-area-inset-bottom, 12px);
+
         z-index: 1000;
 
-        gap: 8px;
-        padding: 6px 10px;
+        gap: 6px;
+        padding: 8px 10px;
 
         background: rgba(20, 20, 30, 0.9);
         backdrop-filter: blur(8px);
@@ -26,6 +32,9 @@
         box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
     }
 
+    /* =========================
+       BOTONES GENERALES
+       ========================= */
     .panel-navigator-btn {
         all: unset;
         width: 36px;
@@ -38,6 +47,9 @@
 
         color: #fff;
         background: rgba(255, 255, 255, 0.08);
+
+        cursor: pointer;
+        transition: background 0.15s ease, transform 0.1s ease;
     }
 
     .panel-navigator-btn svg {
@@ -47,5 +59,26 @@
 
     .panel-navigator-btn:active {
         background: rgba(255, 255, 255, 0.25);
+        transform: scale(0.94);
     }
+
+    /* =========================
+       BOTÓN RESET (CENTRAL)
+       ========================= */
+    .panel-navigator-btn-reset {
+        background: #ff3b30; /* rojo reset */
+        color: #fff;
+        font-weight: bold;
+    }
+
+    .panel-navigator-btn-reset:active {
+        background: #ff1f1f;
+        transform: scale(0.92);
+    }
+
+    .panel-navigator-btn-empty {
+        background: transparent;
+        pointer-events: none;
+}
+
 }
