@@ -1,84 +1,161 @@
 /* =========================
-   PANEL NAVIGATOR (Mobile)
+   PANEL NAVIGATOR
    ========================= */
 
-/* Por defecto: oculto en desktop */
 .panel-navigator {
     display: none;
 }
 
-/* =========================
-   MOBILE
-   ========================= */
+/* =====================================================
+   MOBILE BASE (≤480px)
+   ===================================================== */
 @media (max-width: 480px) {
 
+    /* =========================
+       CONTENEDOR
+       ========================= */
+
     .panel-navigator {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr); /* 🔥 7 botones fijos */
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
 
         position: fixed;
+        bottom: 12px;
         left: 50%;
         transform: translateX(-50%);
-        bottom: env(safe-area-inset-bottom, 12px);
-
         z-index: 1000;
 
-        gap: 6px;
-        padding: 8px 10px;
+        /* ancho responsive real */
+        width: clamp(300px, 92vw, 420px);
 
-        background: rgba(20, 20, 30, 0.9);
-        backdrop-filter: blur(8px);
+        padding: 10px 18px;
+        gap: 14px;
+
+        background: rgba(20, 20, 28, 0.88);
+        backdrop-filter: blur(10px);
         border-radius: 999px;
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.38);
     }
 
     /* =========================
-       BOTONES GENERALES
+       BOTONES NORMALES (paneles)
        ========================= */
+
     .panel-navigator-btn {
         all: unset;
-        width: 36px;
-        height: 36px;
+
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+
+        display: flex;
+        align-items: center;
+        justify-content: center; /* ✅ corregido */
+
+        background: rgba(255, 255, 255, 0.10);
+        color: rgba(255, 255, 255, 0.8);
+
+        transition:
+            background 0.15s ease,
+            transform 0.12s ease,
+            color 0.15s ease,
+            box-shadow 0.15s ease;
+    }
+
+    .panel-navigator-btn svg {
+        width: 20px;
+        height: 20px;
+        stroke-width: 2;
+    }
+
+    .panel-navigator-btn:active {
+        background: rgba(255, 255, 255, 0.22);
+        transform: scale(0.94);
+    }
+
+    /* =========================
+       BOTÓN STOP / RESET (CENTRAL)
+       ========================= */
+
+    .panel-navigator-btn-reset {
+        width: 62px;
+        height: 62px;
         border-radius: 50%;
 
         display: flex;
         align-items: center;
         justify-content: center;
 
+        background: radial-gradient(
+            circle at 30% 30%,
+            #ff6b6b,
+            #c83434
+        );
+
         color: #fff;
-        background: rgba(255, 255, 255, 0.08);
 
-        cursor: pointer;
-        transition: background 0.15s ease, transform 0.1s ease;
+        box-shadow:
+            0 6px 16px rgba(0, 0, 0, 0.45),
+            inset 0 0 0 2px rgba(255, 255, 255, 0.15);
+
+        transition:
+            transform 0.15s ease,
+            box-shadow 0.15s ease,
+            filter 0.15s ease;
     }
 
-    .panel-navigator-btn svg {
-        width: 18px;
-        height: 18px;
-    }
-
-    .panel-navigator-btn:active {
-        background: rgba(255, 255, 255, 0.25);
-        transform: scale(0.94);
-    }
-
-    /* =========================
-       BOTÓN RESET (CENTRAL)
-       ========================= */
-    .panel-navigator-btn-reset {
-        background: #ff3b30; /* rojo reset */
-        color: #fff;
-        font-weight: bold;
+    .panel-navigator-btn-reset svg {
+        width: 26px;
+        height: 26px;
+        stroke-width: 2.4;
     }
 
     .panel-navigator-btn-reset:active {
-        background: #ff1f1f;
         transform: scale(0.92);
+        filter: brightness(1.1);
     }
 
+    /* =========================
+       ESTADO LOCKED (EMERGENCIA ACTIVA)
+       ========================= */
+
+    .panel-navigator-btn-reset.is-locked {
+        transform: translateY(2px);
+        filter: brightness(0.85) saturate(1.15);
+
+        box-shadow:
+            0 3px 10px rgba(0, 0, 0, 0.65),
+            inset 0 0 0 3px rgba(255, 255, 255, 0.18),
+            inset 0 10px 18px rgba(0, 0, 0, 0.55),
+            inset 0 -2px 6px rgba(255, 0, 0, 0.25);
+    }
+
+    .panel-navigator-btn-reset.is-locked:active {
+        transform: translateY(2px) scale(0.96);
+        filter: brightness(0.82);
+    }
+
+    /* =========================
+       SLOT VACÍO (layout estable)
+       ========================= */
+
     .panel-navigator-btn-empty {
-        background: transparent;
+        width: 44px;
+        height: 44px;
+        opacity: 0;
         pointer-events: none;
+    }
 }
 
+/* =====================================================
+   EXTRA SMALL (≤380px) — Galaxy S9 / SE
+   ===================================================== */
+@media (max-width: 380px) {
+    .panel-navigator {
+        width: 96vw;
+        padding: 10px 14px;
+        gap: 10px;
+    }
 }

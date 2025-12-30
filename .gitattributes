@@ -1,0 +1,12 @@
+# IMPORTANTE:
+# Estos archivos son artefactos binarios del WebUI para el ESP32 (HTML comprimido en gzip).
+# Git NO debe modificar saltos de línea ni el contenido, o el firmware se rompe.
+bundle-*.html   -text
+bundle-*.json   -text
+*.gz            -text
+*.bin           -text
+*.dat           -text
+
+# Optional: all web build outputs
+dist/**         -text
+build/**        -text
