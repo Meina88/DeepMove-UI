@@ -1,6 +1,9 @@
 @media (max-width: 480px) {
 
-    /* utilidades */
+    /* ======================================================
+       UTILIDADES
+       ====================================================== */
+
     .hide-low {
         display: none !important;
     }
@@ -21,21 +24,30 @@
     }
 
     /* ======================================================
-       SCROLLER REAL + SNAP (1 panel = 1 pantalla)
+       VARIABLES DE LAYOUT (CLAVE)
        ====================================================== */
 
-    /* ESTE es el scroller real */
+    :root {
+        --panel-gap-top: 16px;
+        --panel-gap-side: 8px;
+        --panel-gap-bottom: 16px;
+        --panel-nav-height: 110px; /* panel flotante */
+    }
+
+    /* ======================================================
+       SCROLLER REAL + SNAP
+       ====================================================== */
+
+    /* ESTE es el único scroller */
     #main.main-page-container {
         height: 100dvh;
         overflow-y: auto;
 
-        /* aire entre header y primer panel */
-        padding-top: 16px;
+        padding-top: var(--panel-gap-top);
         box-sizing: border-box;
 
-        /* scroll snap */
         scroll-snap-type: y mandatory;
-        scroll-padding-top: 16px; /* 🔥 clave: mismo valor que padding-top */
+        scroll-padding-top: var(--panel-gap-top);
     }
 
     /* dashboard NO scrollea */
@@ -57,13 +69,23 @@
        ====================================================== */
 
     .panel {
-        height: 86dvh !important;        /* altura visible del panel */
+        height: calc(
+            100dvh
+            - var(--panel-gap-top)
+            - var(--panel-nav-height)
+        ) !important;
+
         max-height: 100dvh !important;
 
         scroll-snap-align: start;
 
-        overflow: hidden !important;     /* sin scroll interno */
-        margin: 0 0 6dvh 0 !important;   /* aire entre panels */
+        overflow: hidden !important;
+
+        margin:
+            0
+            var(--panel-gap-side)
+            calc(var(--panel-nav-height) + var(--panel-gap-bottom))
+            var(--panel-gap-side) !important;
 
         display: flex;
         flex-direction: column;
