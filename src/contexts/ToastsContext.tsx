@@ -70,22 +70,69 @@ const ToastsContextProvider: FunctionalComponent<ToastsContextProviderProps> = (
 	const notificationsRef = useRef<Notification[]>(notifications)
 	notificationsRef.current = notifications
 
-	const addToast = useCallback((newToast: Omit<Toast, "id">) => {
-		const id = generateUID()
-		const now = new Date()
-		const time =
-			`${now.getHours().toString().padStart(2, "0") 
-			}:${ 
-			now.getMinutes().toString().padStart(2, "0") 
-			}:${ 
-			now.getSeconds().toString().padStart(2, "0")}`
+const addToast = useCallback((newToast: Omit<Toast, "id">) => {
+    const key =
+        `${newToast.type}:${
+            typeof newToast.content === "string"
+                ? newToast.content.trim()
+                : "[jsx]"
+        }`
 
-		setToasts([...toastsRef.current, { ...newToast, id }])
-		setNotifications([
-			...notificationsRef.current,
-			{ ...newToast, id, time },
-		])
-	}, [])
+    const existingIndex = toastsRef.current.findIndex(t => {
+        const existingKey =
+            `${t.type}:${
+                typeof t.content === "string"
+                    ? t.content.trim()
+                    : "[jsx]"
+            }`
+        return existingKey === key
+    })
+
+    const now = new Date()
+    const time =
+        `${now.getHours().toString().padStart(2, "0")
+        }:${now.getMinutes().toString().padStart(2, "0")
+        }:${now.getSeconds().toString().padStart(2, "0")}`
+
+    // 🔁 Si el toast ya existe → lo refrescamos
+    if (existingIndex !== -1) {
+        const existingToast = toastsRef.current[existingIndex]
+
+        const refreshedToast = {
+            ...existingToast,
+            id: generateUID(), // nuevo id → reinicia el timeout
+        }
+
+        const newToastList = [
+            ...toastsRef.current.slice(0, existingIndex),
+            refreshedToast,
+            ...toastsRef.current.slice(existingIndex + 1),
+        ]
+
+        toastsRef.current = newToastList
+        setToasts(newToastList)
+
+        // también refrescamos notifications
+        setNotifications([
+            ...notificationsRef.current,
+            { ...newToast, id: refreshedToast.id, time },
+        ])
+
+        return
+    }
+
+    // 🆕 Toast nuevo
+    const id = generateUID()
+
+    setToasts([...toastsRef.current, { ...newToast, id }])
+    setNotifications([
+        ...notificationsRef.current,
+        { ...newToast, id, time },
+    ])
+}, [])
+
+
+
 
 	const clearNotifications = useCallback(() => {
 		setNotifications([])
