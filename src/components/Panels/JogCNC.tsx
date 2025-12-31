@@ -40,7 +40,8 @@ let currentAxis: string = "-1"
 
 const feedList = ["XY", "Z", "A", "B", "C", "U", "V", "W"]
 const selectableAxisLettersList = ["A", "B", "C", "U", "V", "W"]
-const CONTINUOUS_JOG_DELAY = 150
+let audioCtx: AudioContext | null = null
+const CONTINUOUS_JOG_DELAY = 200
 const CONTINUOUS_DISTANCE = 5000
 
 /*
@@ -146,6 +147,38 @@ const JogPanel = () => {
     const [jogTimer, setJogTimer] = useState<number | null>(null)
     const [continuousActive, setContinuousActive] = useState(false)
     const id = "jogPanel"
+
+const beep = (freq = 2000, duration = 40) => {
+    try {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)()
+        }
+
+        if (audioCtx.state === "suspended") {
+            audioCtx.resume()
+        }
+
+        const osc = audioCtx.createOscillator()
+        const gain = audioCtx.createGain()
+
+        osc.type = "square"
+        osc.frequency.value = freq
+        gain.gain.value = 0.1
+
+        osc.connect(gain)
+        gain.connect(audioCtx.destination)
+
+        osc.start()
+        osc.stop(audioCtx.currentTime + duration / 1000)
+    } catch (e) {
+        console.warn("Beep failed", e)
+    }
+}
+
+
+
+    const haptic = () => {useUiContextFn.haptic()}
+
 
         // Go to machine zero (G53)
     const goToMachineZero = () => {
@@ -313,38 +346,62 @@ const cancelJog = () => {
     targetCommands("\x85")
 }
 
+const forceCancelJog = () => {
+    if (jogTimer) {
+        clearTimeout(jogTimer)
+        setJogTimer(null)
+    }
+
+    if (continuousActive) {
+        cancelJog()
+        setContinuousActive(false)
+    }
+
+    // restaurar scroll si lo bloqueamos
+    document.body.style.overflow = ""
+}
+
+
     const jogPressHandlers = (axis: string) => ({
-    onPointerDown: () => {
-        useUiContextFn.haptic()
+onPointerDown: () => {
+    useUiContextFn.haptic()
+    document.body.style.overflow = "hidden"
+
 
         const timer = window.setTimeout(() => {
             setContinuousActive(true)
+            beep(1200, 60) 
             sendContinuousJog(axis)
         }, CONTINUOUS_JOG_DELAY)
 
         setJogTimer(timer)
     },
 
-    onPointerUp: () => {
-        if (jogTimer) {
-            clearTimeout(jogTimer)
-            setJogTimer(null)
-        }
-
-        if (continuousActive) {
-            cancelJog()
-            setContinuousActive(false)
-        } else {
-            sendJogCommand(axis)
-        }
-    },
-
-    onPointerLeave: () => {
-        if (continuousActive) {
-            cancelJog()
-            setContinuousActive(false)
-        }
+onPointerUp: () => {
+    if (jogTimer) {
+        clearTimeout(jogTimer)
+        setJogTimer(null)
     }
+
+if (continuousActive) {
+    forceCancelJog()
+} else {
+    beep(2000, 30)
+    sendJogCommand(axis)
+    document.body.style.overflow = ""
+}
+
+},
+
+
+onPointerLeave: () => {
+    forceCancelJog()
+},
+
+onPointerCancel: () => {
+    forceCancelJog()
+}
+
 })
 
     //Set the current feedrate for axis//
@@ -465,9 +522,16 @@ useEffect(() => {
         setCurrentSelectedAxis(currentAxis)
     }
 
+const onScroll = () => {
+    forceCancelJog()
+}
+
+window.addEventListener("scroll", onScroll, { passive: true })
+
+
     return () => {
-    if (jogTimer) clearTimeout(jogTimer)
-    if (continuousActive) cancelJog()
+        window.removeEventListener("scroll", onScroll)
+        forceCancelJog()
 }
 
 }, [])   // ⬅️ CLAVE ABSOLUTA
@@ -518,6 +582,7 @@ useEffect(() => {
                                                 <div
                                                     class="menu-entry"
                                                     onClick={(_e: any) => {
+                                                        beep()
                                                         useUiContextFn.haptic()
                                                         setFeedrate(letter)
                                                     }}
@@ -569,21 +634,28 @@ useEffect(() => {
                 />                
             {/* === GLOBAL ACTIONS (BOTTOM) === */}
             <div class="jog-global-row">
-                <Button
-                    m2
-                    class="jog-global-btn"
-                    onClick={() => sendHomeCommand("")}
-                >
+            <Button
+                m2
+                class="jog-global-btn"
+                onClick={() => {
+                    beep()
+                    sendHomeCommand("")
+                }}
+            >
                     Home XYZ
-                </Button>
+            </Button>
 
-                <Button
-                    m2
-                    class="jog-global-btn"
-                    onClick={() => sendZeroCommand("")}
-                >
+            <Button
+                m2
+                class="jog-global-btn"
+                onClick={() => {
+                    beep()
+                    sendZeroCommand("")
+                }}
+            >
+
                     Zero XYZ
-                </Button>
+            </Button>
             </div>
             <div class="jog-buttons-main-container">
 
@@ -601,6 +673,7 @@ useEffect(() => {
                     <div
                         class="jog-step-knob"
                         onClick={() => {
+                            beep()
                             useUiContextFn.haptic()
                             rotateJogStep()
                         }}
@@ -659,6 +732,7 @@ useEffect(() => {
                             class="d-none"
                             id="btnaxisSel-"
                             onClick={() => {
+                                beep()
                                 selectorBtn("prev")
                             }}
                         />
@@ -667,6 +741,7 @@ useEffect(() => {
                                 id="selectAxisList"
                                 class="form-select"
                                 onChange={(e: any) => {
+                                    haptic()
                                     onChangeAxis(e)
                                 }}
                                 value={currentSelectedAxis}
@@ -693,6 +768,7 @@ useEffect(() => {
                             data-tooltip={T("CN12")}
                             id="btn+axis"
                             onClick={(e: any) => {
+                                beep()
                                 useUiContextFn.haptic();
                                 (e.target as HTMLElement).blur();
                                 sendJogCommand("Axis+")
@@ -707,6 +783,7 @@ useEffect(() => {
                             data-tooltip={T("CN13")}
                             id="btn-axis"
                             onClick={(e: any) => {
+                                beep()
                                 useUiContextFn.haptic();
                                 (e.target as HTMLElement).blur();
                                 sendJogCommand("Axis-")
