@@ -143,6 +143,18 @@ const JogPanel = () => {
     const [jogDistanceXYZ, setJogDistanceXYZ] = useState<number>(100)
     const id = "jogPanel"
 
+        // Go to machine zero (G53)
+    const goToMachineZero = () => {
+        useUiContextFn.haptic()
+        targetCommands("G53 G0 X0 Y0 Z0")
+    }
+
+    // Go to work zero
+    const goToWorkZero = () => {
+        useUiContextFn.haptic()
+        targetCommands("G0 X0 Y0 Z0")
+    }
+
     // 🔁 rota el stepping: 100 → 10 → 1 → 0.1 → 100
 const rotateJogStep = () => {
     setJogDistanceXYZ((prev) => {
@@ -460,47 +472,79 @@ useEffect(() => {
                 </span>
             </div>
             <div class="m-1 jog-container">
+            {/* === GO TO BUTTONS (TOP) === */}
+            <div class="jog-goto-row">
+                <Button
+                    m2
+                    class="jog-goto-btn"
+                    onClick={goToMachineZero}
+                >
+                    Go to M0
+                </Button>
+
+                <Button
+                    m2
+                    class="jog-goto-btn"
+                    onClick={goToWorkZero}
+                >
+                    Go to W0
+                </Button>
+            </div>
                 <PositionsControls
                     onWPosClick={showMoveToDialog}
                     onHomeAxis={sendHomeCommand}
                     onZeroAxis={sendZeroCommand}
-                />
+                />                
+            {/* === GLOBAL ACTIONS (BOTTOM) === */}
+            <div class="jog-global-row">
+                <Button
+                    m2
+                    class="jog-global-btn"
+                    onClick={() => sendHomeCommand("")}
+                >
+                    Home XYZ
+                </Button>
+
+                <Button
+                    m2
+                    class="jog-global-btn"
+                    onClick={() => sendZeroCommand("")}
+                >
+                    Zero XYZ
+                </Button>
+            </div>
+            <div class="jog-buttons-main-container">
+
+            {/* XY */}
+            <div class="jog-axis-group">
+                <div class="jog-xy-pad">
+
+                    {/* +Y */}
+                    <Button m2 onClick={() => sendJogCommand("Y+")}>+Y</Button>
+
+                    {/* -X */}
+                    <Button m2 onClick={() => sendJogCommand("X-")}>-X</Button>
+
+                    {/* 🔵 PERILLA (solo visual) */}
+                    <div
+                        class="jog-step-knob"
+                        onClick={() => {
+                            useUiContextFn.haptic()
+                            rotateJogStep()
+                        }}
+                    >
+                        {jogDistanceXYZ}
+                    </div>
 
 
-<div class="jog-buttons-main-container">
+                    {/* +X */}
+                    <Button m2 onClick={() => sendJogCommand("X+")}>+X</Button>
 
-{/* XY */}
-<div class="jog-axis-group">
-    <div class="jog-xy-pad">
+                    {/* -Y */}
+                    <Button m2 onClick={() => sendJogCommand("Y-")}>-Y</Button>
 
-        {/* +Y */}
-        <Button m2 onClick={() => sendJogCommand("Y+")}>+Y</Button>
-
-        {/* -X */}
-        <Button m2 onClick={() => sendJogCommand("X-")}>-X</Button>
-
-        {/* 🔵 PERILLA (solo visual) */}
-        <div
-            class="jog-step-knob"
-            onClick={() => {
-                useUiContextFn.haptic()
-                rotateJogStep()
-            }}
-        >
-            {jogDistanceXYZ}
-        </div>
-
-
-        {/* +X */}
-        <Button m2 onClick={() => sendJogCommand("X+")}>+X</Button>
-
-        {/* -Y */}
-        <Button m2 onClick={() => sendJogCommand("Y-")}>-Y</Button>
-
-    </div>
-</div>
-
-
+                </div>
+            </div>
     {/* Z */}
     {(typeof positions.z !== "undefined" ||
         typeof positions.wz !== "undefined") &&
@@ -600,70 +644,7 @@ useEffect(() => {
                         </Button>
                     </div>
                 )}
-                {(positions.x ||
-                    positions.wx ||
-                    positions.y ||
-                    positions.wy ||
-                    positions.z ||
-                    positions.wz ||
-                    positions.a ||
-                    positions.wa ||
-                    positions.b ||
-                    positions.wb ||
-                    positions.c ||
-                    positions.wc) && (
-                    <div class="jog-extra-buttons-container">
-                        <Button
-                            m1
-                            tooltip
-                            data-tooltip={T("CN21")}
-                            id="btnHAll"
-                            onClick={(e: any) => {
-                                useUiContextFn.haptic();
-                                (e.target as HTMLElement).blur();
-                                sendHomeCommand("")
-                            }}
-                        >
-                            <Home />
-                            <MoreHorizontal />
-                        </Button>
-                        <Button
-                            m1
-                            tooltip
-                            data-tooltip={T("CN20")}
-                            id="btnZAll"
-                            onClick={(e: any) => {
-                                useUiContextFn.haptic();
-                                (e.target as HTMLElement).blur();
-                                sendZeroCommand("")
-                            }}
-                        >
-                            <label class="text-like-icon">
-                                &Oslash;
-                            </label>
-                            <MoreHorizontal />
-                        </Button>
-                        <ButtonImg
-                            m1
-                            tooltip
-                            label={T("CN23")}
-                            id="btnStop"
-                            icon={
-                                <span class="text-error">
-                                    <StopCircle />
-                                </span>
-                            }
-                            data-tooltip={T("CN23")}
-                            onClick={(e: any) => {
-                                useUiContextFn.haptic();
-                                (e.target as HTMLElement).blur();
-                                const cmds = useUiContextFn
-                                    .getValue("jogstopcmd")
-                                targetCommands(cmds, ";")
-                            }}
-                        />
-                    </div>
-                )}
+               
             </div>
         </div>
     )

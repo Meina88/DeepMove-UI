@@ -239,4 +239,25 @@
 
 
 
+/* =========================
+   GO TO / GLOBAL BUTTONS botones gotoH, goto W0, homing all y  set W0 all.
+   ========================= */
+
+.jog-goto-row,
+.jog-global-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 1px 0;
+}
+
+.jog-goto-btn,
+.jog-global-btn {
+    flex: 1;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+
+
 
