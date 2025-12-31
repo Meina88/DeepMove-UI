@@ -40,6 +40,8 @@ let currentAxis: string = "-1"
 
 const feedList = ["XY", "Z", "A", "B", "C", "U", "V", "W"]
 const selectableAxisLettersList = ["A", "B", "C", "U", "V", "W"]
+const CONTINUOUS_JOG_DELAY = 150
+const CONTINUOUS_DISTANCE = 5000
 
 /*
  * Local const
@@ -141,6 +143,8 @@ const JogPanel = () => {
     const { modals } = useModalsContext()
     const [currentSelectedAxis, setCurrentSelectedAxis] = useState(currentAxis)    
     const [jogDistanceXYZ, setJogDistanceXYZ] = useState<number>(100)
+    const [jogTimer, setJogTimer] = useState<number | null>(null)
+    const [continuousActive, setContinuousActive] = useState(false)
     const id = "jogPanel"
 
         // Go to machine zero (G53)
@@ -281,6 +285,68 @@ const rotateJogStep = () => {
             `$J=G91 G21 ${selected_axis  }${distance  } F${feedrate}`
         targetCommands(cmd)
     }
+    const getContinuousFeedrate = (axis: string) => {
+    let baseFeed =
+        axis.startsWith("X") || axis.startsWith("Y")
+            ? currentFeedRate["XY"]
+            : axis.startsWith("Z")
+                ? currentFeedRate["Z"]
+                : currentFeedRate[currentAxis]
+
+    switch (jogDistanceXYZ) {
+        case 100: return baseFeed
+        case 10: return baseFeed / 2
+        case 1: return baseFeed / 4
+        case 0.1: return baseFeed / 8
+        default: return baseFeed
+    }
+}
+
+const sendContinuousJog = (axis: string) => {
+    const feed = getContinuousFeedrate(axis)
+    const cmd = `$J=G91 G21 ${axis}${CONTINUOUS_DISTANCE} F${feed}`
+    targetCommands(cmd)
+}
+
+const cancelJog = () => {
+    // Jog Cancel es un comando realtime (un byte), NO gcode
+    targetCommands("\x85")
+}
+
+    const jogPressHandlers = (axis: string) => ({
+    onPointerDown: () => {
+        useUiContextFn.haptic()
+
+        const timer = window.setTimeout(() => {
+            setContinuousActive(true)
+            sendContinuousJog(axis)
+        }, CONTINUOUS_JOG_DELAY)
+
+        setJogTimer(timer)
+    },
+
+    onPointerUp: () => {
+        if (jogTimer) {
+            clearTimeout(jogTimer)
+            setJogTimer(null)
+        }
+
+        if (continuousActive) {
+            cancelJog()
+            setContinuousActive(false)
+        } else {
+            sendJogCommand(axis)
+        }
+    },
+
+    onPointerLeave: () => {
+        if (continuousActive) {
+            cancelJog()
+            setContinuousActive(false)
+        }
+    }
+})
+
     //Set the current feedrate for axis//
     const setFeedrate = (axis: string) => {
         let value = currentFeedRate[axis]
@@ -398,6 +464,12 @@ useEffect(() => {
 
         setCurrentSelectedAxis(currentAxis)
     }
+
+    return () => {
+    if (jogTimer) clearTimeout(jogTimer)
+    if (continuousActive) cancelJog()
+}
+
 }, [])   // ⬅️ CLAVE ABSOLUTA
 
 
@@ -520,10 +592,10 @@ useEffect(() => {
                 <div class="jog-xy-pad">
 
                     {/* +Y */}
-                    <Button m2 onClick={() => sendJogCommand("Y+")}>+Y</Button>
+                    <Button m2 {...jogPressHandlers("Y+")}>+Y</Button>
 
                     {/* -X */}
-                    <Button m2 onClick={() => sendJogCommand("X-")}>-X</Button>
+                    <Button m2 {...jogPressHandlers("X-")}>-X</Button>
 
                     {/* 🔵 PERILLA (solo visual) */}
                     <div
@@ -538,10 +610,10 @@ useEffect(() => {
 
 
                     {/* +X */}
-                    <Button m2 onClick={() => sendJogCommand("X+")}>+X</Button>
+                    <Button m2 {...jogPressHandlers("X+")}>+X</Button>
 
                     {/* -Y */}
-                    <Button m2 onClick={() => sendJogCommand("Y-")}>-Y</Button>
+                    <Button m2 {...jogPressHandlers("Y-")}>-Y</Button>
 
                 </div>
             </div>
@@ -551,12 +623,12 @@ useEffect(() => {
         useUiContextFn.getValue("showz") && (
             <div class="jog-axis-group">
                 <div class="m-1 jog-buttons-container">
-                    <Button m2 onClick={() => sendJogCommand("Z+")}>
-                        +Z
-                    </Button>
-                    <Button m2 onClick={() => sendJogCommand("Z-")}>
-                        -Z
-                    </Button>
+                        <Button m2 {...jogPressHandlers("Z+")}>
+                            +Z
+                        </Button>
+                        <Button m2 {...jogPressHandlers("Z-")}>
+                            -Z
+                        </Button>
                 </div>
             </div>
         )}
