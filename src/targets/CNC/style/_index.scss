@@ -205,3 +205,38 @@
 .jog-position-action {
     height: fit-content;
 }
+
+
+
+.jog-xy-pad {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: auto auto auto;
+    gap: 12px;
+    justify-items: center;
+    align-items: center;
+}
+
+/* proximas 20 filas, posiciones en grilla de los botones del jog */
+.jog-xy-pad > button:nth-child(1) { grid-column: 2; grid-row: 1; } /* +Y */
+.jog-xy-pad > button:nth-child(2) { grid-column: 1; grid-row: 2; } /* -X */
+.jog-xy-pad > div                { grid-column: 2; grid-row: 2; } /* knob */
+.jog-xy-pad > button:nth-child(4) { grid-column: 3; grid-row: 2; } /* +X */
+.jog-xy-pad > button:nth-child(5) { grid-column: 2; grid-row: 3; } /* -Y */
+
+.jog-step-knob {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    border: 2px solid var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+    background: white;
+}
+
+
+
+
