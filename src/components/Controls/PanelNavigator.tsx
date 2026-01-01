@@ -1,12 +1,13 @@
 import { FunctionalComponent } from "preact"
 import { useEffect, useRef, useState } from "preact/hooks"
-import { useUiContext } from "../../contexts"
+import { useUiContext, useUiContextFn } from "../../contexts"
 import { useTargetCommands } from "../../hooks"
 import { useTargetContext } from "../../targets"
 import { iconsFeather } from "../Images"
 import { iconsTarget } from "../../targets"
 import { T } from "../Translations"
 import { Octagon } from "preact-feather"
+
 
 const iconsList: Record<string, any> = {
   ...iconsTarget,
@@ -21,6 +22,7 @@ const UNLOCK = "$X"
 
 const PanelNavigator: FunctionalComponent = () => {
   const { panels } = useUiContext()
+  const uiFn = useUiContextFn
   const { targetCommands } = useTargetCommands()
   const { status } = useTargetContext() as any
 
@@ -57,28 +59,23 @@ const PanelNavigator: FunctionalComponent = () => {
   }, [machineState, isLatched])
 
   const onResetPress = () => {
-    // siempre envía soft reset
-    targetCommands(SOFT_RESET)
+  useUiContextFn.haptic([50, 80, 50, 80, 50]) // 🔴 patrón especial RESET
+  targetCommands(SOFT_RESET)
 
-    // 1) Si NO estaba latcheado:
-    //    solo lo latcheamos si la máquina NO está Idle (porque ahí lo “acepta” y queda frenada)
-    if (!isLatched) {
-      if (machineState !== "Idle") {
-        setIsLatched(true)
-      }
-      return
+  if (!isLatched) {
+    if (machineState !== "Idle") {
+      setIsLatched(true)
     }
-
-    // 2) Si YA estaba latcheado:
-    //    armamos el unlock por hold 200ms (mantiene soft reset al down, y unlock al cumplir tiempo)
-    unlockArmed.current = true
-    unlockTimer.current = window.setTimeout(() => {
-      targetCommands(UNLOCK)
-      clearUnlockTimer()
-      // ❗ No hacemos setIsLatched(false) acá.
-      //     Dejamos que el estado (Idle) lo suelte, porque es la verdad.
-    }, UNLOCK_PRESS_MS)
+    return
   }
+
+  unlockArmed.current = true
+  unlockTimer.current = window.setTimeout(() => {
+    targetCommands(UNLOCK)
+    clearUnlockTimer()
+  }, UNLOCK_PRESS_MS)
+}
+
 
   const onResetRelease = () => {
     // si soltó antes de 200ms, cancelamos unlock
@@ -140,7 +137,10 @@ const PanelNavigator: FunctionalComponent = () => {
           <button
             key={panelId}
             class="panel-navigator-btn"
-            onClick={() => goToPanel(panelId)}
+              onClick={() => {
+                uiFn.haptic()
+                goToPanel(panelId)
+              }}
             title={T(panelName)}
           >
             {iconsList[iconKey] ?? iconKey}

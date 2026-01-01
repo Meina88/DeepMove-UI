@@ -19,7 +19,7 @@ SpindleCNC.js - ESP3D WebUI component file
 import { Fragment,  TargetedMouseEvent } from "preact"
 import type { FunctionalComponent } from "preact"
 import { T } from "../Translations"
-import { Repeat } from "preact-feather"
+import { Repeat, Play, Pause } from "preact-feather"
 import { useUiContextFn } from "../../contexts"
 import { useTargetContext } from "../../targets"
 import { ButtonImg, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
@@ -75,6 +75,7 @@ type ButtonsGroup = { label: string; buttons: ButtonConfig[] }
 
 const OverridesPanel: FunctionalComponent = () => {
     const { targetCommands } = useTargetCommands()
+    const { status } = useTargetContext() as { status?: { state?: string } }
     const id = "OverridesPanel"
 
     const buttons_list: ButtonsGroup[] = [
@@ -221,6 +222,28 @@ const OverridesPanel: FunctionalComponent = () => {
                         </fieldset>
                     )
                 })}
+                    {(status?.state === "Run" || status?.state === "Hold") && (
+                        <div style="display:flex; justify-content:center; margin-top:24px;">
+                            <ButtonImg
+                                icon={status.state === "Hold" ? <Play /> : <Pause />}
+                                tooltip
+                                data-tooltip={
+                                    status.state === "Hold"
+                                        ? T("CN61")   // Cycle Start
+                                        : T("Hold")
+                                }
+                                onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
+                                    useUiContextFn.haptic()
+                                    e.currentTarget.blur()
+                                    targetCommands(
+                                        status.state === "Hold"
+                                            ? "#CYCLESTART#"
+                                            : "#FEEDHOLD#"
+                                    )
+                                }}
+                            />
+                        </div>
+                    )}
             </div>
         </div>
     )
