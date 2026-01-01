@@ -40,7 +40,7 @@ let currentAxis: string = "-1"
 
 const feedList = ["XY", "Z", "A", "B", "C", "U", "V", "W"]
 const selectableAxisLettersList = ["A", "B", "C", "U", "V", "W"]
-let audioCtx: AudioContext | null = null
+
 const CONTINUOUS_JOG_DELAY = 200
 const CONTINUOUS_DISTANCE = 5000
 
@@ -142,45 +142,15 @@ const PositionsControls = ({
 const JogPanel = () => {
     const { positions } = useTargetContext()
     const { modals } = useModalsContext()
-    const [currentSelectedAxis, setCurrentSelectedAxis] = useState(currentAxis)    
+    const [currentSelectedAxis, setCurrentSelectedAxis] = useState(currentAxis)
     const [jogDistanceXYZ, setJogDistanceXYZ] = useState<number>(100)
     const [jogTimer, setJogTimer] = useState<number | null>(null)
     const [continuousActive, setContinuousActive] = useState(false)
     const id = "jogPanel"
-
-const beep = (freq = 2000, duration = 40) => {
-    try {
-        if (!audioCtx) {
-            audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)()
-        }
-
-        if (audioCtx.state === "suspended") {
-            audioCtx.resume()
-        }
-
-        const osc = audioCtx.createOscillator()
-        const gain = audioCtx.createGain()
-
-        osc.type = "square"
-        osc.frequency.value = freq
-        gain.gain.value = 0.1
-
-        osc.connect(gain)
-        gain.connect(audioCtx.destination)
-
-        osc.start()
-        osc.stop(audioCtx.currentTime + duration / 1000)
-    } catch (e) {
-        console.warn("Beep failed", e)
-    }
-}
+    const haptic = () => { useUiContextFn.haptic() }
 
 
-
-    const haptic = () => {useUiContextFn.haptic()}
-
-
-        // Go to machine zero (G53)
+    // Go to machine zero (G53)
     const goToMachineZero = () => {
         useUiContextFn.haptic()
         targetCommands("G53 G0 X0 Y0 Z0")
@@ -193,13 +163,13 @@ const beep = (freq = 2000, duration = 40) => {
     }
 
     // 🔁 rota el stepping: 100 → 10 → 1 → 0.1 → 100
-const rotateJogStep = () => {
-    setJogDistanceXYZ((prev) => {
-        const idx = jogStepsXYZ.indexOf(prev as any)
-        const nextIdx = (idx + 1) % jogStepsXYZ.length
-        return jogStepsXYZ[nextIdx]
-    })
-}
+    const rotateJogStep = () => {
+        setJogDistanceXYZ((prev) => {
+            const idx = jogStepsXYZ.indexOf(prev as any)
+            const nextIdx = (idx + 1) % jogStepsXYZ.length
+            return jogStepsXYZ[nextIdx]
+        })
+    }
 
 
     const onChangeAxis = (e: any) => {
@@ -224,13 +194,13 @@ const rotateJogStep = () => {
     //Send Zero command
     const sendZeroCommand = (axis: string) => {
         let selected_axis: string
-        if (axis == "Axis") selected_axis = `${currentAxis  }0`
-        else selected_axis = `${axis  }0`
+        if (axis == "Axis") selected_axis = `${currentAxis}0`
+        else selected_axis = `${axis}0`
         if (axis.length == 0) {
             selected_axis = ""
             "xyzabcuvw".split("").reduce((acc, letter) => {
                 if (positions[letter] || positions[`w${letter}`])
-                    acc += selected_axis += ` ${letter.toUpperCase()  }0`
+                    acc += selected_axis += ` ${letter.toUpperCase()}0`
                 return acc
             }, "")
         }
@@ -241,14 +211,14 @@ const rotateJogStep = () => {
     }
 
     const sendMoveToCommand = (axis: string, targetPosition: string) => {
-       let upperAxis = axis.toUpperCase()
-       let selected_axis: string
+        let upperAxis = axis.toUpperCase()
+        let selected_axis: string
         let feedrate =
             upperAxis.startsWith("X") || upperAxis.startsWith("Y")
                 ? currentFeedRate["XY"]
                 : upperAxis.startsWith("Z")
-                  ? currentFeedRate["Z"]
-                  : currentFeedRate[currentAxis]
+                    ? currentFeedRate["Z"]
+                    : currentFeedRate[currentAxis]
         if (axis.startsWith("Axis"))
             selected_axis = axis.replace("Axis", currentAxis)
         else selected_axis = axis
@@ -305,8 +275,8 @@ const rotateJogStep = () => {
             axis.startsWith("X") || axis.startsWith("Y")
                 ? currentFeedRate["XY"]
                 : axis.startsWith("Z")
-                  ? currentFeedRate["Z"]
-                  : currentFeedRate[currentAxis]
+                    ? currentFeedRate["Z"]
+                    : currentFeedRate[currentAxis]
 
         distance = jogDistanceXYZ
 
@@ -315,104 +285,102 @@ const rotateJogStep = () => {
             selected_axis = axis.replace("Axis", currentAxis)
         else selected_axis = axis
         let cmd =
-            `$J=G91 G21 ${selected_axis  }${distance  } F${feedrate}`
+            `$J=G91 G21 ${selected_axis}${distance} F${feedrate}`
         targetCommands(cmd)
     }
     const getContinuousFeedrate = (axis: string) => {
-    let baseFeed =
-        axis.startsWith("X") || axis.startsWith("Y")
-            ? currentFeedRate["XY"]
-            : axis.startsWith("Z")
-                ? currentFeedRate["Z"]
-                : currentFeedRate[currentAxis]
+        let baseFeed =
+            axis.startsWith("X") || axis.startsWith("Y")
+                ? currentFeedRate["XY"]
+                : axis.startsWith("Z")
+                    ? currentFeedRate["Z"]
+                    : currentFeedRate[currentAxis]
 
-    switch (jogDistanceXYZ) {
-        case 100: return baseFeed
-        case 10: return baseFeed / 2
-        case 1: return baseFeed / 4
-        case 0.1: return baseFeed / 8
-        default: return baseFeed
-    }
-}
-
-const sendContinuousJog = (axis: string) => {
-    const feed = getContinuousFeedrate(axis)
-    const cmd = `$J=G91 G21 ${axis}${CONTINUOUS_DISTANCE} F${feed}`
-    targetCommands(cmd)
-}
-
-const cancelJog = () => {
-    // Jog Cancel es un comando realtime (un byte), NO gcode
-    targetCommands("\x85")
-}
-
-const forceCancelJog = () => {
-    if (jogTimer) {
-        clearTimeout(jogTimer)
-        setJogTimer(null)
+        switch (jogDistanceXYZ) {
+            case 100: return baseFeed
+            case 10: return baseFeed / 2
+            case 1: return baseFeed / 4
+            case 0.1: return baseFeed / 8
+            default: return baseFeed
+        }
     }
 
-    if (continuousActive) {
-        cancelJog()
-        setContinuousActive(false)
+    const sendContinuousJog = (axis: string) => {
+        const feed = getContinuousFeedrate(axis)
+        const cmd = `$J=G91 G21 ${axis}${CONTINUOUS_DISTANCE} F${feed}`
+        targetCommands(cmd)
     }
 
-    // restaurar scroll si lo bloqueamos
-    document.body.style.overflow = ""
-}
+    const cancelJog = () => {
+        // Jog Cancel es un comando realtime (un byte), NO gcode
+        targetCommands("\x85")
+    }
+
+    const forceCancelJog = () => {
+        if (jogTimer) {
+            clearTimeout(jogTimer)
+            setJogTimer(null)
+        }
+
+        if (continuousActive) {
+            cancelJog()
+            setContinuousActive(false)
+        }
+
+        // restaurar scroll si lo bloqueamos
+        document.body.style.overflow = ""
+    }
 
 
     const jogPressHandlers = (axis: string) => ({
-onPointerDown: () => {
-    useUiContextFn.haptic()
-    document.body.style.overflow = "hidden"
+        onPointerDown: () => {
+            useUiContextFn.haptic()
+            document.body.style.overflow = "hidden"
 
-    // 🔐 Protección eje Z:
-    // Si estamos en stepping 100 y se toca Z, forzar stepping a 10
-    if (
-        jogDistanceXYZ === 100 &&
-        (axis === "Z+" || axis === "Z-")
-    ) {
-        setJogDistanceXYZ(10)
-    }
-
-
-
-        const timer = window.setTimeout(() => {
-            setContinuousActive(true)
-            beep(1200, 60) 
-            sendContinuousJog(axis)
-        }, CONTINUOUS_JOG_DELAY)
-
-        setJogTimer(timer)
-    },
-
-onPointerUp: () => {
-    if (jogTimer) {
-        clearTimeout(jogTimer)
-        setJogTimer(null)
-    }
-
-if (continuousActive) {
-    forceCancelJog()
-} else {
-    beep(2000, 30)
-    sendJogCommand(axis)
-    document.body.style.overflow = ""
-}
-
-},
+            // 🔐 Protección eje Z:
+            // Si estamos en stepping 100 y se toca Z, forzar stepping a 10
+            if (
+                jogDistanceXYZ === 100 &&
+                (axis === "Z+" || axis === "Z-")
+            ) {
+                setJogDistanceXYZ(10)
+            }
 
 
-onPointerLeave: () => {
-    forceCancelJog()
-},
 
-onPointerCancel: () => {
-    forceCancelJog()
-}
+            const timer = window.setTimeout(() => {
+                setContinuousActive(true)
+                sendContinuousJog(axis)
+            }, CONTINUOUS_JOG_DELAY)
 
-})
+            setJogTimer(timer)
+        },
+
+        onPointerUp: () => {
+            if (jogTimer) {
+                clearTimeout(jogTimer)
+                setJogTimer(null)
+            }
+
+            if (continuousActive) {
+                forceCancelJog()
+            } else {
+                sendJogCommand(axis)
+                document.body.style.overflow = ""
+            }
+
+        },
+
+
+        onPointerLeave: () => {
+            forceCancelJog()
+        },
+
+        onPointerCancel: () => {
+            forceCancelJog()
+        }
+
+    })
 
     //Set the current feedrate for axis//
     const setFeedrate = (axis: string) => {
@@ -468,11 +436,11 @@ onPointerCancel: () => {
         if (type == "prev" || type == "next") {
             const axisList = selectableAxisLettersList.reduce(
                 (acc: string[], letter) => {
-if (
-    (typeof positions[letter.toLowerCase()] !== "undefined" ||
-        typeof positions[`w${letter.toLowerCase()}`] !== "undefined") &&
-    useUiContextFn.getValue(`show${letter.toLowerCase()}`)
-) {
+                    if (
+                        (typeof positions[letter.toLowerCase()] !== "undefined" ||
+                            typeof positions[`w${letter.toLowerCase()}`] !== "undefined") &&
+                        useUiContextFn.getValue(`show${letter.toLowerCase()}`)
+                    ) {
 
 
                         acc.push(letter)
@@ -503,48 +471,48 @@ if (
         }
     }
 
-useEffect(() => {
-    // 🔹 inicializamos el stepping UNA SOLA VEZ
-    setJogDistanceXYZ(jogStepsXYZ[0]) // 100
+    useEffect(() => {
+        // 🔹 inicializamos el stepping UNA SOLA VEZ
+        setJogDistanceXYZ(jogStepsXYZ[0]) // 100
 
-    // 🔹 inicialización de feedrates y eje actual
-    if (currentAxis === "-1") {
-        feedList.forEach((letter) => {
-            if (!currentFeedRate[letter]) {
-                currentFeedRate[letter] = useUiContextFn.getValue(
-                    `${letter.toLowerCase()}feedrate`
-                )
-            }
-        })
-
-        feedList.forEach((letter) => {
-            if (letter !== "XY" && letter !== "Z") {
-                if (
-                    (positions[letter.toLowerCase()] ||
-                        positions[`w${letter.toLowerCase()}`]) &&
-                    useUiContextFn.getValue(`show${letter.toLowerCase()}`)
-                ) {
-                    currentAxis = letter
+        // 🔹 inicialización de feedrates y eje actual
+        if (currentAxis === "-1") {
+            feedList.forEach((letter) => {
+                if (!currentFeedRate[letter]) {
+                    currentFeedRate[letter] = useUiContextFn.getValue(
+                        `${letter.toLowerCase()}feedrate`
+                    )
                 }
-            }
-        })
+            })
 
-        setCurrentSelectedAxis(currentAxis)
-    }
+            feedList.forEach((letter) => {
+                if (letter !== "XY" && letter !== "Z") {
+                    if (
+                        (positions[letter.toLowerCase()] ||
+                            positions[`w${letter.toLowerCase()}`]) &&
+                        useUiContextFn.getValue(`show${letter.toLowerCase()}`)
+                    ) {
+                        currentAxis = letter
+                    }
+                }
+            })
 
-const onScroll = () => {
-    forceCancelJog()
-}
+            setCurrentSelectedAxis(currentAxis)
+        }
 
-window.addEventListener("scroll", onScroll, { passive: true })
+        const onScroll = () => {
+            forceCancelJog()
+        }
+
+        window.addEventListener("scroll", onScroll, { passive: true })
 
 
-    return () => {
-        window.removeEventListener("scroll", onScroll)
-        forceCancelJog()
-}
+        return () => {
+            window.removeEventListener("scroll", onScroll)
+            forceCancelJog()
+        }
 
-}, [])   // ⬅️ CLAVE ABSOLUTA
+    }, [])   // ⬅️ CLAVE ABSOLUTA
 
 
     return (
@@ -592,7 +560,7 @@ window.addEventListener("scroll", onScroll, { passive: true })
                                                 <div
                                                     class="menu-entry"
                                                     onClick={(_e: any) => {
-                                                        beep()
+
                                                         useUiContextFn.haptic()
                                                         setFeedrate(letter)
                                                     }}
@@ -619,105 +587,102 @@ window.addEventListener("scroll", onScroll, { passive: true })
                 </span>
             </div>
             <div class="m-1 jog-container">
-            {/* === GO TO BUTTONS (TOP) === */}
-            <div class="jog-goto-row">
-                <Button
-                    m2
-                    class="jog-goto-btn"
-                    onClick={goToMachineZero}
-                >
-                    Go to M0
-                </Button>
+                {/* === GO TO BUTTONS (TOP) === */}
+                <div class="jog-goto-row">
+                    <Button
+                        m2
+                        class="jog-goto-btn"
+                        onClick={goToMachineZero}
+                    >
+                        Go to M0
+                    </Button>
 
-                <Button
-                    m2
-                    class="jog-goto-btn"
-                    onClick={goToWorkZero}
-                >
-                    Go to W0
-                </Button>
-            </div>
+                    <Button
+                        m2
+                        class="jog-goto-btn"
+                        onClick={goToWorkZero}
+                    >
+                        Go to W0
+                    </Button>
+                </div>
                 <PositionsControls
                     onWPosClick={showMoveToDialog}
                     onHomeAxis={sendHomeCommand}
                     onZeroAxis={sendZeroCommand}
-                />                
-            {/* === GLOBAL ACTIONS (BOTTOM) === */}
-            <div class="jog-global-row">
-            <Button
-                m2
-                class="jog-global-btn"
-                onClick={() => {
-                    beep()
-                    sendHomeCommand("")
-                }}
-            >
-                    Home XYZ
-            </Button>
-
-            <Button
-                m2
-                class="jog-global-btn"
-                onClick={() => {
-                    beep()
-                    sendZeroCommand("")
-                }}
-            >
-
-                    Zero XYZ
-            </Button>
-            </div>
-            <div class="jog-buttons-main-container">
-
-            {/* XY */}
-            <div class="jog-axis-group">
-                <div class="jog-xy-pad">
-
-                    {/* +Y */}
-                    <Button m2 {...jogPressHandlers("Y+")}>+Y</Button>
-
-                    {/* -X */}
-                    <Button m2 {...jogPressHandlers("X-")}>-X</Button>
-
-                    {/* 🔵 PERILLA (solo visual) */}
-                    <div
-                        class="jog-step-knob"
+                />
+                {/* === GLOBAL ACTIONS (BOTTOM) === */}
+                <div class="jog-global-row">
+                    <Button
+                        m2
+                        class="jog-global-btn"
                         onClick={() => {
-                            beep()
-                            useUiContextFn.haptic()
-                            rotateJogStep()
+                            sendHomeCommand("")
                         }}
                     >
-                        {jogDistanceXYZ}
+                        Home XYZ
+                    </Button>
+
+                    <Button
+                        m2
+                        class="jog-global-btn"
+                        onClick={() => {
+                            sendZeroCommand("")
+                        }}
+                    >
+
+                        Zero XYZ
+                    </Button>
+                </div>
+                <div class="jog-buttons-main-container">
+
+                    {/* XY */}
+                    <div class="jog-axis-group">
+                        <div class="jog-xy-pad">
+
+                            {/* +Y */}
+                            <Button m2 {...jogPressHandlers("Y+")}>+Y</Button>
+
+                            {/* -X */}
+                            <Button m2 {...jogPressHandlers("X-")}>-X</Button>
+
+                            {/* 🔵 PERILLA (solo visual) */}
+                            <div
+                                class="jog-step-knob"
+                                onClick={() => {
+                                    useUiContextFn.haptic()
+                                    rotateJogStep()
+                                }}
+                            >
+                                {jogDistanceXYZ}
+                            </div>
+
+
+                            {/* +X */}
+                            <Button m2 {...jogPressHandlers("X+")}>+X</Button>
+
+                            {/* -Y */}
+                            <Button m2 {...jogPressHandlers("Y-")}>-Y</Button>
+
+                        </div>
                     </div>
-
-
-                    {/* +X */}
-                    <Button m2 {...jogPressHandlers("X+")}>+X</Button>
-
-                    {/* -Y */}
-                    <Button m2 {...jogPressHandlers("Y-")}>-Y</Button>
-
+                    {/* Z */}
+                    {(typeof positions.z !== "undefined" ||
+                        typeof positions.wz !== "undefined") &&
+                        useUiContextFn.getValue("showz") && (
+                            <div class="jog-axis-group">
+                                <div class="m-1 jog-buttons-container">
+                                    <Button m2 {...jogPressHandlers("Z+")}>
+                                        +Z
+                                    </Button>
+                                    <Button m2 {...jogPressHandlers("Z-")}>
+                                        -Z
+                                    </Button>
+                                </div>
+                            </div>
+                        )}
                 </div>
-            </div>
-    {/* Z */}
-    {(typeof positions.z !== "undefined" ||
-        typeof positions.wz !== "undefined") &&
-        useUiContextFn.getValue("showz") && (
-            <div class="jog-axis-group">
-                <div class="m-1 jog-buttons-container">
-                        <Button m2 {...jogPressHandlers("Z+")}>
-                            +Z
-                        </Button>
-                        <Button m2 {...jogPressHandlers("Z-")}>
-                            -Z
-                        </Button>
-                </div>
-            </div>
-        )}
-</div>
 
-                
+
 
                 {selectableAxisLettersList.reduce((acc, letter) => {
                     if (
@@ -730,80 +695,77 @@ window.addEventListener("scroll", onScroll, { passive: true })
                         acc = true
                     return acc
                 }, false as boolean) && (
-                    <div class="m-1 jog-buttons-container-horizontal">
-                        <div
-                            class="d-none"
-                            id="btnaxisSel+"
-                            onClick={() => {
-                                selectorBtn("next")
-                            }}
-                        />
-                        <div
-                            class="d-none"
-                            id="btnaxisSel-"
-                            onClick={() => {
-                                beep()
-                                selectorBtn("prev")
-                            }}
-                        />
-                        <div class="form-group m-2 text-primary">
-                            <select
-                                id="selectAxisList"
-                                class="form-select"
-                                onChange={(e: any) => {
-                                    haptic()
-                                    onChangeAxis(e)
+                        <div class="m-1 jog-buttons-container-horizontal">
+                            <div
+                                class="d-none"
+                                id="btnaxisSel+"
+                                onClick={() => {
+                                    selectorBtn("next")
                                 }}
-                                value={currentSelectedAxis}
+                            />
+                            <div
+                                class="d-none"
+                                id="btnaxisSel-"
+                                onClick={() => {
+                                    selectorBtn("prev")
+                                }}
+                            />
+                            <div class="form-group m-2 text-primary">
+                                <select
+                                    id="selectAxisList"
+                                    class="form-select"
+                                    onChange={(e: any) => {
+                                        haptic()
+                                        onChangeAxis(e)
+                                    }}
+                                    value={currentSelectedAxis}
+                                >
+                                    {selectableAxisLettersList.map((letter) => {
+                                        if (
+                                            (typeof positions[letter.toLowerCase()] !== "undefined" ||
+                                                typeof positions[`w${letter.toLowerCase()}`] !== "undefined") &&
+                                            useUiContextFn.getValue(
+                                                `show${letter.toLowerCase()}`
+                                            )
+                                        )
+                                            return (
+                                                <option value={letter}>
+                                                    {letter}
+                                                </option>
+                                            )
+                                    })}
+                                </select>
+                            </div>
+                            <Button
+                                m2
+                                tooltip
+                                data-tooltip={T("CN12")}
+                                id="btn+axis"
+                                onClick={(e: any) => {
+                                    useUiContextFn.haptic();
+                                    (e.target as HTMLElement).blur();
+                                    sendJogCommand("Axis+")
+                                }}
                             >
-                                {selectableAxisLettersList.map((letter) => {
-                                    if (
-                                        (typeof positions[letter.toLowerCase()] !== "undefined" ||
-                                            typeof positions[`w${letter.toLowerCase()}`] !== "undefined") &&
-                                        useUiContextFn.getValue(
-                                            `show${letter.toLowerCase()}`
-                                        )
-                                    )
-                                        return (
-                                            <option value={letter}>
-                                                {letter}
-                                            </option>
-                                        )
-                                })}
-                            </select>
-                        </div>
-                        <Button
-                            m2
-                            tooltip
-                            data-tooltip={T("CN12")}
-                            id="btn+axis"
-                            onClick={(e: any) => {
-                                beep()
-                                useUiContextFn.haptic();
-                                (e.target as HTMLElement).blur();
-                                sendJogCommand("Axis+")
-                            }}
-                        >
-                            +{currentSelectedAxis}
-                        </Button>
+                                +{currentSelectedAxis}
+                            </Button>
 
-                        <Button
-                            m2
-                            tooltip
-                            data-tooltip={T("CN13")}
-                            id="btn-axis"
-                            onClick={(e: any) => {
-                                beep()
-                                useUiContextFn.haptic();
-                                (e.target as HTMLElement).blur();
-                                sendJogCommand("Axis-")
-                            }}
-                        >
-                            -{currentSelectedAxis}
-                        </Button>
-                    </div>
-                )}
-               
+                            <Button
+                                m2
+                                tooltip
+                                data-tooltip={T("CN13")}
+                                id="btn-axis"
+                                onClick={(e: any) => {
+                                    useUiContextFn.haptic();
+                                    (e.target as HTMLElement).blur();
+                                    sendJogCommand("Axis-")
+                                }}
+                            >
+                                -{currentSelectedAxis}
+                            </Button>
+                        </div>
+                    )}
+
             </div>
         </div>
     )
