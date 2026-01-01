@@ -367,6 +367,16 @@ onPointerDown: () => {
     useUiContextFn.haptic()
     document.body.style.overflow = "hidden"
 
+    // 🔐 Protección eje Z:
+    // Si estamos en stepping 100 y se toca Z, forzar stepping a 10
+    if (
+        jogDistanceXYZ === 100 &&
+        (axis === "Z+" || axis === "Z-")
+    ) {
+        setJogDistanceXYZ(10)
+    }
+
+
 
         const timer = window.setTimeout(() => {
             setContinuousActive(true)
