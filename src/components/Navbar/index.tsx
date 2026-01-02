@@ -19,7 +19,7 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { Fragment,  ComponentChildren, TargetedMouseEvent } from "preact"
+import { Fragment, ComponentChildren, TargetedMouseEvent } from "preact"
 import { useState, useEffect, useRef } from "preact/hooks"
 import { iconsFeather } from "../Images"
 import { iconsTarget, AppLogo } from "../../targets"
@@ -45,6 +45,7 @@ import {
     Smartphone,
     Maximize,
     Minimize,
+    RefreshCw,
 } from "preact-feather"
 
 /*
@@ -101,7 +102,10 @@ const Navbar = () => {
     )
     const [hrefbutton, setHrefButton] = useState<string | undefined>(undefined)
     const [isFullscreen, setIsFullscreen] = useState(false)
-
+    const reloadPage = () => {
+        useUiContextFn.haptic()
+        window.location.reload()
+    }
     /*
     auto-scroll textarea into view if mobile keyboard is blocking textarea to prevent
     page resize and navbar from snapping out of viewport due to using fixed heights
@@ -145,7 +149,7 @@ const Navbar = () => {
                     acc.push({
                         label: item.name,
                         icon: pageIcon,
-                        href: `/#/extrapage/${  curr.id}`,
+                        href: `/#/extrapage/${curr.id}`,
                         id: curr.id,
                     })
                 }
@@ -155,7 +159,7 @@ const Navbar = () => {
             menuLinks.push(...extraPages)
         }
     }
- 
+
     const onDisconnect = () => {
         useUiContextFn.haptic()
         showConfirmationModal({
@@ -219,10 +223,10 @@ const Navbar = () => {
                                         href == "/about"
                                             ? "navbar-brand logo no-box "
                                             : connectionSettings.current
-                                                    .FWTarget == 0 &&
+                                                .FWTarget == 0 &&
                                                 href == "/dashboard"
-                                              ? "d-none"
-                                              : "btn btn-link no-box feather-icon-container"
+                                                ? "d-none"
+                                                : "btn btn-link no-box feather-icon-container"
                                     }
                                     activeClassName="active"
                                     href={href}
@@ -327,34 +331,47 @@ const Navbar = () => {
                         </Fragment>
                     )}
                 </section>
-                <section class="navbar-section">
-                    {!isIOS() && (
+                    <section class="navbar-section">
+                        {/* 🔄 Refresh */}
                         <span
                             className="btn btn-link no-box feather-icon-container"
-                            onClick={toggleFullscreen}
-                            title={isFullscreen ? "Exit Fullscreen (F11)" : "Enter Fullscreen (F11)"}
+                            onClick={reloadPage}
+                            title="Actualizar página / Restablecer conexión"
                         >
-                            {isFullscreen ? <Minimize /> : <Maximize />}
+                            <RefreshCw />
                             <label style="cursor:pointer;" class="hide-low">
-                                {/* {isFullscreen ? "Exit" : "Fullscreen"} */}
+                                Reload
                             </label>
                         </span>
-                    )}
-                    <span
-                        className={
-                            connectionSettings.current.Authentication ==
-                            "Disabled"
-                                ? "d-none"
-                                : "btn btn-link no-box mx-2 feather-icon-container"
-                        }
-                        onClick={onDisconnect}
-                    >
-                        <LogOut />
-                        <label style="cursor:pointer;" class="hide-low">
-                            {T("S151")}
-                        </label>
-                    </span>
-                </section>
+
+                        {/* ⛶ Fullscreen */}
+                        {!isIOS() && (
+                            <span
+                                className="btn btn-link no-box feather-icon-container"
+                                onClick={toggleFullscreen}
+                                title={isFullscreen ? "Exit Fullscreen (F11)" : "Enter Fullscreen (F11)"}
+                            >
+                                {isFullscreen ? <Minimize /> : <Maximize />}
+                                <label style="cursor:pointer;" class="hide-low" />
+                            </span>
+                        )}
+
+                        {/* ⏻ Logout */}
+                        <span
+                            className={
+                                connectionSettings.current.Authentication == "Disabled"
+                                    ? "d-none"
+                                    : "btn btn-link no-box mx-2 feather-icon-container"
+                            }
+                            onClick={onDisconnect}
+                        >
+                            <LogOut />
+                            <label style="cursor:pointer;" class="hide-low">
+                                {T("S151")}
+                            </label>
+                        </span>
+                    </section>
+
             </header>
         )
     }
