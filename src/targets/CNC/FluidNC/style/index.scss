@@ -33,3 +33,26 @@
     color: green;
     font-weight: bolder
 }
+
+
+/* Barra inferior completa */
+.terminal-input-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Flechas en columna */
+.terminal-history-vertical {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 20px;   /* ← acá */
+}
+
+/* Input ocupa todo el ancho restante */
+.terminal-input-main {
+    flex: 1;
+}
+
+

@@ -25,8 +25,8 @@ import {
     CheckCircle,
     Circle,
     PauseCircle,
-    ChevronLeft,
-    ChevronRight,
+    ChevronUp,
+    ChevronDown,
 } from "preact-feather"
 import { useUiContext, useDatasContext, useUiContextFn, type TerminalElement } from "../../contexts"
 import { useTargetContext, variablesList } from "../../targets"
@@ -291,37 +291,7 @@ const TerminalPanel: FunctionalComponent = () => {
                     </span>
                 </span>
             </div>
-            <div class="input-group m-2">
-                <input
-                    type="text"
-                    class="form-input"
-                    onInput={onInput}
-                    onKeyUp={onKeyUp}
-                    ref={inputRef}
-                    value={terminal.input.current as unknown as string}
-                    placeholder={T("S80")}
-                />
-                <ButtonImg
-                    group
-                    ltooltip
-                    data-tooltip={T("S82")}
-                    label={T("S81")}
-                    icon={<Send />}
-                    onClick={onSend}
-                />
-            </div>
-            <div class="show-low">
-                <ButtonImg
-                    class=" m-2"
-                    icon={<ChevronLeft />}
-                    onClick={historyPrev}
-                />
-                <ButtonImg
-                    class=" m-2"
-                    icon={<ChevronRight />}
-                    onClick={historyNext}
-                />
-            </div>
+            
             <div
                 ref={terminalOutput}
                 class="panel-body panel-body-dashboard terminal m-1"
@@ -374,6 +344,43 @@ const TerminalPanel: FunctionalComponent = () => {
                 }, [terminal.content, isVerbose])}
                 <div ref={messagesEndRef} />
             </div>
+            <div class="terminal-input-bar m-2">
+
+    {/* Flechas verticales a la izquierda */}
+    <div class="terminal-history-vertical">
+        <ButtonImg
+            icon={<ChevronUp />}
+            onClick={historyPrev}
+        />
+        <ButtonImg
+            icon={<ChevronDown />}
+            onClick={historyNext}
+        />
+    </div>
+
+    {/* Input + Send a la derecha */}
+    <div class="terminal-input-main input-group">
+        <input
+            type="text"
+            class="form-input"
+            onInput={onInput}
+            onKeyUp={onKeyUp}
+            ref={inputRef}
+            value={terminal.input.current as unknown as string}
+            placeholder={T("S80")}
+        />
+        <ButtonImg
+            group
+            ltooltip
+            data-tooltip={T("S82")}
+            label={T("S81")}
+            icon={<Send />}
+            onClick={onSend}
+        />
+    </div>
+
+</div>
+
         </div>
     )
 }
