@@ -46,7 +46,10 @@ import {
     Maximize,
     Minimize,
     RefreshCw,
+    Power,
 } from "preact-feather"
+import { useTargetCommands } from "../../hooks"
+
 
 /*
  * Local const
@@ -90,6 +93,7 @@ const Navbar = () => {
     const { uisettings } = useUiContext()
     const { modals } = useModalsContext()
     const { createNewRequest } = useHttpQueue()
+    const { targetCommands } = useTargetCommands()
     const webSocketService = useWebSocketService();
     const buttonExtraPage = useRef<HTMLAnchorElement | null>(null)
     const menuExtraPage = useRef<HTMLUListElement | null>(null)
@@ -168,6 +172,29 @@ const Navbar = () => {
             content: T("S152"),
             button1: { cb: disconnectNow, text: T("S27") },
             button2: { text: T("S28") },
+        })
+    }
+
+const powerOffNow = () => {
+    useUiContextFn.haptic()
+    targetCommands("M62 P0")
+}
+
+
+
+    const onPowerOff = () => {
+        useUiContextFn.haptic()
+        showConfirmationModal({
+            modals,
+            title: "Apagar MillingStation",
+            content: "¿Estás seguro de que querés apagar la máquina?\nLa fuente de alimentación se desconectará.",
+            button1: {
+                cb: powerOffNow,
+                text: "Apagar",
+            },
+            button2: {
+                text: "Cancelar",
+            },
         })
     }
 
@@ -332,6 +359,20 @@ const Navbar = () => {
                     )}
                 </section>
                     <section class="navbar-section">
+
+                        {/* ⏻ Power Off */}
+                        <span
+                            className="btn btn-link no-box feather-icon-container text-error"
+                            onClick={onPowerOff}
+                            title="Apagar MillingStation"
+                        >
+                            <Power />
+                            <label style="cursor:pointer;" class="hide-low">
+                                Power
+                            </label>
+                        </span>
+
+
                         {/* 🔄 Refresh */}
                         <span
                             className="btn btn-link no-box feather-icon-container"
