@@ -16,7 +16,7 @@ SpindleCNC.js - ESP3D WebUI component file
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { Fragment,  TargetedMouseEvent } from "preact"
+import { Fragment, TargetedMouseEvent } from "preact"
 import type { FunctionalComponent, JSX } from "preact"
 import { useState } from "preact/hooks"
 import { T } from "../Translations"
@@ -30,6 +30,10 @@ import { useTargetContext, eventsList } from "../../targets"
 import { ButtonImg, Field, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
 import { checkDependencies } from "../Helpers"
 import { useTargetCommands } from "../../hooks"
+import InputPins from "../Panels/InputPins"
+import DigitalOutputs from "./DigitalOutputs"
+import { useCallback } from "preact/hooks"
+import { useEffect } from "preact/hooks"
 
 /*
  * Local const
@@ -42,10 +46,17 @@ const spindleSpeedValue = {} as Partial<NumberValue>
 /*
  * Callback function when reset is detected
  *
- */ const onReset = (data: any) => {
-    console.log("reset Happend:", data)
-    //Todo: TBD
+ */
+
+// 🔥 Reset visual global de salidas
+const useUiResetHandler = (
+    setResetKey: (fn: (k: number) => number) => void
+) => {
+    return useCallback(() => {
+        setResetKey(k => k + 1)
+    }, [setResetKey])
 }
+
 
 type StateValue = { value: string } | Array<{ value: string }>
 type StatesMap = Record<string, StateValue>
@@ -54,8 +65,7 @@ const SpindleControls: FunctionalComponent = () => {
     const { states } = useTargetContext() as { states: StatesMap }
     console.log(states)
     const { interfaceSettings, connectionSettings } = useSettingsContext()
-    //Add callback to reset event
-    eventsList.on("reset", onReset)
+
     if (!useUiContextFn.getValue("showspindlepanel")) return null
     const states_array = [
         { id: "feed_rate", label: "CN9" },
@@ -131,12 +141,32 @@ type ButtonsGroup = {
     tooltipclassic?: boolean
 }
 
+
+
 const SpindlePanel: FunctionalComponent = () => {
     const { toasts } = useToastsContext()
     const { interfaceSettings, connectionSettings } = useSettingsContext()
     const { status, states } = useTargetContext() as { status: { state?: string }; states: StatesMap }
     const { targetCommands } = useTargetCommands()
     const id = "SpindlePanel"
+    const [resetKey, setResetKey] = useState(0)
+    const handleUiReset = useUiResetHandler(setResetKey)
+
+
+    useEffect(() => {
+        eventsList.on("reset", handleUiReset)
+        eventsList.on("alarm", handleUiReset)
+        eventsList.on("hold", handleUiReset)
+
+        return () => {
+            eventsList.off("reset", handleUiReset)
+            eventsList.off("alarm", handleUiReset)
+            eventsList.off("hold", handleUiReset)
+        }
+    }, [handleUiReset])
+
+
+
 
     if (typeof spindleSpeedValue.current === "undefined") {
         spindleSpeedValue.current = useUiContextFn.getValue("spindlespeed")
@@ -182,31 +212,33 @@ const SpindlePanel: FunctionalComponent = () => {
                 min: 0,
             },
         },
-        {
-            label: "CN56",
-            depend: [{ id: "showCoolantctrls", value: true }],
-            buttons: [
-                {
-                    label: "M7",
-                    tooltip: "CN77",
-                    command: "M7",
-                    depend: [{ id: "showM7ctrls", value: true }],
-                    mode: "coolant_mode",
-                },
-                {
-                    label: "M8",
-                    tooltip: "CN78",
-                    command: "M8",
-                    mode: "coolant_mode",
-                },
-                {
-                    label: "M9",
-                    tooltip: "CN79",
-                    command: "M9",
-                    mode: "coolant_mode",
-                },
-            ],
-        },
+        /* módulo coolant
+       {           
+           label: "CN56",
+           depend: [{ id: "showCoolantctrls", value: true }],
+           buttons: [
+               {
+                   label: "M7",
+                   tooltip: "CN77",
+                   command: "M7",
+                   depend: [{ id: "showM7ctrls", value: true }],
+                   mode: "coolant_mode",
+               },
+               {
+                   label: "M8",
+                   tooltip: "CN78",
+                   command: "M8",
+                   mode: "coolant_mode",
+               },
+               {
+                   label: "M9",
+                   tooltip: "CN79",
+                   command: "M9",
+                   mode: "coolant_mode",
+               },
+           ],
+       },
+       */
         {
             label: "CN80",
             buttons: [
@@ -216,28 +248,19 @@ const SpindlePanel: FunctionalComponent = () => {
                     command: "#T-SPINDLESTOP#",
                     depend: [{ states: ["Hold"] }],
                 },
+
                 {
-                    icon: <Wind />,
-                    tooltip: "CN82",
-                    tooltipclassic: true,
-                    command: "#T-FLOODCOOLANT#",
-                    depend: [
-                        { states: ["Idle", "Run", "Hold"] },
-                        { id: "showCoolantctrls", value: true },
-                    ],
-                },
-                {
-                    icon: <CloudDrizzle />,
-                    tooltip: "CN83",
+                    label: "M7",
+                    tooltip: "CN77",
                     command: "#T-MISTCOOLANT#",
-                    depend: [
-                        { states: ["Idle", "Run", "Hold"] },
+                    depend: [                        
                         { id: "showCoolantctrls", value: true },
                         { id: "showMistctrls", value: true },
                     ],
                 },
             ],
         },
+
     ]
 
     //we won't handle modified state just handle error
@@ -266,11 +289,11 @@ const SpindlePanel: FunctionalComponent = () => {
 
     return (
         <div class="panel panel-dashboard" id={id}>
-            <ContainerHelper id={id} /> 
+            <ContainerHelper id={id} />
             <div class="navbar">
                 <span class="navbar-section feather-icon-container">
                     <Target />
-                    <strong class="text-ellipsis">{T("CN36")}</strong>
+                    <strong class="text-ellipsis">{T("CN201")}</strong>
                 </span>
                 <span class="navbar-section">
                     <span class="full-height">
@@ -285,7 +308,7 @@ const SpindlePanel: FunctionalComponent = () => {
                 </span>
             </div>
             <div class="panel-body panel-body-dashboard">
-                <SpindleControls />
+                <InputPins />
                 {buttons_list.map((item) => {
                     if (item.depend) {
                         if (
@@ -329,10 +352,10 @@ const SpindlePanel: FunctionalComponent = () => {
                         }
                         if (states && button.mode && states[button.mode]) {
                             const modeVal = states[button.mode]
-                            if (Array.isArray(modeVal)){
-                               if(modeVal.some(item => item.value==button.label)){
+                            if (Array.isArray(modeVal)) {
+                                if (modeVal.some(item => item.value == button.label)) {
                                     classname += " btn-primary"
-                               }
+                                }
                             } else {
                                 if ((modeVal as { value: string }).value == button.label) {
                                     classname += " btn-primary"
@@ -356,7 +379,7 @@ const SpindlePanel: FunctionalComponent = () => {
                                         targetCommands(
                                             button.command.replace(
                                                 "S#",
-                                                `S${  spindleSpeedValue.current}`
+                                                `S${spindleSpeedValue.current}`
                                             )
                                         )
                                     } else targetCommands(button.command)
@@ -409,8 +432,39 @@ const SpindlePanel: FunctionalComponent = () => {
                         </fieldset>
                     )
                 })}
+                <DigitalOutputs resetKey={resetKey} />
+
+                <div style={{ marginTop: "24px", display: "flex", justifyContent: "center" }}>
+                    <button
+                        class="btn btn-outline"
+                        style={{
+                            width: "180px",
+                            height: "44px",
+                            fontWeight: "600",
+                        }}
+                        onClick={() => {
+                            useUiContextFn.haptic()
+                            // 1️⃣ Apaga coolant
+                            targetCommands("M9")
+
+                            // 2️⃣ Apaga TODAS las salidas digitales
+                            for (let p = 1; p <= 5; p++) {
+                                targetCommands(`M63 P${p}`)
+                            }
+
+                            // 3️⃣ Resetea la UI
+                            setResetKey((k) => k + 1)
+
+                        }}
+                    >
+                        apagar todo
+                    </button>
+                </div>
+
+
             </div>
         </div>
+
     )
 }
 
