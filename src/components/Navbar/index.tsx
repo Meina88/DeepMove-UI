@@ -23,6 +23,7 @@ import { Fragment, ComponentChildren, TargetedMouseEvent } from "preact"
 import { useState, useEffect, useRef } from "preact/hooks"
 import { iconsFeather } from "../Images"
 import { iconsTarget, AppLogo } from "../../targets"
+import { useTargetContext } from "../../targets"
 import { Link } from "../Router"
 import { T } from "../Translations"
 import {
@@ -110,6 +111,13 @@ const Navbar = () => {
         useUiContextFn.haptic()
         window.location.reload()
     }
+
+    const { status } = useTargetContext() as unknown as {
+    status: { state?: string }
+    }
+    const isIdle = status?.state === "Idle"
+
+
     /*
     auto-scroll textarea into view if mobile keyboard is blocking textarea to prevent
     page resize and navbar from snapping out of viewport due to using fixed heights
@@ -362,15 +370,20 @@ const powerOffNow = () => {
 
                         {/* ⏻ Power Off */}
                         <span
-                            className="btn btn-link no-box feather-icon-container text-error"
-                            onClick={onPowerOff}
-                            title="Apagar MillingStation"
+                            className={`btn btn-link no-box feather-icon-container text-error ${
+                                !isIdle ? "disabled opacity-50" : ""
+                            }`}
+                            onClick={isIdle ? onPowerOff : undefined}
+                            title={
+                                isIdle
+                                    ? "Apagar MillingStation"
+                                    : `No disponible (estado: ${status?.state})`
+                            }
                         >
                             <Power />
-                            <label style="cursor:pointer;" class="hide-low">
-                                Power
-                            </label>
+                            <label class="hide-low">Power</label>
                         </span>
+
 
 
                         {/* 🔄 Refresh */}
