@@ -16,7 +16,7 @@ SpindleCNC.js - ESP3D WebUI component file
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { Fragment,  TargetedMouseEvent } from "preact"
+import { Fragment, TargetedMouseEvent } from "preact"
 import type { FunctionalComponent, JSX } from "preact"
 import { useState } from "preact/hooks"
 import { T } from "../Translations"
@@ -137,10 +137,26 @@ const SpindlePanel: FunctionalComponent = () => {
     const { status, states } = useTargetContext() as { status: { state?: string }; states: StatesMap }
     const { targetCommands } = useTargetCommands()
     const id = "SpindlePanel"
+    // Digital outputs (estado UI)
+    const [d1, setD1] = useState(false)
+    const [d2, setD2] = useState(false)
+    const [d3, setD3] = useState(false)
+    const [d4, setD4] = useState(false)
+
 
     if (typeof spindleSpeedValue.current === "undefined") {
         spindleSpeedValue.current = useUiContextFn.getValue("spindlespeed")
     }
+
+    const toggleOutput = (
+        pin: number,
+        state: boolean,
+        setState: (v: boolean) => void
+    ) => {
+        targetCommands(state ? `M63 P${pin}` : `M62 P${pin}`)
+        setState(!state)
+    }
+
 
     const buttons_list: ButtonsGroup[] = [
         {
@@ -210,11 +226,21 @@ const SpindlePanel: FunctionalComponent = () => {
         {
             label: "CN80",
             buttons: [
+                    {
+                       icon: <Zap />,
+                       tooltip: "CN81",
+                       command: "#T-SPINDLESTOP#",
+                      depend: [{ states: ["Hold"] }],
+                   },                
                 {
-                    icon: <Zap />,
-                    tooltip: "CN81",
-                    command: "#T-SPINDLESTOP#",
-                    depend: [{ states: ["Hold"] }],
+                    icon: <CloudDrizzle />,
+                    tooltip: "CN83",
+                    command: "#T-MISTCOOLANT#",
+                    depend: [
+                        { states: ["Idle", "Run", "Hold"] },
+                        { id: "showCoolantctrls", value: true },
+                        { id: "showMistctrls", value: true },
+                    ],
                 },
                 {
                     icon: <Wind />,
@@ -226,16 +252,7 @@ const SpindlePanel: FunctionalComponent = () => {
                         { id: "showCoolantctrls", value: true },
                     ],
                 },
-                {
-                    icon: <CloudDrizzle />,
-                    tooltip: "CN83",
-                    command: "#T-MISTCOOLANT#",
-                    depend: [
-                        { states: ["Idle", "Run", "Hold"] },
-                        { id: "showCoolantctrls", value: true },
-                        { id: "showMistctrls", value: true },
-                    ],
-                },
+
             ],
         },
     ]
@@ -266,7 +283,7 @@ const SpindlePanel: FunctionalComponent = () => {
 
     return (
         <div class="panel panel-dashboard" id={id}>
-            <ContainerHelper id={id} /> 
+            <ContainerHelper id={id} />
             <div class="navbar">
                 <span class="navbar-section feather-icon-container">
                     <Target />
@@ -329,10 +346,10 @@ const SpindlePanel: FunctionalComponent = () => {
                         }
                         if (states && button.mode && states[button.mode]) {
                             const modeVal = states[button.mode]
-                            if (Array.isArray(modeVal)){
-                               if(modeVal.some(item => item.value==button.label)){
+                            if (Array.isArray(modeVal)) {
+                                if (modeVal.some(item => item.value == button.label)) {
                                     classname += " btn-primary"
-                               }
+                                }
                             } else {
                                 if ((modeVal as { value: string }).value == button.label) {
                                     classname += " btn-primary"
@@ -356,7 +373,7 @@ const SpindlePanel: FunctionalComponent = () => {
                                         targetCommands(
                                             button.command.replace(
                                                 "S#",
-                                                `S${  spindleSpeedValue.current}`
+                                                `S${spindleSpeedValue.current}`
                                             )
                                         )
                                     } else targetCommands(button.command)
@@ -376,11 +393,52 @@ const SpindlePanel: FunctionalComponent = () => {
                                 </label>
                             </legend>
                             <div class="field-group-content maxwidth">
-                                <div class="states-buttons-container">
-                                    {content}
-                                </div>
+                                {item.label === "CN80" && !item.control ? (
+
+                                    <div
+                                        class="states-buttons-container"
+                                        style={{
+                                            display: "grid",
+                                            gridTemplateColumns: "repeat(3, 1fr)",
+                                            gap: "14px",
+                                            justifyItems: "center",
+                                        }}
+                                    >
+                                        {/* Botones existentes de CN80 (Wind / CloudDrizzle / etc) */}
+                                        {content}
+
+                                        {/* Tus toggles D1..D4 (van a ocupar col3 fila1 y fila2 completa) */}
+                                        <ButtonImg
+                                            label="D1"
+                                            className={`tooltip ${d1 ? "btn-primary" : ""}`}
+                                            data-tooltip="D1"
+                                            onClick={() => toggleOutput(1, d1, setD1)}
+                                        />
+                                        <ButtonImg
+                                            label="D2"
+                                            className={`tooltip ${d2 ? "btn-primary" : ""}`}
+                                            data-tooltip="D2"
+                                            onClick={() => toggleOutput(2, d2, setD2)}
+                                        />
+                                        <ButtonImg
+                                            label="D3"
+                                            className={`tooltip ${d3 ? "btn-primary" : ""}`}
+                                            data-tooltip="D3"
+                                            onClick={() => toggleOutput(3, d3, setD3)}
+                                        />
+                                        <ButtonImg
+                                            label="D4"
+                                            className={`tooltip ${d4 ? "btn-primary" : ""}`}
+                                            data-tooltip="D4"
+                                            onClick={() => toggleOutput(4, d4, setD4)}
+                                        />
+                                    </div>
+                                ) : (
+                                    <div class="states-buttons-container">{content}</div>
+                                )}
+
                                 {item.control && (
-                                    <div>
+<div>
                                         <Field
                                             id={item.control!.id}
                                             inline
@@ -406,6 +464,7 @@ const SpindlePanel: FunctionalComponent = () => {
                                     </div>
                                 )}
                             </div>
+
                         </fieldset>
                     )
                 })}
