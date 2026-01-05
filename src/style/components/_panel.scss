@@ -69,6 +69,14 @@
     padding: 0.2rem 0.8rem !important;
 }
 
+@media (max-width: 480px) {
+    .files-list-footer {
+        .file-status {
+            display: none;
+        }
+    }
+}
+
 .column {
     .panel {
         height: 100%;
