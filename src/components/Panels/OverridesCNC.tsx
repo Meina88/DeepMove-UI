@@ -1,21 +1,3 @@
-/*
-SpindleCNC.js - ESP3D WebUI component file
-
- Copyright (c) 2021 Luc LEBOSSE. All rights reserved.
-
- This code is free software; you can redistribute it and/or
- modify it under the terms of the GNU Lesser General Public
- License as published by the Free Software Foundation; either
- version 2.1 of the License, or (at your option) any later version.
- This code is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- Lesser General Public License for more details.
- You should have received a copy of the GNU Lesser General Public
- License along with This code; if not, write to the Free Software
- Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
-
 import { Fragment, TargetedMouseEvent } from "preact"
 import { useEffect, useRef, useState } from "preact/hooks"
 import type { FunctionalComponent } from "preact"
@@ -87,85 +69,93 @@ const OverridesPanel: FunctionalComponent = () => {
     const [spindleSlider, setSpindleSlider] = useState(100)
     const pendingTarget = useRef<number | null>(null)
     const commandQueue = useRef<string[]>([])
-    const sendInterval = useRef<number | null>(null) 
+    const sendInterval = useRef<number | null>(null)
 
 
 
     const buildSpindleQueue = (from: number, to: number) => {
-        const delta = to - from
-        const dir = delta > 0 ? "+" : "-"
+        let delta = to - from
+        const sign = delta > 0 ? "+" : "-"
         let remaining = Math.abs(delta)
 
         const queue: string[] = []
 
-        while (remaining >= 10) {
-            queue.push(`#SSO${dir}10#`)
-            remaining -= 10
-        }
-        while (remaining >= 1) {
-            queue.push(`#SSO${dir}1#`)
-            remaining -= 1
+        const tens = Math.floor(remaining / 10)
+        const ones = remaining % 10
+
+        if (ones <= 5) {
+            // Caso normal: no overshoot
+            for (let i = 0; i < tens; i++) {
+                queue.push(`#SSO${sign}10#`)
+            }
+            for (let i = 0; i < ones; i++) {
+                queue.push(`#SSO${sign}1#`)
+            }
+        } else {
+            // Overshoot inteligente
+            for (let i = 0; i < tens + 1; i++) {
+                queue.push(`#SSO${sign}10#`)
+            }
+            const corrSign = sign === "+" ? "-" : "+"
+            for (let i = 0; i < 10 - ones; i++) {
+                queue.push(`#SSO${corrSign}1#`)
+            }
         }
 
         return queue
     }
 
+
+
     const startSendingQueue = () => {
-    if (sendInterval.current != null) {
-        clearInterval(sendInterval.current)
-        sendInterval.current = null
-    }
+        if (sendInterval.current != null) {
+            clearInterval(sendInterval.current)
+            sendInterval.current = null
+        }
 
-    if (commandQueue.current.length === 0) return
+        if (commandQueue.current.length === 0) return
 
-    sendInterval.current = window.setInterval(() => {
-        if (commandQueue.current.length === 0) {
-            if (sendInterval.current != null) {
-                clearInterval(sendInterval.current)
-                sendInterval.current = null
+        sendInterval.current = window.setInterval(() => {
+            if (commandQueue.current.length === 0) {
+                if (sendInterval.current != null) {
+                    clearInterval(sendInterval.current)
+                    sendInterval.current = null
+                }
+                return
             }
+
+            const cmd = commandQueue.current.shift()
+            if (cmd) {
+                targetCommands(cmd)
+            }
+        }, 300)
+    }
+    useEffect(() => {
+        if (overrides?.spindle == null) return
+
+        // 🟢 No hay acción pendiente → el slider sigue al valor real
+        if (pendingTarget.current == null) {
+            setSpindleSlider(Math.min(200, Math.max(0, overrides.spindle)))
             return
         }
 
-        const cmd = commandQueue.current.shift()
-        if (cmd) {
-            targetCommands(cmd)
+        // 🟠 Se terminó de enviar la cola pero NO se llegó al target
+        // → snap al valor real y limpiar estado
+        if (
+            commandQueue.current.length === 0 &&
+            overrides.spindle !== pendingTarget.current
+        ) {
+            setSpindleSlider(Math.min(200, Math.max(0, overrides.spindle)))
+            pendingTarget.current = null
+            return
         }
-    }, 200)
-}
 
-
-
-
-
-
-
-    useEffect(() => {
-    if (overrides?.spindle == null) return
-
-    // 🟢 No hay acción pendiente → el slider sigue al valor real
-    if (pendingTarget.current == null) {
-        setSpindleSlider(Math.min(200, Math.max(0, overrides.spindle)))
-        return
-    }
-
-    // 🟠 Se terminó de enviar la cola pero NO se llegó al target
-    // → snap al valor real y limpiar estado
-    if (
-        commandQueue.current.length === 0 &&
-        overrides.spindle !== pendingTarget.current
-    ) {
-        setSpindleSlider(Math.min(200, Math.max(0, overrides.spindle)))
-        pendingTarget.current = null
-        return
-    }
-
-    // ✅ El firmware llegó exactamente al target
-    // → limpiar estado (el slider ya está bien)
-    if (overrides.spindle === pendingTarget.current) {
-        pendingTarget.current = null
-    }
-}, [overrides?.spindle])
+        // ✅ El firmware llegó exactamente al target
+        // → limpiar estado (el slider ya está bien)
+        if (overrides.spindle === pendingTarget.current) {
+            pendingTarget.current = null
+        }
+    }, [overrides?.spindle])
 
 
 
@@ -300,8 +290,8 @@ const OverridesPanel: FunctionalComponent = () => {
                                 <div style="display:flex; justify-content:center; padding:16px;">
                                     <input
                                         type="range"
-                                        min={0}
-                                        max={200}
+                                        min={50}
+                                        max={150}
                                         step={1}
                                         value={spindleSlider}
                                         style="writing-mode: bt-lr; -webkit-appearance: slider-vertical; height:220px;"
@@ -311,10 +301,10 @@ const OverridesPanel: FunctionalComponent = () => {
                                             )
                                         }}
                                         onChange={() => {
-const from =
-    pendingTarget.current != null
-        ? pendingTarget.current
-        : overrides?.spindle
+                                            const from =
+                                                pendingTarget.current != null
+                                                    ? pendingTarget.current
+                                                    : overrides?.spindle
 
 
                                             if (from == null) return
@@ -328,6 +318,24 @@ const from =
                                     />
 
                                 </div>
+
+                                <div style="display:flex; justify-content:center; gap:12px; margin-top:12px;">
+                                    <ButtonImg
+                                        label="100%"
+                                        tooltip={T("CN66")}
+                                        onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
+                                            useUiContextFn.haptic()
+                                            e.currentTarget.blur()
+
+                                            targetCommands("#SSO100#")
+
+                                            // limpiar estado interno
+                                            pendingTarget.current = null
+                                            commandQueue.current = []
+                                        }}
+                                    />
+                                </div>
+
 
                                 <div style="text-align:center; font-weight:bold;">
                                     {spindleSlider} %
@@ -366,6 +374,12 @@ const from =
                                                     useUiContextFn.haptic()
                                                     e.currentTarget.blur()
                                                     targetCommands(button.command)
+
+                                                    if (button.command === "#SSO100#") {
+                                                        pendingTarget.current = null
+                                                        commandQueue.current = []
+                                                    }
+
                                                 }}
                                             />
                                         )
