@@ -16,7 +16,8 @@ SpindleCNC.js - ESP3D WebUI component file
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { Fragment,  TargetedMouseEvent } from "preact"
+import { Fragment, TargetedMouseEvent } from "preact"
+import { useEffect, useRef, useState } from "preact/hooks"
 import type { FunctionalComponent } from "preact"
 import { T } from "../Translations"
 import { Repeat, Play, Pause } from "preact-feather"
@@ -75,8 +76,100 @@ type ButtonsGroup = { label: string; buttons: ButtonConfig[] }
 
 const OverridesPanel: FunctionalComponent = () => {
     const { targetCommands } = useTargetCommands()
-    const { status } = useTargetContext() as { status?: { state?: string } }
+    const { status, overrides } = useTargetContext() as {
+        status?: { state?: string }
+        overrides?: Overrides
+    }
+
     const id = "OverridesPanel"
+
+    // --- Spindle slider control ---
+    const [spindleSlider, setSpindleSlider] = useState(100)
+    const pendingTarget = useRef<number | null>(null)
+    const commandQueue = useRef<string[]>([])
+    const sendInterval = useRef<number | null>(null) 
+
+
+
+    const buildSpindleQueue = (from: number, to: number) => {
+        const delta = to - from
+        const dir = delta > 0 ? "+" : "-"
+        let remaining = Math.abs(delta)
+
+        const queue: string[] = []
+
+        while (remaining >= 10) {
+            queue.push(`#SSO${dir}10#`)
+            remaining -= 10
+        }
+        while (remaining >= 1) {
+            queue.push(`#SSO${dir}1#`)
+            remaining -= 1
+        }
+
+        return queue
+    }
+
+    const startSendingQueue = () => {
+    if (sendInterval.current != null) {
+        clearInterval(sendInterval.current)
+        sendInterval.current = null
+    }
+
+    if (commandQueue.current.length === 0) return
+
+    sendInterval.current = window.setInterval(() => {
+        if (commandQueue.current.length === 0) {
+            if (sendInterval.current != null) {
+                clearInterval(sendInterval.current)
+                sendInterval.current = null
+            }
+            return
+        }
+
+        const cmd = commandQueue.current.shift()
+        if (cmd) {
+            targetCommands(cmd)
+        }
+    }, 200)
+}
+
+
+
+
+
+
+
+    useEffect(() => {
+    if (overrides?.spindle == null) return
+
+    // 🟢 No hay acción pendiente → el slider sigue al valor real
+    if (pendingTarget.current == null) {
+        setSpindleSlider(Math.min(200, Math.max(0, overrides.spindle)))
+        return
+    }
+
+    // 🟠 Se terminó de enviar la cola pero NO se llegó al target
+    // → snap al valor real y limpiar estado
+    if (
+        commandQueue.current.length === 0 &&
+        overrides.spindle !== pendingTarget.current
+    ) {
+        setSpindleSlider(Math.min(200, Math.max(0, overrides.spindle)))
+        pendingTarget.current = null
+        return
+    }
+
+    // ✅ El firmware llegó exactamente al target
+    // → limpiar estado (el slider ya está bien)
+    if (overrides.spindle === pendingTarget.current) {
+        pendingTarget.current = null
+    }
+}, [overrides?.spindle])
+
+
+
+
 
     const buttons_list: ButtonsGroup[] = [
         {
@@ -167,7 +260,7 @@ const OverridesPanel: FunctionalComponent = () => {
 
     return (
         <div class="panel panel-dashboard" id={id}>
-            <ContainerHelper id={id} /> 
+            <ContainerHelper id={id} />
             <div class="navbar">
                 <span class="navbar-section feather-icon-container">
                     <Repeat />
@@ -176,7 +269,7 @@ const OverridesPanel: FunctionalComponent = () => {
                 <span class="navbar-section">
                     <span class="full-height">
                         <FullScreenButton
-                           elementId={id}
+                            elementId={id}
                         />
                         <CloseButton
                             elementId={id}
@@ -188,22 +281,82 @@ const OverridesPanel: FunctionalComponent = () => {
             <div class="panel-body panel-body-dashboard">
                 <OverridesControls />
                 {buttons_list.map((item) => {
+
+                    // 🟢 SPINDLE → SLIDER
+                    if (item.label === "CN67") {
+                        if (status?.state !== "Run" && status?.state !== "Hold") return null
+
+                        return (
+                            <fieldset
+                                key={item.label}
+                                class="fieldset-top-separator fieldset-bottom-separator field-group"
+                            >
+                                <legend>
+                                    <label class="m-1 buttons-bar-label">
+                                        {T(item.label)}
+                                    </label>
+                                </legend>
+
+                                <div style="display:flex; justify-content:center; padding:16px;">
+                                    <input
+                                        type="range"
+                                        min={0}
+                                        max={200}
+                                        step={1}
+                                        value={spindleSlider}
+                                        style="writing-mode: bt-lr; -webkit-appearance: slider-vertical; height:220px;"
+                                        onInput={(e) => {
+                                            setSpindleSlider(
+                                                parseInt((e.target as HTMLInputElement).value)
+                                            )
+                                        }}
+                                        onChange={() => {
+const from =
+    pendingTarget.current != null
+        ? pendingTarget.current
+        : overrides?.spindle
+
+
+                                            if (from == null) return
+                                            if (spindleSlider === from) return   // ← ESTE
+
+                                            pendingTarget.current = spindleSlider
+                                            commandQueue.current = buildSpindleQueue(from, spindleSlider)
+                                            startSendingQueue()
+                                        }}
+
+                                    />
+
+                                </div>
+
+                                <div style="text-align:center; font-weight:bold;">
+                                    {spindleSlider} %
+                                </div>
+                            </fieldset>
+                        )
+                    }
+
+                    // 🔵 FEED + RAPID → BOTONES (sin cambios)
                     return (
-                        <fieldset key={item.label} class="fieldset-top-separator fieldset-bottom-separator field-group">
+                        <fieldset
+                            key={item.label}
+                            class="fieldset-top-separator fieldset-bottom-separator field-group"
+                        >
                             <legend>
                                 <label class="m-1 buttons-bar-label">
                                     {T(item.label)}
                                 </label>
                             </legend>
+
                             <div class="field-group-content maxwidth">
                                 <div class="states-buttons-container">
                                     {item.buttons.map((button, index) => {
                                         return (
-                                            <ButtonImg key={button.label}
+                                            <ButtonImg
+                                                key={button.label}
                                                 mt1
                                                 className={
-                                                    item.buttons.length / 2 >
-                                                    index
+                                                    item.buttons.length / 2 > index
                                                         ? "tooltip tooltip-right"
                                                         : "tooltip tooltip-left"
                                                 }
@@ -222,28 +375,29 @@ const OverridesPanel: FunctionalComponent = () => {
                         </fieldset>
                     )
                 })}
-                    {(status?.state === "Run" || status?.state === "Hold") && (
-                        <div style="display:flex; justify-content:center; margin-top:24px;">
-                            <ButtonImg
-                                icon={status.state === "Hold" ? <Play /> : <Pause />}
-                                tooltip
-                                data-tooltip={
+
+                {(status?.state === "Run" || status?.state === "Hold") && (
+                    <div style="display:flex; justify-content:center; margin-top:24px;">
+                        <ButtonImg
+                            icon={status.state === "Hold" ? <Play /> : <Pause />}
+                            tooltip
+                            data-tooltip={
+                                status.state === "Hold"
+                                    ? T("CN61")   // Cycle Start
+                                    : T("Hold")
+                            }
+                            onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
+                                useUiContextFn.haptic()
+                                e.currentTarget.blur()
+                                targetCommands(
                                     status.state === "Hold"
-                                        ? T("CN61")   // Cycle Start
-                                        : T("Hold")
-                                }
-                                onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
-                                    useUiContextFn.haptic()
-                                    e.currentTarget.blur()
-                                    targetCommands(
-                                        status.state === "Hold"
-                                            ? "#CYCLESTART#"
-                                            : "#FEEDHOLD#"
-                                    )
-                                }}
-                            />
-                        </div>
-                    )}
+                                        ? "#CYCLESTART#"
+                                        : "#FEEDHOLD#"
+                                )
+                            }}
+                        />
+                    </div>
+                )}
             </div>
         </div>
     )
