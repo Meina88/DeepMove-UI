@@ -226,12 +226,12 @@ const SpindlePanel: FunctionalComponent = () => {
         {
             label: "CN80",
             buttons: [
-                    {
-                       icon: <Zap />,
-                       tooltip: "CN81",
-                       command: "#T-SPINDLESTOP#",
-                      depend: [{ states: ["Hold"] }],
-                   },                
+                {
+                    icon: <Zap />,
+                    tooltip: "CN81",
+                    command: "#T-SPINDLESTOP#",
+                    depend: [{ states: ["Hold"] }],
+                },
                 {
                     icon: <CloudDrizzle />,
                     tooltip: "CN83",
@@ -410,25 +410,25 @@ const SpindlePanel: FunctionalComponent = () => {
                                         {/* Tus toggles D1..D4 (van a ocupar col3 fila1 y fila2 completa) */}
                                         <ButtonImg
                                             label="D1"
-                                            className={`tooltip ${d1 ? "btn-primary" : ""}`}
+                                            className="tooltip"
                                             data-tooltip="D1"
                                             onClick={() => toggleOutput(1, d1, setD1)}
                                         />
                                         <ButtonImg
                                             label="D2"
-                                            className={`tooltip ${d2 ? "btn-primary" : ""}`}
+                                            className="tooltip"
                                             data-tooltip="D2"
                                             onClick={() => toggleOutput(2, d2, setD2)}
                                         />
                                         <ButtonImg
                                             label="D3"
-                                            className={`tooltip ${d3 ? "btn-primary" : ""}`}
+                                            className="tooltip"
                                             data-tooltip="D3"
                                             onClick={() => toggleOutput(3, d3, setD3)}
                                         />
                                         <ButtonImg
                                             label="D4"
-                                            className={`tooltip ${d4 ? "btn-primary" : ""}`}
+                                            className="tooltip"
                                             data-tooltip="D4"
                                             onClick={() => toggleOutput(4, d4, setD4)}
                                         />
@@ -438,30 +438,34 @@ const SpindlePanel: FunctionalComponent = () => {
                                 )}
 
                                 {item.control && (
-<div>
+                                    <div class="panel-field-inline">
+                                        <label>
+                                            {T(item.control!.label)}
+                                        </label>
+
                                         <Field
                                             id={item.control!.id}
                                             inline
                                             width="4rem"
-                                            label={T(item.control!.label)}
+                                            label=""
                                             type={item.control!.type}
                                             min={item.control!.min}
                                             value={item.control!.value.current}
                                             setValue={(val: number, update = false) => {
                                                 if (!update) {
-                                                    item.control!.value.current =
-                                                        val
+                                                    item.control!.value.current = val
                                                 }
                                                 setvalidation(
                                                     generateValidation(
-                                                        (item.control!.value
-                                                            .current) as number
+                                                        item.control!.value.current as number
                                                     )
                                                 )
                                             }}
                                             validation={validation}
                                         />
                                     </div>
+
+
                                 )}
                             </div>
 

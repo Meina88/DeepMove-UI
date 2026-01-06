@@ -91,3 +91,17 @@
     height: 100%;
     width: 100%;
 }
+
+.panel-field-inline {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 0.5rem;
+
+    label {
+        min-width: 120px;
+        font-weight: 500;
+        color: #444;
+    }
+}
+
