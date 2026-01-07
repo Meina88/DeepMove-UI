@@ -34,50 +34,49 @@ type OverrideId = "spindle" | "feed"
 type Overrides = Partial<Record<OverrideId, number>> &
     Record<string, number | undefined>
 
+type StateValue = { value: string } | Array<{ value: string }>
+type StatesMap = Record<string, StateValue>    
+
 const OverridesControls: FunctionalComponent = () => {
-    const { overrides } = useTargetContext() as unknown as {
-        overrides: Overrides
-    }
+  const { states } = useTargetContext() as { states: StatesMap }
 
-    if (!useUiContextFn.getValue("showoverridespanel")) return null
+  if (!useUiContextFn.getValue("showoverridespanel")) return null
 
-    const overridesArray: Array<{
-        id: OverrideId
-        label: string
-        tooltip: string
-    }> = [
-        { id: "spindle", label: "CN64", tooltip: "CN67" },
-        { id: "feed", label: "CN9", tooltip: "CN68" },
-    ]
+  // Mismo enfoque que SpindleControls:
+  const statesArray = [
+    { id: "spindle_speed", label: "CN64" }, // Speed
+    { id: "feed_rate", label: "CN9" },      // Feedrate
+  ] as const
 
-    return (
-        <Fragment>
-            {overrides && (
-                <div class="status-ctrls">
-                    {overridesArray.map((element) => {
-                        if (overrides[element.id] != null) {
-                            return (
-                                <div
-                                    key={element.id}
-                                    class="extra-control mt-1 tooltip tooltip-bottom"
-                                    data-tooltip={T(element.tooltip)}
-                                >
-                                    <div class="extra-control-header">
-                                        {T(element.label)}
-                                    </div>
-                                    <div class="extra-control-value">
-                                        {overrides[element.id]}%
-                                    </div>
-                                </div>
-                            )
-                        }
-                        return null
-                    })}
-                </div>
-            )}
-        </Fragment>
-    )
+  return (
+    <Fragment>
+      {states && (states.spindle_speed || states.feed_rate) && (
+        <div class="status-ctrls">
+          {statesArray.map((element) => {
+            const sv = states[element.id]
+            if (!sv) return null
+
+            const displayVal = Array.isArray(sv)
+              ? sv.map((i) => i.value).join(" ")
+              : sv.value
+
+            return (
+              <div
+                key={element.id}
+                class="extra-control mt-1 tooltip tooltip-bottom"
+                data-tooltip={T(element.label)}
+              >
+                <div class="extra-control-header">{T(element.label)}</div>
+                <div class="extra-control-value">{displayVal}</div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </Fragment>
+  )
 }
+
 
 const OverridesPanel: FunctionalComponent = () => {
     const { targetCommands } = useTargetCommands()
@@ -86,16 +85,16 @@ const OverridesPanel: FunctionalComponent = () => {
 
     const spindleButtons = [
         { label: "+10%", tooltip: "CN67", command: "#SSO+10#" },
-        { label: "100%", tooltip: "CN66", command: "#SSO100#" },   
+        { label: "100%", tooltip: "CN66", command: "#SSO100#" },
         { label: "-10%", tooltip: "CN67", command: "#SSO-10#" },
-             
+
     ]
 
     const feedButtons = [
-        { label: "+10%", tooltip: "CN68", command: "#FO+10#" },        
+        { label: "+10%", tooltip: "CN68", command: "#FO+10#" },
         { label: "100%", tooltip: "CN66", command: "#FO100#" },
         { label: "-10%", tooltip: "CN68", command: "#FO-10#" },
-        
+
     ]
 
     return (
