@@ -45,6 +45,7 @@
     display: flex;
     flex-flow: column;
 }
+
 .panel .navbar,
 .panel .navbar-section {
     background: #f1f1fc;
@@ -105,3 +106,72 @@
     }
 }
 
+
+
+
+
+#OverridesPanel .panel-body-dashboard {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    /* spindle | hold | feed */
+    grid-template-rows:
+        auto
+        /* placeholder */
+        auto
+        /* status */
+        auto;
+    /* controls */
+    grid-template-areas:
+        "placeholder placeholder placeholder"
+        "status      status      status"
+        "spindle     hold        feed";
+    row-gap: 1rem;
+    column-gap: 1rem;
+}
+
+#OverridesPanel .overrides-top-placeholder {
+    grid-area: placeholder;
+}
+
+
+#OverridesPanel .status-ctrls {
+    grid-area: status;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    justify-items: center;
+}
+
+#OverridesPanel .field-group-content.spindle {
+    grid-area: spindle;
+    display: grid;
+    grid-auto-flow: row;
+    gap: 0.75rem;
+    justify-items: center;
+    width: 100%;
+    max-width: 160px;
+}
+
+#OverridesPanel .field-group-content.feed {
+    grid-area: feed;
+    display: grid;
+    grid-auto-flow: row;
+    gap: 0.75rem;
+    justify-items: center;
+    width: 100%;
+    max-width: 160px;
+}
+
+#OverridesPanel .override-buttons-container {
+    grid-area: hold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+#OverridesPanel .states-buttons-container {
+    display: flex;
+    flex-direction: column;   /* 🔑 fuerza vertical */
+    gap: 0.75rem;
+    align-items: center;
+}
