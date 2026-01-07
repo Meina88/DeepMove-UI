@@ -109,38 +109,75 @@
 
 
 
-
+/* ===== GRID PRINCIPAL ===== */
 #OverridesPanel .panel-body-dashboard {
     display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    /* spindle | hold | feed */
+    grid-template-columns: 0.1fr auto 0.1fr;
     grid-template-rows:
-        auto
-        /* placeholder */
-        auto
-        /* status */
-        auto;
-    /* controls */
+        auto    /* placeholder */        
+        auto    /* status */
+        auto    /* 🔒 link */
+        auto    /* ⏸️ hold */
+        auto;   /* botones restantes */
     grid-template-areas:
         "placeholder placeholder placeholder"
         "status      status      status"
-        "spindle     hold        feed";
+        "spindle     link        feed"
+        "spindle     hold        feed"
+        "spindle     .           feed";
     row-gap: 1rem;
     column-gap: 1rem;
 }
 
+
+/* ===== PLACEHOLDER SUPERIOR ===== */
 #OverridesPanel .overrides-top-placeholder {
     grid-area: placeholder;
 }
 
 
+
+
+/* ===== STATUS (Speed / Feedrate) ===== */
 #OverridesPanel .status-ctrls {
     grid-area: status;
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    justify-items: center;
+    grid-template-columns: 160px 80px 160px;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+    gap: 0.5rem;
 }
 
+#OverridesPanel .status-ctrls > .extra-control {
+    justify-self: center;
+}
+
+#OverridesPanel .status-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+
+
+
+#OverridesPanel .status-ctrls>.extra-control:first-child {
+    grid-column: 1;
+    /* Speed */
+    justify-self: center;
+}
+
+#OverridesPanel .status-ctrls>.extra-control:last-child {
+    grid-column: 3;
+    /* Feedrate */
+    justify-self: center;
+}
+
+/* ===== COLUMNA SPINDLE ===== */
 #OverridesPanel .field-group-content.spindle {
     grid-area: spindle;
     display: grid;
@@ -151,6 +188,7 @@
     max-width: 160px;
 }
 
+/* ===== COLUMNA FEED ===== */
 #OverridesPanel .field-group-content.feed {
     grid-area: feed;
     display: grid;
@@ -161,6 +199,7 @@
     max-width: 160px;
 }
 
+/* ===== BOTÓN HOLD CENTRAL ===== */
 #OverridesPanel .override-buttons-container {
     grid-area: hold;
     display: flex;
@@ -168,10 +207,20 @@
     align-items: center;
 }
 
-
+/* ===== CONTENEDOR DE BOTONES (+10 / 100 / -10) ===== */
 #OverridesPanel .states-buttons-container {
     display: flex;
-    flex-direction: column;   /* 🔑 fuerza vertical */
+    flex-direction: column;
+    /* fuerza apilado vertical */
     gap: 0.75rem;
+    align-items: center;
+}
+
+
+
+#OverridesPanel .override-buttons-container {
+    grid-area: hold;
+    display: flex;
+    justify-content: center;
     align-items: center;
 }

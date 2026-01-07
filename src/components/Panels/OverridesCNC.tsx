@@ -29,73 +29,121 @@ import {
     ContainerHelper,
 } from "../Controls"
 import { useTargetCommands } from "../../hooks"
-
-type OverrideId = "spindle" | "feed"
-type Overrides = Partial<Record<OverrideId, number>> &
-    Record<string, number | undefined>
+import { Lock, Unlock } from "preact-feather"
+import { useState } from "preact/hooks"
 
 type StateValue = { value: string } | Array<{ value: string }>
-type StatesMap = Record<string, StateValue>    
+type StatesMap = Record<string, StateValue>
 
-const OverridesControls: FunctionalComponent = () => {
-  const { states } = useTargetContext() as { states: StatesMap }
+const OverridesControls: FunctionalComponent<{
+    linked: boolean
+    setLinked: (v: boolean) => void
+}> = ({ linked, setLinked }) => {
 
-  if (!useUiContextFn.getValue("showoverridespanel")) return null
+    const { states } = useTargetContext() as { states: StatesMap }
 
-  // Mismo enfoque que SpindleControls:
-  const statesArray = [
-    { id: "spindle_speed", label: "CN64" }, // Speed
-    { id: "feed_rate", label: "CN9" },      // Feedrate
-  ] as const
+    if (!useUiContextFn.getValue("showoverridespanel")) return null
+    if (!states?.spindle_speed && !states?.feed_rate) return null
 
-  return (
-    <Fragment>
-      {states && (states.spindle_speed || states.feed_rate) && (
+    const spindle = states.spindle_speed
+    const feed = states.feed_rate
+
+    const spindleVal = spindle
+        ? Array.isArray(spindle) ? spindle.map(i => i.value).join(" ") : spindle.value
+        : "--"
+
+    const feedVal = feed
+        ? Array.isArray(feed) ? feed.map(i => i.value).join(" ") : feed.value
+        : "--"
+
+    return (
         <div class="status-ctrls">
-          {statesArray.map((element) => {
-            const sv = states[element.id]
-            if (!sv) return null
 
-            const displayVal = Array.isArray(sv)
-              ? sv.map((i) => i.value).join(" ")
-              : sv.value
+            {/* SPEED */}
+            <div class="extra-control tooltip tooltip-bottom" data-tooltip={T("CN64")}>
+                <div class="extra-control-header">{T("CN64")}</div>
+                <div class="extra-control-value">{spindleVal}</div>
+            </div>
 
-            return (
-              <div
-                key={element.id}
-                class="extra-control mt-1 tooltip tooltip-bottom"
-                data-tooltip={T(element.label)}
-              >
-                <div class="extra-control-header">{T(element.label)}</div>
-                <div class="extra-control-value">{displayVal}</div>
-              </div>
-            )
-          })}
+            {/* 🔒 LOCK CENTRAL */}
+            <div class="status-center">
+                <ButtonImg
+                    icon={linked ? <Lock /> : <Unlock />}
+                    tooltip
+                    data-tooltip={
+                        linked
+                            ? "Feed & Spindle linked"
+                            : "Feed & Spindle independent"
+                    }
+                    onClick={() => {
+                        useUiContextFn.haptic()
+                        setLinked(!linked)
+
+                    }}
+                />
+
+            </div>
+
+
+            {/* FEED */}
+            <div class="extra-control tooltip tooltip-bottom" data-tooltip={T("CN9")}>
+                <div class="extra-control-header">{T("CN9")}</div>
+                <div class="extra-control-value">{feedVal}</div>
+            </div>
+
         </div>
-      )}
-    </Fragment>
-  )
+    )
 }
+
 
 
 const OverridesPanel: FunctionalComponent = () => {
     const { targetCommands } = useTargetCommands()
+    const [linked, setLinked] = useState(false)
     const { status } = useTargetContext() as any
     const id = "OverridesPanel"
 
     const spindleButtons = [
-        { label: "+10%", tooltip: "CN67", command: "#SSO+10#" },
-        { label: "100%", tooltip: "CN66", command: "#SSO100#" },
-        { label: "-10%", tooltip: "CN67", command: "#SSO-10#" },
-
+        { label: "+10%", tooltip: "CN67", delta: "+10" as const },
+        { label: "100%", tooltip: "CN66", delta: "100" as const },
+        { label: "-10%", tooltip: "CN67", delta: "-10" as const },
     ]
 
     const feedButtons = [
-        { label: "+10%", tooltip: "CN68", command: "#FO+10#" },
-        { label: "100%", tooltip: "CN66", command: "#FO100#" },
-        { label: "-10%", tooltip: "CN68", command: "#FO-10#" },
-
+        { label: "+10%", tooltip: "CN68", delta: "+10" as const },
+        { label: "100%", tooltip: "CN66", delta: "100" as const },
+        { label: "-10%", tooltip: "CN68", delta: "-10" as const },
     ]
+
+
+    type OverrideType = "spindle" | "feed"
+    type OverrideDelta = "+10" | "-10" | "100"
+
+    const sendOverride = (
+        type: OverrideType,
+        delta: OverrideDelta
+    ) => {
+        // 🔓 MODO NORMAL
+        if (!linked) {
+            targetCommands(
+                type === "spindle"
+                    ? `#SSO${delta}#`
+                    : `#FO${delta}#`
+            )
+            return
+        }
+
+        // 🔒 MODO LINKED → ambos
+        if (type === "spindle") {
+            targetCommands(`#SSO${delta}#`)
+            targetCommands(`#FO${delta}#`)
+        } else {
+            targetCommands(`#FO${delta}#`)
+            targetCommands(`#SSO${delta}#`)
+        }
+    }
+
+
 
     return (
         <div class="panel panel-dashboard" id={id}>
@@ -118,7 +166,8 @@ const OverridesPanel: FunctionalComponent = () => {
             </div>
 
             <div class="panel-body panel-body-dashboard">
-                <OverridesControls />
+                <OverridesControls linked={linked} setLinked={setLinked} />
+
 
                 <div class="overrides-top-placeholder" />
 
@@ -131,19 +180,19 @@ const OverridesPanel: FunctionalComponent = () => {
                                 mt1
                                 label={T(button.label)}
                                 data-tooltip={T(button.tooltip)}
-                                onClick={(
-                                    e: TargetedMouseEvent<HTMLButtonElement>
-                                ) => {
+                                onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
                                     useUiContextFn.haptic()
                                     e.currentTarget.blur()
-                                    targetCommands(button.command)
+                                    sendOverride("spindle", button.delta)
                                 }}
                             />
                         ))}
+
+
                     </div>
                 </div>
 
-                {/* HOLD / START central */}
+                {/* ⏸️ / ▶️ HOLD – START (CENTRO INFERIOR) */}
                 <div class="override-buttons-container">
                     {[
                         {
@@ -184,13 +233,15 @@ const OverridesPanel: FunctionalComponent = () => {
                                 icon={button.icon}
                                 tooltip
                                 data-tooltip={button.desc}
-                                onClick={() =>
+                                onClick={() => {
+                                    useUiContextFn.haptic()
                                     targetCommands(button.cmd)
-                                }
+                                }}
                             />
                         )
                     })}
                 </div>
+
 
                 {/* Feed buttons */}
                 <div class="field-group-content maxwidth feed">
@@ -201,18 +252,18 @@ const OverridesPanel: FunctionalComponent = () => {
                                 mt1
                                 label={T(button.label)}
                                 data-tooltip={T(button.tooltip)}
-                                onClick={(
-                                    e: TargetedMouseEvent<HTMLButtonElement>
-                                ) => {
+                                onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
                                     useUiContextFn.haptic()
                                     e.currentTarget.blur()
-                                    targetCommands(button.command)
+                                    sendOverride("feed", button.delta)
                                 }}
                             />
                         ))}
                     </div>
                 </div>
+
             </div>
+
         </div>
     )
 }
