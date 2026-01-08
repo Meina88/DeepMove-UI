@@ -32,6 +32,8 @@ import { useTargetCommands } from "../../hooks"
 import { Lock, Unlock } from "preact-feather"
 import { useState } from "preact/hooks"
 
+
+
 type StateValue = { value: string } | Array<{ value: string }>
 type StatesMap = Record<string, StateValue>
 
@@ -40,57 +42,23 @@ const OverridesControls: FunctionalComponent<{
     setLinked: (v: boolean) => void
 }> = ({ linked, setLinked }) => {
 
-    const { states } = useTargetContext() as { states: StatesMap }
-
     if (!useUiContextFn.getValue("showoverridespanel")) return null
-    if (!states?.spindle_speed && !states?.feed_rate) return null
-
-    const spindle = states.spindle_speed
-    const feed = states.feed_rate
-
-    const spindleVal = spindle
-        ? Array.isArray(spindle) ? spindle.map(i => i.value).join(" ") : spindle.value
-        : "--"
-
-    const feedVal = feed
-        ? Array.isArray(feed) ? feed.map(i => i.value).join(" ") : feed.value
-        : "--"
 
     return (
-        <div class="status-ctrls">
-
-            {/* SPEED */}
-            <div class="extra-control tooltip tooltip-bottom" data-tooltip={T("CN64")}>
-                <div class="extra-control-header">{T("CN64")}</div>
-                <div class="extra-control-value">{spindleVal}</div>
-            </div>
-
-            {/* 🔒 LOCK CENTRAL */}
-            <div class="status-center">
-                <ButtonImg
-                    icon={linked ? <Lock /> : <Unlock />}
-                    tooltip
-                    data-tooltip={
-                        linked
-                            ? "Feed & Spindle linked"
-                            : "Feed & Spindle independent"
-                    }
-                    onClick={() => {
-                        useUiContextFn.haptic()
-                        setLinked(!linked)
-
-                    }}
-                />
-
-            </div>
-
-
-            {/* FEED */}
-            <div class="extra-control tooltip tooltip-bottom" data-tooltip={T("CN9")}>
-                <div class="extra-control-header">{T("CN9")}</div>
-                <div class="extra-control-value">{feedVal}</div>
-            </div>
-
+        <div class="status-ctrls center-only">
+            <ButtonImg
+                icon={linked ? <Lock /> : <Unlock />}
+                tooltip
+                data-tooltip={
+                    linked
+                        ? "Feed & Spindle linked"
+                        : "Feed & Spindle independent"
+                }
+                onClick={() => {
+                    useUiContextFn.haptic()
+                    setLinked(!linked)
+                }}
+            />
         </div>
     )
 }
@@ -98,10 +66,63 @@ const OverridesControls: FunctionalComponent<{
 
 
 const OverridesPanel: FunctionalComponent = () => {
+    const [uiSpindleOverride, setUiSpindleOverride] = useState(100)
+    const [uiFeedOverride, setUiFeedOverride] = useState(100)
     const { targetCommands } = useTargetCommands()
     const [linked, setLinked] = useState(false)
-    const { status } = useTargetContext() as any
+    const { status, streamStatus, states } = useTargetContext() as {
+        status?: { state?: string }
+        streamStatus?: {
+            name?: string
+            processed?: number
+            total?: number
+        }
+        states?: StatesMap
+    }
+
     const id = "OverridesPanel"
+
+
+
+    const spindle = states?.spindle_speed
+    const feed = states?.feed_rate
+    /* Valores reales (string) */
+    const spindleVal = spindle
+        ? Array.isArray(spindle)
+            ? spindle.map(i => i.value).join(" ")
+            : spindle.value
+        : "--"
+
+    const feedVal = feed
+        ? Array.isArray(feed)
+            ? feed.map(i => i.value).join(" ")
+            : feed.value
+        : "--"
+
+    /* Valores reales (number) */
+    const spindleRPM = Number(spindleVal) || 0
+    const feedMM = Number(feedVal) || 0
+
+    /* Normalización 50–150 → 0–100% */
+    const overrideToHeight = (value: number) => {
+        const MIN = 50
+        const MAX = 150
+        const clamped = Math.max(MIN, Math.min(MAX, value))
+        return ((clamped - MIN) / (MAX - MIN)) * 100
+    }
+    const spindleBarHeight =
+        spindleRPM > 0
+            ? overrideToHeight(uiSpindleOverride)
+            : 0
+
+    const feedBarHeight =
+        feedMM > 0
+            ? overrideToHeight(uiFeedOverride)
+            : 0
+
+
+
+
 
     const spindleButtons = [
         { label: "+10%", tooltip: "CN67", delta: "+10" as const },
@@ -119,29 +140,35 @@ const OverridesPanel: FunctionalComponent = () => {
     type OverrideType = "spindle" | "feed"
     type OverrideDelta = "+10" | "-10" | "100"
 
-    const sendOverride = (
-        type: OverrideType,
-        delta: OverrideDelta
-    ) => {
-        // 🔓 MODO NORMAL
+    const clamp = (v: number) => Math.max(50, Math.min(150, v))
+
+    const sendOverride = (type: OverrideType, delta: OverrideDelta) => {
+        const applyDelta = (current: number) => {
+            if (delta === "100") return 100
+            if (delta === "+10") return Math.min(150, current + 10)
+            if (delta === "-10") return Math.max(50, current - 10)
+            return current
+        }
+
         if (!linked) {
-            targetCommands(
-                type === "spindle"
-                    ? `#SSO${delta}#`
-                    : `#FO${delta}#`
-            )
+            if (type === "spindle") {
+                setUiSpindleOverride(v => applyDelta(v))
+                targetCommands(`#SSO${delta}#`)
+            } else {
+                setUiFeedOverride(v => applyDelta(v))
+                targetCommands(`#FO${delta}#`)
+            }
             return
         }
 
-        // 🔒 MODO LINKED → ambos
-        if (type === "spindle") {
-            targetCommands(`#SSO${delta}#`)
-            targetCommands(`#FO${delta}#`)
-        } else {
-            targetCommands(`#FO${delta}#`)
-            targetCommands(`#SSO${delta}#`)
-        }
+        // 🔒 linked
+        setUiSpindleOverride(v => applyDelta(v))
+        setUiFeedOverride(v => applyDelta(v))
+        targetCommands(`#SSO${delta}#`)
+        targetCommands(`#FO${delta}#`)
     }
+
+
 
 
 
@@ -165,11 +192,80 @@ const OverridesPanel: FunctionalComponent = () => {
                 </span>
             </div>
 
+
+
+
             <div class="panel-body panel-body-dashboard">
                 <OverridesControls linked={linked} setLinked={setLinked} />
 
+                <div class="overrides-top-placeholder">
 
-                <div class="overrides-top-placeholder" />
+                    {/* 🔼 GRÁFICOS DE SPEED / FEED */}
+                    <div class="overrides-graphs">
+
+                        {/* SPINDLE */}
+                        <div class="graph-column">
+                            <div class="graph-bar spindle">
+                                <div
+                                    class="graph-bar-fill"
+                                    style={{
+                                        height: `${spindleBarHeight}%`
+                                        ,
+
+                                    }}
+
+                                />
+                            </div>
+                            <div class="graph-value">
+                                <div class="graph-value-number">{spindleVal || "--"}</div>
+                                <div class="graph-value-unit">rpm</div>
+                            </div>
+
+                        </div>
+
+                        {/* ESPACIO CENTRAL RESERVADO */}
+                        <div class="graph-center-space" />
+
+                        {/* FEED */}
+                        <div class="graph-column">
+                            <div class="graph-bar feed">
+                                <div
+                                    class="graph-bar-fill"
+                                    style={{
+                                        height: `${feedBarHeight}%`
+                                        ,
+                                    }}
+
+                                />
+                            </div>
+                            <div class="graph-value">
+                                {feedVal || "--"} mm/min
+                            </div>
+                        </div>
+
+                    </div>
+
+                    {/* ⬇️ Indicador de archivo y progreso (FOOTER) */}
+                    <div class={`graph-footer ${status?.state === "Run" ? "visible" : "hidden"}`}>
+                        <div class="graph-file-name text-ellipsis">
+                            {streamStatus?.name || ""}
+                        </div>
+
+                        <div class="graph-progress">
+                            {status?.state === "Run" && streamStatus?.total
+                                ? `${(
+                                    (Number(streamStatus.processed) /
+                                        Number(streamStatus.total)) *
+                                    100
+                                ).toFixed(1)}%`
+                                : ""}
+                        </div>
+                    </div>
+
+
+                </div>
+
+
 
                 {/* Spindle buttons */}
                 <div class="field-group-content maxwidth spindle">
@@ -263,7 +359,6 @@ const OverridesPanel: FunctionalComponent = () => {
                 </div>
 
             </div>
-
         </div>
     )
 }

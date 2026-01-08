@@ -50,33 +50,43 @@ const CONTINUOUS_DISTANCE = 5000
  */
 //A separate control to avoid the full panel to be updated when the positions are updated
 interface PositionsControlsProps {
+    mode: "mpos" | "wpos"
     onWPosClick: (letter: string, position: string) => void
     onHomeAxis: (axis: string) => void
     onZeroAxis: (axis: string) => void
 }
 
 
+
 const PositionsControls = ({
+    mode,
     onWPosClick,
     onHomeAxis,
     onZeroAxis,
 }: PositionsControlsProps) => {
     const { positions } = useTargetContext()   // ✅ acá adentro
+    const isMPos = mode === "mpos"
+    const isWPos = mode === "wpos"
+
+
 
     return (
-        <Fragment>
-            {["x", "y", "z"].map((letter) => {
-                const hasM = typeof positions[letter] !== "undefined"
-                const hasW = typeof positions[`w${letter}`] !== "undefined"
+    <Fragment>
+        {["x", "y", "z"].map((letter) => {
+            const hasM = typeof positions[letter] !== "undefined"
+            const hasW = typeof positions[`w${letter}`] !== "undefined"
 
-                if (!hasM && !hasW) return null
-                if (!useUiContextFn.getValue(`show${letter}`)) return null
+            if (isMPos && !hasM) return null
+            if (isWPos && !hasW) return null
+            if (!useUiContextFn.getValue(`show${letter}`)) return null
 
-                const axis = letter.toUpperCase()
+            const axis = letter.toUpperCase()
 
-                return (
-                    <div key={letter} class="jog-positions-ctrls m-1">
-                        {/* MPos */}
+            return (
+                <div key={letter} class="jog-positions-ctrls m-1">
+
+                    {/* ===== MPos ===== */}
+                    {isMPos && (
                         <div class="jog-position-row">
                             <Button
                                 m1
@@ -100,8 +110,10 @@ const PositionsControls = ({
                                 </div>
                             </div>
                         </div>
+                    )}
 
-                        {/* WPos */}
+                    {/* ===== WPos ===== */}
+                    {isWPos && (
                         <div class="jog-position-row">
                             <div class="jog-position-ctrl">
                                 <div class="jog-position-sub-header">
@@ -131,11 +143,14 @@ const PositionsControls = ({
                                 &Oslash;
                             </Button>
                         </div>
-                    </div>
-                )
-            })}
-        </Fragment>
-    )
+                    )}
+
+                </div>
+            )
+        })}
+    </Fragment>
+)
+
 }
 
 
@@ -587,52 +602,55 @@ const JogPanel = () => {
                 </span>
             </div>
             <div class="m-1 jog-container">
-                {/* === GO TO BUTTONS (TOP) === */}
-                <div class="jog-goto-row">
-                    <Button
-                        m2
-                        class="jog-goto-btn"
-                        onClick={goToMachineZero}
-                    >
-                        Go to M0
-                    </Button>
+                {/* ===== POSITIONS GRID ===== */}
+                <div class="jog-positions-grid">
 
-                    <Button
-                        m2
-                        class="jog-goto-btn"
-                        onClick={goToWorkZero}
-                    >
-                        Go to W0
-                    </Button>
+                    {/* ===== MPos BOX ===== */}
+                    <div class="jog-axis-group">
+                        <Button m2 class="jog-goto-btn" onClick={goToMachineZero}>
+                            Go to M0
+                        </Button>
+
+                        <PositionsControls
+                            mode="mpos"
+                            onHomeAxis={sendHomeCommand}
+                            onZeroAxis={sendZeroCommand}
+                            onWPosClick={showMoveToDialog}
+                        />
+
+                        <Button
+                            m2
+                            class="jog-global-btn"
+                            onClick={() => sendHomeCommand("")}
+                        >
+                            Home XYZ
+                        </Button>
+                    </div>
+
+                    {/* ===== WPos BOX ===== */}
+                    <div class="jog-axis-group">
+                        <Button m2 class="jog-goto-btn" onClick={goToWorkZero}>
+                            Go to W0
+                        </Button>
+
+                        <PositionsControls
+                            mode="wpos"
+                            onHomeAxis={sendHomeCommand}
+                            onZeroAxis={sendZeroCommand}
+                            onWPosClick={showMoveToDialog}
+                        />
+
+                        <Button
+                            m2
+                            class="jog-global-btn"
+                            onClick={() => sendZeroCommand("")}
+                        >
+                            Zero XYZ
+                        </Button>
+                    </div>
+
                 </div>
-                <PositionsControls
-                    onWPosClick={showMoveToDialog}
-                    onHomeAxis={sendHomeCommand}
-                    onZeroAxis={sendZeroCommand}
-                />
-                {/* === GLOBAL ACTIONS (BOTTOM) === */}
-                <div class="jog-global-row">
-                    <Button
-                        m2
-                        class="jog-global-btn"
-                        onClick={() => {
-                            sendHomeCommand("")
-                        }}
-                    >
-                        Home XYZ
-                    </Button>
 
-                    <Button
-                        m2
-                        class="jog-global-btn"
-                        onClick={() => {
-                            sendZeroCommand("")
-                        }}
-                    >
-
-                        Zero XYZ
-                    </Button>
-                </div>
                 <div class="jog-buttons-main-container">
 
                     {/* XY */}
