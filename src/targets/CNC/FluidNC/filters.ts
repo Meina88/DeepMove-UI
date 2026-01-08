@@ -55,6 +55,7 @@ interface StatusResponse {
     ln: Record<string, any>
     f: Record<string, any>
     rpm: Record<string, any>
+    power?: { value: number }   // 👈 NUEVO
     bf: Record<string, any>
     sd: Record<string, any>
 }
@@ -69,6 +70,7 @@ const getStatus = (str: string): StatusResponse => {
         ln: {},
         f: {},
         rpm: {},
+        power: undefined,   // 👈 NUEVO
         bf: {},
         sd: {},
     }
@@ -84,6 +86,8 @@ const getStatus = (str: string): StatusResponse => {
     const f_patern = /\|F:(?<f>[^|>]+)/i
     const ln_patern = /\|Ln:(?<ln>[^|>]+)/i
     const sd_stream = /SD:(?<sd>[^|>]+)/i
+    const p_pattern = /\|P:(?<p>[^|>]+)/i
+
     let result: RegExpExecArray | null = null
 
     //line number
@@ -110,6 +114,12 @@ const getStatus = (str: string): StatusResponse => {
         res.f.value = r[0]
         res.rpm.value = r[1]
     }
+
+    // power (W)
+    if ((result = p_pattern.exec(str)) !== null) {
+        res.power = { value: parseFloat(result.groups!.p) }
+    }
+
     //feed rate
     if ((result = f_patern.exec(str)) !== null) {
         res.f.value = result.groups!.f
@@ -213,7 +223,7 @@ const getStatus = (str: string): StatusResponse => {
         : defaultletters.split("")
     letterslist.forEach((letter: string, index: number) => {
         res.positions[letter] = index < mpos.length ? mpos[index] : undefined
-        res.positions[`w${  letter}`] =
+        res.positions[`w${letter}`] =
             index < wpos.length ? wpos[index] : undefined
     })
     return res
@@ -243,8 +253,8 @@ const getStates = (str: string): Record<string, any> => {
                     cur[0] == "F"
                         ? "feed_rate"
                         : cur[0] == "T"
-                          ? "active_tool"
-                          : "spindle_speed"
+                            ? "active_tool"
+                            : "spindle_speed"
                 ] = { value: parseFloat(cur.substring(1)) }
             } else {
                 gcode_parser_modes.forEach((mode) => {
@@ -412,7 +422,7 @@ interface SensorData {
 
 const getSensor = (str: string): SensorData[] => {
     const result: SensorData[] = []
-    const data = ` ${  str.substring(7)}`
+    const data = ` ${str.substring(7)}`
     let res: RegExpExecArray | null = null
     const reg_search = /\s(?<value>[^[]+)\[(?<unit>[^\]]+)\]/g
     while ((res = reg_search.exec(data))) {

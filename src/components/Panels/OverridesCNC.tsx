@@ -71,7 +71,13 @@ const OverridesPanel: FunctionalComponent = () => {
     const { targetCommands } = useTargetCommands()
     const [linked, setLinked] = useState(false)
     const { status, streamStatus, states } = useTargetContext() as {
-        status?: { state?: string }
+        status?: {
+            state?: string
+            power?: { value: number }
+            [key: string]: any
+        }
+
+
         streamStatus?: {
             name?: string
             processed?: number
@@ -79,7 +85,7 @@ const OverridesPanel: FunctionalComponent = () => {
         }
         states?: StatesMap
     }
-
+    const powerW = status?.power?.value ?? 0
     const id = "OverridesPanel"
 
 
@@ -110,6 +116,19 @@ const OverridesPanel: FunctionalComponent = () => {
         const clamped = Math.max(MIN, Math.min(MAX, value))
         return ((clamped - MIN) / (MAX - MIN)) * 100
     }
+
+    /* 🔋 Normalización potencia 0–1500 W → 0–180° */
+    const powerToAngle = (power: number) => {
+        const MIN = 0
+        const MAX = 1500
+        const clamped = Math.max(MIN, Math.min(MAX, power))
+        return (clamped / MAX) * 180
+    }
+    const powerAngle = powerToAngle(powerW)
+
+
+
+
     const spindleBarHeight =
         spindleRPM > 0
             ? overrideToHeight(uiSpindleOverride)
@@ -223,8 +242,62 @@ const OverridesPanel: FunctionalComponent = () => {
 
                         </div>
 
-                        {/* ESPACIO CENTRAL RESERVADO */}
-                        <div class="graph-center-space" />
+                        {/* 🔋 POWER GAUGE */}
+                        <div class="graph-center-gauge">
+                            <svg viewBox="0 0 200 120" class="power-gauge">
+                                {/* arco fondo */}
+                                <path
+                                    d="M20 100 A80 80 0 0 1 180 100"
+                                    fill="none"
+                                    stroke="#d0d0d0"
+                                    strokeWidth="16"
+                                    strokeLinecap="round"
+                                />
+
+                                <path
+                                    d="M20 100 A80 80 0 0 1 180 100"
+                                    fill="none"
+                                    stroke="url(#powerGradient)"
+                                    stroke-width="16"
+                                    stroke-linecap="round"
+                                    stroke-dasharray="251"
+                                    stroke-dashoffset={251 - (251 * powerAngle) / 180}
+                                />
+
+
+                                {/* aguja */}
+                                <g
+                                    transform={`rotate(${powerAngle - 90} 100 100)`}
+                                >
+                                    <line
+                                        x1="100"
+                                        y1="100"
+                                        x2="100"
+                                        y2="30"
+                                        stroke="#111"
+                                        stroke-width="3"
+                                    />
+                                </g>
+
+                                {/* centro */}
+                                <circle cx="100" cy="100" r="6" fill="#111" />
+
+                                {/* gradiente */}
+                                <defs>
+                                    <linearGradient id="powerGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" stopColor="#4caf50" />
+                                        <stop offset="60%" stopColor="#ffc107" />
+                                        <stop offset="100%" stopColor="#f44336" />
+
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+
+                            <div class="power-value">
+                                {powerW} <span>W</span>
+                            </div>
+                        </div>
+
 
                         {/* FEED */}
                         <div class="graph-column">
@@ -238,9 +311,11 @@ const OverridesPanel: FunctionalComponent = () => {
 
                                 />
                             </div>
-                            <div class="graph-value">
-                                {feedVal || "--"} mm/min
-                            </div>
+<div class="graph-value">
+    <div class="graph-value-number">{feedVal || "--"}</div>
+    <div class="graph-value-unit">mm/min</div>
+</div>
+
                         </div>
 
                     </div>

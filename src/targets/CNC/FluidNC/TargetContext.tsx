@@ -168,29 +168,41 @@ const TargetContextProvider = ({ children }: TargetContextProviderProps) => {
                         })
                     })
                 }
-                if (response.status) {
-                    setStatus(response.status)
-                    if ((lastStatus as any).current !== response.status) {
-                        (lastStatus as any).current = response.status
-                        if (
-                            !(
-                                response.status.state == "Alarm" ||
-                                response.status.state == "Idle" ||
-                                response.status.state == "Sleep"
-                            )
-                        )
-                            setMessage("")
-                        if (
-                            !(
-                                response.status.state == "Alarm" ||
-                                response.status.state == "Error"
-                            )
-                        ) {
-                            setAlarmCode(0)
-                            setErrorCode(0)
-                        }
-                    }
-                }
+if (response.status) {
+    const newStatus: any = {
+        ...response.status,
+    }
+
+    // 👇 PROPAGAR POWER
+    if (response.power && typeof response.power.value === "number") {
+        newStatus.power = response.power
+    }
+
+    setStatus(newStatus)
+
+    if ((lastStatus as any).current !== newStatus) {
+        (lastStatus as any).current = newStatus
+        if (
+            !(
+                newStatus.state == "Alarm" ||
+                newStatus.state == "Idle" ||
+                newStatus.state == "Sleep"
+            )
+        ) {
+            setMessage("")
+        }
+        if (
+            !(
+                newStatus.state == "Alarm" ||
+                newStatus.state == "Error"
+            )
+        ) {
+            setAlarmCode(0)
+            setErrorCode(0)
+        }
+    }
+}
+
                 if (response.ov) {
                     setOverrides(response.ov)
                 }
