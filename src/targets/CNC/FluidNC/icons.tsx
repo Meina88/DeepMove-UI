@@ -43,6 +43,16 @@ const Fan: FunctionalComponent<IconProps> = ({ height = "1.2em" }) => (
     </svg>
 )
 
+const SDCard: FunctionalComponent<IconProps> = ({ height = "1.2em" }) => (
+  <svg
+    height={height}
+    viewBox="0 -960 960 960"
+    fill="currentColor"
+  >
+    <path d="M360-520h80v-160h-80v160Zm120 0h80v-160h-80v160Zm120 0h80v-160h-80v160ZM240-80q-33 0-56.5-23.5T160-160v-480l240-240h320q33 0 56.5 23.5T800-800v640q0 33-23.5 56.5T720-80H240Zm0-80h480v-640H434L240-606v446Zm0 0h480-480Z"/>
+  </svg>
+)
+
 /*
  *feedrate icon
  * default height is 1.2m
@@ -81,11 +91,80 @@ const FlowRate: FunctionalComponent<IconProps> = ({ height = "1.0em" }) => (
     </svg>
 )
 
+const Mixer: FunctionalComponent<IconProps> = ({ height = "1.2em" }) => (
+    <svg
+        height={height}
+        viewBox="0 -960 960 960"
+        fill="currentColor"
+    >
+        <path d="M200-160v-280h-80v-80h240v80h-80v280h-80Zm0-440v-200h80v200h-80Zm160 0v-80h80v-120h80v120h80v80H360Zm80 440v-360h80v360h-80Zm240 0v-120h-80v-80h240v80h-80v120h-80Zm0-280v-360h80v360h-80Z" />
+    </svg>
+)
+
+const Outputs: FunctionalComponent<IconProps> = ({ height = "1.2em" }) => (
+    <svg
+        height={height}
+        viewBox="0 -960 960 960"
+        fill="currentColor"
+        xmlns="http://www.w3.org/2000/svg"
+    >
+        <path d="M720-360v-80h80q17 0 28.5 11.5T840-400q0 17-11.5 28.5T800-360h-80Zm0 160v-80h80q17 0 28.5 11.5T840-240q0 17-11.5 28.5T800-200h-80Zm-160 40q-33 0-56.5-23.5T480-240h-80v-160h80q0-33 23.5-56.5T560-480h120v320H560ZM280-280q-66 0-113-47t-47-113q0-66 47-113t113-47h60q25 0 42.5-17.5T400-660q0-25-17.5-42.5T340-720H200q-17 0-28.5-11.5T160-760q0-17 11.5-28.5T200-800h140q58 0 99 41t41 99q0 58-41 99t-99 41h-60q-33 0-56.5 23.5T200-440q0 33 23.5 56.5T280-360h80v80h-80Z"/>
+    </svg>
+)
+
+const Joystick: FunctionalComponent<IconProps> = ({ height = "1.2em" }) => (
+    <svg
+        height={height}
+        viewBox="0 -960 960 960"
+        fill="currentColor"
+        xmlns="http://www.w3.org/2000/svg"
+    >
+        <path d="M189-160q-60 0-102.5-43T42-307q0-9 1-18t3-18l84-336q14-54 57-87.5t98-33.5h390q55 0 98 33.5t57 87.5l84 336q2 9 3.5 18.5T919-306q0 61-43.5 103.5T771-160q-42 0-78-22t-54-60l-28-58q-5-10-15-15t-21-5H385q-11 0-21 5t-15 15l-28 58q-18 38-54 60t-78 22Zm3-80q19 0 34.5-10t23.5-27l28-57q15-31 44-48.5t63-17.5h190q34 0 63 18t45 48l28 57q8 17 23.5 27t34.5 10q28 0 48-18.5t21-46.5q0 1-2-19l-84-335q-7-27-28-44t-49-17H285q-28 0-49.5 17T208-659l-84 335q-2 6-2 18 0 28 20.5 47t49.5 19Zm348-280q17 0 28.5-11.5T580-560q0-17-11.5-28.5T540-600q-17 0-28.5 11.5T500-560q0 17 11.5 28.5T540-520Zm80-80q17 0 28.5-11.5T660-640q0-17-11.5-28.5T620-680q-17 0-28.5 11.5T580-640q0 17 11.5 28.5T620-600Zm0 160q17 0 28.5-11.5T660-480q0-17-11.5-28.5T620-520q-17 0-28.5 11.5T580-480q0 17 11.5 28.5T620-440Zm80-80q17 0 28.5-11.5T740-560q0-17-11.5-28.5T700-600q-17 0-28.5 11.5T660-560q0 17 11.5 28.5T700-520Zm-360 60q13 0 21.5-8.5T370-490v-40h40q13 0 21.5-8.5T440-560q0-13-8.5-21.5T410-590h-40v-40q0-13-8.5-21.5T340-660q-13 0-21.5 8.5T310-630v40h-40q-13 0-21.5 8.5T240-560q0 13 8.5 21.5T270-530h40v40q0 13 8.5 21.5T340-460Z"/>
+    </svg>
+)
+
+const Status: FunctionalComponent<IconProps> = ({ height = "1.2em" }) => (
+    <svg
+        height={height}
+        viewBox="0 -960 960 960"
+        fill="currentColor"
+    >
+        <path d="M160-200h640v-80H160v80Zm160-240h80v-120q0-33 23.5-56.5T480-640v-80q-66 0-113 47t-47 113v120Zm-200-80h400v-200q0-83-58.5-141.5T480-760q-83 0-141.5 58.5T280-560v200ZM160-120q-33 0-56.5-23.5T80-200v-80q0-33 23.5-56.5T160-360h40v-200q0-117 81.5-198.5T480-840q117 0 198.5 81.5T760-560v200h40q33 0 56.5 23.5T880-280v80q0 33-23.5 56.5T800-120H160Zm320-240Z" />
+    </svg>
+)
+
+const Diamond: FunctionalComponent<IconProps> = ({ height = "1.2em" }) => (
+    <svg
+        height={height}
+        viewBox="0 -960 960 960"
+        fill="currentColor"
+    >
+        <path d="M480-120 80-600l120-240h560l120 240-400 480Zm-95-520h190l-60-120h-70l-60 120Zm55 347v-267H218l222 267Zm80 0 222-267H520v267Zm144-347h106l-60-120H604l60 120Zm-474 0h106l60-120H250l-60 120Z" />
+    </svg>
+)
+
+const Flare: FunctionalComponent<IconProps> = ({ height = "1.2em" }) => (
+    <svg
+        height={height}
+        viewBox="0 -960 960 960"
+        fill="currentColor"
+    >
+        <path d="M40-440v-80h240v80H40Zm270-154-84-84 56-56 84 84-56 56Zm130-86v-240h80v240h-80Zm210 86-56-56 84-84 56 56-84 84Zm30 154v-80h240v80H680Zm-200 80q-50 0-85-35t-35-85q0-50 35-85t85-35q50 0 85 35t35 85q0 50-35 85t-85 35Zm198 134-84-84 56-56 84 84-56 56Zm-396 0-56-56 84-84 56 56-84 84ZM440-40v-240h80v240h-80Z" />
+    </svg>
+)
+
 const iconsTarget = {
     Fan: <Fan />,
     FeedRate: <FeedRate />,
     FlowRate: <FlowRate />,
+    SDCard: <SDCard />,
+    Mixer: <Mixer />,
+    Outputs: <Outputs />,
+    Joystick: <Joystick />,
+    Status: <Status />,
+    Diamond: <Diamond />,
+    Flare: <Flare />
 } as const
 
-export { Fan, FeedRate, FlowRate, iconsTarget }
+export { Fan, FeedRate, FlowRate, SDCard, Mixer, Outputs, Joystick, Status, Diamond, Flare, iconsTarget }
 

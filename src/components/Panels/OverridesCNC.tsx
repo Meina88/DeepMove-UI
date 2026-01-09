@@ -19,7 +19,8 @@ SpindleCNC.js - ESP3D WebUI component file
 import { Fragment, TargetedMouseEvent } from "preact"
 import type { FunctionalComponent } from "preact"
 import { T } from "../Translations"
-import { Repeat, Play, Pause } from "preact-feather"
+import { Play, Pause } from "preact-feather"
+import { Mixer } from "../../targets/CNC/FluidNC/icons"
 import { useUiContextFn } from "../../contexts"
 import { useTargetContext } from "../../targets"
 import {
@@ -119,14 +120,38 @@ const OverridesPanel: FunctionalComponent = () => {
 
     /* 🔋 Normalización potencia 0–1500 W → 0–180° */
     const powerToAngle = (power: number) => {
-        const MIN = 0
         const MAX = 1500
-        const clamped = Math.max(MIN, Math.min(MAX, power))
+        const clamped = Math.max(0, Math.min(MAX, power))
         return (clamped / MAX) * 180
     }
+
     const powerAngle = powerToAngle(powerW)
 
 
+
+// ===============================
+// Progress bar (RUN)
+// ===============================
+const hasRunProgress =
+    (status?.state === "Run" || status?.state === "Hold") &&
+    streamStatus?.processed !== undefined
+
+
+const progressPct = (() => {
+    if (!hasRunProgress) return 0
+
+    const processed = Number(streamStatus?.processed ?? 0)
+
+    // Caso normal: processed/total
+    if (streamStatus?.total) {
+        const total = Number(streamStatus.total) || 0
+        if (total <= 0) return 0
+        return Math.max(0, Math.min(100, Math.round((processed / total) * 100)))
+    }
+
+    // Caso alternativo: processed ya viene en %
+    return Math.max(0, Math.min(100, Math.round(processed)))
+})()
 
 
     const spindleBarHeight =
@@ -197,7 +222,7 @@ const OverridesPanel: FunctionalComponent = () => {
 
             <div class="navbar">
                 <span class="navbar-section feather-icon-container">
-                    <Repeat />
+                    <Mixer />
                     <strong class="text-ellipsis">{T("CN65")}</strong>
                 </span>
                 <span class="navbar-section">
@@ -244,59 +269,83 @@ const OverridesPanel: FunctionalComponent = () => {
 
                         {/* 🔋 POWER GAUGE */}
                         <div class="graph-center-gauge">
+
                             <svg viewBox="0 0 200 120" class="power-gauge">
-                                {/* arco fondo */}
-                                <path
-                                    d="M20 100 A80 80 0 0 1 180 100"
-                                    fill="none"
-                                    stroke="#d0d0d0"
-                                    strokeWidth="16"
-                                    strokeLinecap="round"
-                                />
 
+                                {/* ARCO BASE (180°) */}
                                 <path
                                     d="M20 100 A80 80 0 0 1 180 100"
                                     fill="none"
-                                    stroke="url(#powerGradient)"
-                                    stroke-width="16"
+                                    stroke="#ddd"
+                                    stroke-width="14"
                                     stroke-linecap="round"
-                                    stroke-dasharray="251"
-                                    stroke-dashoffset={251 - (251 * powerAngle) / 180}
                                 />
 
+                                {/* VERDE (0–600W) */}
+                                <path
+                                    d="M20 100 A80 80 0 0 1 180 100"
+                                    fill="none"
+                                    stroke="#4caf50"
+                                    stroke-width="14"
+                                    stroke-linecap="round"
+                                    stroke-dasharray="100 151"
+                                    stroke-dashoffset="0"
+                                />
 
-                                {/* aguja */}
-                                <g
-                                    transform={`rotate(${powerAngle - 90} 100 100)`}
-                                >
-                                    <line
-                                        x1="100"
-                                        y1="100"
-                                        x2="100"
-                                        y2="30"
-                                        stroke="#111"
-                                        stroke-width="3"
+                                {/* AMARILLO (600–1100W) */}
+                                <path
+                                    d="M20 100 A80 80 0 0 1 180 100"
+                                    fill="none"
+                                    stroke="#ffb300"
+                                    stroke-width="14"
+                                    stroke-linecap="round"
+                                    stroke-dasharray="83 168"
+                                    stroke-dashoffset="-100"
+                                />
+
+                                {/* ROJO (1100–1500W) */}
+                                <path
+                                    d="M20 100 A80 80 0 0 1 180 100"
+                                    fill="none"
+                                    stroke="#f44336"
+                                    stroke-width="14"
+                                    stroke-linecap="round"
+                                    stroke-dasharray="68 183"
+                                    stroke-dashoffset="-183"
+                                />
+
+                                {/* AGUJA */}
+                                {/* AGUJA */}
+                                <g transform={`rotate(${powerAngle - 90} 100 100)`}>
+
+                                    {/* cuerpo de la aguja */}
+                                    <polygon
+                                        points="
+            98,100
+            102,100
+            104,40
+            100,28
+            96,40
+        "
+                                        fill="#111"
                                     />
+
                                 </g>
 
                                 {/* centro */}
+                                <circle cx="100" cy="100" r="7" fill="#111" />
+
+
+                                {/* CENTRO */}
                                 <circle cx="100" cy="100" r="6" fill="#111" />
-
-                                {/* gradiente */}
-                                <defs>
-                                    <linearGradient id="powerGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                        <stop offset="0%" stopColor="#4caf50" />
-                                        <stop offset="60%" stopColor="#ffc107" />
-                                        <stop offset="100%" stopColor="#f44336" />
-
-                                    </linearGradient>
-                                </defs>
                             </svg>
+
 
                             <div class="power-value">
                                 {powerW} <span>W</span>
                             </div>
                         </div>
+
 
 
                         {/* FEED */}
@@ -311,31 +360,42 @@ const OverridesPanel: FunctionalComponent = () => {
 
                                 />
                             </div>
-<div class="graph-value">
-    <div class="graph-value-number">{feedVal || "--"}</div>
-    <div class="graph-value-unit">mm/min</div>
+                            <div class="graph-value">
+                                <div class="graph-value-number">{feedVal || "--"}</div>
+                                <div class="graph-value-unit">mm/min</div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+{/* ⬇️ Barra de progreso (solo RUN) */}
+{hasRunProgress && (
+    <div class="graph-footer visible">
+        <div class={`progress-bar-container ${status?.state === "Run" ? "running" : ""}`}>
+
+            <div class="progress-bar-track">
+<div class="progress-bar-track">
+    <div
+        class="progress-bar-fill"
+        style={{ width: `${progressPct}%` }}
+    />
+    <div class="progress-bar-overlay">
+        <span class="progress-file text-ellipsis">
+            {streamStatus?.name || ""}
+        </span>
+
+        <span class="progress-percent">
+            {progressPct}%
+        </span>
+    </div>
 </div>
 
-                        </div>
+            </div>
+        </div>
+    </div>
+)}
 
-                    </div>
-
-                    {/* ⬇️ Indicador de archivo y progreso (FOOTER) */}
-                    <div class={`graph-footer ${status?.state === "Run" ? "visible" : "hidden"}`}>
-                        <div class="graph-file-name text-ellipsis">
-                            {streamStatus?.name || ""}
-                        </div>
-
-                        <div class="graph-progress">
-                            {status?.state === "Run" && streamStatus?.total
-                                ? `${(
-                                    (Number(streamStatus.processed) /
-                                        Number(streamStatus.total)) *
-                                    100
-                                ).toFixed(1)}%`
-                                : ""}
-                        </div>
-                    </div>
 
 
                 </div>
@@ -442,7 +502,7 @@ const OverridesPanelElement = {
     id: "OverridesPanel",
     content: <OverridesPanel />,
     name: "CN65",
-    icon: "Repeat",
+    icon: "Mixer",
     show: "showoverridespanel",
     onstart: "openoverridesonstart",
     settingid: "overrides",

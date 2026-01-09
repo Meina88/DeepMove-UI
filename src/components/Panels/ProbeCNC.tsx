@@ -20,7 +20,7 @@ import { Fragment,  TargetedMouseEvent } from "preact"
 import type { FunctionalComponent } from "preact"
 import { useState } from "preact/hooks"
 import { T } from "../Translations"
-import { Underline } from "preact-feather"
+import { Diamond } from "../../targets/CNC/FluidNC/icons"
 import {
     useUiContextFn,
     useSettingsContext,
@@ -330,7 +330,7 @@ const ProbePanel: FunctionalComponent = () => {
                         {
                             id: "probe_button",
                             m2: true,
-                            icon: <Underline />,
+                            icon: <Diamond />,
                             type: "button",
                             label: "CN37",
                             tooltip: "CN100",
@@ -375,7 +375,7 @@ const ProbePanel: FunctionalComponent = () => {
             <ContainerHelper id={id} />
             <div class="navbar">
                 <span class="navbar-section feather-icon-container">
-                    <Underline />
+                    <Diamond />
                     <strong class="text-ellipsis">{T("CN37")}</strong>
                 </span>
                 <span class="navbar-section">
@@ -639,7 +639,7 @@ const ProbePanelElement = {
     id: "ProbePanel",
     content: <ProbePanel />,
     name: "CN37",
-    icon: "Underline",
+    icon: "Diamond",
     show: "showprobepanel",
     onstart: "openprobeonstart",
     settingid: "probe",

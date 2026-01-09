@@ -18,13 +18,13 @@
 
 import { Fragment,  TargetedMouseEvent } from "preact"
 import type { FunctionalComponent, VNode } from "preact"
+import { Status } from "../../targets/CNC/FluidNC/icons"
 import { T } from "../Translations"
 import { useUiContextFn } from "../../contexts"
 import { useTargetContext, variablesList } from "../../targets"
 import { ButtonImg, Button, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
 import { useTargetCommands } from "../../hooks"
 import {
-    Layers,
     Unlock,
     RefreshCcw,
     Moon,
@@ -203,7 +203,7 @@ const StatusPanel: FunctionalComponent = () => {
             <ContainerHelper id={id} /> 
             <div class="navbar">
                 <span class="navbar-section feather-icon-container">
-                    <Layers />
+                    <Status />
                     <strong class="text-ellipsis">{T("CN34")}</strong>
                 </span>
                 <span class="navbar-section">
@@ -381,7 +381,7 @@ const StatusPanelElement = {
     id: "statusPanel",
     content: <StatusPanel />,
     name: "CN34",
-    icon: "Layers",
+    icon: "Status",
     show: "showstatuspanel",
     onstart: "openstatusonstart",
     settingid: "status",

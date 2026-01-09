@@ -26,7 +26,9 @@ import { FilesTab } from "../../pages/tablet/FilesTab"
 import { Loading, ButtonImg, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
 import { useUiContextFn, useModalsContext } from "../../contexts"
 import { showConfirmationModal } from "../Modal"
-import { HardDrive, Upload, RefreshCcw, FolderPlus, CornerRightUp, XCircle } from "preact-feather"
+import { Upload, RefreshCcw, FolderPlus, CornerRightUp, XCircle } from "preact-feather"
+import { SDCard } from "../../targets/CNC/FluidNC/icons"
+
 import { files } from "../../targets"
 import { Folder, File, Trash2, Play } from "preact-feather"
 import { Menu as PanelMenu } from "./"
@@ -119,7 +121,7 @@ const FilesPanel: FunctionalComponent = () => {
                         <input type="file" ref={fileref} class="d-none" onChange={(e) => actions.filesSelected(e)} />
                         <div class="navbar">
                             <span class="navbar-section  feather-icon-container">
-                                <HardDrive />
+                                <SDCard />
                                 <strong class="text-ellipsis">{T("S65")}</strong>
                             </span>
 
@@ -367,7 +369,7 @@ const FilesPanelElement = {
     id: "filesPanel",
     content: <FilesPanel />,
     name: "S65",
-    icon: "HardDrive",
+    icon: "SDCard",
     show: "showfilespanel",
     onstart: "openfilesonstart",
     settingid: "files",

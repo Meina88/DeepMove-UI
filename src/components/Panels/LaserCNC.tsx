@@ -20,7 +20,9 @@ import { Fragment,  TargetedMouseEvent } from "preact"
 import type { FunctionalComponent } from "preact"
 import { useState } from "preact/hooks"
 import { T } from "../Translations"
-import { Loader, Sun, Power } from "preact-feather"
+import { Sun, Power } from "preact-feather"
+import { Flare } from "../../targets/CNC/FluidNC/icons"
+
 import { useUiContext, useUiContextFn } from "../../contexts"
 import { useTargetContext, variablesList, eventsList } from "../../targets"
 import { ButtonImg, Field, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
@@ -212,7 +214,7 @@ const LaserPanel: FunctionalComponent = () => {
             <ContainerHelper id={id} /> 
             <div class="navbar">
                 <span class="navbar-section feather-icon-container">
-                    <Loader />
+                    <Flare />
                     <strong class="text-ellipsis">{T("CN35")}</strong>
                 </span>
                 <span class="navbar-section">
@@ -389,7 +391,7 @@ const LaserPanelElement = {
     id: "laserPanel",
     content: <LaserPanel />,
     name: "CN35",
-    icon: "Loader",
+    icon: "Flare",
     show: "showlaserpanel",
     onstart: "openlaseronstart",
     settingid: "laser",

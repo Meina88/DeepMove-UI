@@ -20,7 +20,8 @@ import { Fragment, TargetedMouseEvent } from "preact"
 import type { FunctionalComponent, JSX } from "preact"
 import { useState } from "preact/hooks"
 import { T } from "../Translations"
-import { Target, Zap, Wind, CloudDrizzle } from "preact-feather"
+import { Zap, Wind, CloudDrizzle } from "preact-feather"
+import { Outputs } from "../../targets/CNC/FluidNC/icons"
 import {
     useUiContextFn,
     useSettingsContext,
@@ -286,7 +287,7 @@ const SpindlePanel: FunctionalComponent = () => {
             <ContainerHelper id={id} />
             <div class="navbar">
                 <span class="navbar-section feather-icon-container">
-                    <Target />
+                    <Outputs />
                     <strong class="text-ellipsis">{T("CN36")}</strong>
                 </span>
                 <span class="navbar-section">
@@ -481,7 +482,7 @@ const SpindlePanelElement = {
     id: "SpindlePanel",
     content: <SpindlePanel />,
     name: "CN36",
-    icon: "Target",
+    icon: "Outputs",
     show: "showspindlepanel",
     onstart: "openspindleonstart",
     settingid: "spindle",

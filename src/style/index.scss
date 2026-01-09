@@ -14,7 +14,7 @@
 @import "./components/navbar";
 @import "./components/panel";
 @import "./components/media";
-@import "./components/panelnav";
+@import "../targets/CNC/style";
 :root {
   --highlight-color: #{$highlight-color};
 }

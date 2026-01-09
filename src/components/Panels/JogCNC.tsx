@@ -18,12 +18,12 @@ Jog.tsx - ESP3D WebUI component file
 
 import { Fragment } from "preact"
 import {
-    Move,
     Home,
     ChevronDown,
     Edit3,
     StopCircle,
     MoreHorizontal,
+    Crosshair,
 } from "preact-feather"
 import { useTargetCommands } from "../../hooks"
 import { useUiContextFn, useModalsContext } from "../../contexts"
@@ -32,6 +32,7 @@ import { Button, ButtonImg, FullScreenButton, CloseButton, ContainerHelper } fro
 import { useEffect, useState } from "preact/hooks"
 import { showModal } from "../Modal"
 import { useTargetContext } from "../../targets"
+import { Joystick } from "../../targets/CNC/FluidNC/icons"
 
 let currentFeedRate: Record<string, any> = {}
 let currentJogStepIndex = 0
@@ -140,7 +141,7 @@ const PositionsControls = ({
                                     onZeroAxis(axis)
                                 }}
                             >
-                                &Oslash;
+                                <Crosshair size={"0.9rem" as any} />
                             </Button>
                         </div>
                     )}
@@ -258,7 +259,7 @@ const JogPanel = () => {
                 text: T("S43"),
                 id: "applyMoveToBtn",
             },
-            icon: <Move />,
+            icon: <Joystick />,
             id: "inputMoveTo",
             content: (
                 <Fragment>
@@ -535,7 +536,7 @@ const JogPanel = () => {
             <ContainerHelper id={id} />
             <div class="navbar">
                 <span class="navbar-section feather-icon-container">
-                    <Move />
+                    <Joystick />
                     <strong class="text-ellipsis">{T("S66")}</strong>
                 </span>
                 <span class="navbar-section">
@@ -607,9 +608,16 @@ const JogPanel = () => {
 
                     {/* ===== MPos BOX ===== */}
                     <div class="jog-axis-group">
-                        <Button m2 class="jog-goto-btn" onClick={goToMachineZero}>
-                            Go to M0
-                        </Button>
+<Button
+    m2
+    class="jog-global-btn btn-with-icon"
+    onClick={() => {
+        useUiContextFn.haptic()
+        goToMachineZero()
+    }}
+>
+    Go <Home size={"0.9rem" as any} />
+</Button>
 
                         <PositionsControls
                             mode="mpos"
@@ -618,20 +626,30 @@ const JogPanel = () => {
                             onWPosClick={showMoveToDialog}
                         />
 
-                        <Button
-                            m2
-                            class="jog-global-btn"
-                            onClick={() => sendHomeCommand("")}
-                        >
-                            Home XYZ
-                        </Button>
+<Button
+    m2
+    class="jog-global-btn btn-with-icon"
+    onClick={() => {
+        useUiContextFn.haptic()
+       sendHomeCommand("")
+    }}
+>
+    Find <Home size={"0.9rem" as any} />
+</Button>
                     </div>
 
                     {/* ===== WPos BOX ===== */}
                     <div class="jog-axis-group">
-                        <Button m2 class="jog-goto-btn" onClick={goToWorkZero}>
-                            Go to W0
-                        </Button>
+<Button
+    m2
+    class="jog-global-btn btn-with-icon"
+    onClick={() => {
+        useUiContextFn.haptic()
+        goToWorkZero()
+    }}
+>
+    Go <Crosshair size={"0.9rem" as any} />
+</Button>
 
                         <PositionsControls
                             mode="wpos"
@@ -640,13 +658,18 @@ const JogPanel = () => {
                             onWPosClick={showMoveToDialog}
                         />
 
-                        <Button
-                            m2
-                            class="jog-global-btn"
-                            onClick={() => sendZeroCommand("")}
-                        >
-                            Zero XYZ
-                        </Button>
+<Button
+    m2
+    class="jog-global-btn btn-with-icon"
+    onClick={() => {
+        useUiContextFn.haptic()
+        sendZeroCommand("")
+    }}
+>
+    Set <Crosshair size={"0.9rem" as any} />
+</Button>
+
+
                     </div>
 
                 </div>
@@ -793,7 +816,7 @@ const JogPanelElement = {
     id: "jogPanel",
     content: <JogPanel />,
     name: "S66",
-    icon: "Move",
+    icon: "Joystick",
     show: "showjogpanel",
     onstart: "openjogonstart",
     settingid: "jog",

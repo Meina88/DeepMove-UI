@@ -20,7 +20,7 @@ import { TargetedKeyboardEvent, TargetedEvent, type FunctionalComponent, type VN
 import { useEffect, useRef, useState, useMemo } from "preact/hooks"
 import { T } from "../Translations"
 import {
-    Terminal,
+    Code,
     Send,
     CheckCircle,
     Circle,
@@ -275,7 +275,7 @@ const TerminalPanel: FunctionalComponent = () => {
             <ContainerHelper id={id}/>
             <div class="navbar">
                 <span class="navbar-section feather-icon-container">
-                    <Terminal />
+                    <Code />
                     <strong class="text-ellipsis">{T("Terminal")}</strong>
                 </span>
                 <span class="navbar-section">
@@ -389,7 +389,7 @@ const TerminalPanelElement = {
     id: "terminalPanel",
     content: <TerminalPanel />,
     name: "S75",
-    icon: "Terminal",
+    icon: "Code",
     show: "showterminalpanel",
     onstart: "openterminalonstart",
     settingid: "terminal",
