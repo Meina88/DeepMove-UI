@@ -1,3 +1,7 @@
+/* =========================================================
+   PANEL — CONFIGURACIÓN GENERAL
+   ========================================================= */
+
 .panel-dashboard,
 .panel-interface,
 .panel-features {
@@ -7,36 +11,31 @@
     -ms-user-select: none;
 }
 
-.macro-buttons-panel {
-    display: -ms-flexbox;
-    display: flex;
-    flex-flow: row wrap;
-    justify-content: space-between;
-    align-content: stretch;
-    margin-top: 20px;
-    margin-bottom: 20px;
-}
-
-.macro-buttons-panel button {
-    flex: 1 1 20% !important;
-    margin: 10px !important;
-}
+/* =========================================================
+   PANEL — CONTENEDOR PRINCIPAL
+   ========================================================= */
 
 .panel {
     display: -ms-flexbox;
     display: flex;
     flex-flow: column;
+
     max-height: 600px;
     height: auto !important;
+
     overflow-y: auto !important;
     overflow-x: hidden !important;
+
     margin: 5px;
+
+    /* Theme */
+    background-color: $bg-color-light;
+    color: $body-font-color;
 }
 
-.panel {
-    background-color: #fff;
-    color: #000;
-}
+/* =========================================================
+   PANEL — CUERPO
+   ========================================================= */
 
 .panel-body-dashboard,
 .panel-body-interface,
@@ -46,11 +45,53 @@
     flex-flow: column;
 }
 
+/* =========================================================
+   PANEL — CABECERA (HEADER / NAVBAR)
+   ========================================================= */
+
 .panel .navbar,
 .panel .navbar-section {
-    background: #f1f1fc;
-    color: #005b96;
+    background-color: $bg-color-dark;
+    color: $primary-color;
+    border-bottom: $border-width solid $border-color;
+      padding-left: $unit-1;
+  padding-right: $unit-1;
 }
+
+/* =========================================================
+   Botones de acción en la cabecera del panel (dropdown, close, etc.) 
+   =========================================================*/
+.panel .navbar .btn,
+.panel .navbar .btn.btn-link {
+    background-color: transparent;
+    border: 1px solid transparent;
+}
+.panel .navbar .btn:hover,
+.panel .navbar .btn.btn-link:hover {
+    background-color: rgba($primary-color, 0.08);
+    border-color: rgba($primary-color, 0.25);
+}
+.panel .navbar .btn:active,
+.panel .navbar .btn.active,
+.panel .navbar .dropdown.active > .dropdown-toggle.btn {
+    background-color: rgba($primary-color, 0.12);
+    border-color: rgba($primary-color, 0.35);
+}
+
+/* =========================================================
+   PANEL — TÍTULO
+   ========================================================= */
+
+.panel .navbar .navbar-brand,
+.panel .navbar .panel-title {
+    font-weight: 600;
+    font-size: $font-size;
+    color: $primary-color;
+}
+
+/* =========================================================
+   PANEL — CONTENIDO ESPECIAL
+   ========================================================= */
 
 .panel .panel-body.terminal {
     height: 300px;
@@ -66,10 +107,36 @@
     flex: 0 1 auto;
 }
 
+/* =========================================================
+   PANEL — BOTONES DE MACROS
+   ========================================================= */
+
+.macro-buttons-panel {
+    display: -ms-flexbox;
+    display: flex;
+    flex-flow: row wrap;
+
+    justify-content: space-between;
+    align-content: stretch;
+
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.macro-buttons-panel button {
+    flex: 1 1 20% !important;
+    margin: 10px !important;
+}
+
+/* =========================================================
+   PANEL — FOOTER DE ARCHIVOS
+   ========================================================= */
+
 .files-list-footer {
     padding: 0.2rem 0.8rem !important;
 }
 
+/* Mobile */
 @media (max-width: 480px) {
     .files-list-footer {
         .file-status {
@@ -78,6 +145,10 @@
     }
 }
 
+/* =========================================================
+   PANEL — CONTEXTO DE COLUMNA
+   ========================================================= */
+
 .column {
     .panel {
         height: 100%;
@@ -85,10 +156,48 @@
     }
 }
 
+/* =========================================================
+   PANEL — ESTADO DE CARGA
+   ========================================================= */
+
 .loading-panel {
     display: flex;
     justify-content: center;
     align-items: center;
+
     height: 100%;
     width: 100%;
 }
+
+/* =========================================================
+   PANEL — ELIMINAR BOTONES DEL HEADER
+   (MAXIMIZAR + CERRAR)
+   ========================================================= */
+
+.panel .btn-screen,
+.panel .btn-close {
+    display: none !important;
+}
+
+/* =========================================================
+   PANEL — DROPDOWN HEADER (BASE)
+   ========================================================= */
+
+.panel .dropdown-toggle.btn-header {
+    color: $gray-color-dark;
+    background-color: transparent;
+    border: 1px solid transparent;
+}
+
+.panel .dropdown-toggle.btn-header:hover,
+.panel .dropdown-toggle.btn-header:focus {
+    color: $primary-color;
+    background-color: rgba($primary-color, 0.08);
+}
+
+.panel .dropdown.active .dropdown-toggle.btn-header {
+    color: $primary-color;
+    background-color: rgba($primary-color, 0.12);
+}
+
+

@@ -7,36 +7,42 @@ $version: "0.5.9";
 $rtl: false !default;
 
 // Core colors
-$primary-color: #005b96 !default;
+$primary-color: #0b5ed7  !default;
 $primary-color-dark: darken($primary-color, 3%) !default;
 $primary-color-light: lighten($primary-color, 3%) !default;
-$secondary-color: lighten($primary-color, 37.5%) !default;
-$secondary-color-dark: darken($secondary-color, 3%) !default;
-$secondary-color-light: lighten($secondary-color, 3%) !default;
+$secondary-color: lighten($primary-color, 28%) !default;
+$secondary-color-dark: darken($secondary-color, 5%) !default;
+$secondary-color-light: lighten($secondary-color, 5%) !default;
 
 // Gray colors
-$dark-color: #303742 !default;
+$dark-color: #2b2f36 !default;
 $light-color: #fff !default;
-$gray-color: lighten($dark-color, 55%) !default;
-$gray-color-dark: darken($gray-color, 30%) !default;
-$gray-color-light: lighten($gray-color, 20%) !default;
+$gray-color: lighten($dark-color, 48%) !default;
+$gray-color-dark: darken($gray-color, 25%) !default;
+$gray-color-light: lighten($gray-color, 18%) !default;
 
-$border-color: lighten($dark-color, 65%) !default;
-$border-color-dark: darken($border-color, 10%) !default;
-$border-color-light: lighten($border-color, 8%) !default;
+$border-color: lighten($dark-color, 60%) !default;
+$border-color-dark: darken($border-color, 12%) !default;
+$border-color-light: lighten($border-color, 6%) !default;
 $bg-color: lighten($dark-color, 75%) !default;
 $bg-color-dark: darken($bg-color, 3%) !default;
 $bg-color-light: $light-color !default;
 
 // Control colors
-$success-color: #32b643 !default;
-$warning-color: #ffb700 !default;
-$error-color: #ff0000 !default;
+$success-color: #24b85f !default;   // Run OK
+$warning-color: #ffb020 !default;   // Hold / warning
+$error-color: #e53935 !default;     // Alarm
+
 
 // Other colors
 $code-color: #d73e48 !default;
-$highlight-color: #ffe9b3 !default;
-$body-bg: $bg-color-light !default;
+$highlight-color: rgba($primary-color, 0.12) !default;
+$bg-color: lighten($dark-color, 70%) !default;
+$bg-color-dark: darken($bg-color, 4%) !default;
+$bg-color-light: lighten($bg-color, 6%) !default;
+
+$body-bg: $bg-color !default;
+
 $body-font-color: lighten($dark-color, 5%) !default;
 $link-color: $primary-color !default;
 $link-color-dark: darken($link-color, 10%) !default;
@@ -78,18 +84,18 @@ $unit-16: 3.2rem !default;
 // Font sizes
 $html-font-size: 20px !default;
 $html-line-height: 1.5 !default;
-$font-size: 0.8rem !default;
-$font-size-sm: 0.7rem !default;
-$font-size-lg: 0.9rem !default;
-$line-height: 1.2rem !default;
+$font-size: 0.82rem !default;
+$font-size-sm: 0.72rem !default;
+$font-size-lg: 0.92rem !default;
+$line-height: 1.25rem !default;
 
 // Sizes
 $layout-spacing: $unit-2 !default;
 $layout-spacing-sm: $unit-1 !default;
 $layout-spacing-lg: $unit-4 !default;
-$border-radius: $unit-1 !default;
-$border-width: $unit-o !default;
-$border-width-lg: $unit-h !default;
+$border-radius: $unit-1 !default; // mantené
+$border-width: 0.07rem !default;
+$border-width-lg: 0.12rem !default;
 $control-size: $unit-9 !default;
 $control-size-sm: $unit-7 !default;
 $control-size-lg: $unit-10 !default;

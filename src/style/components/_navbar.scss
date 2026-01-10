@@ -1,26 +1,14 @@
 .tab-item {
-    color: #005b96 !important;
+    color: $gray-color-dark !important;
 }
+
 section .active,
 li .active {
-    color: blue !important;
-    font-weight: 700; // bold
+    color: $primary-color !important;
+    font-weight: 600;
 }
+
 .mobile-view section .active,
 .mobile-view li .active {
-    background-color: rgba(0, 0, 255, 0.1) !important;
-}
-
-.navbar {
-    padding: 0rem;
-    padding-left: 15px;
-    background-color: $bg-color-dark;
-}
-
-.tab {
-    .tab-item {
-        .btn {
-            border-radius: 0;
-        }
-    }
+    background-color: rgba($primary-color, 0.12) !important;
 }

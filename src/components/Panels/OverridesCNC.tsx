@@ -110,13 +110,20 @@ const OverridesPanel: FunctionalComponent = () => {
     const spindleRPM = Number(spindleVal) || 0
     const feedMM = Number(feedVal) || 0
 
-    /* Normalización 50–150 → 0–100% */
-    const overrideToHeight = (value: number) => {
-        const MIN = 50
-        const MAX = 150
-        const clamped = Math.max(MIN, Math.min(MAX, value))
-        return ((clamped - MIN) / (MAX - MIN)) * 100
-    }
+    const MAX_SPINDLE_RPM = 24000
+const MAX_FEED_MM = 5000
+
+
+const valueToHeight = (value: number, max: number) => {
+    if (value <= 0) return 0
+    const clamped = Math.min(value, max)
+    return (clamped / max) * 100
+}
+
+const spindleBarHeight = valueToHeight(spindleRPM, MAX_SPINDLE_RPM)
+const feedBarHeight = valueToHeight(feedMM, MAX_FEED_MM)
+
+
 
     /* 🔋 Normalización potencia 0–1500 W → 0–180° */
     const powerToAngle = (power: number) => {
@@ -152,21 +159,6 @@ const progressPct = (() => {
     // Caso alternativo: processed ya viene en %
     return Math.max(0, Math.min(100, Math.round(processed)))
 })()
-
-
-    const spindleBarHeight =
-        spindleRPM > 0
-            ? overrideToHeight(uiSpindleOverride)
-            : 0
-
-    const feedBarHeight =
-        feedMM > 0
-            ? overrideToHeight(uiFeedOverride)
-            : 0
-
-
-
-
 
     const spindleButtons = [
         { label: "+10%", tooltip: "CN67", delta: "+10" as const },
@@ -250,15 +242,13 @@ const progressPct = (() => {
                         {/* SPINDLE */}
                         <div class="graph-column">
                             <div class="graph-bar spindle">
-                                <div
-                                    class="graph-bar-fill"
-                                    style={{
-                                        height: `${spindleBarHeight}%`
-                                        ,
+<div
+    class="graph-bar-fill"
+    style={{
+        height: `${spindleBarHeight}%`,
+    }}
+/>
 
-                                    }}
-
-                                />
                             </div>
                             <div class="graph-value">
                                 <div class="graph-value-number">{spindleVal || "--"}</div>
