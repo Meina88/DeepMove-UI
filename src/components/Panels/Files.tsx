@@ -223,105 +223,110 @@ const FilesPanel: FunctionalComponent = () => {
                                         </div>
                                     )}
                                     {state.filesList.files.map((line: FileEntry) => {
-                                        return (
-                                            <div class="file-line form-control" key={line.name}>
-                                                <div
-                                                    class={`feather-icon-container file-line-name ${
-                                                        files.capability(state.fileSystem, "Download") ||
-                                                        line.size == -1
-                                                            ? "file-line-action"
-                                                            : ""
-                                                    }`}
-                                                    onClick={(e: TargetedMouseEvent<HTMLDivElement>) => {
-                                                        useUiContextFn.haptic()
-                                                        actions.ElementClicked(e as unknown as Event, line)
-                                                    }}>
-                                                    {line.size == -1 ? <Folder /> : <File />}
-                                                    <label>{line.name}</label>
-                                                </div>
-                                                <div class="file-line-controls">
-                                                    {line.size != -1 && (
-                                                        <Fragment>
-                                                            <div>{fileSizeString(line.size)}</div>
-                                                            {files.capability(
-                                                                state.fileSystem,
-                                                                "Process",
-                                                                currentPath[state.fileSystem],
-                                                                line.name
-                                                            ) && (
-                                                                <ButtonImg
-                                                                    m1
-                                                                    ltooltip
-                                                                    data-tooltip={T("S74")}
-                                                                    icon={<Play />}
-                                                                    onClick={(
-                                                                        e: TargetedMouseEvent<HTMLButtonElement>
-                                                                    ) => {
-                                                                        e.currentTarget.blur()
-                                                                        useUiContextFn.haptic()
-                                                                        const cmd = files.command(
-                                                                            state.fileSystem,
-                                                                            "play",
-                                                                            currentPath[state.fileSystem],
-                                                                            line.name
-                                                                        )
-                                                                        actions.sendSerialCmd(cmd.cmd)
-                                                                    }}
-                                                                />
-                                                            )}
-                                                            {!files.capability(
-                                                                state.fileSystem,
-                                                                "Process",
-                                                                currentPath[state.fileSystem],
-                                                                line.name
-                                                            ) && <div style="width:2rem" />}
-                                                        </Fragment>
-                                                    )}
-                                                    {files.capability(
-                                                        state.fileSystem,
-                                                        line.size == -1 ? "DeleteDir" : "DeleteFile",
-                                                        currentPath[state.fileSystem],
-                                                        line.name
-                                                    ) && (
-                                                        <ButtonImg
-                                                            m1
-                                                            ltooltip
-                                                            data-tooltip={line.size == -1 ? T("S101") : T("S100")}
-                                                            icon={<Trash2 />}
-                                                            onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
-                                                                useUiContextFn.haptic()
-                                                                e.currentTarget.blur()
-                                                                const content = (
-                                                                    <Fragment>
-                                                                        <div>
-                                                                            {line.size == -1 ? T("S101") : T("S100")}:
-                                                                        </div>
-                                                                        <div style="text-align:center">
-                                                                            <li>{line.name}</li>
-                                                                        </div>
-                                                                    </Fragment>
-                                                                )
-                                                                showConfirmationModal({
-                                                                    modals,
-                                                                    title: T("S26"),
-                                                                    content,
-                                                                    button1: {
-                                                                        cb: () => {
-                                                                            actions.deleteCommand(line)
-                                                                        },
-                                                                        text: T("S27"),
-                                                                    },
-                                                                    button2: {
-                                                                        text: T("S28"),
-                                                                    },
-                                                                })
-                                                            }}
-                                                        />
-                                                    )}
-                                                </div>
-                                            </div>
-                                        )
-                                    })}
+  const canDownloadOrOpen =
+    files.capability(state.fileSystem, "Download") || line.size == -1
+
+  const canProcess =
+    line.size != -1 &&
+    files.capability(
+      state.fileSystem,
+      "Process",
+      currentPath[state.fileSystem],
+      line.name
+    )
+
+  const canDelete = files.capability(
+    state.fileSystem,
+    line.size == -1 ? "DeleteDir" : "DeleteFile",
+    currentPath[state.fileSystem],
+    line.name
+  )
+
+  return (
+    <div class="file-item form-control" key={line.name}>
+      {/* ─── Fila superior: nombre + tamaño ─── */}
+      <div
+        class={`file-item-header ${canDownloadOrOpen ? "file-line-action" : ""}`}
+        onClick={(e: TargetedMouseEvent<HTMLDivElement>) => {
+          useUiContextFn.haptic()
+          actions.ElementClicked(e as unknown as Event, line)
+        }}
+      >
+        <div class="file-item-name">
+          {line.size == -1 ? <Folder /> : <File />}
+          <span class="text-ellipsis">{line.name}</span>
+        </div>
+
+        {line.size != -1 && <div class="file-item-size">{fileSizeString(line.size)}</div>}
+      </div>
+
+      {/* ─── Fila inferior: botones (izq Trash / der Play) ─── */}
+      <div class="file-item-actions">
+        <div class="file-item-actions-inner">
+          <div class="file-item-action-left">
+            {canDelete && (
+              <ButtonImg
+                m1
+                ltooltip
+                data-tooltip={line.size == -1 ? T("S101") : T("S100")}
+                icon={<Trash2 />}
+                onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
+                  useUiContextFn.haptic()
+                  e.currentTarget.blur()
+
+                  const content = (
+                    <Fragment>
+                      <div>{line.size == -1 ? T("S101") : T("S100")}:</div>
+                      <div style="text-align:center">
+                        <li>{line.name}</li>
+                      </div>
+                    </Fragment>
+                  )
+
+                  showConfirmationModal({
+                    modals,
+                    title: T("S26"),
+                    content,
+                    button1: { cb: () => actions.deleteCommand(line), text: T("S27") },
+                    button2: { text: T("S28") },
+                  })
+                }}
+              />
+            )}
+          </div>
+
+          <div class="file-item-action-center" />
+
+          <div class="file-item-action-right">
+            {canProcess && (
+              <ButtonImg
+                m1
+                ltooltip
+                data-tooltip={T("S74")}
+                icon={<Play />}
+                class="file-play-btn"
+                onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
+                  e.currentTarget.blur()
+                  useUiContextFn.haptic()
+
+                  // ✅ IMPORTANTE: esto evita que dispare "Download file?"
+                  const cmd = files.command(
+                    state.fileSystem,
+                    "play",
+                    currentPath[state.fileSystem],
+                    line.name
+                  )
+                  actions.sendSerialCmd(cmd.cmd)
+                }}
+              />
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+})}
+
                                 </Fragment>
                             )}
                         </div>

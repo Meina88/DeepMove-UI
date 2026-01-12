@@ -24,6 +24,10 @@ import {
     StopCircle,
     MoreHorizontal,
     Crosshair,
+    ArrowUp,
+    ArrowDown,
+    ArrowLeft,
+    ArrowRight
 } from "preact-feather"
 import { useTargetCommands } from "../../hooks"
 import { useUiContextFn, useModalsContext } from "../../contexts"
@@ -104,7 +108,7 @@ const PositionsControls = ({
 
                                 <div class="jog-position-ctrl">
                                     <div class="jog-position-sub-header">
-                                         {axis}
+                                        {axis}
                                     </div>
                                     <div class="jog-position-value">
                                         {positions[letter]}
@@ -691,10 +695,15 @@ const JogPanel = () => {
                         <div class="jog-xy-pad">
 
                             {/* +Y */}
-                            <Button m2 {...jogPressHandlers("Y+")}>+Y</Button>
+                            <Button m2 {...jogPressHandlers("Y+")}>
+                                <ArrowUp size={20} />
+                            </Button>
+
 
                             {/* -X */}
-                            <Button m2 {...jogPressHandlers("X-")}>-X</Button>
+                            <Button m2 {...jogPressHandlers("X-")}>
+                                <ArrowLeft size={20} />
+                            </Button>
 
                             {/* 🔵 PERILLA (solo visual) */}
                             <div
@@ -709,10 +718,14 @@ const JogPanel = () => {
 
 
                             {/* +X */}
-                            <Button m2 {...jogPressHandlers("X+")}>+X</Button>
+                            <Button m2 {...jogPressHandlers("X+")}>
+                                <ArrowRight size={20} />
+                            </Button>
 
                             {/* -Y */}
-                            <Button m2 {...jogPressHandlers("Y-")}>-Y</Button>
+                            <Button m2 {...jogPressHandlers("Y-")}>
+                                <ArrowDown size={20} />
+                            </Button>
 
                         </div>
                     </div>
@@ -723,10 +736,10 @@ const JogPanel = () => {
                             <div class="jog-axis-group">
                                 <div class="m-1 jog-buttons-container">
                                     <Button m2 {...jogPressHandlers("Z+")}>
-                                        +Z
+                                        <ArrowUp size={20} />
                                     </Button>
                                     <Button m2 {...jogPressHandlers("Z-")}>
-                                        -Z
+                                        <ArrowDown size={20} />
                                     </Button>
                                 </div>
                             </div>
