@@ -214,11 +214,11 @@ span.input-group-addon {
     -ms-user-select: text;
 
     .echo {
-        color: blue;
+        color: $primary-color;
     }
     .error {
-        color: red;
-        font-weight: bolder;
+        color: $error-color;
+        font-weight: 600;
     }
     pre {
         margin: 0px 5px;
