@@ -18,7 +18,7 @@
 }
 
 .menu-item {
-    color: #005b96;
+    color: $body-font-color;
 }
 
 .menu .menu-item > .menu-entry {
@@ -33,8 +33,8 @@
 
 .menu .menu-item > .menu-entry:focus,
 .menu .menu-item > .menu-entry:hover {
-    background: #f1f1fc;
-    color: #005b96;
+    background: rgba($primary-color, 0.08);
+    color: $body-font-color;
 }
 
 .menu-container,
@@ -56,7 +56,8 @@
 
 .panel .menu-item:active,
 .panel .menu-item.active {
-    background: #005b96;
-    color: #f1f1fc;
+    background: rgba($primary-color, 0.12);
+    color: $primary-color;
     border-radius: 0.2rem;
+    font-weight: 600;
 }

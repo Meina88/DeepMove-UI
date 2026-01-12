@@ -31,7 +31,7 @@ input[type="range"]::-ms-thumb {
 }
 
 .badge-container {
-    border: 0.05rem solid #005b96;
+    border: 0.05rem solid $border-color;
     text-align: center;
     width: 1.8rem;
     height: 1.8rem;
@@ -151,12 +151,12 @@ input[type="range"]::-ms-thumb {
 
 .slider-ctrl label,
 span.input-group-addon {
-    color: #000;
+    color: $body-font-color;
 }
 
 .field-group {
-    color: blue;
-    font-size: 0.8rem;
+    color: $body-font-color;
+    font-weight: 600;
 }
 
 .fields-line {
@@ -245,10 +245,12 @@ span.input-group-addon {
 }
 
 .comment {
-    background: #f1f1fc;
-    color: #005b96;
+    background-color: rgba($primary-color, 0.06);
+    color: $primary-color-dark;
     padding-left: 0.5rem;
+    border-left: 0.15rem solid rgba($primary-color, 0.5);
 }
+
 
 .submitBtn {
     display: none;
@@ -307,9 +309,8 @@ span.input-group-addon {
 }
 
 .file-line:hover {
-    color: #005b96;
-    background-color: #f1f1fc;
-    border-radius: $border-radius;
+color: $body-font-color;
+    background-color: rgba($primary-color, 0.06);
 }
 
 
@@ -408,8 +409,8 @@ span.input-group-addon {
 .btn-header:hover,
 .mobile-view .btn-close,
 .btn-close:hover {
-    color: white !important;
-    background-color: blue !important;
+    color: $gray-color-dark !important;
+    background-color: transparent !important;
 }
 
 .logo {
@@ -578,21 +579,21 @@ a label {
         line-height: 1.8rem;
         display: block;
         background: white;
-        border: 0.05rem solid #005b96;
+        border: 0.05rem solid $border-color;
         border-top: 0em;
         text-align: center;
-        color: #005b96;
+        color: $body-font-color;
         position: relative;
         min-width: 2rem;
     }
 
     input[type="radio"]:active + label {
-        background: blue;
-        color: white;
+        background: $primary-color;
+        color: $light-color;
     }
     input[type="radio"]:checked + label {
-        background: #005b96;
-        color: white;
+        background: $primary-color;
+        color: $light-color;
     }
     .last-button {
         border-radius: 0px 0px 5px 5px;

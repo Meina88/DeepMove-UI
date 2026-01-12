@@ -34,9 +34,9 @@
 .status-control-header,
 .extra-control-header {
     border-radius: 5px 5px 0px 0px;
-    border-bottom: 0.05rem solid #dadee4;
-    color: #005b96;
-    background-color: #f1f1fc;
+    border-bottom: $border-width solid $border-color;
+    color: $primary-color-dark;
+    background-color: $bg-color;
     text-align: center;
     font-weight: bold;
     font-size: 70%;
@@ -70,7 +70,7 @@
 .status-control-value,
 .extra-control-value {
     text-align: center;
-    color: #005b96;
+    color: $body-font-color;
     font-size: 80%;
     width: 100%;
     height: 100%;
@@ -88,7 +88,7 @@
 
 .buttons-bar-label {
     font-size: 0.8rem;
-    color: #005b96;
+    color: $primary-color;
 }
 
 .jog-container {
@@ -113,13 +113,13 @@
 }
 .jog-position-sub-header,
 .jog-position-header {
-    border-bottom: 0.05rem solid #dadee4;
-    color: #005b96;
-    background-color: #f1f1fc;
+    border-bottom: $border-width solid $border-color;
+    color: $primary-color-dark;
+    background-color: $bg-color;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-weight: bold;
+    font-weight: 600;
     font-size: 70%;
 }
 
@@ -131,7 +131,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    color: #005b96;
+    color: $body-font-color;
     font-size: 80%;
 }
 
@@ -140,11 +140,11 @@
     transition: background-color 0.2s ease;
 
     &:hover {
-        background-color: rgba(0, 91, 150, 0.1);
+        background-color: $bg-color;
     }
 
     &:active {
-        background-color: rgba(0, 91, 150, 0.2);
+        background-color: $bg-color;
     }
 }
 
@@ -190,14 +190,14 @@
 }
 
 .jog-distance-selector-header {
-    border: 0.05rem solid #005b96 !important;
-    border-radius: 5px 5px 0px 0px;
-    color: #005b96;
-    background-color: #f1f1fc;
+    border: $border-width solid $primary-color;
+    border-radius: $border-radius $border-radius 0 0;
+    color: $primary-color-dark;
+    background-color: $bg-color;
 }
 
 #selectAxisList{
-    border-color: #005b96!important
+    border-color: $primary-color !important
 }
 // proximas 10 filas reacomodan los botones de Wpos por eje y Mpos por eje.
 .jog-position-row {

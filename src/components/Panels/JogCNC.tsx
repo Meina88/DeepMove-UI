@@ -72,85 +72,85 @@ const PositionsControls = ({
 
 
     return (
-    <Fragment>
-        {["x", "y", "z"].map((letter) => {
-            const hasM = typeof positions[letter] !== "undefined"
-            const hasW = typeof positions[`w${letter}`] !== "undefined"
+        <Fragment>
+            {["x", "y", "z"].map((letter) => {
+                const hasM = typeof positions[letter] !== "undefined"
+                const hasW = typeof positions[`w${letter}`] !== "undefined"
 
-            if (isMPos && !hasM) return null
-            if (isWPos && !hasW) return null
-            if (!useUiContextFn.getValue(`show${letter}`)) return null
+                if (isMPos && !hasM) return null
+                if (isWPos && !hasW) return null
+                if (!useUiContextFn.getValue(`show${letter}`)) return null
 
-            const axis = letter.toUpperCase()
+                const axis = letter.toUpperCase()
 
-            return (
-                <div key={letter} class="jog-positions-ctrls m-1">
+                return (
+                    <div key={letter} class="jog-positions-ctrls m-1">
 
-                    {/* ===== MPos ===== */}
-                    {isMPos && (
-                        <div class="jog-position-row">
-                            <Button
-                                m1
-                                class="jog-position-action"
-                                tooltip
-                                data-tooltip={T("CN10")}
-                                onClick={() => {
-                                    useUiContextFn.haptic()
-                                    onHomeAxis(axis)
-                                }}
-                            >
-                                <Home size={"0.9rem" as any} />
-                            </Button>
-
-                            <div class="jog-position-ctrl">
-                                <div class="jog-position-sub-header">
-                                    MPos {axis}
-                                </div>
-                                <div class="jog-position-value">
-                                    {positions[letter]}
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* ===== WPos ===== */}
-                    {isWPos && (
-                        <div class="jog-position-row">
-                            <div class="jog-position-ctrl">
-                                <div class="jog-position-sub-header">
-                                    WPos {axis}
-                                </div>
-                                <div
-                                    class="jog-position-value jog-position-clickable"
+                        {/* ===== MPos ===== */}
+                        {isMPos && (
+                            <div class="jog-position-row">
+                                <Button
+                                    m1
+                                    class="jog-position-action"
+                                    tooltip
+                                    data-tooltip={T("CN10")}
                                     onClick={() => {
                                         useUiContextFn.haptic()
-                                        onWPosClick(letter, positions[`w${letter}`])
+                                        onHomeAxis(axis)
                                     }}
                                 >
-                                    {positions[`w${letter}`]}
+                                    <Home size={"0.9rem" as any} />
+                                </Button>
+
+                                <div class="jog-position-ctrl">
+                                    <div class="jog-position-sub-header">
+                                         {axis}
+                                    </div>
+                                    <div class="jog-position-value">
+                                        {positions[letter]}
+                                    </div>
                                 </div>
                             </div>
+                        )}
 
-                            <Button
-                                m1
-                                class="jog-position-action"
-                                tooltip
-                                data-tooltip={T("CN19")}
-                                onClick={() => {
-                                    useUiContextFn.haptic()
-                                    onZeroAxis(axis)
-                                }}
-                            >
-                                <Crosshair size={"0.9rem" as any} />
-                            </Button>
-                        </div>
-                    )}
+                        {/* ===== WPos ===== */}
+                        {isWPos && (
+                            <div class="jog-position-row">
+                                <div class="jog-position-ctrl">
+                                    <div class="jog-position-sub-header">
+                                        {axis}
+                                    </div>
+                                    <div
+                                        class="jog-position-value jog-position-clickable"
+                                        onClick={() => {
+                                            useUiContextFn.haptic()
+                                            onWPosClick(letter, positions[`w${letter}`])
+                                        }}
+                                    >
+                                        {positions[`w${letter}`]}
+                                    </div>
+                                </div>
 
-                </div>
-            )
-        })}
-    </Fragment>
-)
+                                <Button
+                                    m1
+                                    class="jog-position-action"
+                                    tooltip
+                                    data-tooltip={T("CN19")}
+                                    onClick={() => {
+                                        useUiContextFn.haptic()
+                                        onZeroAxis(axis)
+                                    }}
+                                >
+                                    <Crosshair size={"0.9rem" as any} />
+                                </Button>
+                            </div>
+                        )}
+
+                    </div>
+                )
+            })}
+        </Fragment>
+    )
 
 }
 
@@ -608,16 +608,21 @@ const JogPanel = () => {
 
                     {/* ===== MPos BOX ===== */}
                     <div class="jog-axis-group">
-<Button
-    m2
-    class="jog-global-btn btn-with-icon"
-    onClick={() => {
-        useUiContextFn.haptic()
-        goToMachineZero()
-    }}
->
-    Go <Home size={"0.9rem" as any} />
-</Button>
+
+                        <div class="jog-axis-header">
+                            Machine coordinates
+                        </div>
+
+                        <Button
+                            m2
+                            class="jog-global-btn btn-with-icon"
+                            onClick={() => {
+                                useUiContextFn.haptic()
+                                goToMachineZero()
+                            }}
+                        >
+                            Go <Home size={"0.9rem" as any} />
+                        </Button>
 
                         <PositionsControls
                             mode="mpos"
@@ -626,30 +631,36 @@ const JogPanel = () => {
                             onWPosClick={showMoveToDialog}
                         />
 
-<Button
-    m2
-    class="jog-global-btn btn-with-icon"
-    onClick={() => {
-        useUiContextFn.haptic()
-       sendHomeCommand("")
-    }}
->
-    Find <Home size={"0.9rem" as any} />
-</Button>
+                        <Button
+                            m2
+                            class="jog-global-btn btn-with-icon"
+                            onClick={() => {
+                                useUiContextFn.haptic()
+                                sendHomeCommand("")
+                            }}
+                        >
+                            Find <Home size={"0.9rem" as any} />
+                        </Button>
                     </div>
+
 
                     {/* ===== WPos BOX ===== */}
                     <div class="jog-axis-group">
-<Button
-    m2
-    class="jog-global-btn btn-with-icon"
-    onClick={() => {
-        useUiContextFn.haptic()
-        goToWorkZero()
-    }}
->
-    Go <Crosshair size={"0.9rem" as any} />
-</Button>
+
+                        <div class="jog-axis-header">
+                            Working coordinates
+                        </div>
+
+                        <Button
+                            m2
+                            class="jog-global-btn btn-with-icon"
+                            onClick={() => {
+                                useUiContextFn.haptic()
+                                goToWorkZero()
+                            }}
+                        >
+                            Go <Crosshair size={"0.9rem" as any} />
+                        </Button>
 
                         <PositionsControls
                             mode="wpos"
@@ -658,19 +669,18 @@ const JogPanel = () => {
                             onWPosClick={showMoveToDialog}
                         />
 
-<Button
-    m2
-    class="jog-global-btn btn-with-icon"
-    onClick={() => {
-        useUiContextFn.haptic()
-        sendZeroCommand("")
-    }}
->
-    Set <Crosshair size={"0.9rem" as any} />
-</Button>
-
-
+                        <Button
+                            m2
+                            class="jog-global-btn btn-with-icon"
+                            onClick={() => {
+                                useUiContextFn.haptic()
+                                sendZeroCommand("")
+                            }}
+                        >
+                            Set <Crosshair size={"0.9rem" as any} />
+                        </Button>
                     </div>
+
 
                 </div>
 
@@ -751,7 +761,7 @@ const JogPanel = () => {
                                     selectorBtn("prev")
                                 }}
                             />
-                            <div class="form-group m-2 text-primary">
+                            <div class="form-group m-2 jog-axis-selector">
                                 <select
                                     id="selectAxisList"
                                     class="form-select"

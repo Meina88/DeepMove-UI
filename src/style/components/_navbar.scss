@@ -2,13 +2,23 @@
     color: $gray-color-dark !important;
 }
 
-section .active,
-li .active {
-    color: $primary-color !important;
-    font-weight: 600;
-}
-
 .mobile-view section .active,
 .mobile-view li .active {
     background-color: rgba($primary-color, 0.12) !important;
+}
+
+
+/* Navbar pages — default */
+.navbar .feather-icon-container {
+    color: $gray-color-dark;
+}
+
+/* Navbar pages — hover */
+.navbar .feather-icon-container:hover {
+    color: $body-font-color;
+}
+
+/* Navbar pages — active */
+.navbar .feather-icon-container.active {
+    color: $primary-color;
 }

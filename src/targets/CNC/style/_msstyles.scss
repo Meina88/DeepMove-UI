@@ -32,6 +32,16 @@
 }
 
 /* =========================
+   JOG AXIS SELECTOR
+   ========================= */
+
+.jog-axis-selector {
+    color: $body-font-color;
+    font-weight: 600;
+}
+
+
+/* =========================
    JOG PANEL — CONTENEDOR PRINCIPAL
    ========================= */
 
@@ -50,13 +60,12 @@
 .jog-axis-group {
     display: flex;
     flex-direction: column;
-    gap: 0.1px;
-
+    gap: 0px;
     max-width: 100%;
     min-width: 0;
-    overflow: hidden;
+    
 
-    padding: 0.1px;  
+    padding: 0px;  
     
 }
 
@@ -69,7 +78,7 @@
     align-items: center;
     gap: 4px;
 
-    margin-bottom: 0.05px;
+    margin-bottom: 0px;
     min-width: 0;
 
     button,
@@ -101,13 +110,20 @@
    ========================= */
 
 .jog-position-value {
-    padding: 2px 6px;
-    font-size: 0.5rem;
+        font-weight: 500;      // en vez de default
+    letter-spacing: 0.02em;
+    padding: 0 8px;
+    min-width: 64px;
 
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    font-size: 0.65rem;
+    line-height: 22px;
+
+    text-align: right;
+
+    background: transparent;
+    border: none;
 }
+
 
 /* =========================
    JOG PANEL — GRID DE POSICIONES
@@ -125,7 +141,7 @@
    JOG PANEL — BOTONES Z (+Z / -Z)
    ========================= */
 
-.jog-axis-group > .jog-buttons-container {
+.jog-axis-group .jog-buttons-container {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -181,6 +197,7 @@
 .power-gauge {
     width: 160px;
     height: auto;
+    filter: saturate(0.85);
 }
 
 .power-value {
@@ -494,3 +511,125 @@
 
     font-size: 0.7rem;
 }
+
+
+
+
+/* =========================
+   JOG MOVEMENT BUTTONS — UNIFIED STYLE
+   ========================= */
+
+.jog-xy-pad button,
+.jog-axis-group .jog-buttons-container button {
+  background-color: $primary-color;
+  color: #fff;
+  border: none;
+
+  border: none;
+  border-radius: $border-radius;
+
+  font-weight: 600;
+
+  transition: 
+    background-color 120ms ease,
+    transform 80ms ease;
+
+  /* ❌ elimina herencias raras */
+  outline: none;
+  box-shadow: none;
+}
+.jog-xy-pad button:hover,
+.jog-axis-group .jog-buttons-container button:hover {
+  background-color: $primary-color-dark;
+}
+.jog-xy-pad button:active,
+.jog-axis-group .jog-buttons-container button:active {
+  background-color: $primary-color-dark;
+  transform: translateY(1px);
+}
+.jog-xy-pad button:focus,
+.jog-xy-pad button:focus-visible,
+.jog-axis-group .jog-buttons-container button:focus,
+.jog-axis-group .jog-buttons-container button:focus-visible {
+  outline: none;
+  box-shadow: none;
+  background-color: $primary-color;
+}
+
+
+.jog-axis-header {
+    background-color: rgba($primary-color, 0.06);
+    color: $primary-color;
+
+    border-bottom: 1px solid rgba($primary-color, 0.2);
+
+    font-size: 0.55rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+
+    padding: 4px 0;
+    margin-bottom: 6px;
+    text-align: center;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+.jog-position-ctrl {
+    display: flex;
+    align-items: center;
+
+    border: 1px solid $border-color;
+    border-radius: 8%;      
+    overflow: hidden;         
+
+    background-color: $bg-color-light;
+}
+
+
+.jog-position-sub-header {
+    min-width: 26px;
+    height: 26px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 0.55rem;
+    font-weight: 600;
+    text-transform: uppercase;
+
+    color: $primary-color;
+    background-color: rgba($primary-color, 0.12);
+
+    border-right: 1px solid $border-color;
+
+    border-radius: 0;       
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

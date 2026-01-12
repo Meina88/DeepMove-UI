@@ -49,14 +49,20 @@
    PANEL — CABECERA (HEADER / NAVBAR)
    ========================================================= */
 
-.panel .navbar,
-.panel .navbar-section {
+.panel .navbar {
     background-color: $bg-color-dark;
     color: $primary-color;
     border-bottom: $border-width solid $border-color;
-      padding-left: $unit-1;
-  padding-right: $unit-1;
+    padding-left: $unit-1;
+    padding-right: $unit-1;
 }
+
+.panel .navbar-section {
+    background-color: transparent;
+    color: inherit;
+    border-bottom: none;
+}
+
 
 /* =========================================================
    Botones de acción en la cabecera del panel (dropdown, close, etc.) 
@@ -88,6 +94,13 @@
     font-size: $font-size;
     color: $primary-color;
 }
+
+/* PANEL HEADERS — DESACTIVAR INTERACCIÓN */
+.panel .navbar .navbar-section.feather-icon-container {
+    pointer-events: none;
+    cursor: default;
+}
+
 
 /* =========================================================
    PANEL — CONTENIDO ESPECIAL
