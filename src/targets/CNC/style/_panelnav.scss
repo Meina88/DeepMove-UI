@@ -3,13 +3,13 @@
    ========================= */
 
 .panel-navigator {
-    display: none;
+    display: flex;
 }
 
 /* =====================================================
    MOBILE BASE (≤480px)
    ===================================================== */
-@media (max-width: 480px) {
+
 
     /* =========================
        CONTENEDOR
@@ -32,9 +32,10 @@
         padding: 10px 18px;
         gap: 14px;
 
-        background: rgba(20, 20, 28, 0.88);
+        background: rgba($panelnav-bg-color, $panelnav-bg-alpha);
+
         backdrop-filter: blur(10px);
-        border-radius: 999px;
+        border-radius: 30px;
 
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.38);
     }
@@ -52,10 +53,11 @@
 
         display: flex;
         align-items: center;
-        justify-content: center; /* ✅ corregido */
+        justify-content: center;
+        /* ✅ corregido */
 
-        background: rgba(255, 255, 255, 0.10);
-        color: rgba(255, 255, 255, 0.8);
+        background: rgba($panelnav-btn-bg-color, $panelnav-btn-bg-alpha);
+        color: $panelnav-btn-icon-color;
 
         transition:
             background 0.15s ease,
@@ -71,7 +73,8 @@
     }
 
     .panel-navigator-btn:active {
-        background: rgba(255, 255, 255, 0.22);
+        background: rgba($panelnav-btn-bg-color,
+                $panelnav-btn-active-bg-alpha );
         transform: scale(0.94);
     }
 
@@ -88,17 +91,15 @@
         align-items: center;
         justify-content: center;
 
-        background: radial-gradient(
-            circle at 30% 30%,
-            #ff6b6b,
-            #c83434
-        );
+        background: radial-gradient(circle at 30% 30%,
+                $panelnav-reset-highlight,
+                $panelnav-reset-color);
 
         color: #fff;
 
         box-shadow:
             0 6px 16px rgba(0, 0, 0, 0.45),
-            inset 0 0 0 2px rgba(255, 255, 255, 0.15);
+            inset 0 0 0 2px rgba($light-color, 0.15);
 
         transition:
             transform 0.15s ease,
@@ -147,7 +148,7 @@
         opacity: 0;
         pointer-events: none;
     }
-}
+
 
 /* =====================================================
    EXTRA SMALL (≤380px) — Galaxy S9 / SE
@@ -158,4 +159,50 @@
         padding: 10px 14px;
         gap: 10px;
     }
+}
+
+/* =====================================================
+   DESKTOP REAL — RESET FLOATING BUTTON (SIN BARRA)
+   ===================================================== */
+@media (min-width: 1024px) {
+
+    /* Quitar estética de barra */
+    .panel-navigator {
+        background: transparent;
+        backdrop-filter: none;
+        box-shadow: none;
+        padding: 0;
+        width: auto;
+
+        justify-content: center;
+    }
+
+    /* Asegurar que solo el reset sea visible */
+    .panel-navigator-btn {
+        display: none;
+    }
+
+    .panel-navigator-btn-reset {
+        display: flex;
+    }
+}
+
+
+/* =====================================================
+   DESACTIVAR MENÚ CONTEXTUAL EN CONTROLES TÁCTILES
+   ===================================================== */
+
+.panel-navigator-btn,
+.panel-navigator-btn-reset,
+.jog-btn,
+.jog-arrow,
+.jog-control,
+button {
+    -webkit-touch-callout: none; /* iOS / Chrome */
+    -webkit-user-select: none;
+    user-select: none;
+
+    -webkit-tap-highlight-color: transparent;
+
+    touch-action: manipulation; /* 🔑 clave */
 }

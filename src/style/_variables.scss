@@ -9,11 +9,10 @@ $rtl: false !default;
 // Core colors
 // Primary accent (exception to grayscale)
 // Primary accent – industrial blue (Sajid)
-$primary-color: hsl(185, 55%, 42%);
-$primary-color-dark: hsl(185, 55%, 32%);
-$primary-color-light: hsl(185, 55%, 22%);
-
-
+// Primary accent – Material Blue (Google)
+$primary-color:       hsl(221, 88%, 65%);   // ≈ #548EF5
+$primary-color-dark:  hsl(221, 88%, 55%);
+$primary-color-light: hsl(221, 88%, 72%);
 
 
 $secondary-color: lighten($primary-color, 28%) !default;
@@ -46,6 +45,10 @@ $warning-color: hsl(38, 90%, 50%);
 $error-color: hsl(2, 70%, 52%);
 
 
+// Panel headers
+$panel-header-bg:   $primary-color;
+$panel-header-text: $light-color;
+$panel-header-hover: $primary-color-dark;
 
 
 // Other colors
@@ -62,11 +65,31 @@ $text-muted-color: hsl(0, 0%, 40%); // labels, hints
 
 $body-font-color: $text-normal-color !default;
 
-
-
 $link-color: $primary-color !default;
 $link-color-dark: darken($link-color, 8%) !default;
 $link-color-light: lighten($link-color, 6%) !default;
+
+// =====================================================
+// Panel Navigator (Mobile Bottom Bar)
+// =====================================================
+
+// Fondo general de la barra
+$panelnav-bg-color: $primary-color;
+$panelnav-bg-alpha: 0.95;
+
+// Botones normales
+$panelnav-btn-bg-color: $light-color;
+$panelnav-btn-bg-alpha: 0.1;
+$panelnav-btn-icon-color: $light-color;
+
+// Botón activo (tap)
+$panelnav-btn-active-bg-alpha: 0.2;
+
+// Botón RESET / STOP
+$panelnav-reset-color: $error-color;
+$panelnav-reset-highlight: lighten($error-color, 10%);
+$panelnav-reset-shadow: darken($error-color, 18%);
+
 
 // Fonts
 // Credit: https://www.smashingmagazine.com/2015/11/using-system-ui-fonts-practical-guide/
