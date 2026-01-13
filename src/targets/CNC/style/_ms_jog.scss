@@ -145,13 +145,14 @@
    ========================= */
 
 .jog-axis-group .jog-buttons-container {
-    height: 213px;  
+    height: 175px;
+    gap: 30px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
 
-    gap: 50px;
+
     /* separación entre +Z y -Z */
 }
 
@@ -160,9 +161,8 @@
    JOG MOVEMENT BUTTONS — UNIFIED STYLE
    ========================= */
 
-.jog-xy-pad button,
 .jog-axis-group .jog-buttons-container button {
-       width: 50px;
+    width: 50px;
     height: 50px;
     background-color: $primary-color;
     color: #fff;
@@ -255,7 +255,7 @@
 
 
 /* Centrado perfecto de íconos en botones Jog */
-.jog-xy-pad .btn,
+
 .jog-buttons-container .btn {
     display: flex;
     align-items: center;
@@ -265,96 +265,109 @@
 
 //////////////
 
-.jog-xy-pad {
-
-    /* ===============================
-     BOTONES XY → fondo transparente
-     =============================== */
-
-    .btn {
-        background-color: transparent;
-        box-shadow: none;
-        padding: 0;
-        border-radius: 0;
-    }
-
-    /* ===============================
-     Color base del jog
-     =============================== */
-
-    svg path {
-        fill: $primary-color;
-        transition:
-            filter 120ms ease,
-            transform 120ms ease;
-    }
-
-    /* ===============================
-     Hover (feedback suave)
-     =============================== */
-
-    .btn:hover svg path {
-        filter: brightness(1.12);
-    }
-
-    /* ===============================
-     Active / presionado
-     =============================== */
-
-    .btn:active svg path {
-        filter: brightness(0.88);
-        transform: scale(0.97);
-
-    }
-
-}
-
-.jog-xy-pad {
-
-
-    display: grid;
-    grid-template-columns: repeat(3, 80px);
-    grid-template-rows: repeat(3, 80px);
-
-    position: relative; // 🔑 referencia absoluta
-}
-
-
-/* tamaño base de TODOS los arcos */
-.jog-xy-pad .btn svg {
-    position: absolute;
-    width: 120px;
-    /* ⬅ agrandá acá */
-    height: 120px;
-    /* ⬅ agrandá acá */
-}
-
-.jog-xy-pad .btn {
-    width: 40px;
-    height: 47px;
-
-    padding: 0;
-    background: transparent;
-    box-shadow: none;
-
-    position: relative;
-    overflow: visible;
-    /* el SVG puede salirse */
-}
-
 
 /* ===============================
-   JOG XY – anular hover del botón
+   JOG XY — BLOQUE ÚNICO Y FIJO
    =============================== */
+
 .jog-xy-pad {
+    display: grid;
+    grid-template-columns: repeat(3, 52px) !important;
+    grid-template-rows: repeat(3, 52px) !important;
+    position: relative;
+}
 
-    .btn,
-    .btn:hover,
-    .btn:focus,
-    .btn:active {
-        background-color: transparent;
-        box-shadow: none;
-        outline: none;
-    }
+/* ubicación fija en grilla */
+.jog-xy-pad .jog-arc-up {
+    grid-column: 2;
+    grid-row: 1;
+}
 
+.jog-xy-pad .jog-arc-left {
+    grid-column: 1;
+    grid-row: 2;
+}
+
+.jog-xy-pad .jog-step-knob {
+    grid-column: 2;
+    grid-row: 2;
+}
+
+.jog-xy-pad .jog-arc-right {
+    grid-column: 3;
+    grid-row: 2;
+}
+
+.jog-xy-pad .jog-arc-down {
+    grid-column: 2;
+    grid-row: 3;
+}
+
+/* celda */
+.jog-xy-pad .jog-cell {
+    width: 100%;
+    height: 100%;
+    position: relative;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* hitbox seguro */
+.jog-xy-pad .jog-xy-hit {
+    position: absolute;
+    width: 44px;
+    height: 44px;
+
+    padding: 0;
+    border: 0;
+    border-radius: 10px;
+
+    background: transparent;
+    box-shadow: none;
+    outline: none;
+
+    z-index: 2;
+}
+
+/* svg visual */
+.jog-xy-pad .jog-cell svg {
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.jog-xy-pad .jog-cell svg path {
+    fill: $primary-color;
+    transition: filter 120ms ease, transform 120ms ease;
+}
+
+.jog-xy-pad .jog-xy-hit:hover+svg path {
+    filter: brightness(1.12);
+}
+
+.jog-xy-pad .jog-xy-hit:active+svg path {
+    filter: brightness(0.88);
+    transform: scale(0.97);
+}
+
+/* neutralizar estilos genéricos que ensucian */
+.jog-xy-pad button,
+.jog-xy-pad .btn {
+    background: transparent;
+    box-shadow: none;
+}
+
+
+/* 🔒 XY jog: el botón NO debe pintar fondo */
+.jog-xy-pad .jog-xy-hit:hover,
+.jog-xy-pad .jog-xy-hit:active,
+.jog-xy-pad .jog-xy-hit:focus,
+.jog-xy-pad .jog-xy-hit:focus-visible {
+    background: transparent !important;
+    box-shadow: none !important;
+    outline: none !important;
 }

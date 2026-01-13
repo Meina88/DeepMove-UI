@@ -711,44 +711,43 @@ const JogPanel = () => {
                     {/* XY */}
                     <div class="jog-axis-group">
                         <div class="jog-xy-pad">
+  {/* +Y */}
+  <div class="jog-cell jog-arc-up">
+    <Button m2 class="jog-xy-hit" {...jogPressHandlers("Y+")} />
+    <JogQuarter rotate={0} />
+  </div>
 
-                            {/* +Y */}
-                            <Button m2 class="jog-arc-up" {...jogPressHandlers("Y+")}>
-                                <JogQuarter rotate={0} />
-                            </Button>
+  {/* -X */}
+  <div class="jog-cell jog-arc-left">
+    <Button m2 class="jog-xy-hit" {...jogPressHandlers("X-")} />
+    <JogQuarter rotate={270} />
+  </div>
+
+  {/* 🔵 PERILLA (centro) */}
+  <div
+    class="jog-step-knob"
+    onClick={() => {
+      useUiContextFn.haptic()
+      rotateJogStep()
+    }}
+  >
+    {jogDistanceXYZ}
+  </div>
+
+  {/* +X */}
+  <div class="jog-cell jog-arc-right">
+    <Button m2 class="jog-xy-hit" {...jogPressHandlers("X+")} />
+    <JogQuarter rotate={90} />
+  </div>
+
+  {/* -Y */}
+  <div class="jog-cell jog-arc-down">
+    <Button m2 class="jog-xy-hit" {...jogPressHandlers("Y-")} />
+    <JogQuarter rotate={180} />
+  </div>
+</div>
 
 
-
-                            {/* -X */}
-                            <Button m2 class="jog-arc-up" {...jogPressHandlers("Y+")}>
-                                <JogQuarter rotate={270} />
-                            </Button>
-
-
-                            {/* 🔵 PERILLA (solo visual) */}
-                            <div
-                                class="jog-step-knob"
-                                onClick={() => {
-                                    useUiContextFn.haptic()
-                                    rotateJogStep()
-                                }}
-                            >
-                                {jogDistanceXYZ}
-                            </div>
-
-
-                            {/* +X */}
-                            <Button m2 class="jog-arc-right" {...jogPressHandlers("X+")}>
-                                <JogQuarter rotate={90} />
-                            </Button>
-
-
-                            {/* -Y */}
-                            <Button m2 class="jog-arc-down" {...jogPressHandlers("Y-")}>
-                                <JogQuarter rotate={180} />
-                            </Button>
-
-                        </div>
                     </div>
                     {/* Z */}
                     {(typeof positions.z !== "undefined" ||
