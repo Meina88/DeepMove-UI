@@ -49,6 +49,24 @@ const selectableAxisLettersList = ["A", "B", "C", "U", "V", "W"]
 const CONTINUOUS_JOG_DELAY = 200
 const CONTINUOUS_DISTANCE = 5000
 
+const JogQuarter = ({ rotate = 0 }: { rotate?: number }) => (
+    <svg
+        viewBox="0 0 162 82"
+        width="100%"
+        height="100%"
+        style={{ transform: `rotate(${rotate}deg)` }}
+        preserveAspectRatio="xMidYMid meet"
+    >
+        <g filter="url(#filter0_dd_84_74)">
+            <path
+                d="M9.70257 45.0282C5.66748 40.9931 5.80071 34.3682 10.3456 30.9174C30.666 15.4886 55.593 7 81.3961 7C107.199 7 132.126 15.4886 152.447 30.9174C156.991 34.3682 157.125 40.9931 153.09 45.0282L122.755 75.3626C119.123 78.9952 113.369 79.1902 108.915 76.6296C100.614 71.8567 91.1383 69.2806 81.3961 69.2806C71.6538 69.2806 62.1783 71.8567 53.8771 76.6296C49.4235 79.1902 43.6696 78.9952 40.037 75.3626L9.70257 45.0282Z"
+                fill="#E5E5E5"
+            />
+        </g>
+    </svg>
+)
+
+
 /*
  * Local const
  *
@@ -695,15 +713,17 @@ const JogPanel = () => {
                         <div class="jog-xy-pad">
 
                             {/* +Y */}
-                            <Button m2 {...jogPressHandlers("Y+")}>
-                                <ArrowUp size={20} />
+                            <Button m2 class="jog-arc-up" {...jogPressHandlers("Y+")}>
+                                <JogQuarter rotate={0} />
                             </Button>
+
 
 
                             {/* -X */}
-                            <Button m2 {...jogPressHandlers("X-")}>
-                                <ArrowLeft size={20} />
+                            <Button m2 class="jog-arc-up" {...jogPressHandlers("Y+")}>
+                                <JogQuarter rotate={270} />
                             </Button>
+
 
                             {/* 🔵 PERILLA (solo visual) */}
                             <div
@@ -718,13 +738,14 @@ const JogPanel = () => {
 
 
                             {/* +X */}
-                            <Button m2 {...jogPressHandlers("X+")}>
-                                <ArrowRight size={20} />
+                            <Button m2 class="jog-arc-right" {...jogPressHandlers("X+")}>
+                                <JogQuarter rotate={90} />
                             </Button>
 
+
                             {/* -Y */}
-                            <Button m2 {...jogPressHandlers("Y-")}>
-                                <ArrowDown size={20} />
+                            <Button m2 class="jog-arc-down" {...jogPressHandlers("Y-")}>
+                                <JogQuarter rotate={180} />
                             </Button>
 
                         </div>

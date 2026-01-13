@@ -63,10 +63,10 @@
     gap: 0px;
     max-width: 100%;
     min-width: 0;
-    
 
-    padding: 0px;  
-    
+
+    padding: 0px;
+
 }
 
 /* =========================
@@ -110,7 +110,7 @@
    ========================= */
 
 .jog-position-value {
-        font-weight: 500;      // en vez de default
+    font-weight: 500; // en vez de default
     letter-spacing: 0.02em;
     padding: 0 8px;
     min-width: 64px;
@@ -147,7 +147,8 @@
     justify-content: center;
     align-items: center;
 
-    gap: 80px; /* separación entre +Z y -Z */
+    gap: 80px;
+    /* separación entre +Z y -Z */
 }
 
 
@@ -283,9 +284,17 @@
 }
 
 @keyframes progressPulse {
-    0%   { filter: brightness(1); }
-    50%  { filter: brightness(1.18); }
-    100% { filter: brightness(1); }
+    0% {
+        filter: brightness(1);
+    }
+
+    50% {
+        filter: brightness(1.18);
+    }
+
+    100% {
+        filter: brightness(1);
+    }
 }
 
 /* =========================
@@ -412,7 +421,7 @@
     align-items: center;
 }
 
-#OverridesPanel .status-ctrls > .extra-control {
+#OverridesPanel .status-ctrls>.extra-control {
     justify-self: center;
 }
 
@@ -521,39 +530,42 @@
 
 .jog-xy-pad button,
 .jog-axis-group .jog-buttons-container button {
-  background-color: $primary-color;
-  color: #fff;
-  border: none;
+    background-color: $primary-color;
+    color: #fff;
+    border: none;
 
-  border: none;
-  border-radius: $border-radius;
+    border: none;
+    border-radius: $border-radius;
 
-  font-weight: 600;
+    font-weight: 600;
 
-  transition: 
-    background-color 120ms ease,
-    transform 80ms ease;
+    transition:
+        background-color 120ms ease,
+        transform 80ms ease;
 
-  /* ❌ elimina herencias raras */
-  outline: none;
-  box-shadow: none;
+    /* ❌ elimina herencias raras */
+    outline: none;
+    box-shadow: none;
 }
+
 .jog-xy-pad button:hover,
 .jog-axis-group .jog-buttons-container button:hover {
-  background-color: $primary-color-dark;
+    background-color: $primary-color-dark;
 }
+
 .jog-xy-pad button:active,
 .jog-axis-group .jog-buttons-container button:active {
-  background-color: $primary-color-dark;
-  transform: translateY(1px);
+    background-color: $primary-color-dark;
+    transform: translateY(1px);
 }
+
 .jog-xy-pad button:focus,
 .jog-xy-pad button:focus-visible,
 .jog-axis-group .jog-buttons-container button:focus,
 .jog-axis-group .jog-buttons-container button:focus-visible {
-  outline: none;
-  box-shadow: none;
-  background-color: $primary-color;
+    outline: none;
+    box-shadow: none;
+    background-color: $primary-color;
 }
 
 
@@ -589,8 +601,8 @@
     align-items: center;
 
     border: 1px solid $border-color;
-    border-radius: 8%;      
-    overflow: hidden;         
+    border-radius: 8%;
+    overflow: hidden;
 
     background-color: $bg-color-light;
 }
@@ -613,7 +625,7 @@
 
     border-right: 1px solid $border-color;
 
-    border-radius: 0;       
+    border-radius: 0;
 }
 
 
@@ -622,103 +634,196 @@
 /* Centrado perfecto de íconos en botones Jog */
 .jog-xy-pad .btn,
 .jog-buttons-container .btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;        // 🔑 mata el offset de texto
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1; // 🔑 mata el offset de texto
 }
 
-/* SVG Feather */
-.jog-xy-pad svg,
-.jog-buttons-container svg {
-  display: block;       // 🔑 elimina baseline
-}
+
 
 
 
 /* === FILE ITEM (mobile friendly) === */
 
 .file-item {
-  transition: background-color 120ms ease;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+    transition: background-color 120ms ease;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 
-  padding: 8px;
-  border-bottom: 1px solid $border-color;
+    padding: 8px;
+    border-bottom: 1px solid $border-color;
 
-  &:last-child {
-    border-bottom: none;
-  }
+    &:last-child {
+        border-bottom: none;
+    }
 
-  /* ✅ feedback suave al mantener presionado, sin “azul” */
-  &:active {
-    background-color: rgba($primary-color, 0.05);
-  }
+    /* ✅ feedback suave al mantener presionado, sin “azul” */
+    &:active {
+        background-color: rgba($primary-color, 0.05);
+    }
 }
 
 /* Header */
 .file-item-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
 }
 
 /* Nombre */
 .file-item-name {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
 
-  span {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
+    span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
 }
 
 /* Tamaño */
 .file-item-size {
-  font-size: 0.6rem;
-  opacity: 0.7;
-  flex-shrink: 0;
+    font-size: 0.6rem;
+    opacity: 0.7;
+    flex-shrink: 0;
 }
 
 /* Actions wrapper */
 .file-item-actions {
-  display: flex;
-  justify-content: center;
+    display: flex;
+    justify-content: center;
 }
 
 /* 3 columnas: izq / centro vacío / der */
 .file-item-actions-inner {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  align-items: center;
-  width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    align-items: center;
+    width: 100%;
 }
 
 .file-item-action-left,
 .file-item-action-right {
-  display: flex;
-  justify-content: center;
+    display: flex;
+    justify-content: center;
 }
 
 .file-item-action-center {
-  height: 1px;
+    height: 1px;
 }
 
 /* ✅ SOLO el Play macizo */
 .file-play-btn {
-  background-color: $primary-color !important;
-  color: #fff !important;
-  border-color: $primary-color !important;
+    background-color: $primary-color !important;
+    color: #fff !important;
+    border-color: $primary-color !important;
 }
 
 .file-play-btn:hover,
 .file-play-btn:active {
-  background-color: $primary-color-dark !important;
-  border-color: $primary-color-dark !important;
+    background-color: $primary-color-dark !important;
+    border-color: $primary-color-dark !important;
+}
+
+
+//////////////
+
+.jog-xy-pad {
+
+    /* ===============================
+     BOTONES XY → fondo transparente
+     =============================== */
+
+    .btn {
+        background-color: transparent;
+        box-shadow: none;
+        padding: 0;
+        border-radius: 0;
+    }
+
+    /* ===============================
+     Color base del jog
+     =============================== */
+
+    svg path {
+        fill: $primary-color;
+        transition:
+            filter 120ms ease,
+            transform 120ms ease;
+    }
+
+    /* ===============================
+     Hover (feedback suave)
+     =============================== */
+
+    .btn:hover svg path {
+        filter: brightness(1.12);
+    }
+
+    /* ===============================
+     Active / presionado
+     =============================== */
+
+    .btn:active svg path {
+        filter: brightness(0.88);
+        transform: scale(0.97);
+
+    }
+
+}
+
+.jog-xy-pad {
+
+
+    display: grid;
+    grid-template-columns: repeat(3, 80px);
+    grid-template-rows: repeat(3, 80px);
+
+    position: relative; // 🔑 referencia absoluta
+}
+
+
+/* tamaño base de TODOS los arcos */
+.jog-xy-pad .btn svg {
+    position: absolute;
+    width: 120px;
+    /* ⬅ agrandá acá */
+    height: 120px;
+    /* ⬅ agrandá acá */
+}
+
+.jog-xy-pad .btn {
+    width: 40px;
+    height: 45px;
+
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+
+    position: relative;
+    overflow: visible;
+    /* el SVG puede salirse */
+}
+
+
+/* ===============================
+   JOG XY – anular hover del botón
+   =============================== */
+.jog-xy-pad {
+
+  .btn,
+  .btn:hover,
+  .btn:focus,
+  .btn:active {
+    background-color: transparent;
+    box-shadow: none;
+    outline: none;
+  }
+
 }
