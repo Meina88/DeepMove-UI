@@ -1,0 +1,87 @@
+
+/* === FILE ITEM (mobile friendly) === */
+
+.file-item {
+    transition: background-color 120ms ease;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    padding: 8px;
+    border-bottom: 1px solid $border-color;
+
+    &:last-child {
+        border-bottom: none;
+    }
+
+    /* ✅ feedback suave al mantener presionado, sin “azul” */
+    &:active {
+        background-color: rgba($primary-color, 0.05);
+    }
+}
+
+/* Header */
+.file-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Nombre */
+.file-item-name {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+
+    span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
+
+/* Tamaño */
+.file-item-size {
+    font-size: 0.6rem;
+    opacity: 0.7;
+    flex-shrink: 0;
+}
+
+/* Actions wrapper */
+.file-item-actions {
+    display: flex;
+    justify-content: center;
+}
+
+/* 3 columnas: izq / centro vacío / der */
+.file-item-actions-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    align-items: center;
+    width: 100%;
+}
+
+.file-item-action-left,
+.file-item-action-right {
+    display: flex;
+    justify-content: center;
+}
+
+.file-item-action-center {
+    height: 1px;
+}
+
+/* ✅ SOLO el Play macizo */
+.file-play-btn {
+    background-color: $primary-color !important;
+    color: #fff !important;
+    border-color: $primary-color !important;
+}
+
+.file-play-btn:hover,
+.file-play-btn:active {
+    background-color: $primary-color-dark !important;
+    border-color: $primary-color-dark !important;
+}
