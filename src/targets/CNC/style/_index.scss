@@ -3,6 +3,7 @@
 @import "_ms_jog";
 @import "_ms_overrides";
 @import "_ms_files";
+@import "_ms_terminal";
 
 
 
@@ -72,21 +73,6 @@
     justify-content: space-around;
 }
 
-.status-control-value,
-.extra-control-value {
-    text-align: center;
-    color: $body-font-color;
-    font-size: 80%;
-    width: 100%;
-    height: 100%;
-    padding-left: 1rem;
-    padding-right: 1rem;
-}
-.status-control-value {
-    padding-left: 1rem;
-    padding-right: 1rem;
-}
-
 .big-text {
     font-size: 0.9rem !important;
 }
@@ -116,17 +102,7 @@
     border: 0.05rem solid #dadee4;
     border-radius: 5px;
 }
-.jog-position-sub-header,
-.jog-position-header {
-    border-bottom: $border-width solid $border-color;
-    color: $primary-color-dark;
-    background-color: $bg-color;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-weight: 600;
-    font-size: 70%;
-}
+
 
 .jog-position-header {
     border-radius: 5px 5px 0px 0px;

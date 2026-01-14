@@ -7,12 +7,9 @@ $version: "0.5.9";
 $rtl: false !default;
 
 // Core colors
-// Primary accent (exception to grayscale)
-// Primary accent – industrial blue (Sajid)
-// Primary accent – Material Blue (Google)
-$primary-color:       hsl(221, 88%, 65%);   // ≈ #548EF5
-$primary-color-dark:  hsl(221, 88%, 55%);
-$primary-color-light: hsl(221, 88%, 72%);
+$primary-color:       hsl(215, 88%, 60%);  
+$primary-color-dark:  hsl(215, 88%, 55%);
+$primary-color-light: hsl(215, 88%, 72%);
 
 
 $secondary-color: lighten($primary-color, 28%) !default;
@@ -40,7 +37,7 @@ $bg-color-dark: hsl(210, 20%, 92%);
 $bg-color-light: hsl(0, 0%, 100%);
 
 // Control colors
-$success-color: hsl(145, 55%, 42%); // verde técnico
+$success-color: hsl(145, 55%, 42%); 
 $warning-color: hsl(38, 90%, 50%);
 $error-color: hsl(2, 70%, 52%);
 

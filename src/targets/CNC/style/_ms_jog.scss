@@ -204,6 +204,7 @@
 
 
 .jog-axis-header {
+    display: none;
     background-color: rgba($primary-color, 0.06);
     color: $primary-color;
 
@@ -252,8 +253,6 @@
 }
 
 
-
-
 /* Centrado perfecto de íconos en botones Jog */
 
 .jog-buttons-container .btn {
@@ -262,6 +261,17 @@
     justify-content: center;
     line-height: 1; // 🔑 mata el offset de texto
 }
+
+
+.jog-buttons-main-container {
+    display: flex;
+    align-items: center;
+    gap: 20px; // probá 16–24px según gusto
+}
+.jog-buttons-main-container .jog-axis-group:last-child {
+    margin-left: 16px;
+}
+
 
 //////////////
 
@@ -342,17 +352,18 @@
 
 .jog-xy-pad .jog-cell svg path {
     fill: $primary-color;
-    transition: filter 120ms ease, transform 120ms ease;
+    transition: fill 120ms ease, transform 120ms ease;
 }
 
-.jog-xy-pad .jog-xy-hit:hover+svg path {
-    filter: brightness(1.12);
+.jog-xy-pad .jog-xy-hit:hover + svg path {
+    fill: $primary-color-dark;
 }
 
-.jog-xy-pad .jog-xy-hit:active+svg path {
-    filter: brightness(0.88);
+.jog-xy-pad .jog-xy-hit:active + svg path {
+    fill: $primary-color-dark;
     transform: scale(0.97);
 }
+
 
 /* neutralizar estilos genéricos que ensucian */
 .jog-xy-pad button,
@@ -371,3 +382,52 @@
     box-shadow: none !important;
     outline: none !important;
 }
+
+
+/* =========================
+   JOG — BOTONES GLOBALES (GO / FIND / SET)
+   ========================= */
+
+.jog-global-btn {
+    background-color: $primary-color;
+    color: $light-color;
+    border: none;
+
+    font-weight: 600;
+    letter-spacing: 0.02em;
+
+    transition:
+        background-color 120ms ease,
+        transform 80ms ease;
+}
+
+.jog-global-btn svg {
+    color: $light-color;
+}
+
+
+.jog-global-btn:hover {
+    background-color: $primary-color-dark;
+}
+
+.jog-global-btn:active {
+    background-color: $primary-color-dark;
+    transform: translateY(3px);
+}
+
+
+.jog-global-btn:focus,
+.jog-global-btn:focus-visible {
+    outline: none;
+    box-shadow: none;
+}
+
+
+.jog-global-btn {
+    width: 100%;
+    margin: 4px 0;
+    padding: 6px 0;
+    border-radius: 6px;
+}
+
+
