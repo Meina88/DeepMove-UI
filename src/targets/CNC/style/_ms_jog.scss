@@ -324,22 +324,40 @@
     justify-content: center;
 }
 
+
+$jog-radial-offset: 5px; // movimiento radial hacia afuera de los botones táctiles del jogxy
 /* hitbox seguro */
 .jog-xy-pad .jog-xy-hit {
     position: absolute;
-    width: 44px;
-    height: 44px;
-
     padding: 0;
     border: 0;
     border-radius: 10px;
-
     background: transparent;
     box-shadow: none;
     outline: none;
-
     z-index: 2;
 }
+
+.jog-arc-up .jog-xy-hit,
+.jog-arc-down .jog-xy-hit {
+    width: 78px;
+    height: 48px;
+    border-radius: 14px;
+}
+
+.jog-arc-left .jog-xy-hit,
+.jog-arc-right .jog-xy-hit {
+    width: 48px;
+    height: 78px;
+    border-radius: 14px;
+}
+
+
+/* offsets radiales */
+.jog-arc-up    .jog-xy-hit { transform: translateY(-$jog-radial-offset); }
+.jog-arc-down  .jog-xy-hit { transform: translateY($jog-radial-offset); }
+.jog-arc-left  .jog-xy-hit { transform: translateX(-$jog-radial-offset); }
+.jog-arc-right .jog-xy-hit { transform: translateX($jog-radial-offset); }
 
 /* svg visual */
 .jog-xy-pad .jog-cell svg {
@@ -404,6 +422,7 @@
 .jog-global-btn svg {
     color: $light-color;
 }
+
 
 
 .jog-global-btn:hover {

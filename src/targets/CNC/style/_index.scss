@@ -139,12 +139,6 @@
     flex-direction: column;
 }
 
-.jog-axis-group {
-    display: flex;
-    border: 0.05rem solid #dadee4;
-    border-radius: 5px;
-}
-
 @media screen and (max-width: 400px) {
    .jog-buttons-container .m-2 {
        margin: 0.4rem 0.2rem !important;
@@ -222,26 +216,6 @@
     background: white;
 }
 
-
-
-/* =========================
-   GO TO / GLOBAL BUTTONS botones gotoH, goto W0, homing all y  set W0 all.
-   ========================= */
-
-.jog-goto-row,
-.jog-global-row {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
-    margin: 1px 0;
-}
-
-.jog-goto-btn,
-.jog-global-btn {
-    flex: 1;
-    font-weight: 600;
-    letter-spacing: 0.3px;
-}
 
 
 

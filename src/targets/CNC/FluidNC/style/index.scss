@@ -12,11 +12,12 @@
     text-decoration: none
 }
 
-.btn.btn-primary.active,
-.btn.btn-primary:active {
-    background: #004572;
-    border-color: #003c63;
-    color: #fff
+.btn:focus,
+.btn:hover {
+    background: $primary-color-dark;
+    border-color: $primary-color-dark;
+    color: $light-color;          // 🔑 ESTA línea es la clave
+    text-decoration: none;
 }
 
 .btn.btn-primary.loading::after {
