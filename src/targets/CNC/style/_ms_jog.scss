@@ -103,7 +103,7 @@
     padding: 4px 6px;
     font-size: 0.6rem;
 
-    white-space: normal;
+    white-space: pre;
     text-align: center;
     align-self: center;
 }
@@ -113,7 +113,7 @@
    ========================= */
 
 .jog-position-value {
-    font-weight: 500; // en vez de default
+    font-weight: 500; 
     letter-spacing: 0.02em;
     padding: 0 8px;
     min-width: 64px;
@@ -137,7 +137,7 @@
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 6px;
 
-    width: 95%;
+    width: 90%;
 }
 
 /* =========================
@@ -449,4 +449,46 @@ $jog-radial-offset: 5px; // movimiento radial hacia afuera de los botones tácti
     border-radius: 6px;
 }
 
+/* =========================
+   JOG — ROTARY STEP KNOB
+   ========================= */
 
+.jog-step-knob-rotary {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+
+  background: $primary-color;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-shadow:
+    inset 0 1px 2px rgba($light-color, 0.35),
+    inset 0 -2px 3px rgba($dark-color, 0.25),
+    0 3px 6px rgba($dark-color, 0.25);
+}
+
+.jog-step-knob-indicator {
+  position: absolute;
+  top: 8px;
+  width: 4px;
+  height: 14px;
+  border-radius: 2px;
+
+  background: $light-color;
+
+  transform-origin: 50% 32px;
+  transition: transform 180ms ease-out;
+}
+
+.jog-step-knob-value {
+  font-size: 0.8rem;
+  font-weight: 600;
+
+  color: $light-color;
+  user-select: none;
+}

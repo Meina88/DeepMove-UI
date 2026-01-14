@@ -39,15 +39,17 @@ import { useTargetContext } from "../../targets"
 import { Joystick } from "../../targets/CNC/FluidNC/icons"
 
 let currentFeedRate: Record<string, any> = {}
-let currentJogStepIndex = 0
-const jogStepsXYZ = [100, 10, 1, 0.1] as const
 let currentAxis: string = "-1"
+
+const jogStepsXYZ = [100, 10, 1, 0.1] as const
+const STEP_ANGLES = [45, 15, -15, -45]
 
 const feedList = ["XY", "Z", "A", "B", "C", "U", "V", "W"]
 const selectableAxisLettersList = ["A", "B", "C", "U", "V", "W"]
 
 const CONTINUOUS_JOG_DELAY = 200
 const CONTINUOUS_DISTANCE = 5000
+
 
 const JogQuarter = ({ rotate = 0 }: { rotate?: number }) => (
     <svg
@@ -180,12 +182,18 @@ const PositionsControls = ({
 const JogPanel = () => {
     const { positions } = useTargetContext()
     const { modals } = useModalsContext()
+
     const [currentSelectedAxis, setCurrentSelectedAxis] = useState(currentAxis)
-    const [jogDistanceXYZ, setJogDistanceXYZ] = useState<number>(100)
+    const [jogStepIndex, setJogStepIndex] = useState(0) // 100 mm
+
+    const jogDistanceXYZ = jogStepsXYZ[jogStepIndex]
+
     const [jogTimer, setJogTimer] = useState<number | null>(null)
     const [continuousActive, setContinuousActive] = useState(false)
+
     const id = "jogPanel"
     const haptic = () => { useUiContextFn.haptic() }
+
 
 
     // Go to machine zero (G53)
@@ -201,13 +209,10 @@ const JogPanel = () => {
     }
 
     // 🔁 rota el stepping: 100 → 10 → 1 → 0.1 → 100
-    const rotateJogStep = () => {
-        setJogDistanceXYZ((prev) => {
-            const idx = jogStepsXYZ.indexOf(prev as any)
-            const nextIdx = (idx + 1) % jogStepsXYZ.length
-            return jogStepsXYZ[nextIdx]
-        })
-    }
+const rotateJogStep = () => {
+    setJogStepIndex((prev) => (prev + 1) % jogStepsXYZ.length)
+}
+
 
 
     const onChangeAxis = (e: any) => {
@@ -377,12 +382,13 @@ const JogPanel = () => {
 
             // 🔐 Protección eje Z:
             // Si estamos en stepping 100 y se toca Z, forzar stepping a 10
-            if (
-                jogDistanceXYZ === 100 &&
-                (axis === "Z+" || axis === "Z-")
-            ) {
-                setJogDistanceXYZ(10)
-            }
+if (
+    jogDistanceXYZ === 100 &&
+    (axis === "Z+" || axis === "Z-")
+) {
+    setJogStepIndex(1) // índice de 10 mm
+}
+
 
 
 
@@ -510,8 +516,7 @@ const JogPanel = () => {
     }
 
     useEffect(() => {
-        // 🔹 inicializamos el stepping UNA SOLA VEZ
-        setJogDistanceXYZ(jogStepsXYZ[0]) // 100
+
 
         // 🔹 inicialización de feedrates y eje actual
         if (currentAxis === "-1") {
@@ -711,41 +716,52 @@ const JogPanel = () => {
                     {/* XY */}
                     <div class="jog-axis-group">
                         <div class="jog-xy-pad">
-  {/* +Y */}
-  <div class="jog-cell jog-arc-up">
-    <Button m2 class="jog-xy-hit" {...jogPressHandlers("Y+")} />
-    <JogQuarter rotate={0} />
-  </div>
+                            {/* +Y */}
+                            <div class="jog-cell jog-arc-up">
+                                <Button m2 class="jog-xy-hit" {...jogPressHandlers("Y+")} />
+                                <JogQuarter rotate={0} />
+                            </div>
 
-  {/* -X */}
-  <div class="jog-cell jog-arc-left">
-    <Button m2 class="jog-xy-hit" {...jogPressHandlers("X-")} />
-    <JogQuarter rotate={270} />
-  </div>
+                            {/* -X */}
+                            <div class="jog-cell jog-arc-left">
+                                <Button m2 class="jog-xy-hit" {...jogPressHandlers("X-")} />
+                                <JogQuarter rotate={270} />
+                            </div>
 
-  {/* 🔵 PERILLA (centro) */}
+                            {/* 🔵 PERILLA (centro) */}
+                            <div
+  class="jog-step-knob-rotary"
+  onClick={() => {
+    useUiContextFn.haptic()
+    setJogStepIndex((prev) => (prev + 1) % jogStepsXYZ.length)
+  }}
+>
   <div
-    class="jog-step-knob"
-    onClick={() => {
-      useUiContextFn.haptic()
-      rotateJogStep()
+    class="jog-step-knob-indicator"
+    style={{
+      transform: `rotate(${STEP_ANGLES[jogStepIndex]}deg)`,
     }}
-  >
-    {jogDistanceXYZ}
-  </div>
+  />
 
-  {/* +X */}
-  <div class="jog-cell jog-arc-right">
-    <Button m2 class="jog-xy-hit" {...jogPressHandlers("X+")} />
-    <JogQuarter rotate={90} />
-  </div>
-
-  {/* -Y */}
-  <div class="jog-cell jog-arc-down">
-    <Button m2 class="jog-xy-hit" {...jogPressHandlers("Y-")} />
-    <JogQuarter rotate={180} />
+  <div class="jog-step-knob-value">
+    {jogStepsXYZ[jogStepIndex]}
   </div>
 </div>
+
+
+
+                            {/* +X */}
+                            <div class="jog-cell jog-arc-right">
+                                <Button m2 class="jog-xy-hit" {...jogPressHandlers("X+")} />
+                                <JogQuarter rotate={90} />
+                            </div>
+
+                            {/* -Y */}
+                            <div class="jog-cell jog-arc-down">
+                                <Button m2 class="jog-xy-hit" {...jogPressHandlers("Y-")} />
+                                <JogQuarter rotate={180} />
+                            </div>
+                        </div>
 
 
                     </div>
