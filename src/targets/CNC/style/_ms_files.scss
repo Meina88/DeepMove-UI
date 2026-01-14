@@ -2,23 +2,30 @@
 /* === FILE ITEM (mobile friendly) === */
 
 .file-item {
-    transition: background-color 120ms ease;
     display: flex;
     flex-direction: column;
     gap: 6px;
+    box-shadow: 0 2px 2px rgba(0,0,0,0.04);
 
-    padding: 8px;
-    border-bottom: 1px solid $border-color;
+    padding: 10px;
+    margin-bottom: 8px;
 
-    &:last-child {
-        border-bottom: none;
-    }
+    background-color: $bg-color;
+    border-radius: 10px;
 
-    /* ✅ feedback suave al mantener presionado, sin “azul” */
+    border: 0px solid $border-color-light;
+
+    transition:
+        background-color 120ms ease,
+        box-shadow 120ms ease;
+
+    /* feedback táctil */
     &:active {
-        background-color: rgba($primary-color, 0.05);
+        background-color: rgba($primary-color, 0.06);
     }
 }
+
+
 
 /* Header */
 .file-item-header {
