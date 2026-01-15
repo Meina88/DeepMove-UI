@@ -474,16 +474,18 @@ $jog-radial-offset: 5px; // movimiento radial hacia afuera de los botones tácti
 
 .jog-step-knob-indicator {
   position: absolute;
-  top: 8px;
-  width: 4px;
-  height: 14px;
-  border-radius: 2px;
+  
+
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
 
   background: $light-color;
 
-  transform-origin: 50% 32px;
-  transition: transform 180ms ease-out;
+  
+  transition: transform 100ms ease-out;
 }
+
 
 .jog-step-knob-value {
   font-size: 0.8rem;
@@ -491,4 +493,13 @@ $jog-radial-offset: 5px; // movimiento radial hacia afuera de los botones tácti
 
   color: $light-color;
   user-select: none;
+}
+
+
+.jog-step-detent {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba($light-color, 0.35);
 }

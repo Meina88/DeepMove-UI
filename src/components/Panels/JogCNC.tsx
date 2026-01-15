@@ -728,25 +728,39 @@ if (
                                 <JogQuarter rotate={270} />
                             </div>
 
-                            {/* 🔵 PERILLA (centro) */}
-                            <div
+{/* 🔵 PERILLA (centro) */}
+<div
   class="jog-step-knob-rotary"
   onClick={() => {
     useUiContextFn.haptic()
     setJogStepIndex((prev) => (prev + 1) % jogStepsXYZ.length)
   }}
 >
+  {/* ◌ Detents vacíos */}
+  {STEP_ANGLES.map((angle, i) => (
+    <div
+      key={i}
+      class="jog-step-detent"
+      style={{
+        transform: `rotate(${angle}deg) translateY(-28px)`,
+      }}
+    />
+  ))}
+
+  {/* ● Punto activo */}
   <div
     class="jog-step-knob-indicator"
     style={{
-      transform: `rotate(${STEP_ANGLES[jogStepIndex]}deg)`,
+      transform: `rotate(${STEP_ANGLES[jogStepIndex]}deg) translateY(-28px)`,
     }}
   />
 
+  {/* Valor numérico */}
   <div class="jog-step-knob-value">
     {jogStepsXYZ[jogStepIndex]}
   </div>
 </div>
+
 
 
 
