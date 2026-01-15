@@ -19,7 +19,7 @@ SpindleCNC.js - ESP3D WebUI component file
 import { Fragment, TargetedMouseEvent } from "preact"
 import type { FunctionalComponent } from "preact"
 import { T } from "../Translations"
-import { Play, Pause } from "preact-feather"
+import { Play, Pause, Plus, Minus, RefreshCw } from "preact-feather"
 import { Mixer } from "../../targets/CNC/FluidNC/icons"
 import { useUiContextFn } from "../../contexts"
 import { useTargetContext } from "../../targets"
@@ -47,21 +47,31 @@ const OverridesControls: FunctionalComponent<{
 
     return (
         <div class="status-ctrls center-only">
-            <ButtonImg
-                icon={linked ? <Lock /> : <Unlock />}
-                tooltip
-                data-tooltip={
-                    linked
-                        ? "Feed & Spindle linked"
-                        : "Feed & Spindle independent"
-                }
-                onClick={() => {
-                    useUiContextFn.haptic()
-                    setLinked(!linked)
-                }}
-            />
+            <div class="lock-control">
+
+                <ButtonImg
+                    class="lock-button"
+                    icon={linked ? <Lock size={20} /> : <Unlock size={20} />}
+                    tooltip
+                    data-tooltip={
+                        linked
+                            ? T("Feed & Spindle linked")
+                            : T("Feed & Spindle independent")
+                    }
+                    onClick={() => {
+                        useUiContextFn.haptic()
+                        setLinked(!linked)
+                    }}
+                />
+
+                <div class="lock-label">
+                    {T("Chip")}
+                </div>
+
+            </div>
         </div>
     )
+
 }
 
 
@@ -88,6 +98,18 @@ const OverridesPanel: FunctionalComponent = () => {
     }
     const powerW = status?.power?.value ?? 0
     const id = "OverridesPanel"
+    const MAX_POWER_W = 1500
+    const powerPct = Math.min((powerW / MAX_POWER_W) * 100, 100)
+
+let powerLevel: "low" | "mid" | "high" = "low"
+
+if (powerPct >= 70) {
+  powerLevel = "high"
+} else if (powerPct >= 40) {
+  powerLevel = "mid"
+}
+
+
 
 
 
@@ -111,54 +133,50 @@ const OverridesPanel: FunctionalComponent = () => {
     const feedMM = Number(feedVal) || 0
 
     const MAX_SPINDLE_RPM = 24000
-const MAX_FEED_MM = 5000
+    const MAX_FEED_MM = 5000
 
 
-const valueToHeight = (value: number, max: number) => {
-    if (value <= 0) return 0
-    const clamped = Math.min(value, max)
-    return (clamped / max) * 100
-}
-
-const spindleBarHeight = valueToHeight(spindleRPM, MAX_SPINDLE_RPM)
-const feedBarHeight = valueToHeight(feedMM, MAX_FEED_MM)
-
-
-
-    /* 🔋 Normalización potencia 0–1500 W → 0–180° */
-    const powerToAngle = (power: number) => {
-        const MAX = 1500
-        const clamped = Math.max(0, Math.min(MAX, power))
-        return (clamped / MAX) * 180
+    const valueToHeight = (value: number, max: number) => {
+        if (value <= 0) return 0
+        const clamped = Math.min(value, max)
+        return (clamped / max) * 100
     }
 
-    const powerAngle = powerToAngle(powerW)
+    const spindleBarHeight = valueToHeight(spindleRPM, MAX_SPINDLE_RPM)
+    const feedBarHeight = valueToHeight(feedMM, MAX_FEED_MM)
 
 
 
-// ===============================
-// Progress bar (RUN)
-// ===============================
-const hasRunProgress =
-    (status?.state === "Run" || status?.state === "Hold") &&
-    streamStatus?.processed !== undefined
 
 
-const progressPct = (() => {
-    if (!hasRunProgress) return 0
 
-    const processed = Number(streamStatus?.processed ?? 0)
 
-    // Caso normal: processed/total
-    if (streamStatus?.total) {
-        const total = Number(streamStatus.total) || 0
-        if (total <= 0) return 0
-        return Math.max(0, Math.min(100, Math.round((processed / total) * 100)))
-    }
+    // ===============================
+    // Progress bar (RUN)
+    // ===============================
+    const hasRunProgress =
+        (status?.state === "Run" || status?.state === "Hold") &&
+        streamStatus?.processed !== undefined
 
-    // Caso alternativo: processed ya viene en %
-    return Math.max(0, Math.min(100, Math.round(processed)))
-})()
+
+    const progressPct = (() => {
+        if (!hasRunProgress) return 0
+
+        const processed = Number(streamStatus?.processed ?? 0)
+
+        // Caso normal: processed/total
+        if (streamStatus?.total) {
+            const total = Number(streamStatus.total) || 0
+            if (total <= 0) return 0
+            return Math.max(0, Math.min(100, Math.round((processed / total) * 100)))
+        }
+
+        // Caso alternativo: processed ya viene en %
+        return Math.max(0, Math.min(100, Math.round(processed)))
+    })()
+
+const progressVisiblePct = Math.max(progressPct, 1)
+    const progressRemainingPct = 100 - progressPct
 
     const spindleButtons = [
         { label: "+10%", tooltip: "CN67", delta: "+10" as const },
@@ -204,7 +222,15 @@ const progressPct = (() => {
         targetCommands(`#FO${delta}#`)
     }
 
+    const POWER_GAUGE_LEN = 252
+    const PROGRESS_GAUGE_LEN = 220
 
+    // Offsets calculados (0–100%)
+    const powerStrokeOffset =
+        POWER_GAUGE_LEN * (1 - powerPct / 100)
+
+    const progressStrokeOffset =
+        PROGRESS_GAUGE_LEN * (1 - progressPct / 100)
 
 
 
@@ -242,12 +268,12 @@ const progressPct = (() => {
                         {/* SPINDLE */}
                         <div class="graph-column">
                             <div class="graph-bar spindle">
-<div
-    class="graph-bar-fill"
-    style={{
-        height: `${spindleBarHeight}%`,
-    }}
-/>
+                                <div
+                                    class="graph-bar-fill"
+                                    style={{
+                                        height: `${spindleBarHeight}%`,
+                                    }}
+                                />
 
                             </div>
                             <div class="graph-value">
@@ -260,80 +286,65 @@ const progressPct = (() => {
                         {/* 🔋 POWER GAUGE */}
                         <div class="graph-center-gauge">
 
+                            {hasRunProgress && (
+<div class="gauge-progress">
+  <div class="gauge-progress-label">Progress</div>
+  <div class="gauge-progress-value">{progressPct}%</div>
+</div>
+
+                            )}
+
+
                             <svg viewBox="0 0 200 120" class="power-gauge">
 
-                                {/* ARCO BASE (180°) */}
+                                {/* =========================
+      TRACK BASE (común)
+     ========================= */}
                                 <path
                                     d="M20 100 A80 80 0 0 1 180 100"
+                                    class="gauge-track"
                                     fill="none"
-                                    stroke="#ddd"
-                                    stroke-width="14"
-                                    stroke-linecap="round"
                                 />
 
-                                {/* VERDE (0–600W) */}
-                                <path
-                                    d="M20 100 A80 80 0 0 1 180 100"
-                                    fill="none"
-                                    stroke="#4caf50"
-                                    stroke-width="14"
-                                    stroke-linecap="round"
-                                    stroke-dasharray="100 151"
-                                    stroke-dashoffset="0"
-                                />
+                                {/* =========================
+      PROGRESO (INTERNO)
+      Se vacía con el avance
+     ========================= */}
+                                {hasRunProgress && (
+<path
+  d="M30 100 A70 70 0 0 1 170 100"
+  class="gauge-progress-fill"
+  fill="none"
+  style={{
+    strokeDasharray: PROGRESS_GAUGE_LEN,
+    strokeDashoffset:
+      PROGRESS_GAUGE_LEN * (1 - progressVisiblePct / 100)
+  }}
+/>
 
-                                {/* AMARILLO (600–1100W) */}
-                                <path
-                                    d="M20 100 A80 80 0 0 1 180 100"
-                                    fill="none"
-                                    stroke="#ffb300"
-                                    stroke-width="14"
-                                    stroke-linecap="round"
-                                    stroke-dasharray="83 168"
-                                    stroke-dashoffset="-100"
-                                />
+                                )}
 
-                                {/* ROJO (1100–1500W) */}
-                                <path
-                                    d="M20 100 A80 80 0 0 1 180 100"
-                                    fill="none"
-                                    stroke="#f44336"
-                                    stroke-width="14"
-                                    stroke-linecap="round"
-                                    stroke-dasharray="68 183"
-                                    stroke-dashoffset="-183"
-                                />
-
-                                {/* AGUJA */}
-                                {/* AGUJA */}
-                                <g transform={`rotate(${powerAngle - 90} 100 100)`}>
-
-                                    {/* cuerpo de la aguja */}
-                                    <polygon
-                                        points="
-            98,100
-            102,100
-            104,40
-            100,28
-            96,40
-        "
-                                        fill="#111"
-                                    />
-
-                                </g>
-
-                                {/* centro */}
-                                <circle cx="100" cy="100" r="7" fill="#111" />
+                                {/* =========================
+      POTENCIA (EXTERNO)
+     ========================= */}
+<path
+  d="M20 100 A80 80 0 0 1 180 100"
+  class={`gauge-fill power-${powerLevel}`}
+  fill="none"
+  style={{
+    strokeDasharray: 252,
+    strokeDashoffset: 252 - powerPct * 2.52
+  }}
+/>
 
 
-                                {/* CENTRO */}
-                                <circle cx="100" cy="100" r="6" fill="#111" />
                             </svg>
 
+<div class={`power-value power-${powerLevel}`}>
+  {powerW} <span>W</span>
+</div>
 
-                            <div class="power-value">
-                                {powerW} <span>W</span>
-                            </div>
+
                         </div>
 
 
@@ -359,32 +370,7 @@ const progressPct = (() => {
 
                     </div>
 
-{/* ⬇️ Barra de progreso (solo RUN) */}
-{hasRunProgress && (
-    <div class="graph-footer visible">
-        <div class={`progress-bar-container ${status?.state === "Run" ? "running" : ""}`}>
 
-            <div class="progress-bar-track">
-<div class="progress-bar-track">
-    <div
-        class="progress-bar-fill"
-        style={{ width: `${progressPct}%` }}
-    />
-    <div class="progress-bar-overlay">
-        <span class="progress-file text-ellipsis">
-            {streamStatus?.name || ""}
-        </span>
-
-        <span class="progress-percent">
-            {progressPct}%
-        </span>
-    </div>
-</div>
-
-            </div>
-        </div>
-    </div>
-)}
 
 
 
@@ -394,94 +380,132 @@ const progressPct = (() => {
 
                 {/* Spindle buttons */}
                 <div class="field-group-content maxwidth spindle">
-                    <div class="states-buttons-container">
-                        {spindleButtons.map((button) => (
-                            <ButtonImg
-                                key={button.label}
-                                mt1
-                                label={T(button.label)}
-                                data-tooltip={T(button.tooltip)}
-                                onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
-                                    useUiContextFn.haptic()
-                                    e.currentTarget.blur()
-                                    sendOverride("spindle", button.delta)
-                                }}
-                            />
-                        ))}
+                    <div class="override-column-label">
 
+                    </div>
+
+                    <div class="states-buttons-container override-circular">
+
+                        {/* +10 */}
+                        <ButtonImg
+                            class="override-step-btn"
+                            icon={<Plus size={18} />}
+                            tooltip
+                            data-tooltip="+10%"
+                            onClick={() => {
+                                useUiContextFn.haptic()
+                                sendOverride("spindle", "+10")
+                            }}
+                        />
+
+                        {/* RESET */}
+                        <ButtonImg
+                            class="override-center-btn"
+                            icon={<RefreshCw size={18} />}
+                            tooltip
+                            data-tooltip="100%"
+                            onClick={() => {
+                                useUiContextFn.haptic()
+                                sendOverride("spindle", "100")
+                            }}
+                        />
+
+                        {/* -10 */}
+                        <ButtonImg
+                            class="override-step-btn"
+                            icon={<Minus size={18} />}
+                            tooltip
+                            data-tooltip="-10%"
+                            onClick={() => {
+                                useUiContextFn.haptic()
+                                sendOverride("spindle", "-10")
+                            }}
+                        />
 
                     </div>
                 </div>
 
+
+
                 {/* ⏸️ / ▶️ HOLD – START (CENTRO INFERIOR) */}
                 <div class="override-buttons-container">
-                    {[
-                        {
-                            cmd: "#FEEDHOLD#",
-                            icon: <Pause />,
-                            desc: T("Hold"),
-                            depend: [
-                                "Door",
-                                "Sleep",
-                                "Alarm",
-                                "Error",
-                                "Check",
-                                "Run",
-                                "Idle",
-                                "Home",
-                                "Jog",
-                                "Tool",
-                                "?",
-                            ],
-                        },
-                        {
-                            cmd: "#CYCLESTART#",
-                            icon: <Play />,
-                            desc: T("CN61"),
-                            depend: ["Hold", "Tool"],
-                        },
-                    ].map((button) => {
-                        if (
-                            button.depend &&
-                            !button.depend.includes(status?.state || "")
-                        ) {
-                            return null
-                        }
-
-                        return (
-                            <ButtonImg
-                                key={button.cmd}
-                                icon={button.icon}
-                                tooltip
-                                data-tooltip={button.desc}
-                                onClick={() => {
-                                    useUiContextFn.haptic()
-                                    targetCommands(button.cmd)
-                                }}
-                            />
-                        )
-                    })}
+                    {status?.state === "Hold" ? (
+                        <ButtonImg
+                            class="override-hold-btn is-play"
+                            icon={<Play size={22} />}
+                            tooltip
+                            data-tooltip={T("CN61")}
+                            onClick={() => {
+                                useUiContextFn.haptic()
+                                targetCommands("#CYCLESTART#")
+                            }}
+                        />
+                    ) : (
+                        <ButtonImg
+                            class="override-hold-btn is-hold"
+                            icon={<Pause size={22} />}
+                            tooltip
+                            data-tooltip={T("Hold")}
+                            onClick={() => {
+                                useUiContextFn.haptic()
+                                targetCommands("#FEEDHOLD#")
+                            }}
+                        />
+                    )}
                 </div>
+
 
 
                 {/* Feed buttons */}
                 <div class="field-group-content maxwidth feed">
-                    <div class="states-buttons-container">
-                        {feedButtons.map((button) => (
-                            <ButtonImg
-                                key={button.label}
-                                mt1
-                                label={T(button.label)}
-                                data-tooltip={T(button.tooltip)}
-                                onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
-                                    useUiContextFn.haptic()
-                                    e.currentTarget.blur()
-                                    sendOverride("feed", button.delta)
-                                }}
-                            />
-                        ))}
+
+                    <div class="override-column-label">
+
+                    </div>
+
+
+                    <div class="states-buttons-container override-circular">
+
+                        {/* +10 */}
+                        <ButtonImg
+                            class="override-step-btn"
+                            icon={<Plus size={18} />}
+                            tooltip
+                            data-tooltip="+10%"
+                            onClick={() => {
+                                useUiContextFn.haptic()
+                                sendOverride("feed", "+10")
+                            }}
+                        />
+
+                        {/* RESET */}
+                        <ButtonImg
+                            class="override-center-btn"
+                            icon={<RefreshCw size={18} />}
+                            tooltip
+                            data-tooltip="100%"
+                            onClick={() => {
+                                useUiContextFn.haptic()
+                                sendOverride("feed", "100")
+                            }}
+                        />
+
+                        {/* -10 */}
+                        <ButtonImg
+                            class="override-step-btn"
+                            icon={<Minus size={18} />}
+                            tooltip
+                            data-tooltip="-10%"
+                            onClick={() => {
+                                useUiContextFn.haptic()
+                                sendOverride("feed", "-10")
+                            }}
+                        />
+
                     </div>
                 </div>
+
+
 
             </div>
         </div>

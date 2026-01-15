@@ -1,11 +1,10 @@
-
 /* === FILE ITEM (mobile friendly) === */
 
 .file-item {
     display: flex;
     flex-direction: column;
     gap: 6px;
-    box-shadow: 0 2px 2px rgba(0,0,0,0.04);
+    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.04);
 
     padding: 10px;
     margin-bottom: 8px;
@@ -86,6 +85,10 @@
     color: #fff !important;
     border-color: $primary-color !important;
 }
+.file-play-btn svg {
+  transform: translateX(1px); 
+}
+
 
 .file-play-btn:hover,
 .file-play-btn:active {
@@ -134,5 +137,24 @@
     color: $primary-color;
 }
 
+.file-trash-btn {
+    background-color: rgba($dark-color, 0.03);
+    border: 0px solid rgba($border-color-dark, 0.35);
 
+    box-shadow: none !important;
+    color: $gray-color-dark;
+    min-width: 36px;
+    min-height: 36px;
+    border-radius: $border-radius;
+}
 
+.file-trash-btn:hover {
+    color: $error-color;
+    background-color: rgba($error-color, 0.08);
+    border-color: rgba($error-color, 0.4);
+}
+
+.file-trash-btn:active {
+    background-color: rgba($error-color, 0.16);
+    transform: scale(0.92);
+}
