@@ -52,6 +52,7 @@ import {
 import { useTargetCommands } from "../../hooks"
 
 
+
 /*
  * Local const
  *
@@ -84,6 +85,8 @@ function isIOS(): boolean {
 }
 
 const Navbar = () => {
+    const lastValidState = useRef<string>("Offline");
+
     const { connectionSettings } = useSettingsContext()
     const { uisettings } = useUiContext()
     const { modals } = useModalsContext()
@@ -138,6 +141,17 @@ const Navbar = () => {
         )
     }
     const menuLinks: NavLinkItem[] = []
+    const rawState = status?.state;
+
+if (rawState && rawState !== "?") {
+    lastValidState.current = rawState;
+}
+
+const effectiveState =
+    !rawState || rawState === "?"
+        ? lastValidState.current
+        : rawState;
+
     if (uisettings.current) {
         if (uisettings.getValue("showextracontents")) {
             const extraContents = uisettings.getValue("extracontents")
@@ -250,6 +264,18 @@ const Navbar = () => {
                     >
                         <RefreshCw />
                     </span>
+
+                        {/* ● Estado CNC (TERCER CASILLERO) */}
+<div
+class={`cnc-status-led ${
+    effectiveState
+        ? `state-${effectiveState.toLowerCase()}`
+        : "state-offline"
+}`}
+title={effectiveState || "Offline"}
+
+/>
+
 
                 </section>
 
