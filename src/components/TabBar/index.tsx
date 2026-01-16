@@ -27,7 +27,7 @@ import {
     useUiContext,
     useUiContextFn,
 } from "../../contexts"
-import { Tool, Wifi } from "preact-feather"
+import { Tool, Wifi, Info } from "preact-feather"
 
 interface NavItem {
     label: string
@@ -51,7 +51,15 @@ const defaultLinks: NavItem[] = [
         icon: <WebUILogo height="24px" />,
         href: "/settings/interface",
     },
-    { label: Target as string, icon: <Tool />, href: "/settings/machine" },
+    {
+        label: Target as string, icon: <Tool />, href: "/settings/machine"
+
+    },
+    {
+        label: "About",
+        icon: <Info height="24px" />,
+        href: "/settings/about",
+    },
 ]
 
 const TabBar = () => {
@@ -77,7 +85,7 @@ const TabBar = () => {
                             <Link
                                 className={
                                     connectionSettings.current.FWTarget == 0 &&
-                                    href == "/settings/machine"
+                                        href == "/settings/machine"
                                         ? "d-none"
                                         : "btn btn-link no-box feather-icon-container"
                                 }

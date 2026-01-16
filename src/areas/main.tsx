@@ -23,7 +23,6 @@ import { FunctionalComponent } from "preact"
 import { useState, useEffect } from "preact/hooks"
 import { Router } from "../components/Router"
 import { useUiContext } from "../contexts"
-import About from "../pages/about"
 import Dashboard from "../pages/dashboard"
 import Settings from "../pages/settings"
 import ExtraPage from "../pages/extrapages"
@@ -37,10 +36,6 @@ const defRoutes: RoutesMap = {
     DASHBOARD: {
         component: <Dashboard />,
         path: "/dashboard",
-    },
-    ABOUT: {
-        component: <About />,
-        path: "/about",
     },
     SETTINGS: {
         component: <Settings />,

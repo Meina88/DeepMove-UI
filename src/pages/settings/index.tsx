@@ -27,6 +27,7 @@ import { MachineTab } from "../../tabs/machine"
 import { TabBar } from "../../components/TabBar"
 import { mainRoutes } from "../../areas/main"
 import type { RoutesMap } from "../../types/routes.types"
+import AboutTab from "../../tabs/about"
 
 const routes: RoutesMap = {
     INTERFACE: {
@@ -44,6 +45,10 @@ const routes: RoutesMap = {
     MACHINE: {
         component: <MachineTab />,
         path: "/settings/machine",
+    },
+    ABOUT: {
+        component: <AboutTab />,
+        path: "/settings/about",
     },
 }
 

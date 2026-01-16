@@ -65,15 +65,9 @@ interface NavLinkItem {
 
 const defaultLinks: NavLinkItem[] = [
     {
-        label: <AppLogo bgcolor="#ffffff" />,
-        icon: null,
-        href: "/about",
-    },
-    {
-        label: "S13",
-        icon: <Server />,
+        label: "",
+        icon: <AppLogo bgcolor="#ffffff" />,
         href: "/dashboard",
-        id: "dashboardLink",
     },
     {
         label: "S14",
@@ -113,7 +107,7 @@ const Navbar = () => {
     }
 
     const { status } = useTargetContext() as unknown as {
-    status: { state?: string }
+        status: { state?: string }
     }
     const isIdle = status?.state === "Idle"
 
@@ -183,10 +177,10 @@ const Navbar = () => {
         })
     }
 
-const powerOffNow = () => {
-    useUiContextFn.haptic()
-    targetCommands("M62 P0")
-}
+    const powerOffNow = () => {
+        useUiContextFn.haptic()
+        targetCommands("M62 P0")
+    }
 
 
 
@@ -237,46 +231,47 @@ const powerOffNow = () => {
         return (
             <header class="navbar">
                 <section class="navbar-section">
-                    {defaultLinks &&
-                        defaultLinks.map(({ label, icon, href, id }) => {
-                            if (
-                                href == "/informations" &&
-                                !uisettings.getValue("showinformationpage")
-                            )
-                                return
-                            return (
-                                <Link key={href}
-                                    onClick={(_e: TargetedMouseEvent<HTMLAnchorElement>) => {
-                                        useUiContextFn.haptic()
-                                        if (buttonExtraPage.current)
-                                            buttonExtraPage.current.classList.remove(
-                                                "active"
-                                            )
-                                    }}
-                                    id={id}
-                                    className={
-                                        href == "/about"
-                                            ? "navbar-brand logo no-box "
-                                            : connectionSettings.current
-                                                .FWTarget == 0 &&
-                                                href == "/dashboard"
-                                                ? "d-none"
-                                                : "btn btn-link no-box feather-icon-container"
-                                    }
-                                    activeClassName="active"
-                                    href={href}
-                                >
-                                    {icon}
-                                    <label
-                                        class={
-                                            href == "/about" ? "" : "hide-low"
-                                        }
-                                    >
-                                        {typeof label === "string" ? T(label) : label}
-                                    </label>
-                                </Link>
-                            )
-                        })}
+                    
+                   {defaultLinks &&
+    defaultLinks.map(({ label, icon, href, id }) => {
+        if (
+            href == "/informations" &&
+            !uisettings.getValue("showinformationpage")
+        )
+            return
+
+        return (
+            <Link
+                key={href}
+                onClick={(_e: TargetedMouseEvent<HTMLAnchorElement>) => {
+                    useUiContextFn.haptic()
+                    if (buttonExtraPage.current)
+                        buttonExtraPage.current.classList.remove("active")
+                }}
+                id={id}
+                className={
+                    href == "/about"
+                        ? "navbar-brand logo no-box"
+                        : connectionSettings.current.FWTarget == 0 &&
+                          href == "/dashboard"
+                        ? "d-none"
+                        : "btn btn-link no-box feather-icon-container"
+                }
+                activeClassName="active"
+                href={href}
+            >
+                {/* ICONO: SIEMPRE VISIBLE */}
+                {icon}
+
+                {/* TEXTO: SE OCULTA EN MOBILE */}
+                {typeof label === "string" && (
+                    <label class="hide-low">{T(label)}</label>
+                )}
+            </Link>
+        )
+    })}
+
+
                     {menuLinks && menuLinks.length > 0 && (
                         <Fragment>
                             {hrefbutton && (
@@ -366,65 +361,64 @@ const powerOffNow = () => {
                         </Fragment>
                     )}
                 </section>
-                    <section class="navbar-section">
+                <section class="navbar-section">
 
-                        {/* ⏻ Power Off */}
-                        <span
-                            className={`btn btn-link no-box feather-icon-container text-error ${
-                                !isIdle ? "disabled opacity-50" : ""
+                    {/* ⏻ Power Off */}
+                    <span
+                        className={`btn btn-link no-box feather-icon-container text-error ${!isIdle ? "disabled opacity-50" : ""
                             }`}
-                            onClick={isIdle ? onPowerOff : undefined}
-                            title={
-                                isIdle
-                                    ? "Apagar MillingStation"
-                                    : `No disponible (estado: ${status?.state})`
-                            }
-                        >
-                            <Power />
-                            <label class="hide-low">Power</label>
-                        </span>
+                        onClick={isIdle ? onPowerOff : undefined}
+                        title={
+                            isIdle
+                                ? "Apagar MillingStation"
+                                : `No disponible (estado: ${status?.state})`
+                        }
+                    >
+                        <Power />
+                        <label class="hide-low">Power</label>
+                    </span>
 
 
 
-                        {/* 🔄 Refresh */}
+                    {/* 🔄 Refresh */}
+                    <span
+                        className="btn btn-link no-box feather-icon-container"
+                        onClick={reloadPage}
+                        title="Actualizar página / Restablecer conexión"
+                    >
+                        <RefreshCw />
+                        <label style="cursor:pointer;" class="hide-low">
+                            Reload
+                        </label>
+                    </span>
+
+                    {/* ⛶ Fullscreen */}
+                    {!isIOS() && (
                         <span
                             className="btn btn-link no-box feather-icon-container"
-                            onClick={reloadPage}
-                            title="Actualizar página / Restablecer conexión"
+                            onClick={toggleFullscreen}
+                            title={isFullscreen ? "Exit Fullscreen (F11)" : "Enter Fullscreen (F11)"}
                         >
-                            <RefreshCw />
-                            <label style="cursor:pointer;" class="hide-low">
-                                Reload
-                            </label>
+                            {isFullscreen ? <Minimize /> : <Maximize />}
+                            <label style="cursor:pointer;" class="hide-low" />
                         </span>
+                    )}
 
-                        {/* ⛶ Fullscreen */}
-                        {!isIOS() && (
-                            <span
-                                className="btn btn-link no-box feather-icon-container"
-                                onClick={toggleFullscreen}
-                                title={isFullscreen ? "Exit Fullscreen (F11)" : "Enter Fullscreen (F11)"}
-                            >
-                                {isFullscreen ? <Minimize /> : <Maximize />}
-                                <label style="cursor:pointer;" class="hide-low" />
-                            </span>
-                        )}
-
-                        {/* ⏻ Logout */}
-                        <span
-                            className={
-                                connectionSettings.current.Authentication == "Disabled"
-                                    ? "d-none"
-                                    : "btn btn-link no-box mx-2 feather-icon-container"
-                            }
-                            onClick={onDisconnect}
-                        >
-                            <LogOut />
-                            <label style="cursor:pointer;" class="hide-low">
-                                {T("S151")}
-                            </label>
-                        </span>
-                    </section>
+                    {/* ⏻ Logout */}
+                    <span
+                        className={
+                            connectionSettings.current.Authentication == "Disabled"
+                                ? "d-none"
+                                : "btn btn-link no-box mx-2 feather-icon-container"
+                        }
+                        onClick={onDisconnect}
+                    >
+                        <LogOut />
+                        <label style="cursor:pointer;" class="hide-low">
+                            {T("S151")}
+                        </label>
+                    </span>
+                </section>
 
             </header>
         )

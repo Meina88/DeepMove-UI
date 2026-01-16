@@ -144,6 +144,7 @@ const SpindlePanel: FunctionalComponent = () => {
     const [d2, setD2] = useState(false)
     const [d3, setD3] = useState(false)
     const [d4, setD4] = useState(false)
+    
 
 
     if (typeof spindleSpeedValue.current === "undefined") {
