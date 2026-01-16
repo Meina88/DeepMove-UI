@@ -159,18 +159,24 @@
 
 #OverridesPanel .panel-body-dashboard {
     display: grid;
-    grid-template-columns: 1fr autofr 1fr;
-    grid-template-rows: auto auto auto auto auto;
+    grid-template-columns: 1fr 130px 1fr;
+
+    grid-template-rows:
+        220px                          // 🔒 placeholder (gauge)
+        auto                           // status (lock)
+        $control-size-lg + $unit-3     // 🔒 hold
+        auto;                          // botones +/- 
+
     grid-template-areas:
         "placeholder placeholder placeholder"
         "spindle     status      feed"
         "spindle     hold        feed"
         "spindle     .           feed";
 
-
     row-gap: $unit-6;
     column-gap: $unit-2;
 }
+
 
 /* =========================
    OVERRIDES PANEL — COLUMNAS DE GRÁFICOS
@@ -379,6 +385,10 @@
     justify-content: center;
     align-items: center;
 
+    /* 🔒 reserva de espacio fija */
+    min-height: $control-size-lg + $unit-3;
+    margin: $unit-2 0;
+
     /* botón central HOLD / START */
     .override-hold-btn {
         width: $control-size-lg + $unit-3;
@@ -420,10 +430,9 @@
     }
 
     /* ▶ START / PLAY — corrección óptica del ícono */
-.override-hold-btn.is-play svg {
-    transform: translateX(2px); // probá 2px o 3px
-}
-
+    .override-hold-btn.is-play svg {
+        transform: translateX(2px);
+    }
 
     /* ⏸ HOLD */
     .override-hold-btn.is-hold {
@@ -434,6 +443,7 @@
         }
     }
 }
+
 
 
 /* =========================
@@ -644,3 +654,30 @@
     user-select: none;
     pointer-events: none;
 }
+
+/* =========================
+   ARCHIVO EN EJECUCIÓN
+   ========================= */
+
+.run-file-name {
+    position: absolute;
+    bottom: $unit-2; // ahora queda DENTRO
+
+    left: 0;
+    right: 0;
+
+    padding: 0 $unit-3;
+
+    text-align: center;
+
+    font-size: $font-size-sm;
+    font-weight: 500;
+    color: rgba($text-muted-color, 0.9);
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    pointer-events: none;
+}
+

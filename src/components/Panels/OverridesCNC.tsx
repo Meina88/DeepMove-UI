@@ -101,13 +101,13 @@ const OverridesPanel: FunctionalComponent = () => {
     const MAX_POWER_W = 1500
     const powerPct = Math.min((powerW / MAX_POWER_W) * 100, 100)
 
-let powerLevel: "low" | "mid" | "high" = "low"
+    let powerLevel: "low" | "mid" | "high" = "low"
 
-if (powerPct >= 70) {
-  powerLevel = "high"
-} else if (powerPct >= 40) {
-  powerLevel = "mid"
-}
+    if (powerPct >= 70) {
+        powerLevel = "high"
+    } else if (powerPct >= 40) {
+        powerLevel = "mid"
+    }
 
 
 
@@ -175,7 +175,7 @@ if (powerPct >= 70) {
         return Math.max(0, Math.min(100, Math.round(processed)))
     })()
 
-const progressVisiblePct = Math.max(progressPct, 1)
+    const progressVisiblePct = Math.max(progressPct, 1)
     const progressRemainingPct = 100 - progressPct
 
     const spindleButtons = [
@@ -287,10 +287,10 @@ const progressVisiblePct = Math.max(progressPct, 1)
                         <div class="graph-center-gauge">
 
                             {hasRunProgress && (
-<div class="gauge-progress">
-  <div class="gauge-progress-label">Progress</div>
-  <div class="gauge-progress-value">{progressPct}%</div>
-</div>
+                                <div class="gauge-progress">
+                                    <div class="gauge-progress-label">Progress</div>
+                                    <div class="gauge-progress-value">{progressPct}%</div>
+                                </div>
 
                             )}
 
@@ -311,38 +311,38 @@ const progressVisiblePct = Math.max(progressPct, 1)
       Se vacía con el avance
      ========================= */}
                                 {hasRunProgress && (
-<path
-  d="M30 100 A70 70 0 0 1 170 100"
-  class="gauge-progress-fill"
-  fill="none"
-  style={{
-    strokeDasharray: PROGRESS_GAUGE_LEN,
-    strokeDashoffset:
-      PROGRESS_GAUGE_LEN * (1 - progressVisiblePct / 100)
-  }}
-/>
+                                    <path
+                                        d="M30 100 A70 70 0 0 1 170 100"
+                                        class="gauge-progress-fill"
+                                        fill="none"
+                                        style={{
+                                            strokeDasharray: PROGRESS_GAUGE_LEN,
+                                            strokeDashoffset:
+                                                PROGRESS_GAUGE_LEN * (1 - progressVisiblePct / 100)
+                                        }}
+                                    />
 
                                 )}
 
                                 {/* =========================
       POTENCIA (EXTERNO)
      ========================= */}
-<path
-  d="M20 100 A80 80 0 0 1 180 100"
-  class={`gauge-fill power-${powerLevel}`}
-  fill="none"
-  style={{
-    strokeDasharray: 252,
-    strokeDashoffset: 252 - powerPct * 2.52
-  }}
-/>
+                                <path
+                                    d="M20 100 A80 80 0 0 1 180 100"
+                                    class={`gauge-fill power-${powerLevel}`}
+                                    fill="none"
+                                    style={{
+                                        strokeDasharray: 252,
+                                        strokeDashoffset: 252 - powerPct * 2.52
+                                    }}
+                                />
 
 
                             </svg>
 
-<div class={`power-value power-${powerLevel}`}>
-  {powerW} <span>W</span>
-</div>
+                            <div class={`power-value power-${powerLevel}`}>
+                                {powerW} <span>W</span>
+                            </div>
 
 
                         </div>
@@ -371,6 +371,12 @@ const progressVisiblePct = Math.max(progressPct, 1)
                     </div>
 
 
+{/* Archivo en ejecución */}
+{streamStatus?.name && (
+    <div class="run-file-name">
+        {streamStatus.name}
+    </div>
+)}
 
 
 
@@ -428,31 +434,35 @@ const progressVisiblePct = Math.max(progressPct, 1)
 
 
                 {/* ⏸️ / ▶️ HOLD – START (CENTRO INFERIOR) */}
-                <div class="override-buttons-container">
-                    {status?.state === "Hold" ? (
-                        <ButtonImg
-                            class="override-hold-btn is-play"
-                            icon={<Play size={22} />}
-                            tooltip
-                            data-tooltip={T("CN61")}
-                            onClick={() => {
-                                useUiContextFn.haptic()
-                                targetCommands("#CYCLESTART#")
-                            }}
-                        />
-                    ) : (
-                        <ButtonImg
-                            class="override-hold-btn is-hold"
-                            icon={<Pause size={22} />}
-                            tooltip
-                            data-tooltip={T("Hold")}
-                            onClick={() => {
-                                useUiContextFn.haptic()
-                                targetCommands("#FEEDHOLD#")
-                            }}
-                        />
-                    )}
-                </div>
+<div class="override-buttons-container">
+    {(status?.state === "Run" || status?.state === "Hold") && (
+        status.state === "Hold" ? (
+            <ButtonImg
+                class="override-hold-btn is-play"
+                icon={<Play size={22} />}
+                tooltip
+                data-tooltip={T("CN61")}
+                onClick={() => {
+                    useUiContextFn.haptic()
+                    targetCommands("#CYCLESTART#")
+                }}
+            />
+        ) : (
+            <ButtonImg
+                class="override-hold-btn is-hold"
+                icon={<Pause size={22} />}
+                tooltip
+                data-tooltip={T("Hold")}
+                onClick={() => {
+                    useUiContextFn.haptic()
+                    targetCommands("#FEEDHOLD#")
+                }}
+            />
+        )
+    )}
+</div>
+
+
 
 
 
