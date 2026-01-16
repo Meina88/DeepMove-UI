@@ -378,6 +378,9 @@
    OVERRIDES PANEL — BOTÓN HOLD
    ========================= */
 
+
+
+   
 #OverridesPanel .override-buttons-container {
     grid-area: hold;
 
@@ -389,7 +392,9 @@
     min-height: $control-size-lg + $unit-3;
     margin: $unit-2 0;
 
-    /* botón central HOLD / START */
+    /* =========================
+       BOTÓN CENTRAL (NEUTRO)
+       ========================= */
     .override-hold-btn {
         width: $control-size-lg + $unit-3;
         height: $control-size-lg + $unit-3;
@@ -402,6 +407,7 @@
         border: none;
         color: $light-color;
 
+        background-color: $primary-color; // 🔵 acción normal
         box-shadow: 0 4px 10px rgba($dark-color, 0.35);
 
         transition:
@@ -414,35 +420,44 @@
             stroke: currentColor;
         }
 
+        &:hover {
+            background-color: $primary-color-dark;
+        }
+
         &:active {
             transform: scale(0.94);
             box-shadow: 0 2px 5px rgba($dark-color, 0.45);
         }
     }
 
-    /* ▶ START / PLAY */
+    /* =========================
+       ▶ START / PLAY
+       ========================= */
     .override-hold-btn.is-play {
-        background-color: $success-color;
+        background-color: $success-color; // 🟢 estado positivo
 
         &:hover {
             background-color: lighten($success-color, 6%);
         }
     }
 
-    /* ▶ START / PLAY — corrección óptica del ícono */
+    /* ▶ START / PLAY — corrección óptica */
     .override-hold-btn.is-play svg {
         transform: translateX(2px);
     }
 
-    /* ⏸ HOLD */
+    /* =========================
+       ⏸ HOLD (MISMA BASE VISUAL)
+       ========================= */
     .override-hold-btn.is-hold {
-        background-color: $warning-color;
+        background-color: $primary-color; // 🔵 NO amarillo
 
         &:hover {
-            background-color: lighten($warning-color, 6%);
+            background-color: $primary-color-dark;
         }
     }
 }
+
 
 
 

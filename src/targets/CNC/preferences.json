@@ -141,7 +141,7 @@
                 "id": "spindlespeed",
                 "type": "number",
                 "label": "CN59",
-                "value": 1000,
+                "value": 0,
                 "min": 0,
                 "depend": [{ "id": "showspindlepanel", "value": true }]
             },
@@ -150,14 +150,14 @@
                 "type": "boolean",
                 "label": "CN70",
                 "value": true,
-                "depend": [{ "id": "showspindlepanel", "value": true }]
+                "depend": [{ "id": "showspindlepanel", "value": false }]
             },
             {
                 "id": "showCoolantctrls",
                 "type": "boolean",
                 "label": "CN72",
                 "value": true,
-                "depend": [{ "id": "showspindlepanel", "value": true }]
+                "depend": [{ "id": "showspindlepanel", "value": false }]
             },
             {
                 "id": "showMistctrls",
@@ -169,7 +169,7 @@
                         "id": "showCoolantctrls",
                         "value": true
                     },
-                    { "id": "showspindlepanel", "value": true }
+                    { "id": "showspindlepanel", "value": false }
                 ]
             },
             {
@@ -182,7 +182,7 @@
                         "id": "showMistctrls",
                         "value": true
                     },
-                    { "id": "showspindlepanel", "value": true }
+                    { "id": "showspindlepanel", "value": false }
                 ]
             }
         ],

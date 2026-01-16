@@ -20,7 +20,7 @@ import { Fragment, TargetedMouseEvent } from "preact"
 import type { FunctionalComponent, JSX } from "preact"
 import { useState } from "preact/hooks"
 import { T } from "../Translations"
-import { Zap, Wind, CloudDrizzle } from "preact-feather"
+import { Zap, Wind, CloudDrizzle, RotateCw, RotateCcw, Square, StopCircle } from "preact-feather"
 import { Outputs } from "../../targets/CNC/FluidNC/icons"
 import {
     useUiContextFn,
@@ -59,7 +59,7 @@ const SpindleControls: FunctionalComponent = () => {
     eventsList.on("reset", onReset)
     if (!useUiContextFn.getValue("showspindlepanel")) return null
     const states_array = [
-        { id: "feed_rate", label: "CN9" },
+        //{ id: "feed_rate", label: "CN9" },
         { id: "spindle_speed", label: "CN64" },
         { id: "spindle_mode", label: "CN91" },
         {
@@ -68,6 +68,7 @@ const SpindleControls: FunctionalComponent = () => {
             depend: [{ id: "showCoolantctrls", value: true }],
         },
     ]
+    
     return (
         <Fragment>
             {states &&
@@ -161,35 +162,39 @@ const SpindlePanel: FunctionalComponent = () => {
 
     const buttons_list: ButtonsGroup[] = [
         {
-            label: "CN55",
+            label: "CN201",
             buttons: [
                 {
-                    label: "M3",
+                    icon: <RotateCw />,
+                    // label: "M3",
                     tooltip: "CN74",
                     command: "M3 S#",
                     useinput: true,
                     mode: "spindle_mode",
                 },
                 {
-                    label: "M4",
+                    icon: <StopCircle />,
+                    //label: "M5",
+                    tooltip: "CN76",
+                    command: "M5",
+                    mode: "spindle_mode",
+                },
+                {
+                    icon: <RotateCcw />,
+                    //label: "M4",
                     tooltip: "CN75",
                     command: "M4 S#",
                     useinput: true,
                     mode: "spindle_mode",
                     depend: [{ id: "showM4ctrls", value: true }],
                 },
-                {
-                    label: "M5",
-                    tooltip: "CN76",
-                    command: "M5",
-                    mode: "spindle_mode",
-                },
-                {
-                    label: "M6",
-                    tooltip: "CN109",
-                    command: "M6",
-                    mode: "spindle_mode",
-                },
+
+                // {
+                //     label: "M6",
+                //     tooltip: "CN109",
+                //     command: "M6",
+                //     mode: "spindle_mode",
+                // },
             ],
             control: {
                 id: "spindlespeedInput",
@@ -199,33 +204,33 @@ const SpindlePanel: FunctionalComponent = () => {
                 min: 0,
             },
         },
+        // {
+        //     label: "CN56",
+        //     depend: [{ id: "showCoolantctrls", value: true }],
+        //     buttons: [
+        //         {
+        //             label: "M7",
+        //             tooltip: "CN77",
+        //             command: "M7",
+        //             depend: [{ id: "showM7ctrls", value: true }],
+        //             mode: "coolant_mode",
+        //         },
+        //         {
+        //             label: "M8",
+        //             tooltip: "CN78",
+        //             command: "M8",
+        //             mode: "coolant_mode",
+        //         },
+        //         {
+        //             label: "M9",
+        //             tooltip: "CN79",
+        //             command: "M9",
+        //             mode: "coolant_mode",
+        //         },
+        //     ],
+        // },
         {
-            label: "CN56",
-            depend: [{ id: "showCoolantctrls", value: true }],
-            buttons: [
-                {
-                    label: "M7",
-                    tooltip: "CN77",
-                    command: "M7",
-                    depend: [{ id: "showM7ctrls", value: true }],
-                    mode: "coolant_mode",
-                },
-                {
-                    label: "M8",
-                    tooltip: "CN78",
-                    command: "M8",
-                    mode: "coolant_mode",
-                },
-                {
-                    label: "M9",
-                    tooltip: "CN79",
-                    command: "M9",
-                    mode: "coolant_mode",
-                },
-            ],
-        },
-        {
-            label: "CN80",
+            label: "CN202",
             buttons: [
                 {
                     icon: <Zap />,
@@ -305,6 +310,7 @@ const SpindlePanel: FunctionalComponent = () => {
             <div class="panel-body panel-body-dashboard">
                 <SpindleControls />
                 {buttons_list.map((item) => {
+                    const control = item.control
                     if (item.depend) {
                         if (
                             !checkDependencies(
@@ -394,7 +400,9 @@ const SpindlePanel: FunctionalComponent = () => {
                                 </label>
                             </legend>
                             <div class="field-group-content maxwidth">
-                                {item.label === "CN80" && !item.control ? (
+                                <div class="spindle-top-row" />
+
+                                {item.label === "CN202" && !item.control ? (
 
                                     <div
                                         class="states-buttons-container"
@@ -438,36 +446,32 @@ const SpindlePanel: FunctionalComponent = () => {
                                     <div class="states-buttons-container">{content}</div>
                                 )}
 
-                                {item.control && (
-                                    <div class="panel-field-inline">
-                                        <label>
-                                            {T(item.control!.label)}
-                                        </label>
 
-                                        <Field
-                                            id={item.control!.id}
-                                            inline
-                                            width="4rem"
-                                            label=""
-                                            type={item.control!.type}
-                                            min={item.control!.min}
-                                            value={item.control!.value.current}
-                                            setValue={(val: number, update = false) => {
-                                                if (!update) {
-                                                    item.control!.value.current = val
-                                                }
-                                                setvalidation(
-                                                    generateValidation(
-                                                        item.control!.value.current as number
-                                                    )
-                                                )
-                                            }}
-                                            validation={validation}
-                                        />
-                                    </div>
+<div class="spindle-spacer" />
+{control && (
+    
+  <div class="spindle-speed-ctrl">
+    <input
+      type="number"
+      class="spindle-speed-value"
+      value={control.value.current}
+      min={control.min}
+      onInput={(e) => {
+        const v = Number((e.target as HTMLInputElement).value)
+        control.value.current = v
+        setvalidation(generateValidation(v))
+      }}
+    />
+    
+    <div class="spindle-speed-sub-header">RPM</div>
+  </div>
+)}
 
 
-                                )}
+
+
+
+
                             </div>
 
                         </fieldset>

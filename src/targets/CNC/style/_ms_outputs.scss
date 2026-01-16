@@ -1,0 +1,205 @@
+#SpindlePanel .spindle-speed-ctrl {
+  display: inline-flex;
+  align-items: stretch;
+  gap: 0;
+}
+
+/* VALUE (igual a .jog-position-value) */
+#SpindlePanel .spindle-speed-value {
+  appearance: textfield;
+  -moz-appearance: textfield;
+
+  margin: 0;
+  outline: none;
+  box-shadow: none;
+
+  border: $border-width solid $border-color;
+  border-right: 0;
+  border-radius: $border-radius 0 0 $border-radius;
+
+  background: $bg-color-light;
+  color: $text-strong-color;
+
+  padding: $control-padding-y $control-padding-x;
+  width: 110px;
+
+  text-align: right;
+  font-weight: 600;
+  font-size: $font-size;
+}
+
+/* ocultar flechitas */
+#SpindlePanel .spindle-speed-value::-webkit-outer-spin-button,
+#SpindlePanel .spindle-speed-value::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* SUB-HEADER (igual a .jog-position-sub-header) */
+#SpindlePanel .spindle-speed-sub-header {
+  margin: 0;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: $border-width solid $border-color;
+  border-left: 0;
+  border-radius: 0 $border-radius $border-radius 0;
+
+  background: $bg-color;
+  color: $text-muted-color;
+
+  padding: 0 $control-padding-x;
+  min-width: 56px;
+
+  font-size: $font-size-sm;
+  font-weight: 600;
+}
+
+.spindle-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;   // 🔑 centra TODO
+  gap: $unit-3;          // separación vertical consistente
+}
+
+.spindle-buttons {
+  display: flex;
+  justify-content: center;
+  gap: $unit-3;
+}
+
+.spindle-spacer {
+  height: $unit-4; // una fila clara de aire visual
+}
+
+#SpindlePanel .field-group-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center; // 🔑 ESTO ES LO QUE FALTABA
+}
+#SpindlePanel .spindle-top-row {
+  height: $unit-4;        // mismo lenguaje visual del resto
+}
+
+/* ================================
+   SPINDLE — BOTONES MACIZOS
+   ================================ */
+
+#SpindlePanel {
+
+  /* Botones normales (M3, M5, M4, D1..D4) */
+  .btn {
+    background: $primary-color;
+    color: $btn-primary-color;
+
+    border: $border-width solid transparent;
+    box-shadow: none;
+
+    transition: background 120ms ease, transform 80ms ease;
+  }
+
+  /* Hover */
+  .btn:hover {
+    background: $primary-color-dark;
+  }
+
+  /* Active / pressed */
+  .btn:active {
+    transform: translateY(1px);
+    background: darken($primary-color, 6%);
+  }
+
+  /* Botón activo (modo actual M3/M4/etc) */
+  .btn-primary {
+    background: $primary-color;
+    color: $btn-primary-color;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.15);
+  }
+}
+
+
+#SpindlePanel {
+
+  .extra-control {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch; // 🔑 header ocupa todo el ancho
+
+    background: $bg-color-light;
+    border: $border-width solid $border-color;
+    border-radius: $border-radius;
+
+    min-width: 88px;
+    overflow: hidden; // 🔑 para que el header respete el radio
+  }
+
+
+
+  
+  /* HEADER tipo chip, integrado */
+  .extra-control-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba($primary-color, 0.12);
+    color: $primary-color;
+
+    font-size: $font-size-sm;
+    font-weight: 600;
+
+    padding: $unit-1 $unit-2;
+
+    border-bottom: $border-width solid $border-color-light;
+  }
+
+  /* VALUE protagonista */
+  .extra-control-value {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: $unit-2 $unit-2;
+
+    font-size: $font-size-lg;
+    font-weight: 700;
+    color: $text-strong-color;
+
+    line-height: 1.1;
+  }
+}
+
+#SpindlePanel .extra-control-header {
+  background: rgba($primary-color, 0.12);
+  color: $primary-color;
+
+  padding: 4px 10px;
+  font-size: $font-size-sm;
+  line-height: 1.1;
+
+  min-width: 72px;
+  text-align: center;
+
+  
+}
+
+#SpindlePanel .extra-control-value {
+  background: $bg-color-light;
+  color: $text-strong-color;
+
+  padding: 6px 10px;
+  min-width: 72px;
+
+  text-align: center;
+  font-size: $font-size;
+  font-weight: 600;
+  line-height: 0.8;
+
+  
+  
+}
+
+
+

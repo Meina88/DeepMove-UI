@@ -737,3 +737,50 @@ a label {
     width: 100%;
   }
 }
+
+
+
+
+
+/* =====================================
+   FIELDSET TITLES — LINEA CONTINUA
+   ===================================== */
+
+/* 1) matar CUALQUIER borde del fieldset */
+fieldset.field-group {
+  border: 0 !important;
+}
+
+/* 2) matar los separadores viejos (aunque existan en el HTML) */
+fieldset.fieldset-top-separator {
+  border-top: 0 !important;
+}
+fieldset.fieldset-bottom-separator {
+  border-bottom: 0 !important;
+}
+
+/* 3) legend centrado + linea por pseudo-elementos */
+.field-group legend {
+  width: 100%;
+  padding: 0;
+  margin: $unit-3 0;
+}
+
+.field-group legend .buttons-bar-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $unit-3;
+  width: 100%;
+  text-align: center;
+  font-weight: 600;
+  color: $text-normal-color;
+}
+
+.field-group legend .buttons-bar-label::before,
+.field-group legend .buttons-bar-label::after {
+  content: "";
+  flex: 1;
+  height: 0.5px;
+  background: $border-color;
+}
