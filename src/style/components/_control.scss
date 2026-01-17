@@ -716,19 +716,54 @@ a label {
 
 .toasts-container {
     position: fixed;
+    top: 25vh;                  /* 🎯 centro de la mitad superior */
+    left: 50%;
+    transform: translate(-50%, -50%);
     z-index: 100000 !important;
-    right: 0.5rem;
-    top: 0.5rem;
 
+    display: flex;
+    flex-direction: column;
+    gap: $unit-1;
+
+    pointer-events: none;       /* no interfiere con UI */
+    
     > .toast {
-        margin: 0.2rem 0;
+        pointer-events: auto;   /* pero se pueden cerrar */
+        margin: 0;
+        padding: $unit-2 $unit-3;
+
+        min-width: 260px;
+        max-width: 380px;
+
+        border-radius: $border-radius;
+        font-size: $font-size;
+        font-weight: 500;
+
+        backdrop-filter: blur(8px);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+    }
+
+    .toast-error {
+        background-color: rgba($error-color, 0.95);
+        color: $light-color;
+    }
+
+    .toast-warning {
+        background-color: rgba($warning-color, 0.95);
+        color: $dark-color;
+    }
+
+    .toast-success {
+        background-color: rgba($success-color, 0.95);
+        color: $light-color;
+    }
+
+    .toast-info {
+        background-color: rgba($primary-color, 0.95);
+        color: $light-color;
     }
 }
-:fullscreen .toasts-container{
-    top: 1.2rem;
-    z-index: 100000 !important;
-    overlay: auto!important;
-}
+
 
 @media (max-width: $size-xs) {
   [class~="col-"],

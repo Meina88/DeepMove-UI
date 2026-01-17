@@ -26,6 +26,14 @@ const PanelNavigator: FunctionalComponent = () => {
   const { status } = useTargetContext() as any
 
   const machineState: string = status?.state ?? "Idle"
+  const prevMachineState = useRef<string>(machineState)
+
+
+  const normalizedState = String(machineState).toLowerCase()
+  const isAlarm = normalizedState.startsWith("alarm")
+  const isIdle = normalizedState === "idle"
+
+
 
   // ✅ ESTE es el estado real del botón (solo por acción del usuario)
   const [isLatched, setIsLatched] = useState(false)
@@ -38,37 +46,53 @@ const PanelNavigator: FunctionalComponent = () => {
     })
   }
 
-  // ✅ Si la máquina vuelve a Idle, soltamos visualmente el botón (seguro)
   useEffect(() => {
-    if (machineState === "Idle" && isLatched) {
-      setIsLatched(false)
-    }
-  }, [machineState, isLatched])
+    const prev = String(prevMachineState.current).toLowerCase()
+    const prevAlarm = prev.startsWith("alarm")
 
-  useEffect(() => {
-    if (machineState === "Alarm" && !isLatched) {
+    // 🔴 Entrada en Alarm (automática)
+    if (isAlarm && !prevAlarm) {
       setIsLatched(true)
     }
-  }, [machineState, isLatched])
+
+    // 🟢 Salida real de Alarm → Idle
+    if (prevAlarm && isIdle) {
+      setIsLatched(false)
+    }
+
+    prevMachineState.current = machineState
+  }, [machineState, isAlarm, isIdle])
+
+
 
 
   const onResetPress = () => {
     useUiContextFn.haptic([50, 80, 50, 80, 50])
 
-    // Siempre enviamos soft reset
-    targetCommands(SOFT_RESET)
+    // Normalizá por si viene "ALARM", "Alarm:..." etc.
+    const state = String(machineState).toLowerCase()
+    const isAlarm = state.startsWith("alarm")
 
-    // 🔴 Si estamos en Alarm, desbloqueamos inmediatamente
-    if (machineState === "Alarm") {
-      targetCommands(UNLOCK)
+    if (isAlarm) {
+      // Para hard limit alarms suele ser necesario:
+      // 1) Soft reset (Ctrl+X)
+      // 2) Unlock ($X)
+      targetCommands(SOFT_RESET)
+
+      // Pequeño delay para que el firmware procese el reset
+      window.setTimeout(() => {
+        targetCommands(UNLOCK)
+      }, 120)
+
       return
     }
 
-    // 🟡 Si no estamos Idle (Hold, Run, etc), solo latcheamos visual
-    if (machineState !== "Idle" && !isLatched) {
-      setIsLatched(true)
-    }
+    // Cualquier otro estado → Soft Reset
+    targetCommands(SOFT_RESET)
   }
+
+
+
 
 
 
@@ -94,8 +118,12 @@ const PanelNavigator: FunctionalComponent = () => {
               }
               aria-pressed={isLatched}
               title={T("Soft Reset")}
-              onMouseDown={onResetPress}
-              onTouchStart={onResetPress}
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                onResetPress()
+              }}
+
             >
               <Octagon />
             </button>
@@ -135,5 +163,7 @@ const PanelNavigator: FunctionalComponent = () => {
     </div>
   )
 }
+
+
 
 export default PanelNavigator
