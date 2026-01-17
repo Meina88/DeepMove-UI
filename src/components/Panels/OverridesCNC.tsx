@@ -49,23 +49,36 @@ const OverridesControls: FunctionalComponent<{
         <div class="status-ctrls center-only">
             <div class="lock-control">
 
-                <ButtonImg
-                    class="lock-button"
-                    icon={linked ? <Lock size={20} /> : <Unlock size={20} />}
-                    tooltip
-                    data-tooltip={
-                        linked
-                            ? T("Feed & Spindle linked")
-                            : T("Feed & Spindle independent")
-                    }
-                    onClick={() => {
-                        useUiContextFn.haptic()
-                        setLinked(!linked)
-                    }}
-                />
+<div class="link-switch-wrap">
+    {/* 🔓 UNLOCK */}
+    <Unlock size={12} class={`link-switch-icon ${!linked ? "active" : ""}`} />
+
+    {/* SWITCH */}
+    <div
+        class={`link-switch ${linked ? "is-on" : ""}`}
+        role="switch"
+        aria-checked={linked}
+        title={
+            linked
+                ? T("Feed & Spindle linked")
+                : T("Feed & Spindle independent")
+        }
+        onClick={() => {
+            useUiContextFn.haptic()
+            setLinked(!linked)
+        }}
+    >
+        <div class="link-switch-thumb" />
+    </div>
+
+    {/* 🔒 LOCK */}
+    <Lock size={12} class={`link-switch-icon ${linked ? "active" : ""}`} />
+</div>
+
+
 
                 <div class="lock-label">
-                    {T("Chip")}
+                    {T("Chipload")}
                 </div>
 
             </div>

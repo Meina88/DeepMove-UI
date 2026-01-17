@@ -325,16 +325,18 @@
 
     /* Leyenda debajo */
     .lock-label {
-        font-size: $font-size-sm * 0.85;
-        line-height: 1;
+        font-size: 0.7em;
+        line-height: 2;
 
         color: $text-muted-color;
 
-        font-weight: 500;
+        font-weight: 600;
         letter-spacing: 0.02em;
 
         user-select: none;
     }
+    
+    
 
 }
 
@@ -696,3 +698,103 @@
     pointer-events: none;
 }
 
+
+
+
+
+
+
+
+/* =========================
+   LINK SWITCH (Feed ↔ Spindle)
+   ========================= */
+
+.link-switch {
+    width: 42px;
+    height: 22px;
+    border-radius: 999px;
+
+    background: $gray-color-light;
+    border: $border-width solid $border-color;
+
+    position: relative;
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    padding: 2px;
+
+    transition:
+        background-color 160ms ease,
+        border-color 160ms ease;
+
+    /* feedback táctil */
+    &:active {
+        background: $secondary-color-light;
+    }
+}
+
+.link-switch-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+
+    background: $light-color;
+    box-shadow:
+        0 1px 3px rgba($dark-color, 0.35);
+
+    transform: translateX(0);
+    transition: transform 160ms ease;
+}
+
+/* =========================
+   ON (linked)
+   ========================= */
+
+.link-switch.is-on {
+    background: $primary-color;
+    border-color: $primary-color-dark;
+
+    .link-switch-thumb {
+        transform: translateX(20px);
+    }
+}
+
+
+
+
+
+
+
+
+
+/* =========================
+   LINK SWITCH — ICONOS
+   ========================= */
+
+.link-switch-wrap {
+    display: flex;
+    align-items: center;
+    gap: $unit-2;
+}
+
+/* Iconos lock / unlock */
+.link-switch-icon {
+    color: $gray-color;
+    opacity: 0.6;
+    transition:
+        color 160ms ease,
+        opacity 160ms ease,
+        transform 120ms ease;
+}
+
+/* Activo según estado */
+.link-switch-icon.active {
+    color: $primary-color;
+    opacity: 1;
+}
+
+/* pequeño feedback */
+.link-switch-icon.active {
+    transform: scale(1.05);
+}

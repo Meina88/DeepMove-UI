@@ -107,6 +107,28 @@
     animation: alarm-blink 0.25s infinite;
 }
 
+
+/* 🏠 HOMING — fucsia (referenciando ejes) */
+.state-home,
+.state-homing {
+    background: #ff4fd8; /* fucsia intenso */
+    box-shadow:
+        0 0 4px rgba(255, 79, 216, 0.9),
+        0 0 8px rgba(255, 79, 216, 0.6),
+        0 0 14px rgba(255, 79, 216, 0.4);
+}
+@keyframes homing-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+.state-home,
+.state-homing {
+    animation: homing-pulse 0.5s ease-in-out infinite;
+}
+
+
+
 /* Alineación izquierda */
 .navbar-left {
     display: flex;

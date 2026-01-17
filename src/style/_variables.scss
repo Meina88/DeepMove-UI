@@ -7,9 +7,9 @@ $version: "0.5.9";
 $rtl: false !default;
 
 // Core colors
-$primary-color:       hsl(200, 88%, 45%);  
-$primary-color-dark:  hsl(200, 88%, 55%);
-$primary-color-light: hsl(200, 88%, 72%);
+$primary-color:       hsl(210, 88%, 45%);  
+$primary-color-dark:  hsl(210, 88%, 55%);
+$primary-color-light: hsl(210, 88%, 72%);
 
 
 $secondary-color: lighten($primary-color, 28%) !default;
