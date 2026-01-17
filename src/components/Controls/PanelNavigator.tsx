@@ -16,7 +16,6 @@ const iconsList: Record<string, any> = {
 
 const TOTAL_SLOTS = 5
 const RESET_INDEX = 2
-const UNLOCK_PRESS_MS = 200
 const SOFT_RESET = "\x18"
 const UNLOCK = "$X"
 
@@ -31,9 +30,6 @@ const PanelNavigator: FunctionalComponent = () => {
   // ✅ ESTE es el estado real del botón (solo por acción del usuario)
   const [isLatched, setIsLatched] = useState(false)
 
-  const unlockTimer = useRef<number | null>(null)
-  const unlockArmed = useRef(false)
-
   const goToPanel = (id?: string) => {
     if (!id) return
     document.getElementById(id)?.scrollIntoView({
@@ -42,47 +38,39 @@ const PanelNavigator: FunctionalComponent = () => {
     })
   }
 
-  const clearUnlockTimer = () => {
-    if (unlockTimer.current) {
-      clearTimeout(unlockTimer.current)
-      unlockTimer.current = null
-    }
-    unlockArmed.current = false
-  }
-
   // ✅ Si la máquina vuelve a Idle, soltamos visualmente el botón (seguro)
   useEffect(() => {
     if (machineState === "Idle" && isLatched) {
       setIsLatched(false)
-      clearUnlockTimer()
     }
   }, [machineState, isLatched])
 
-  const onResetPress = () => {
-  useUiContextFn.haptic([50, 80, 50, 80, 50]) // 🔴 patrón especial RESET
-  targetCommands(SOFT_RESET)
-
-  if (!isLatched) {
-    if (machineState !== "Idle") {
+  useEffect(() => {
+    if (machineState === "Alarm" && !isLatched) {
       setIsLatched(true)
     }
-    return
-  }
-
-  unlockArmed.current = true
-  unlockTimer.current = window.setTimeout(() => {
-    targetCommands(UNLOCK)
-    clearUnlockTimer()
-  }, UNLOCK_PRESS_MS)
-}
+  }, [machineState, isLatched])
 
 
-  const onResetRelease = () => {
-    // si soltó antes de 200ms, cancelamos unlock
-    if (unlockArmed.current) {
-      clearUnlockTimer()
+  const onResetPress = () => {
+    useUiContextFn.haptic([50, 80, 50, 80, 50])
+
+    // Siempre enviamos soft reset
+    targetCommands(SOFT_RESET)
+
+    // 🔴 Si estamos en Alarm, desbloqueamos inmediatamente
+    if (machineState === "Alarm") {
+      targetCommands(UNLOCK)
+      return
+    }
+
+    // 🟡 Si no estamos Idle (Hold, Run, etc), solo latcheamos visual
+    if (machineState !== "Idle" && !isLatched) {
+      setIsLatched(true)
     }
   }
+
+
 
   // Panels visibles EXCLUYENDO reset (4 botones)
   const panelButtons = panels.visibles.slice(0, TOTAL_SLOTS - 1)
@@ -107,14 +95,11 @@ const PanelNavigator: FunctionalComponent = () => {
               aria-pressed={isLatched}
               title={T("Soft Reset")}
               onMouseDown={onResetPress}
-              onMouseUp={onResetRelease}
-              onMouseLeave={onResetRelease}
               onTouchStart={onResetPress}
-              onTouchEnd={onResetRelease}
-              onTouchCancel={onResetRelease}
             >
               <Octagon />
             </button>
+
           )
         }
 
@@ -137,10 +122,10 @@ const PanelNavigator: FunctionalComponent = () => {
           <button
             key={panelId}
             class="panel-navigator-btn"
-              onClick={() => {
-                uiFn.haptic()
-                goToPanel(panelId)
-              }}
+            onClick={() => {
+              uiFn.haptic()
+              goToPanel(panelId)
+            }}
             title={T(panelName)}
           >
             {iconsList[iconKey] ?? iconKey}
