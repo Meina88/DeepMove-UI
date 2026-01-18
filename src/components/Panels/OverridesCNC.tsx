@@ -95,6 +95,7 @@ const OverridesPanel: FunctionalComponent = () => {
     const { targetCommands } = useTargetCommands()
     const [linked, setLinked] = useState(false)
     const { status, streamStatus, states } = useTargetContext() as {
+        
         status?: {
             state?: string
             power?: { value: number }
@@ -109,6 +110,10 @@ const OverridesPanel: FunctionalComponent = () => {
         }
         states?: StatesMap
     }
+
+    const canResumeFromDoor =
+    status?.state === "Door" && status?.substate === 0
+
     const powerW = status?.power?.value ?? 0
     const id = "OverridesPanel"
     const MAX_POWER_W = 1500
@@ -447,9 +452,14 @@ const OverridesPanel: FunctionalComponent = () => {
 
 
                 {/* ⏸️ / ▶️ HOLD – START (CENTRO INFERIOR) */}
+
+
 <div class="override-buttons-container">
-    {(status?.state === "Run" || status?.state === "Hold") && (
-        status.state === "Hold" ? (
+    {(status?.state === "Run" ||
+      status?.state === "Hold" ||
+      canResumeFromDoor) && (
+
+        status?.state === "Hold" || canResumeFromDoor ? (
             <ButtonImg
                 class="override-hold-btn is-play"
                 icon={<Play size={22} />}
@@ -474,6 +484,7 @@ const OverridesPanel: FunctionalComponent = () => {
         )
     )}
 </div>
+
 
 
 

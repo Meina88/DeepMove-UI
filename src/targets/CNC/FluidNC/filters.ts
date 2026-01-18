@@ -139,10 +139,22 @@ const getStatus = (str: string): StatusResponse => {
         }, {} as Record<string, boolean>)
     }
     //extract status and optional message code
-    if ((result = status_pattern.exec(str)) !== null) {
-        res.status.state = result.groups!.state
-        res.status.code = result.groups!.code
+if ((result = status_pattern.exec(str)) !== null) {
+    const state = result.groups!.state
+    const code = result.groups!.code
+
+    res.status.state = state
+    res.status.code = code
+
+    // ⬇️ NUEVO: subestado para FluidNC moderno (Door:0, Hold:1, etc.)
+    if ((state === "Door" || state === "Hold") && code !== "") {
+        const sub = Number(code)
+        if (!isNaN(sub)) {
+            res.status.substate = sub
+        }
     }
+}
+
     //extract override values
     if ((result = ov_patern.exec(str)) !== null) {
         const ov = result.groups!.ov.split(",")
