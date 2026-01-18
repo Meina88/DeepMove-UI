@@ -435,13 +435,24 @@
     /* =========================
        ▶ START / PLAY
        ========================= */
-    .override-hold-btn.is-play {
-        background-color: $success-color; // 🟢 estado positivo
+/* ▶ PLAY */
+.override-hold-btn.is-play {
+    background-color: $primary-color;
+    color: $btn-primary-color;
 
-        &:hover {
-            background-color: lighten($success-color, 6%);
-        }
+    box-shadow:
+        0 4px 10px rgba($primary-color, 0.35),
+        0 0 0 1px rgba($primary-color-dark, 0.4);
+
+    &:hover {
+        background-color: $primary-color-dark;
     }
+
+    &:active {
+        transform: scale(0.96);
+    }
+}
+
 
     /* ▶ START / PLAY — corrección óptica */
     .override-hold-btn.is-play svg {

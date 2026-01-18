@@ -184,9 +184,7 @@ const JogPanel = () => {
     const { modals } = useModalsContext()
 
     const [currentSelectedAxis, setCurrentSelectedAxis] = useState(currentAxis)
-    const [jogStepIndex, setJogStepIndex] = useState(0) // 100 mm
-
-    const jogDistanceXYZ = jogStepsXYZ[jogStepIndex]
+    const [jogStepIndex, setJogStepIndex] = useState(0) // 100 mm    
 
     const [jogTimer, setJogTimer] = useState<number | null>(null)
     const [continuousActive, setContinuousActive] = useState(false)
@@ -209,9 +207,9 @@ const JogPanel = () => {
     }
 
     // 🔁 rota el stepping: 100 → 10 → 1 → 0.1 → 100
-const rotateJogStep = () => {
-    setJogStepIndex((prev) => (prev + 1) % jogStepsXYZ.length)
-}
+    const rotateJogStep = () => {
+        setJogStepIndex((prev) => (prev + 1) % jogStepsXYZ.length)
+    }
 
 
 
@@ -311,27 +309,31 @@ const rotateJogStep = () => {
         })
     }
 
-    const sendJogCommand = (axis: string) => {
-        let selected_axis: string
-        let distance: string | number
-        let feedrate =
-            axis.startsWith("X") || axis.startsWith("Y")
-                ? currentFeedRate["XY"]
-                : axis.startsWith("Z")
-                    ? currentFeedRate["Z"]
-                    : currentFeedRate[currentAxis]
+const sendJogCommand = (axis: string, stepIndexOverride?: number) => {
+    const effectiveIndex =
+        stepIndexOverride !== undefined
+            ? stepIndexOverride
+            : jogStepIndex
 
-        distance = jogDistanceXYZ
+    const distance = jogStepsXYZ[effectiveIndex]
+
+    const feedrate = getContinuousFeedrateForStep(
+        axis,
+        distance
+    )
+
+    const selected_axis = axis.startsWith("Axis")
+        ? axis.replace("Axis", currentAxis)
+        : axis
+
+    const cmd = `$J=G91 G21 ${selected_axis}${distance} F${feedrate}`
+    targetCommands(cmd)
+}
 
 
-        if (axis.startsWith("Axis"))
-            selected_axis = axis.replace("Axis", currentAxis)
-        else selected_axis = axis
-        let cmd =
-            `$J=G91 G21 ${selected_axis}${distance} F${feedrate}`
-        targetCommands(cmd)
-    }
-    const getContinuousFeedrate = (axis: string) => {
+
+
+    const getContinuousFeedrateForStep = (axis: string, step: number) => {
         let baseFeed =
             axis.startsWith("X") || axis.startsWith("Y")
                 ? currentFeedRate["XY"]
@@ -339,21 +341,14 @@ const rotateJogStep = () => {
                     ? currentFeedRate["Z"]
                     : currentFeedRate[currentAxis]
 
-        switch (jogDistanceXYZ) {
+        switch (step) {
             case 100: return baseFeed
-            case 10: return baseFeed / 2
-            case 1: return baseFeed / 4
-            case 0.1: return baseFeed / 8
+            case 10: return baseFeed / 3
+            case 1: return baseFeed / 9
+            case 0.1: return baseFeed / 27
             default: return baseFeed
         }
     }
-
-    const sendContinuousJog = (axis: string) => {
-        const feed = getContinuousFeedrate(axis)
-        const cmd = `$J=G91 G21 ${axis}${CONTINUOUS_DISTANCE} F${feed}`
-        targetCommands(cmd)
-    }
-
     const cancelJog = () => {
         // Jog Cancel es un comando realtime (un byte), NO gcode
         targetCommands("\x85")
@@ -375,56 +370,60 @@ const rotateJogStep = () => {
     }
 
 
-    const jogPressHandlers = (axis: string) => ({
-        onPointerDown: () => {
-            useUiContextFn.haptic()
-            document.body.style.overflow = "hidden"
+    const jogPressHandlers = (axis: string) => {
+        let effectiveStepIndex = jogStepIndex
 
-            // 🔐 Protección eje Z:
-            // Si estamos en stepping 100 y se toca Z, forzar stepping a 10
-if (
-    jogDistanceXYZ === 100 &&
-    (axis === "Z+" || axis === "Z-")
-) {
-    setJogStepIndex(1) // índice de 10 mm
-}
+        return {
+            onPointerDown: () => {
+                useUiContextFn.haptic()
+                document.body.style.overflow = "hidden"
+
+                effectiveStepIndex = jogStepIndex
+
+                if (
+                    jogStepsXYZ[jogStepIndex] === 100 &&
+                    (axis === "Z+" || axis === "Z-")
+                ) {
+                    effectiveStepIndex = 1
+                    setJogStepIndex(1) // solo UI
+                }
+
+                const timer = window.setTimeout(() => {
+                    setContinuousActive(true)
+
+                    const feed = getContinuousFeedrateForStep(
+                        axis,
+                        jogStepsXYZ[effectiveStepIndex]
+                    )
+
+                    const cmd = `$J=G91 G21 ${axis}${CONTINUOUS_DISTANCE} F${feed}`
+                    targetCommands(cmd)
+                }, CONTINUOUS_JOG_DELAY)
+
+                setJogTimer(timer)
+            },
+
+            onPointerUp: () => {
+                if (jogTimer) {
+                    clearTimeout(jogTimer)
+                    setJogTimer(null)
+                }
+
+                if (continuousActive) {
+                    forceCancelJog()
+                } else {
+                    setContinuousActive(false) // 🔹 aseguramos estado limpio
+                    sendJogCommand(axis, effectiveStepIndex)
+                    document.body.style.overflow = ""
+                }
+            },
 
 
-
-
-            const timer = window.setTimeout(() => {
-                setContinuousActive(true)
-                sendContinuousJog(axis)
-            }, CONTINUOUS_JOG_DELAY)
-
-            setJogTimer(timer)
-        },
-
-        onPointerUp: () => {
-            if (jogTimer) {
-                clearTimeout(jogTimer)
-                setJogTimer(null)
-            }
-
-            if (continuousActive) {
-                forceCancelJog()
-            } else {
-                sendJogCommand(axis)
-                document.body.style.overflow = ""
-            }
-
-        },
-
-
-        onPointerLeave: () => {
-            forceCancelJog()
-        },
-
-        onPointerCancel: () => {
-            forceCancelJog()
+            onPointerLeave: forceCancelJog,
+            onPointerCancel: forceCancelJog,
         }
+    }
 
-    })
 
     //Set the current feedrate for axis//
     const setFeedrate = (axis: string) => {
@@ -728,38 +727,38 @@ if (
                                 <JogQuarter rotate={270} />
                             </div>
 
-{/* 🔵 PERILLA (centro) */}
-<div
-  class="jog-step-knob-rotary"
-  onClick={() => {
-    useUiContextFn.haptic()
-    setJogStepIndex((prev) => (prev + 1) % jogStepsXYZ.length)
-  }}
->
-  {/* ◌ Detents vacíos */}
-  {STEP_ANGLES.map((angle, i) => (
-    <div
-      key={i}
-      class="jog-step-detent"
-      style={{
-        transform: `rotate(${angle}deg) translateY(-28px)`,
-      }}
-    />
-  ))}
+                            {/* 🔵 PERILLA (centro) */}
+                            <div
+                                class="jog-step-knob-rotary"
+                                onClick={() => {
+                                    useUiContextFn.haptic()
+                                    setJogStepIndex((prev) => (prev + 1) % jogStepsXYZ.length)
+                                }}
+                            >
+                                {/* ◌ Detents vacíos */}
+                                {STEP_ANGLES.map((angle, i) => (
+                                    <div
+                                        key={i}
+                                        class="jog-step-detent"
+                                        style={{
+                                            transform: `rotate(${angle}deg) translateY(-28px)`,
+                                        }}
+                                    />
+                                ))}
 
-  {/* ● Punto activo */}
-  <div
-    class="jog-step-knob-indicator"
-    style={{
-      transform: `rotate(${STEP_ANGLES[jogStepIndex]}deg) translateY(-28px)`,
-    }}
-  />
+                                {/* ● Punto activo */}
+                                <div
+                                    class="jog-step-knob-indicator"
+                                    style={{
+                                        transform: `rotate(${STEP_ANGLES[jogStepIndex]}deg) translateY(-28px)`,
+                                    }}
+                                />
 
-  {/* Valor numérico */}
-  <div class="jog-step-knob-value">
-    {jogStepsXYZ[jogStepIndex]}
-  </div>
-</div>
+                                {/* Valor numérico */}
+                                <div class="jog-step-knob-value">
+                                    {jogStepsXYZ[jogStepIndex]}
+                                </div>
+                            </div>
 
 
 

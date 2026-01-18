@@ -322,19 +322,14 @@ const canPlay = isHold || canResumeFromDoor
 
                             <svg viewBox="0 0 200 120" class="power-gauge">
 
-                                {/* =========================
-      TRACK BASE (común)
-     ========================= */}
+                                {/*       TRACK BASE (común) */}
                                 <path
                                     d="M20 100 A80 80 0 0 1 180 100"
                                     class="gauge-track"
                                     fill="none"
                                 />
 
-                                {/* =========================
-      PROGRESO (INTERNO)
-      Se vacía con el avance
-     ========================= */}
+                                {/*       PROGRESO (INTERNO)      Se vacía con el avance     =*/}
                                 {hasRunProgress && (
                                     <path
                                         d="M30 100 A70 70 0 0 1 170 100"
@@ -349,9 +344,7 @@ const canPlay = isHold || canResumeFromDoor
 
                                 )}
 
-                                {/* =========================
-      POTENCIA (EXTERNO)
-     ========================= */}
+                                {/*       POTENCIA (EXTERNO)      */}
                                 <path
                                     d="M20 100 A80 80 0 0 1 180 100"
                                     class={`gauge-fill power-${powerLevel}`}
