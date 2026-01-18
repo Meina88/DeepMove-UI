@@ -798,3 +798,10 @@
 .link-switch-icon.active {
     transform: scale(1.05);
 }
+
+
+.override-hold-btn.is-disabled {
+    opacity: 0.35;
+    pointer-events: none;
+    filter: grayscale(1);
+}

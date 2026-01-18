@@ -114,6 +114,13 @@ const OverridesPanel: FunctionalComponent = () => {
     const canResumeFromDoor =
     status?.state === "Door" && status?.substate === 0
 
+    const isRun = status?.state === "Run"
+const isHold = status?.state === "Hold"
+
+const canPause = isRun
+const canPlay = isHold || canResumeFromDoor
+
+
     const powerW = status?.power?.value ?? 0
     const id = "OverridesPanel"
     const MAX_POWER_W = 1500
@@ -455,35 +462,42 @@ const OverridesPanel: FunctionalComponent = () => {
 
 
 <div class="override-buttons-container">
-    {(status?.state === "Run" ||
-      status?.state === "Hold" ||
-      canResumeFromDoor) && (
 
-        status?.state === "Hold" || canResumeFromDoor ? (
-            <ButtonImg
-                class="override-hold-btn is-play"
-                icon={<Play size={22} />}
-                tooltip
-                data-tooltip={T("CN61")}
-                onClick={() => {
-                    useUiContextFn.haptic()
-                    targetCommands("#CYCLESTART#")
-                }}
-            />
-        ) : (
-            <ButtonImg
-                class="override-hold-btn is-hold"
-                icon={<Pause size={22} />}
-                tooltip
-                data-tooltip={T("Hold")}
-                onClick={() => {
-                    useUiContextFn.haptic()
-                    targetCommands("#FEEDHOLD#")
-                }}
-            />
-        )
+    {/* ⏸️ PAUSE — solo en Run */}
+    {canPause && (
+        <ButtonImg
+            class="override-hold-btn is-hold"
+            icon={<Pause size={22} />}
+            tooltip
+            data-tooltip={T("Hold")}
+            onClick={() => {
+                useUiContextFn.haptic()
+                targetCommands("#FEEDHOLD#")
+            }}
+        />
     )}
+
+    {/* ▶️ PLAY — siempre visible */}
+    {!canPause && (
+        <ButtonImg
+            class={`override-hold-btn is-play ${!canPlay ? "is-disabled" : ""}`}
+            icon={<Play size={22} />}
+            tooltip
+            data-tooltip={
+                canPlay
+                    ? T("CN61")
+                    : T("Action not available")
+            }
+            onClick={() => {
+                if (!canPlay) return
+                useUiContextFn.haptic()
+                targetCommands("#CYCLESTART#")
+            }}
+        />
+    )}
+
 </div>
+
 
 
 
