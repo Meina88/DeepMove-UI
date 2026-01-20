@@ -27,9 +27,12 @@ import { ProbePanelElement } from "../../../components/Panels/ProbeCNC"
 import { LaserPanelElement } from "../../../components/Panels/LaserCNC"
 import { SpindlePanelElement } from "../../../components/Panels/SpindleCNC"
 import { OverridesPanelElement } from "../../../components/Panels/OverridesCNC"
+import { ToolpathPanelElement } from "../../../components/Panels/Toolpath"
+
 
 const defaultPanelsList = [
     FilesPanelElement,
+    ToolpathPanelElement, 
     TerminalPanelElement,
     MacrosPanelElement,
     JogPanelElement,

@@ -36,6 +36,7 @@
                 "label": "S202",
                 "value": [
                     { "id": "Status", "name": "status" },
+                    { "id": "Toolpath", "name": "toolpath" },
                     { "id": "Terminal", "name": "terminal" },
                     { "id": "Jog", "name": "jog", "value": "jog" },
                     { "id": "Probe", "name": "probe" },

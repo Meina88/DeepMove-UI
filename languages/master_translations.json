@@ -391,6 +391,7 @@
  "polling_on": "Polling enabled",
  "wifi mode": "Wifi mode",
  "language": "Language",
+ "toolpath": "Toolpath panel",
  "CN1": "mm/min",
  "CN2": "XY feed rate",
  "CN3": "$ feed rate",

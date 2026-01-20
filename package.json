@@ -66,6 +66,7 @@
         "webpack-dev-server": "^4.9.2"
     },
     "dependencies": {
+        "gcode-interpreter": "^3.0.0",
         "preact": "^10.27.2",
         "preact-feather": "^4.2.1",
         "smoothie": "^1.36.0",

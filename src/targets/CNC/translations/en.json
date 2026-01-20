@@ -184,5 +184,9 @@
     "error:35": "G2 and G3 arcs require at least one in-plane offset word.",
     "error:36": "Unused value words found in block.",
     "error:37": "G43.1 offset is not assigned to tool length axis.",
-    "error:38": "Tool number greater than max supported value."
+    "error:38": "Tool number greater than max supported value.",
+
+
+    "toolpath": "Toolpath"
+
 }

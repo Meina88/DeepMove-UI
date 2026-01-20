@@ -56,6 +56,10 @@
 
     padding-left: $unit-1;
     padding-right: $unit-1;
+    min-height: 36px;
+    padding: 4px $unit-1;
+    display: flex;
+    align-items: center;
 }
 
 
@@ -75,21 +79,23 @@
     background-color: transparent;
     border: 1px solid transparent;
 }
+
 .panel .navbar .btn:hover,
 .panel .navbar .btn.btn-link:hover {
     background-color: rgba($light-color, 0.15);
     border-color: rgba($primary-color, 0.25);
 }
+
 .panel .navbar .btn:active,
 .panel .navbar .btn.active,
-.panel .navbar .dropdown.active > .dropdown-toggle.btn {
+.panel .navbar .dropdown.active>.dropdown-toggle.btn {
     background-color: rgba($primary-color, 0.12);
     border-color: rgba($primary-color, 0.35);
 }
 
 .panel .navbar .btn-header,
 .panel .navbar .btn-header svg {
-    color: $panel-header-text;  // ← ESTO es lo que controla currentColor
+    color: $panel-header-text; // ← ESTO es lo que controla currentColor
 }
 
 
@@ -101,7 +107,8 @@
 .panel .navbar .panel-title {
     font-weight: 600;
     font-size: $font-size;
-    color: $panel-header-text;    
+    color: $panel-header-text;
+    line-height: 1;
 }
 
 
@@ -116,7 +123,7 @@
    PANEL — CONTENIDO ESPECIAL
    ========================================================= */
 
-   .panel .navbar .feather,
+.panel .navbar .feather,
 .panel .navbar svg {
     color: $panel-header-text;
     stroke: $panel-header-text;
@@ -223,17 +230,16 @@
 .panel .dropdown-toggle.btn-header:hover,
 .panel .dropdown-toggle.btn-header:focus {
     color: #ffffff;
-    background-color: rgba(255,255,255,0.15);
+    background-color: rgba(255, 255, 255, 0.15);
 }
 
 
 .panel .dropdown.active .dropdown-toggle.btn-header {
     color: #ffffff;
-    background-color: rgba(0,0,0,0.15);
+    background-color: rgba(0, 0, 0, 0.15);
 }
 
 
 .panel .navbar:hover {
-    background-color:$panel-header-hover
+    background-color: $panel-header-hover
 }
-

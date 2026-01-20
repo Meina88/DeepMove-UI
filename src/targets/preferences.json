@@ -128,7 +128,12 @@
                 "id": "terminalsettings",
                 "type": "group",
                 "label": "",
-                "depend": [{ "id": "showterminalpanel", "value": true }],
+                "depend": [
+                    {
+                        "id": "showterminalpanel",
+                        "value": true
+                    }
+                ],
                 "value": [
                     {
                         "id": "openterminalonstart",
@@ -171,7 +176,12 @@
                 "type": "boolean",
                 "label": "S93",
                 "value": true,
-                "depend": [{ "id": "showfilespanel", "value": true }]
+                "depend": [
+                    {
+                        "id": "showfilespanel",
+                        "value": true
+                    }
+                ]
             }
         ],
         "jog": [
@@ -186,7 +196,12 @@
                 "type": "boolean",
                 "label": "S93",
                 "value": true,
-                "depend": [{ "id": "showjogpanel", "value": true }]
+                "depend": [
+                    {
+                        "id": "showjogpanel",
+                        "value": true
+                    }
+                ]
             }
         ],
         "notification": [
@@ -201,14 +216,24 @@
                 "type": "boolean",
                 "label": "S93",
                 "value": false,
-                "depend": [{ "id": "shownotificationspanel", "value": true }]
+                "depend": [
+                    {
+                        "id": "shownotificationspanel",
+                        "value": true
+                    }
+                ]
             },
             {
                 "id": "notifautoscroll",
                 "type": "boolean",
                 "label": "S77",
                 "value": true,
-                "depend": [{ "id": "shownotificationspanel", "value": true }]
+                "depend": [
+                    {
+                        "id": "shownotificationspanel",
+                        "value": true
+                    }
+                ]
             }
         ],
         "macros": [
@@ -223,14 +248,24 @@
                 "type": "boolean",
                 "label": "S93",
                 "value": false,
-                "depend": [{ "id": "showmacrospanel", "value": true }]
+                "depend": [
+                    {
+                        "id": "showmacrospanel",
+                        "value": true
+                    }
+                ]
             },
             {
                 "id": "macros",
                 "type": "list",
                 "sorted": true,
                 "value": [],
-                "depend": [{ "id": "showmacrospanel", "value": true }]
+                "depend": [
+                    {
+                        "id": "showmacrospanel",
+                        "value": true
+                    }
+                ]
             }
         ],
         "extracontents": [
@@ -245,14 +280,44 @@
                 "type": "boolean",
                 "label": "S93",
                 "value": false,
-                "depend": [{ "id": "showextracontents", "value": true }]
+                "depend": [
+                    {
+                        "id": "showextracontents",
+                        "value": true
+                    }
+                ]
             },
             {
                 "id": "extracontents",
                 "type": "list",
                 "sorted": true,
                 "value": [],
-                "depend": [{ "id": "showextracontents", "value": true }]
+                "depend": [
+                    {
+                        "id": "showextracontents",
+                        "value": true
+                    }
+                ]
+            }
+        ],
+        "toolpath": [
+            {
+                "id": "showtoolpathpanel",
+                "type": "boolean",
+                "label": "S63",
+                "value": true
+            },
+            {
+                "id": "opentoolpathonstart",
+                "type": "boolean",
+                "label": "S93",
+                "value": true,
+                "depend": [
+                    {
+                        "id": "showtoolpathpanel",
+                        "value": true
+                    }
+                ]
             }
         ]
     }
