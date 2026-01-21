@@ -15,7 +15,9 @@ export class CanvasRenderer {
         const { width, height } = this.canvas
         const ctx = this.ctx
 
+        // =========================
         // Fondo
+        // =========================
         ctx.fillStyle = COLORS.background
         ctx.fillRect(0, 0, width, height)
 
@@ -55,14 +57,23 @@ export class CanvasRenderer {
         const sizeX = maxX - minX || 1
         const sizeY = maxY - minY || 1
 
-        // Scale correcto para la vista actual
-        const scale = Math.min(width / sizeX, height / sizeY) * 0.9
+        // Scale automático (fit-to-bounds)
+        const scale = Math.min(
+            width / sizeX,
+            height / sizeY
+        ) * 0.9   // margen tipo Mitch
 
-        const offsetX = width / 2
-        const offsetY = height / 2
+        // Centro del bbox proyectado
+        const center2DX = (minX + maxX) / 2
+        const center2DY = (minY + maxY) / 2
+
+        // Offset correcto para centrar el contenido
+        const offsetX = width / 2 - center2DX * scale
+        const offsetY = height / 2 - center2DY * scale
+
 
         // =========================
-        // 🧭 Ejes + origen (UX industrial)
+        // 🧭 Ejes + origen
         // =========================
         if (view.showAxes) {
             this.drawAxes(view, scale, offsetX, offsetY)
@@ -86,8 +97,14 @@ export class CanvasRenderer {
             const a2 = view.projection(a3)
             const b2 = view.projection(b3)
 
-            ctx.strokeStyle =
-                seg.type === "rapid" ? COLORS.rapid : COLORS.feed
+            // 🔹 Estilo según tipo de movimiento
+            if (seg.type === "rapid") {
+                ctx.strokeStyle = COLORS.rapid
+                ctx.setLineDash([6, 4])   // G0 → punteado
+            } else {
+                ctx.strokeStyle = COLORS.feed
+                ctx.setLineDash([])      // G1/G2/G3 → continuo
+            }
 
             ctx.lineWidth = 1.5
 
@@ -96,6 +113,36 @@ export class CanvasRenderer {
             ctx.lineTo(offsetX + b2.x * scale, offsetY + b2.y * scale)
             ctx.stroke()
         }
+
+        // 🔑 Importante: resetear dash para no contaminar ejes/origen
+        ctx.setLineDash([])
+
+        // =========================
+        // 🔵 Tool head (punto actual)
+        // =========================
+        const lastSeg = model.segments[model.segments.length - 1]
+        if (lastSeg) {
+            const p3 = {
+                x: lastSeg.end.x - centerX,
+                y: lastSeg.end.y - centerY,
+                z: lastSeg.end.z - centerZ,
+            }
+
+            const p2 = view.projection(p3)
+
+            const px = offsetX + p2.x * scale
+            const py = offsetY + p2.y * scale
+
+            ctx.fillStyle = COLORS.feed
+            ctx.strokeStyle = "#000"
+            ctx.lineWidth = 1
+
+            ctx.beginPath()
+            ctx.arc(px, py, 4, 0, Math.PI * 2)
+            ctx.fill()
+            ctx.stroke()
+        }
+
     }
 
     // =========================
