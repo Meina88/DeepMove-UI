@@ -12,34 +12,40 @@ import { Eye } from "preact-feather"
 import { useUiContextFn } from "../../contexts"
 
 // Toolpath engine
-import { GCodeParser } from "../Toolpath"
 import { CanvasRenderer } from "../Toolpath"
 import { VIEW_PRESETS } from "../Toolpath/render/ViewPresets"
 
+// 👉 NUEVOS imports (parser modal real)
+import { ToolpathModel } from "../Toolpath/core/ToolpathModel"
+import { ModalInterpreter } from "../Toolpath/core/ModalInterpreter"
+
 // GCode de prueba (FASE 2)
 const TEST_GCODE = `
-G21         
-G90         
-G17       
+G21         ; mm
+G90         ; absoluto
+G17         ; plano XY
 
 G0 Z5
-G0 X5 Y0
+G0 X10 Y0        ; arrancamos después del redondeo
+G1 Z0 F300
 
-G1 Z-1 F200
+; Lado inferior
+G1 X40 Y0 F500
 
-G1 X35 Y0 F400
-G2 X40 Y5 I0 J5
+; Lado derecho
+G1 X40 Y40
 
-G1 X40 Y35
-G2 X35 Y40 I-5 J0
+; Lado superior
+G1 X0 Y40
 
-G1 X5 Y40
-G2 X0 Y35 I0 J-5
+; Lado izquierdo (hasta antes del redondeo)
+G1 X0 Y10
 
-G1 X0 Y5
-G2 X5 Y0 I5 J0
+; 🔵 Arco de redondeo en el vértice (0,0)
+G2 X10 Y0 I10 J0
 
 G0 Z5
+
 `
 
 const ToolpathPanel: FunctionalComponent = () => {
@@ -48,35 +54,38 @@ const ToolpathPanel: FunctionalComponent = () => {
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const rendererRef = useRef<CanvasRenderer | null>(null)
-  const modelRef = useRef<ReturnType<GCodeParser["parse"]> | null>(null)
+  const modelRef = useRef<ToolpathModel | null>(null)
 
   const [viewIndex, setViewIndex] = useState(0)
 
-// Inicialización del toolpath (una sola vez)
-useEffect(() => {
-  const canvas = canvasRef.current
-  if (!canvas) return
+  // 🔹 Inicialización del toolpath (una sola vez)
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
 
-  const parser = new GCodeParser()
-  const model = parser.parse(TEST_GCODE)
-  modelRef.current = model
+    // 👉 Crear modelo + intérprete modal
+    const model = new ToolpathModel()
+    const interpreter = new ModalInterpreter(model)
+    interpreter.parse(TEST_GCODE)
 
-  const renderer = new CanvasRenderer(canvas)
-  rendererRef.current = renderer
+    modelRef.current = model
 
-  // ⚠️ Esperar a que el layout esté 100% resuelto
-  requestAnimationFrame(() => {
+    // Renderer
+    const renderer = new CanvasRenderer(canvas)
+    rendererRef.current = renderer
+
+    // Esperar layout resuelto
     requestAnimationFrame(() => {
-      canvas.width = canvas.clientWidth
-      canvas.height = canvas.clientHeight
+      requestAnimationFrame(() => {
+        canvas.width = canvas.clientWidth
+        canvas.height = canvas.clientHeight
 
-      renderer.render(model, VIEW_PRESETS[viewIndex])
+        renderer.render(model, VIEW_PRESETS[viewIndex])
+      })
     })
-  })
-}, [])
+  }, [])
 
-
-  // Redibujar al cambiar la vista
+  // 🔹 Redibujar al cambiar la vista
   useEffect(() => {
     const canvas = canvasRef.current
     const renderer = rendererRef.current
