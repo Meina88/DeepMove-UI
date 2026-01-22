@@ -11,11 +11,9 @@ import { Menu as PanelMenu } from "./"
 import { Eye } from "preact-feather"
 import { useUiContextFn } from "../../contexts"
 
-// Toolpath engine
 import { CanvasRenderer } from "../Toolpath"
 import { VIEW_PRESETS } from "../Toolpath/render/ViewPresets"
 
-// 👉 Parser modal real
 import { ToolpathModel } from "../Toolpath/core/ToolpathModel"
 import { ModalInterpreter } from "../Toolpath/core/ModalInterpreter"
 
@@ -54,58 +52,85 @@ const ToolpathPanel: FunctionalComponent = () => {
 
   const [viewIndex, setViewIndex] = useState(0)
 
-  // 🎥 Cámara interactiva
-  const [zoom, setZoom] = useState(1)
-  const [pan, setPan] = useState({ x: 0, y: 0 })
+  // 🔵 Toolhead animado
+  const [toolPos, setToolPos] = useState<{ x: number; y: number; z: number } | null>(null)
 
-  // Drag state
-  const dragging = useRef(false)
-  const last = useRef({ x: 0, y: 0 })
+  // ▶️ Play / Pause
+  const [playing, setPlaying] = useState(true)
+  const playingRef = useRef(true)
+  const rafRef = useRef<number | null>(null)
 
-  // 🔹 Inicialización
+  // 🔄 sincronizar state → ref
+  useEffect(() => {
+    playingRef.current = playing
+  }, [playing])
+
+  // 🔹 Init
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
 
     const model = new ToolpathModel()
-    const interpreter = new ModalInterpreter(model)
-    interpreter.parse(TEST_GCODE)
+    new ModalInterpreter(model).parse(TEST_GCODE)
 
     modelRef.current = model
+    rendererRef.current = new CanvasRenderer(canvas)
 
-    const renderer = new CanvasRenderer(canvas)
-    rendererRef.current = renderer
+    canvas.width = canvas.clientWidth
+    canvas.height = canvas.clientHeight
 
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        canvas.width = canvas.clientWidth
-        canvas.height = canvas.clientHeight
-
-        renderer.render(model, VIEW_PRESETS[viewIndex], {
-          zoom,
-          panX: pan.x,
-          panY: pan.y,
-        })
-      })
-    })
+    animateToolhead(model)
   }, [])
 
-  // 🔹 Redibujar
+  // 🔁 Redibujar
   useEffect(() => {
     const canvas = canvasRef.current
     const renderer = rendererRef.current
     const model = modelRef.current
     if (!canvas || !renderer || !model) return
 
-    canvas.width = canvas.clientWidth
-    canvas.height = canvas.clientHeight
+    renderer.render(
+      model,
+      VIEW_PRESETS[viewIndex],
+      undefined,
+      toolPos ?? undefined
+    )
+  }, [viewIndex, toolPos])
 
-    renderer.render(model, VIEW_PRESETS[viewIndex], {
-      zoom,
-      panX: pan.x,
-      panY: pan.y,
-    })
-  }, [viewIndex, zoom, pan])
+  // ▶️ Animación simple del toolhead
+  const animateToolhead = (model: ToolpathModel) => {
+    let segIndex = 0
+    let t = 0
+    const speed = 0.02 // velocidad visual
+
+    const step = () => {
+      // ⏸ PAUSE REAL
+      if (!playingRef.current) {
+        rafRef.current = requestAnimationFrame(step)
+        return
+      }
+
+      const seg = model.segments[segIndex]
+      if (!seg) return
+
+      t += speed
+      if (t >= 1) {
+        t = 0
+        segIndex++
+        if (segIndex >= model.segments.length) return
+      }
+
+      setToolPos({
+        x: seg.start.x + (seg.end.x - seg.start.x) * t,
+        y: seg.start.y + (seg.end.y - seg.start.y) * t,
+        z: seg.start.z + (seg.end.z - seg.start.z) * t,
+      })
+
+      rafRef.current = requestAnimationFrame(step)
+    }
+
+    rafRef.current = requestAnimationFrame(step)
+  }
 
   return (
     <div class="panel panel-dashboard" id={id}>
@@ -119,6 +144,15 @@ const ToolpathPanel: FunctionalComponent = () => {
         </span>
 
         <span class="navbar-section">
+          {/* ▶️ Play / Pause */}
+          <button
+            class="btn btn-link"
+            title={playing ? "Pause" : "Play"}
+            onClick={() => setPlaying(p => !p)}
+          >
+            {playing ? "⏸" : "▶"}
+          </button>
+
           <PanelMenu items={[]} />
           <FullScreenButton elementId={id} />
           <CloseButton elementId={id} hideOnFullScreen />
@@ -134,30 +168,11 @@ const ToolpathPanel: FunctionalComponent = () => {
             height: "100%",
             background: "#111",
             borderRadius: "6px",
-            cursor: dragging.current ? "grabbing" : "grab",
           }}
-          title="Wheel = zoom | Drag = pan | Click = change view"
+          title="Click to change view"
           onClick={() =>
-            setViewIndex((v) => (v + 1) % VIEW_PRESETS.length)
+            setViewIndex(v => (v + 1) % VIEW_PRESETS.length)
           }
-          onWheel={(e) => {
-            e.preventDefault()
-            const factor = e.deltaY < 0 ? 1.1 : 0.9
-            setZoom(z => Math.min(10, Math.max(0.2, z * factor)))
-          }}
-          onPointerDown={(e) => {
-            dragging.current = true
-            last.current = { x: e.clientX, y: e.clientY }
-          }}
-          onPointerMove={(e) => {
-            if (!dragging.current) return
-            const dx = e.clientX - last.current.x
-            const dy = e.clientY - last.current.y
-            last.current = { x: e.clientX, y: e.clientY }
-            setPan(p => ({ x: p.x + dx, y: p.y + dy }))
-          }}
-          onPointerUp={() => (dragging.current = false)}
-          onPointerLeave={() => (dragging.current = false)}
         />
       </div>
     </div>

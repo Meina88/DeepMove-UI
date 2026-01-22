@@ -11,15 +11,19 @@ export class CanvasRenderer {
         this.ctx = ctx
     }
 
-    render(
-    model: ToolpathModel,
-    view: ViewPreset,
-    camera?: {
-        zoom: number
-        panX: number
-        panY: number
-    }
-) {
+render(
+  model: ToolpathModel,
+  view: ViewPreset,
+  camera?: {
+    zoom: number
+    panX: number
+    panY: number
+  },
+  toolPos?: { x: number; y: number; z: number }
+)
+
+
+{
 
         const { width, height } = this.canvas
         const ctx = this.ctx
@@ -125,31 +129,33 @@ const offsetY =
 
         ctx.setLineDash([])
 
-        // =========================
-        // 🔵 Toolhead
-        // =========================
-        const lastSeg = model.segments[model.segments.length - 1]
-        if (lastSeg) {
-            const p3 = {
-                x: lastSeg.end.x - centerX,
-                y: lastSeg.end.y - centerY,
-                z: lastSeg.end.z - centerZ,
-            }
+// =========================
+// 🔵 Toolhead animado
+// =========================
+if (toolPos) {
+  const p3 = {
+    x: toolPos.x - centerX,
+    y: toolPos.y - centerY,
+    z: toolPos.z - centerZ,
+  }
 
-            const p2 = view.projection(p3)
-            const px = offsetX + p2.x * scale
-            const py = offsetY + p2.y * scale
+  const p2 = view.projection(p3)
 
-            ctx.fillStyle = COLORS.tool
-            ctx.shadowColor = COLORS.toolGlow
-            ctx.shadowBlur = 8
+  const px = offsetX + p2.x * scale
+  const py = offsetY + p2.y * scale
 
-            ctx.beginPath()
-            ctx.arc(px, py, 4, 0, Math.PI * 2)
-            ctx.fill()
+  ctx.fillStyle = COLORS.tool
+  ctx.shadowColor = COLORS.toolGlow
+  ctx.shadowBlur = 8
 
-            ctx.shadowBlur = 0
-        }
+  ctx.beginPath()
+  ctx.arc(px, py, 4, 0, Math.PI * 2)
+  ctx.fill()
+
+  ctx.shadowBlur = 0
+}
+
+
     }
 
     private drawAxes(
