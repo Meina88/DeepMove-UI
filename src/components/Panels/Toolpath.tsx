@@ -58,9 +58,13 @@ const ToolpathPanel: FunctionalComponent = () => {
   // ▶️ Play / Pause
   const [playing, setPlaying] = useState(true)
   const playingRef = useRef(true)
+
+  // ⏩ Velocidad (factor visual)
+  const speedRef = useRef(1) // 1x = normal
+
   const rafRef = useRef<number | null>(null)
 
-  // 🔄 sincronizar state → ref
+  // 🔄 sync state → ref
   useEffect(() => {
     playingRef.current = playing
   }, [playing])
@@ -82,12 +86,11 @@ const ToolpathPanel: FunctionalComponent = () => {
     animateToolhead(model)
   }, [])
 
-  // 🔁 Redibujar
+  // 🔁 Redraw
   useEffect(() => {
-    const canvas = canvasRef.current
     const renderer = rendererRef.current
     const model = modelRef.current
-    if (!canvas || !renderer || !model) return
+    if (!renderer || !model) return
 
     renderer.render(
       model,
@@ -97,40 +100,46 @@ const ToolpathPanel: FunctionalComponent = () => {
     )
   }, [viewIndex, toolPos])
 
-  // ▶️ Animación simple del toolhead
+  // ▶️ Animación del toolhead
   const animateToolhead = (model: ToolpathModel) => {
-    let segIndex = 0
-    let t = 0
-    const speed = 0.02 // velocidad visual
+  let segIndex = 0
+  let t = 0
+  const baseSpeed = 0.02 // velocidad base
 
-    const step = () => {
-      // ⏸ PAUSE REAL
-      if (!playingRef.current) {
-        rafRef.current = requestAnimationFrame(step)
-        return
-      }
-
-      const seg = model.segments[segIndex]
-      if (!seg) return
-
-      t += speed
-      if (t >= 1) {
-        t = 0
-        segIndex++
-        if (segIndex >= model.segments.length) return
-      }
-
-      setToolPos({
-        x: seg.start.x + (seg.end.x - seg.start.x) * t,
-        y: seg.start.y + (seg.end.y - seg.start.y) * t,
-        z: seg.start.z + (seg.end.z - seg.start.z) * t,
-      })
-
+  const step = () => {
+    // ⏸ Pause real
+    if (!playingRef.current) {
       rafRef.current = requestAnimationFrame(step)
+      return
     }
+
+    const seg = model.segments[segIndex]
+    if (!seg) return
+
+    t += baseSpeed * speedRef.current
+
+    // 🚫 NO renderizar este frame
+    if (t >= 1) {
+      t = 0
+      segIndex++
+      if (segIndex >= model.segments.length) return
+      rafRef.current = requestAnimationFrame(step)
+      return
+    }
+
+    // ✅ Render solo con t válido
+    setToolPos({
+      x: seg.start.x + (seg.end.x - seg.start.x) * t,
+      y: seg.start.y + (seg.end.y - seg.start.y) * t,
+      z: seg.start.z + (seg.end.z - seg.start.z) * t,
+    })
 
     rafRef.current = requestAnimationFrame(step)
   }
+
+  rafRef.current = requestAnimationFrame(step)
+}
+
 
   return (
     <div class="panel panel-dashboard" id={id}>
@@ -151,6 +160,39 @@ const ToolpathPanel: FunctionalComponent = () => {
             onClick={() => setPlaying(p => !p)}
           >
             {playing ? "⏸" : "▶"}
+          </button>
+
+          {/* ➖ Velocidad */}
+          <button
+            class="btn btn-link"
+            title="Slower"
+            onClick={() => {
+              speedRef.current = Math.max(0.25, speedRef.current / 1.25)
+            }}
+          >
+            −
+          </button>
+
+          <span
+            style={{
+              minWidth: 36,
+              textAlign: "center",
+              fontSize: "0.8em",
+              opacity: 0.8,
+            }}
+          >
+            {speedRef.current.toFixed(2)}x
+          </span>
+
+          {/* ➕ Velocidad */}
+          <button
+            class="btn btn-link"
+            title="Faster"
+            onClick={() => {
+              speedRef.current = Math.min(4, speedRef.current * 1.25)
+            }}
+          >
+            +
           </button>
 
           <PanelMenu items={[]} />
