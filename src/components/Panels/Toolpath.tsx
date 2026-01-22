@@ -21,30 +21,65 @@ import { ModalInterpreter } from "../Toolpath/core/ModalInterpreter"
 
 // GCode de prueba (FASE 2)
 const TEST_GCODE = `
+; =========================
+; TEST TOOLPATH – FASE 1
+; G17 / G18 / G19 + G92
+; =========================
+
 G21         ; mm
 G90         ; absoluto
-G17         ; plano XY
 
-G0 Z5
-G0 X10 Y0        ; arrancamos después del redondeo
+; -------------------------
+; Plano XY (G17)
+; -------------------------
+G17
+G0 X0 Y0 Z5
 G1 Z0 F300
 
-; Lado inferior
-G1 X40 Y0 F500
-
-; Lado derecho
+; cuadrado base
+G1 X40 Y0 F600
 G1 X40 Y40
+G1 X0  Y40
+G1 X0  Y10
 
-; Lado superior
-G1 X0 Y40
-
-; Lado izquierdo (hasta antes del redondeo)
-G1 X0 Y10
-
-; 🔵 Arco de redondeo en el vértice (0,0)
-G2 X10 Y0 I10 J0
+; arco CCW en XY
+G3 X10 Y0 I10 J0
 
 G0 Z5
+
+; -------------------------
+; G92 (nuevo cero visual)
+; -------------------------
+G92 X0 Y0 Z0
+
+; -------------------------
+; Plano XZ (G18)
+; -------------------------
+G18
+G0 X0 Z5 Y20
+G1 Z0 F300
+
+; arco CW en XZ
+G2 X20 Z-10 I10 K0
+
+G0 Z5
+
+; -------------------------
+; Cancelar G92
+; -------------------------
+G92.1
+
+; -------------------------
+; Plano YZ (G19)
+; -------------------------
+G19
+G0 Y0 Z5 X60
+G1 Z0 F300
+
+; arco CCW en YZ
+G3 Y20 Z-10 J10 K0
+
+G0 Z10
 
 `
 

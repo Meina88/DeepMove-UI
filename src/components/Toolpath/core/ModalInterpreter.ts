@@ -4,22 +4,13 @@
 
 import { ToolpathModel } from "./ToolpathModel"
 import type { Point3D, SegmentType } from "../types/toolpath.types"
+import type { ModalState } from "./ModalState"
 
 // 10° como en tu parser actual (estilo Mitch)
 const ARC_STEP_ANGLE = Math.PI / 18
 
-type UnitsMode = "mm" | "inch"
-type DistanceMode = "absolute" | "incremental"
 type PlaneMode = "G17" | "G18" | "G19"
 type MotionMode = "G0" | "G1" | "G2" | "G3"
-
-export interface ModalState {
-    motion: MotionMode
-    plane: PlaneMode
-    units: UnitsMode
-    distance: DistanceMode
-}
-
 type WordMap = Record<string, number | undefined>
 
 const in2mm = (v: number) => v * 25.4
@@ -37,28 +28,32 @@ function isFiniteNumber(v: any): v is number {
     return typeof v === "number" && Number.isFinite(v)
 }
 
+/**
+ * Mapeo de ejes del plano:
+ *  - a,b: ejes del plano del arco
+ *  - c: eje perpendicular (helicoide)
+ *  - i,j: letras de offset del centro según plano
+ */
 type PlaneAxes = {
     a: keyof Point3D
     b: keyof Point3D
     c: keyof Point3D
     i: "I" | "J" | "K"
     j: "I" | "J" | "K"
-    k: "I" | "J" | "K"
 }
 
 export class ModalInterpreter {
     private model: ToolpathModel
 
-    private pos: Point3D = { x: 0, y: 0, z: 0 }
-
-    // Offset G92 (como Mitch)
-    private g92offset: Point3D = { x: 0, y: 0, z: 0 }
+    // Posición real (machine space interno para el intérprete)
+    private machinePos: Point3D = { x: 0, y: 0, z: 0 }
 
     private modal: ModalState = {
         motion: "G0",
         plane: "G17",
         units: "mm",
         distance: "absolute",
+        g92Offset: { x: 0, y: 0, z: 0 },
     }
 
     constructor(model: ToolpathModel) {
@@ -66,13 +61,13 @@ export class ModalInterpreter {
     }
 
     reset() {
-        this.pos = { x: 0, y: 0, z: 0 }
-        this.g92offset = { x: 0, y: 0, z: 0 }
+        this.machinePos = { x: 0, y: 0, z: 0 }
         this.modal = {
             motion: "G0",
             plane: "G17",
             units: "mm",
             distance: "absolute",
+            g92Offset: { x: 0, y: 0, z: 0 },
         }
     }
 
@@ -98,12 +93,12 @@ export class ModalInterpreter {
         this.applyModalChanges(words)
 
         // 2) comandos especiales (G92 / G92.1)
-        if (this.hasGCode(words, 92)) {
-            this.handleG92(words)
-            return
-        }
         if (this.hasGCode(words, 92.1)) {
             this.cancelG92()
+            return
+        }
+        if (this.hasGCode(words, 92)) {
+            this.handleG92(words)
             return
         }
 
@@ -111,15 +106,15 @@ export class ModalInterpreter {
         const hasXYZ =
             words.X !== undefined || words.Y !== undefined || words.Z !== undefined
 
-        const isArc =
-            this.modal.motion === "G2" || this.modal.motion === "G3"
+        const isArc = this.modal.motion === "G2" || this.modal.motion === "G3"
 
-        // ✅ IMPORTANTE: incluir K porque en G18/G19 se usa
+        // incluir I/J/K/R para que el arco exista aunque no venga X/Y/Z explícito
         const hasArcParams =
             words.I !== undefined ||
             words.J !== undefined ||
             words.K !== undefined ||
-            words.R !== undefined
+            words.R !== undefined ||
+            words.P !== undefined
 
         if (!hasXYZ && !(isArc && hasArcParams)) {
             // línea sin geometría (puede ser solo modal)
@@ -132,20 +127,16 @@ export class ModalInterpreter {
         }
 
         if (this.modal.motion === "G2" || this.modal.motion === "G3") {
-            // ✅ ahora soporta G17/G18/G19 dentro de handleArcMove
             this.handleArcMove(words)
             return
         }
-
-        // Si llegara algo raro, ignoramos
     }
 
     // ---------------------------
     // Tokenizer simple (words tipo X12.3, G38.2, etc.)
     // ---------------------------
     private tokenize(line: string): WordMap | null {
-        // separa por espacios, pero también soporta "G1X10Y10" (sin espacios)
-        // => partimos por bloques letra+numero
+        // Soporta "G1X10Y10" y con espacios
         const matches = line.match(/[A-Za-z][+\-]?\d*\.?\d+/g)
         if (!matches || matches.length === 0) return null
 
@@ -184,57 +175,59 @@ export class ModalInterpreter {
         }
     }
 
+    // ---------------------------
+    // Moves
+    // ---------------------------
     private handleLineMove(words: WordMap) {
-        const start = { ...this.pos }
+        const start = { ...this.machinePos }
         const end: Point3D = {
-            x: this.translateAxis(this.pos.x, words.X),
-            y: this.translateAxis(this.pos.y, words.Y),
-            z: this.translateAxis(this.pos.z, words.Z),
+            x: this.resolveAxis(this.machinePos.x, words.X),
+            y: this.resolveAxis(this.machinePos.y, words.Y),
+            z: this.resolveAxis(this.machinePos.z, words.Z),
         }
 
         const type: SegmentType = this.modal.motion === "G0" ? "rapid" : "feed"
         this.addLineWithG92(start, end, type)
-        this.pos = end
+
+        this.machinePos = end
     }
 
     private handleArcMove(words: WordMap) {
         const clockwise = this.modal.motion === "G2"
-        const axes = this.getPlaneAxes()
+        const axes = this.getPlaneAxes(this.modal.plane)
 
-        const start = { ...this.pos }
-
+        const start = { ...this.machinePos }
         const end: Point3D = {
-            x: this.translateAxis(this.pos.x, words.X),
-            y: this.translateAxis(this.pos.y, words.Y),
-            z: this.translateAxis(this.pos.z, words.Z),
+            x: this.resolveAxis(this.machinePos.x, words.X),
+            y: this.resolveAxis(this.machinePos.y, words.Y),
+            z: this.resolveAxis(this.machinePos.z, words.Z),
         }
 
         // Proyección al plano 2D activo
-        const p0 = {
-            x: start[axes.a],
-            y: start[axes.b],
-        }
-        const p1 = {
-            x: end[axes.a],
-            y: end[axes.b],
-        }
+        const p0 = { x: start[axes.a], y: start[axes.b] }
+        const p1 = { x: end[axes.a], y: end[axes.b] }
 
-        // Centro del arco
+        // Centro del arco (2D en el plano activo)
         let center: { x: number; y: number } | null = null
 
-        // I/J/K relativos según plano (estilo Mitch)
-        if (words[axes.i] !== undefined || words[axes.j] !== undefined) {
-            const ci = this.toMM(words[axes.i] ?? 0)
-            const cj = this.toMM(words[axes.j] ?? 0)
-            center = { x: p0.x + ci, y: p0.y + cj }
+        // I/J/K relativos según plano (IJK siempre incremental por defecto: G91.1)
+        // Si falta uno de los offsets, se asume 0.
+        const offI = this.toMM(words[axes.i] ?? 0)
+        const offJ = this.toMM(words[axes.j] ?? 0)
+
+        const hasIJK =
+            words[axes.i] !== undefined || words[axes.j] !== undefined
+
+        if (hasIJK) {
+            center = { x: p0.x + offI, y: p0.y + offJ }
         } else if (words.R !== undefined) {
             center = this.computeCenterFromR(p0, p1, this.toMM(words.R), clockwise)
         }
 
         if (!center) {
-            // Fallback seguro: línea
+            // Fallback seguro: si no podemos resolver el arco, lo dibujamos como línea
             this.addLineWithG92(start, end, "feed")
-            this.pos = end
+            this.machinePos = end
             return
         }
 
@@ -259,58 +252,52 @@ export class ModalInterpreter {
             prev = next
         }
 
-        this.pos = end
+        this.machinePos = end
     }
 
     // ---------------------------
-    // G92 / G92.1 (como Mitch)
+    // G92 / G92.1 (modelo correcto)
+    // machinePos + g92Offset = visualPos
     // ---------------------------
     private handleG92(words: WordMap) {
         const hasXYZ = words.X !== undefined || words.Y !== undefined || words.Z !== undefined
+
+        // Mitch-style: G92 sin ejes => cancelar offsets actuales
         if (!hasXYZ) {
-            this.pos = {
-                x: this.pos.x + this.g92offset.x,
-                y: this.pos.y + this.g92offset.y,
-                z: this.pos.z + this.g92offset.z,
-            }
-            this.g92offset = { x: 0, y: 0, z: 0 }
+            this.cancelG92()
             return
         }
 
+        // Para cada eje especificado:
+        // visual = (machinePos + offset) debe pasar a ser valor dado (en mm)
+        // => offset = newVisual - machinePos
         if (words.X !== undefined) {
-            const xmm = this.toMM(words.X)
-            this.g92offset.x += this.pos.x - xmm
-            this.pos.x = xmm
+            const newVisualX = this.toMM(words.X)
+            this.modal.g92Offset.x = newVisualX - this.machinePos.x
         }
         if (words.Y !== undefined) {
-            const ymm = this.toMM(words.Y)
-            this.g92offset.y += this.pos.y - ymm
-            this.pos.y = ymm
+            const newVisualY = this.toMM(words.Y)
+            this.modal.g92Offset.y = newVisualY - this.machinePos.y
         }
         if (words.Z !== undefined) {
-            const zmm = this.toMM(words.Z)
-            this.g92offset.z += this.pos.z - zmm
-            this.pos.z = zmm
+            const newVisualZ = this.toMM(words.Z)
+            this.modal.g92Offset.z = newVisualZ - this.machinePos.z
         }
     }
 
     private cancelG92() {
-        this.pos = {
-            x: this.pos.x + this.g92offset.x,
-            y: this.pos.y + this.g92offset.y,
-            z: this.pos.z + this.g92offset.z,
-        }
-        this.g92offset = { x: 0, y: 0, z: 0 }
+        this.modal.g92Offset = { x: 0, y: 0, z: 0 }
     }
 
     // ---------------------------
-    // Helpers de traducción / unidades / modal distance
+    // Helpers: unidades / distancia
     // ---------------------------
     private toMM(v: number): number {
         return this.modal.units === "inch" ? in2mm(v) : v
     }
 
-    private translateAxis(current: number, raw: number | undefined): number {
+    /** Resuelve un eje con G90/G91 centralizado */
+    private resolveAxis(current: number, raw: number | undefined): number {
         if (!isFiniteNumber(raw)) return current
         const vmm = this.toMM(raw)
         return this.modal.distance === "incremental" ? current + vmm : vmm
@@ -324,9 +311,9 @@ export class ModalInterpreter {
 
     private applyG92(p: Point3D): Point3D {
         return {
-            x: p.x + this.g92offset.x,
-            y: p.y + this.g92offset.y,
-            z: p.z + this.g92offset.z,
+            x: p.x + this.modal.g92Offset.x,
+            y: p.y + this.modal.g92Offset.y,
+            z: p.z + this.modal.g92Offset.z,
         }
     }
 
@@ -343,18 +330,24 @@ export class ModalInterpreter {
         return `G${code}`
     }
 
-    // Mapeo de ejes según plano activo (estilo Mitch)
-    private getPlaneAxes(): PlaneAxes {
-        switch (this.modal.plane) {
-            case "G17": // XY
-                return { a: "x", b: "y", c: "z", i: "I", j: "J", k: "K" }
-            case "G18": // XZ
-                return { a: "x", b: "z", c: "y", i: "I", j: "K", k: "J" }
-            case "G19": // YZ
-                return { a: "y", b: "z", c: "x", i: "J", j: "K", k: "I" }
+    // Mapeo de ejes según plano activo (fase 1 correcto)
+    private getPlaneAxes(plane: PlaneMode): PlaneAxes {
+        switch (plane) {
+            case "G17": // XY (I,J)
+                return { a: "x", b: "y", c: "z", i: "I", j: "J" }
+            case "G18": // XZ (I,K)
+                return { a: "x", b: "z", c: "y", i: "I", j: "K" }
+            case "G19": // YZ (J,K)
+                return { a: "y", b: "z", c: "x", i: "J", j: "K" }
         }
     }
 
+    /**
+     * Resolver centro con R (radius).
+     * Devuelve uno de los dos centros posibles según:
+     * - sentido CW/CCW
+     * - signo de R (R<0 suele forzar arco mayor)
+     */
     private computeCenterFromR(
         p0: { x: number; y: number },
         p1: { x: number; y: number },
@@ -364,13 +357,16 @@ export class ModalInterpreter {
         const dx = p1.x - p0.x
         const dy = p1.y - p0.y
         const d = Math.hypot(dx, dy)
-        if (d < 1e-6) return null
+        if (d < 1e-9) return null
 
         const rr = Math.abs(r)
         const h2 = 4 * rr * rr - d * d
         if (h2 < 0) return null
 
         let h = Math.sqrt(h2) / 2
+
+        // Selección del lado (dos centros posibles)
+        // Convención típica: invertir según CW/CCW y signo de R
         if (clockwise) h = -h
         if (r < 0) h = -h
 
@@ -399,20 +395,22 @@ export class ModalInterpreter {
         const a0 = Math.atan2(start.y - center.y, start.x - center.x)
         const a1 = Math.atan2(end.y - center.y, end.x - center.x)
 
+        // Delta base (sin forzar "arco corto": eso invertía arcos reales)
         let delta = a1 - a0
 
         if (clockwise) {
+            // Queremos barrer en sentido horario: delta debe ser <= 0
             if (delta > 0) delta -= Math.PI * 2
         } else {
+            // CCW: delta debe ser >= 0
             if (delta < 0) delta += Math.PI * 2
         }
 
-        // arco corto (evita inversión)
-        if (delta > Math.PI) delta -= Math.PI * 2
-        if (delta < -Math.PI) delta += Math.PI * 2
-
+        // Vueltas completas (P)
         const turns = Math.max(1, Math.floor(P ?? 1))
-        delta += (clockwise ? -1 : 1) * Math.PI * 2 * (turns - 1)
+        if (turns > 1) {
+            delta += (clockwise ? -1 : 1) * Math.PI * 2 * (turns - 1)
+        }
 
         const steps = Math.max(2, Math.ceil(Math.abs(delta) / ARC_STEP_ANGLE))
         const r = Math.hypot(start.x - center.x, start.y - center.y)
@@ -427,7 +425,4 @@ export class ModalInterpreter {
 
         return points
     }
-
-    // --- (opcional) tus funciones viejas XY quedaron afuera ---
-    // computeArcCenterXY / approximateArcXY no se usan ya.
 }
