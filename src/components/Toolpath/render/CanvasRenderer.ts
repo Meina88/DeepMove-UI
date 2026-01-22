@@ -11,7 +11,16 @@ export class CanvasRenderer {
         this.ctx = ctx
     }
 
-    render(model: ToolpathModel, view: ViewPreset) {
+    render(
+    model: ToolpathModel,
+    view: ViewPreset,
+    camera?: {
+        zoom: number
+        panX: number
+        panY: number
+    }
+) {
+
         const { width, height } = this.canvas
         const ctx = this.ctx
 
@@ -52,14 +61,23 @@ export class CanvasRenderer {
 
         const sizeX = maxX - minX || 1
         const sizeY = maxY - minY || 1
+        
+const baseScale = Math.min(width / sizeX, height / sizeY) * 0.9
+const scale = baseScale * (camera?.zoom ?? 1)
 
-        const scale = Math.min(width / sizeX, height / sizeY) * 0.9
 
         const center2DX = (minX + maxX) / 2
         const center2DY = (minY + maxY) / 2
 
-        const offsetX = width / 2 - center2DX * scale
-        const offsetY = height / 2 - center2DY * scale
+const zoom = camera?.zoom ?? 1
+const panX = camera?.panX ?? 0
+const panY = camera?.panY ?? 0
+
+const offsetX =
+    width / 2 - center2DX * scale * zoom + panX
+const offsetY =
+    height / 2 - center2DY * scale * zoom + panY
+
 
         ctx.lineCap = "round"
         ctx.lineJoin = "round"

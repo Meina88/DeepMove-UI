@@ -15,11 +15,11 @@ import { useUiContextFn } from "../../contexts"
 import { CanvasRenderer } from "../Toolpath"
 import { VIEW_PRESETS } from "../Toolpath/render/ViewPresets"
 
-// 👉 NUEVOS imports (parser modal real)
+// 👉 Parser modal real
 import { ToolpathModel } from "../Toolpath/core/ToolpathModel"
 import { ModalInterpreter } from "../Toolpath/core/ModalInterpreter"
 
-// GCode de prueba (FASE 2)
+// GCode de prueba
 const TEST_GCODE = `
 G21
 G90
@@ -42,8 +42,6 @@ G2 X0 Y0 I0 J-20
 
 G0 Z10
 M30
-
-
 `
 
 const ToolpathPanel: FunctionalComponent = () => {
@@ -56,46 +54,58 @@ const ToolpathPanel: FunctionalComponent = () => {
 
   const [viewIndex, setViewIndex] = useState(0)
 
-  // 🔹 Inicialización del toolpath (una sola vez)
+  // 🎥 Cámara interactiva
+  const [zoom, setZoom] = useState(1)
+  const [pan, setPan] = useState({ x: 0, y: 0 })
+
+  // Drag state
+  const dragging = useRef(false)
+  const last = useRef({ x: 0, y: 0 })
+
+  // 🔹 Inicialización
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
 
-    // 👉 Crear modelo + intérprete modal
     const model = new ToolpathModel()
     const interpreter = new ModalInterpreter(model)
     interpreter.parse(TEST_GCODE)
 
     modelRef.current = model
 
-    // Renderer
     const renderer = new CanvasRenderer(canvas)
     rendererRef.current = renderer
 
-    // Esperar layout resuelto
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         canvas.width = canvas.clientWidth
         canvas.height = canvas.clientHeight
 
-        renderer.render(model, VIEW_PRESETS[viewIndex])
+        renderer.render(model, VIEW_PRESETS[viewIndex], {
+          zoom,
+          panX: pan.x,
+          panY: pan.y,
+        })
       })
     })
   }, [])
 
-  // 🔹 Redibujar al cambiar la vista
+  // 🔹 Redibujar
   useEffect(() => {
     const canvas = canvasRef.current
     const renderer = rendererRef.current
     const model = modelRef.current
-
     if (!canvas || !renderer || !model) return
 
     canvas.width = canvas.clientWidth
     canvas.height = canvas.clientHeight
 
-    renderer.render(model, VIEW_PRESETS[viewIndex])
-  }, [viewIndex])
+    renderer.render(model, VIEW_PRESETS[viewIndex], {
+      zoom,
+      panX: pan.x,
+      panY: pan.y,
+    })
+  }, [viewIndex, zoom, pan])
 
   return (
     <div class="panel panel-dashboard" id={id}>
@@ -124,12 +134,30 @@ const ToolpathPanel: FunctionalComponent = () => {
             height: "100%",
             background: "#111",
             borderRadius: "6px",
-            cursor: "pointer",
+            cursor: dragging.current ? "grabbing" : "grab",
           }}
-          title="Tap to change view"
+          title="Wheel = zoom | Drag = pan | Click = change view"
           onClick={() =>
             setViewIndex((v) => (v + 1) % VIEW_PRESETS.length)
           }
+          onWheel={(e) => {
+            e.preventDefault()
+            const factor = e.deltaY < 0 ? 1.1 : 0.9
+            setZoom(z => Math.min(10, Math.max(0.2, z * factor)))
+          }}
+          onPointerDown={(e) => {
+            dragging.current = true
+            last.current = { x: e.clientX, y: e.clientY }
+          }}
+          onPointerMove={(e) => {
+            if (!dragging.current) return
+            const dx = e.clientX - last.current.x
+            const dy = e.clientY - last.current.y
+            last.current = { x: e.clientX, y: e.clientY }
+            setPan(p => ({ x: p.x + dx, y: p.y + dy }))
+          }}
+          onPointerUp={() => (dragging.current = false)}
+          onPointerLeave={() => (dragging.current = false)}
         />
       </div>
     </div>
