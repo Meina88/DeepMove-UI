@@ -11,20 +11,17 @@ export class CanvasRenderer {
         this.ctx = ctx
     }
 
-render(
-  model: ToolpathModel,
-  view: ViewPreset,
-  camera?: {
-    zoom: number
-    panX: number
-    panY: number
-  },
-  toolPos?: { x: number; y: number; z: number }
-)
-
-
-{
-
+    render(
+        model: ToolpathModel,
+        view: ViewPreset,
+        camera?: {
+            zoom: number
+            panX: number
+            panY: number
+        },
+        toolPos?: { x: number; y: number; z: number },
+        completedSegments: number = 0
+    ) {
         const { width, height } = this.canvas
         const ctx = this.ctx
 
@@ -65,23 +62,19 @@ render(
 
         const sizeX = maxX - minX || 1
         const sizeY = maxY - minY || 1
-        
-const baseScale = Math.min(width / sizeX, height / sizeY) * 0.9
-const scale = baseScale * (camera?.zoom ?? 1)
 
+        const baseScale = Math.min(width / sizeX, height / sizeY) * 0.9
+        const zoom = camera?.zoom ?? 1
+        const scale = baseScale * zoom
 
         const center2DX = (minX + maxX) / 2
         const center2DY = (minY + maxY) / 2
 
-const zoom = camera?.zoom ?? 1
-const panX = camera?.panX ?? 0
-const panY = camera?.panY ?? 0
+        const panX = camera?.panX ?? 0
+        const panY = camera?.panY ?? 0
 
-const offsetX =
-    width / 2 - center2DX * scale * zoom + panX
-const offsetY =
-    height / 2 - center2DY * scale * zoom + panY
-
+        const offsetX = width / 2 - center2DX * scale + panX
+        const offsetY = height / 2 - center2DY * scale + panY
 
         ctx.lineCap = "round"
         ctx.lineJoin = "round"
@@ -94,9 +87,9 @@ const offsetY =
         }
 
         // =========================
-        // Toolpath
+        // Toolpath con progreso
         // =========================
-        for (const seg of model.segments) {
+        model.segments.forEach((seg, index) => {
             const a3 = {
                 x: seg.start.x - centerX,
                 y: seg.start.y - centerY,
@@ -111,7 +104,13 @@ const offsetY =
             const a2 = view.projection(a3)
             const b2 = view.projection(b3)
 
-            if (seg.type === "rapid") {
+            const isCompleted = index < completedSegments
+
+            if (isCompleted) {
+                ctx.strokeStyle = COLORS.completed
+                ctx.setLineDash([])
+                ctx.lineWidth = 2.4
+            } else if (seg.type === "rapid") {
                 ctx.strokeStyle = COLORS.rapid
                 ctx.setLineDash([5, 4])
                 ctx.lineWidth = 1
@@ -125,37 +124,35 @@ const offsetY =
             ctx.moveTo(offsetX + a2.x * scale, offsetY + a2.y * scale)
             ctx.lineTo(offsetX + b2.x * scale, offsetY + b2.y * scale)
             ctx.stroke()
-        }
+        })
 
         ctx.setLineDash([])
 
-// =========================
-// 🔵 Toolhead animado
-// =========================
-if (toolPos) {
-  const p3 = {
-    x: toolPos.x - centerX,
-    y: toolPos.y - centerY,
-    z: toolPos.z - centerZ,
-  }
+        // =========================
+        // 🔵 Toolhead
+        // =========================
+        if (toolPos) {
+            const p3 = {
+                x: toolPos.x - centerX,
+                y: toolPos.y - centerY,
+                z: toolPos.z - centerZ,
+            }
 
-  const p2 = view.projection(p3)
+            const p2 = view.projection(p3)
 
-  const px = offsetX + p2.x * scale
-  const py = offsetY + p2.y * scale
+            const px = offsetX + p2.x * scale
+            const py = offsetY + p2.y * scale
 
-  ctx.fillStyle = COLORS.tool
-  ctx.shadowColor = COLORS.toolGlow
-  ctx.shadowBlur = 8
+            ctx.fillStyle = COLORS.tool
+            ctx.shadowColor = COLORS.toolGlow
+            ctx.shadowBlur = 8
 
-  ctx.beginPath()
-  ctx.arc(px, py, 4, 0, Math.PI * 2)
-  ctx.fill()
+            ctx.beginPath()
+            ctx.arc(px, py, 4, 0, Math.PI * 2)
+            ctx.fill()
 
-  ctx.shadowBlur = 0
-}
-
-
+            ctx.shadowBlur = 0
+        }
     }
 
     private drawAxes(

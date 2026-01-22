@@ -52,19 +52,27 @@ const ToolpathPanel: FunctionalComponent = () => {
 
   const [viewIndex, setViewIndex] = useState(0)
 
-  // 🔵 Toolhead animado
+  // 🔵 Toolhead
   const [toolPos, setToolPos] = useState<{ x: number; y: number; z: number } | null>(null)
 
   // ▶️ Play / Pause
   const [playing, setPlaying] = useState(true)
   const playingRef = useRef(true)
 
-  // ⏩ Velocidad (factor visual)
-  const speedRef = useRef(1) // 1x = normal
+  // ⏩ Velocidad visual
+  const speedRef = useRef(1)
 
+  // RAF
   const rafRef = useRef<number | null>(null)
 
-  // 🔄 sync state → ref
+  // Estado interno de animación
+  const segIndexRef = useRef(0)
+  const tRef = useRef(0)
+
+  // 🟦 Progreso de segmentos completados
+  const completedSegRef = useRef<number>(-1)
+
+  // sync state → ref
   useEffect(() => {
     playingRef.current = playing
   }, [playing])
@@ -83,69 +91,99 @@ const ToolpathPanel: FunctionalComponent = () => {
     canvas.width = canvas.clientWidth
     canvas.height = canvas.clientHeight
 
+    const first = model.segments[0]
+    if (first) setToolPos({ ...first.start })
+
     animateToolhead(model)
   }, [])
 
   // 🔁 Redraw
-  useEffect(() => {
-    const renderer = rendererRef.current
-    const model = modelRef.current
-    if (!renderer || !model) return
+useEffect(() => {
+  const renderer = rendererRef.current
+  const model = modelRef.current
+  if (!renderer || !model) return
 
-    renderer.render(
-      model,
-      VIEW_PRESETS[viewIndex],
-      undefined,
-      toolPos ?? undefined
-    )
-  }, [viewIndex, toolPos])
+  renderer.render(
+    model,
+    VIEW_PRESETS[viewIndex],
+    undefined,                      // 👈 camera (todavía no usás zoom/pan acá)
+    toolPos ?? undefined,           // 👈 toolhead
+    completedSegRef.current + 1     // 👈 segmentos completados
+  )
+}, [viewIndex, toolPos])
 
-  // ▶️ Animación del toolhead
+
+  // ▶️ Animación
   const animateToolhead = (model: ToolpathModel) => {
-  let segIndex = 0
-  let t = 0
-  const baseSpeed = 0.02 // velocidad base
+    const baseSpeed = 0.02
 
-  const step = () => {
-    // ⏸ Pause real
-    if (!playingRef.current) {
+    const step = () => {
+      if (!playingRef.current) {
+        rafRef.current = requestAnimationFrame(step)
+        return
+      }
+
+      const seg = model.segments[segIndexRef.current]
+      if (!seg) return
+
+      tRef.current += baseSpeed * speedRef.current
+
+      // avanzar de segmento
+      if (tRef.current >= 1) {
+        completedSegRef.current = segIndexRef.current // 👈 marcar completado
+        tRef.current = 0
+        segIndexRef.current++
+
+        if (segIndexRef.current >= model.segments.length) {
+          rafRef.current = null
+          setPlaying(false)
+          return
+        }
+
+        rafRef.current = requestAnimationFrame(step)
+        return
+      }
+
+      setToolPos({
+        x: seg.start.x + (seg.end.x - seg.start.x) * tRef.current,
+        y: seg.start.y + (seg.end.y - seg.start.y) * tRef.current,
+        z: seg.start.z + (seg.end.z - seg.start.z) * tRef.current,
+      })
+
       rafRef.current = requestAnimationFrame(step)
-      return
     }
-
-    const seg = model.segments[segIndex]
-    if (!seg) return
-
-    t += baseSpeed * speedRef.current
-
-    // 🚫 NO renderizar este frame
-    if (t >= 1) {
-      t = 0
-      segIndex++
-      if (segIndex >= model.segments.length) return
-      rafRef.current = requestAnimationFrame(step)
-      return
-    }
-
-    // ✅ Render solo con t válido
-    setToolPos({
-      x: seg.start.x + (seg.end.x - seg.start.x) * t,
-      y: seg.start.y + (seg.end.y - seg.start.y) * t,
-      z: seg.start.z + (seg.end.z - seg.start.z) * t,
-    })
 
     rafRef.current = requestAnimationFrame(step)
   }
 
-  rafRef.current = requestAnimationFrame(step)
-}
+  const startAnimation = () => {
+    const model = modelRef.current
+    if (!model) return
+    if (rafRef.current !== null) return
+    animateToolhead(model)
+  }
 
+  // ⏹ Stop / Reset
+  const stopAndReset = () => {
+    setPlaying(false)
+
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current)
+      rafRef.current = null
+    }
+
+    segIndexRef.current = 0
+    tRef.current = 0
+    completedSegRef.current = -1
+
+    const first = modelRef.current?.segments[0]
+    if (first) setToolPos({ ...first.start })
+  }
 
   return (
     <div class="panel panel-dashboard" id={id}>
       <ContainerHelper id={id} />
 
-      {/* Navbar */}
       <div class="navbar">
         <span class="navbar-section feather-icon-container">
           <Eye />
@@ -153,47 +191,26 @@ const ToolpathPanel: FunctionalComponent = () => {
         </span>
 
         <span class="navbar-section">
-          {/* ▶️ Play / Pause */}
+          <button class="btn btn-link" onClick={stopAndReset}>⏹</button>
+
           <button
             class="btn btn-link"
-            title={playing ? "Pause" : "Play"}
-            onClick={() => setPlaying(p => !p)}
+            onClick={() => {
+              setPlaying(p => {
+                const next = !p
+                if (next) startAnimation()
+                return next
+              })
+            }}
           >
             {playing ? "⏸" : "▶"}
           </button>
 
-          {/* ➖ Velocidad */}
-          <button
-            class="btn btn-link"
-            title="Slower"
-            onClick={() => {
-              speedRef.current = Math.max(0.25, speedRef.current / 1.25)
-            }}
-          >
-            −
-          </button>
-
-          <span
-            style={{
-              minWidth: 36,
-              textAlign: "center",
-              fontSize: "0.8em",
-              opacity: 0.8,
-            }}
-          >
+          <button class="btn btn-link" onClick={() => speedRef.current = Math.max(0.25, speedRef.current / 1.25)}>−</button>
+          <span style={{ minWidth: 36, textAlign: "center", fontSize: "0.8em" }}>
             {speedRef.current.toFixed(2)}x
           </span>
-
-          {/* ➕ Velocidad */}
-          <button
-            class="btn btn-link"
-            title="Faster"
-            onClick={() => {
-              speedRef.current = Math.min(4, speedRef.current * 1.25)
-            }}
-          >
-            +
-          </button>
+          <button class="btn btn-link" onClick={() => speedRef.current = Math.min(4, speedRef.current * 1.25)}>+</button>
 
           <PanelMenu items={[]} />
           <FullScreenButton elementId={id} />
@@ -201,20 +218,11 @@ const ToolpathPanel: FunctionalComponent = () => {
         </span>
       </div>
 
-      {/* Body */}
       <div class="panel-body panel-body-dashboard m-2">
         <canvas
           ref={canvasRef}
-          style={{
-            width: "100%",
-            height: "100%",
-            background: "#111",
-            borderRadius: "6px",
-          }}
-          title="Click to change view"
-          onClick={() =>
-            setViewIndex(v => (v + 1) % VIEW_PRESETS.length)
-          }
+          style={{ width: "100%", height: "100%", background: "#111", borderRadius: "6px" }}
+          onClick={() => setViewIndex(v => (v + 1) % VIEW_PRESETS.length)}
         />
       </div>
     </div>

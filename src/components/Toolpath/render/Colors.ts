@@ -3,9 +3,12 @@ export const COLORS = {
     background: "#0e0e0e",
 
     // Trayectorias
-    rapid: "rgba(0, 170, 255, 0.6)",   // G0 → celeste tenue, no dominante
-    feed: "#ffb000",                   // G1/G2/G3 en aire
-    feedCut: "#ff8c00",                // Corte (Z < 0) → más intenso
+    rapid: "rgba(0, 170, 255, 0.6)",
+    feed: "#ffb000",
+    feedCut: "#ff8c00",
+
+    // ✅ NUEVO: segmentos ya ejecutados
+    completed: "#00c8ff",   // celeste limpio, bien legible
 
     // Ejes
     axisX: "#ff5555",
