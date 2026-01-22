@@ -398,13 +398,19 @@ export class ModalInterpreter {
         // Delta base (sin forzar "arco corto": eso invertía arcos reales)
         let delta = a1 - a0
 
+        // Ajuste de sentido CW / CCW
         if (clockwise) {
-            // Queremos barrer en sentido horario: delta debe ser <= 0
             if (delta > 0) delta -= Math.PI * 2
         } else {
-            // CCW: delta debe ser >= 0
             if (delta < 0) delta += Math.PI * 2
         }
+
+        // ✅ PARCHE CLAVE: forzar arco corto para IJK
+        // En CNC, con I/J/K siempre se usa el arco menor (|delta| <= π)
+        if (Math.abs(delta) > Math.PI) {
+            delta += delta > 0 ? -Math.PI * 2 : Math.PI * 2
+        }
+
 
         // Vueltas completas (P)
         const turns = Math.max(1, Math.floor(P ?? 1))
