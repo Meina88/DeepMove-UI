@@ -23,12 +23,10 @@ export class CanvasRenderer {
 
         const bbox = model.bbox
 
-        // Centro del bbox 3D (criterio Mitch)
         const centerX = (bbox.minX + bbox.maxX) / 2
         const centerY = (bbox.minY + bbox.maxY) / 2
         const centerZ = (bbox.minZ + bbox.maxZ) / 2
 
-        // Esquinas del bbox (recentradas)
         const corners3D = [
             { x: bbox.minX - centerX, y: bbox.minY - centerY, z: bbox.minZ - centerZ },
             { x: bbox.maxX - centerX, y: bbox.minY - centerY, z: bbox.minZ - centerZ },
@@ -40,10 +38,8 @@ export class CanvasRenderer {
             { x: bbox.maxX - centerX, y: bbox.maxY - centerY, z: bbox.maxZ - centerZ },
         ]
 
-        // Proyectar esquinas
         const projected = corners3D.map(view.projection)
 
-        // Bounding box proyectado (2D)
         let minX = Infinity, maxX = -Infinity
         let minY = Infinity, maxY = -Infinity
 
@@ -57,23 +53,19 @@ export class CanvasRenderer {
         const sizeX = maxX - minX || 1
         const sizeY = maxY - minY || 1
 
-        // Scale automático (fit-to-bounds)
-        const scale = Math.min(
-            width / sizeX,
-            height / sizeY
-        ) * 0.9   // margen tipo Mitch
+        const scale = Math.min(width / sizeX, height / sizeY) * 0.9
 
-        // Centro del bbox proyectado
         const center2DX = (minX + maxX) / 2
         const center2DY = (minY + maxY) / 2
 
-        // Offset correcto para centrar el contenido
         const offsetX = width / 2 - center2DX * scale
         const offsetY = height / 2 - center2DY * scale
 
+        ctx.lineCap = "round"
+        ctx.lineJoin = "round"
 
         // =========================
-        // 🧭 Ejes + origen
+        // 🧭 Ejes
         // =========================
         if (view.showAxes) {
             this.drawAxes(view, scale, offsetX, offsetY)
@@ -97,16 +89,15 @@ export class CanvasRenderer {
             const a2 = view.projection(a3)
             const b2 = view.projection(b3)
 
-            // 🔹 Estilo según tipo de movimiento
             if (seg.type === "rapid") {
                 ctx.strokeStyle = COLORS.rapid
-                ctx.setLineDash([6, 4])   // G0 → punteado
+                ctx.setLineDash([5, 4])
+                ctx.lineWidth = 1
             } else {
-                ctx.strokeStyle = COLORS.feed
-                ctx.setLineDash([])      // G1/G2/G3 → continuo
+                ctx.strokeStyle = b3.z < 0 ? COLORS.feedCut : COLORS.feed
+                ctx.setLineDash([])
+                ctx.lineWidth = b3.z < 0 ? 2.2 : 1.6
             }
-
-            ctx.lineWidth = 1.5
 
             ctx.beginPath()
             ctx.moveTo(offsetX + a2.x * scale, offsetY + a2.y * scale)
@@ -114,11 +105,10 @@ export class CanvasRenderer {
             ctx.stroke()
         }
 
-        // 🔑 Importante: resetear dash para no contaminar ejes/origen
         ctx.setLineDash([])
 
         // =========================
-        // 🔵 Tool head (punto actual)
+        // 🔵 Toolhead
         // =========================
         const lastSeg = model.segments[model.segments.length - 1]
         if (lastSeg) {
@@ -129,25 +119,21 @@ export class CanvasRenderer {
             }
 
             const p2 = view.projection(p3)
-
             const px = offsetX + p2.x * scale
             const py = offsetY + p2.y * scale
 
-            ctx.fillStyle = COLORS.feed
-            ctx.strokeStyle = "#000"
-            ctx.lineWidth = 1
+            ctx.fillStyle = COLORS.tool
+            ctx.shadowColor = COLORS.toolGlow
+            ctx.shadowBlur = 8
 
             ctx.beginPath()
             ctx.arc(px, py, 4, 0, Math.PI * 2)
             ctx.fill()
-            ctx.stroke()
-        }
 
+            ctx.shadowBlur = 0
+        }
     }
 
-    // =========================
-    // 🧭 Dibujo de ejes + origen
-    // =========================
     private drawAxes(
         view: ViewPreset,
         scale: number,
@@ -155,16 +141,14 @@ export class CanvasRenderer {
         offsetY: number
     ) {
         const ctx = this.ctx
-
-        // Longitud visual constante (en unidades de mundo)
         const axisLength = 50 / scale
 
         const origin3D = { x: 0, y: 0, z: 0 }
 
         const axes = [
-            { to: { x: axisLength, y: 0, z: 0 }, color: COLORS.axisX }, // X
-            { to: { x: 0, y: axisLength, z: 0 }, color: COLORS.axisY }, // Y
-            { to: { x: 0, y: 0, z: axisLength }, color: COLORS.axisZ }, // Z
+            { to: { x: axisLength, y: 0, z: 0 }, color: COLORS.axisX },
+            { to: { x: 0, y: axisLength, z: 0 }, color: COLORS.axisY },
+            { to: { x: 0, y: 0, z: axisLength }, color: COLORS.axisZ },
         ]
 
         const o2 = view.projection(origin3D)
@@ -176,27 +160,14 @@ export class CanvasRenderer {
             ctx.lineWidth = 2
 
             ctx.beginPath()
-            ctx.moveTo(
-                offsetX + o2.x * scale,
-                offsetY + o2.y * scale
-            )
-            ctx.lineTo(
-                offsetX + p2.x * scale,
-                offsetY + p2.y * scale
-            )
+            ctx.moveTo(offsetX + o2.x * scale, offsetY + o2.y * scale)
+            ctx.lineTo(offsetX + p2.x * scale, offsetY + p2.y * scale)
             ctx.stroke()
         }
 
-        // Origen
         ctx.fillStyle = COLORS.origin
         ctx.beginPath()
-        ctx.arc(
-            offsetX + o2.x * scale,
-            offsetY + o2.y * scale,
-            3,
-            0,
-            Math.PI * 2
-        )
+        ctx.arc(offsetX + o2.x * scale, offsetY + o2.y * scale, 3, 0, Math.PI * 2)
         ctx.fill()
     }
 }
