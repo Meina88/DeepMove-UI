@@ -17,35 +17,18 @@ import { VIEW_PRESETS } from "../Toolpath/render/ViewPresets"
 import { ToolpathModel } from "../Toolpath/core/ToolpathModel"
 import { ModalInterpreter } from "../Toolpath/core/ModalInterpreter"
 
-// GCode de prueba
-const TEST_GCODE = `
-
-( Cuadrado 50x50 mm con 1 esquina redondeada (R=10) en la esquina superior derecha )
-( Plano XY, mm, absoluto. Sin Z de corte: solo trayectoria 2D )
-G21
-G90
-G17
-
-G0 Z5.000
-G0 X0.000 Y0.000
-G0 Z0.000
-
-( Recorre CCW: (0,0) -> (50,0) -> (50,40) -> arco a (40,50) -> (0,50) -> (0,0) )
-G1 X50.000 Y0.000 F1500
-G1 X50.000 Y40.000
-G2 X40.000 Y50.000 I-10.000 J0.000
-G1 X0.000 Y50.000
-G1 X0.000 Y0.000
-
-G0 Z5.000
-M2
+import { httpAdapter } from "../../adapters/httpAdapter"
+import { eventBus } from "../../hooks/eventBus"
 
 
-`
+
+
 
 const ToolpathPanel: FunctionalComponent = () => {
-    const id = "toolpathPanel"
-    if (!useUiContextFn.getValue("showtoolpathpanel")) return null
+const id = "toolpathPanel"
+const showPanel = useUiContextFn.getValue("showtoolpathpanel")
+// NO retornar acá (así se montan los hooks y el listener)
+
 
     const canvasRef = useRef<HTMLCanvasElement>(null)
     const rendererRef = useRef<CanvasRenderer | null>(null)
@@ -78,16 +61,11 @@ const ToolpathPanel: FunctionalComponent = () => {
     const pinchActiveRef = useRef(false)
     const skipNextPanRef = useRef(false)
 
-
-
     // 🖱️ Click simple diferido (para distinguir double click)
     const clickTimeoutRef = useRef<number | null>(null)
 
     // 👆 Doble tap (touch)
     const lastTapRef = useRef(0)
-
-
-
 
     // RAF
     const rafRef = useRef<number | null>(null)
@@ -103,26 +81,6 @@ const ToolpathPanel: FunctionalComponent = () => {
     useEffect(() => {
         playingRef.current = playing
     }, [playing])
-
-    // 🔹 Init
-    useEffect(() => {
-        const canvas = canvasRef.current
-        if (!canvas) return
-
-        const model = new ToolpathModel()
-        new ModalInterpreter(model).parse(TEST_GCODE)
-
-        modelRef.current = model
-        rendererRef.current = new CanvasRenderer(canvas)
-
-        canvas.width = canvas.clientWidth
-        canvas.height = canvas.clientHeight
-
-        const first = model.segments[0]
-        if (first) setToolPos({ ...first.start })
-
-        animateToolhead(model)
-    }, [])
 
     // 🔁 Redraw
     useEffect(() => {
@@ -403,6 +361,86 @@ const ToolpathPanel: FunctionalComponent = () => {
     }, [viewIndex, toolPos])
 
 
+useEffect(() => {
+  const listenerId = eventBus.on(
+    "toolpath:preview",
+    async (data: { url: string; filename: string }) => {
+
+      console.log("📩 toolpath:preview", data)
+
+      try {
+        eventBus.emit("openpanel", "toolpathPanel")
+
+        if (rafRef.current) {
+          cancelAnimationFrame(rafRef.current)
+          rafRef.current = null
+        }
+
+        segIndexRef.current = 0
+        tRef.current = 0
+        completedSegRef.current = -1
+        setPlaying(false)
+
+        // 🔽 DESCARGA DIRECTA (URL YA RESUELTA)
+        const res = await httpAdapter(data.url, {
+          method: "GET",
+          id: "download-toolpath-preview",
+        })
+
+        const result = await res.response
+        const gcodeText =
+          typeof result === "string"
+            ? result
+            : await result.text()
+
+        // 🔽 PARSE
+        const model = new ToolpathModel()
+        new ModalInterpreter(model).parse(gcodeText)
+        modelRef.current = model
+
+        const first = model.segments[0]
+        setToolPos(first ? { ...first.start } : null)
+
+        cameraRef.current.zoom = 1
+        cameraRef.current.panX = 0
+        cameraRef.current.panY = 0
+
+        const canvas = canvasRef.current
+        if (!canvas) return
+
+        if (!rendererRef.current) {
+          rendererRef.current = new CanvasRenderer(canvas)
+
+          const rect = canvas.getBoundingClientRect()
+          const dpr = window.devicePixelRatio || 1
+          canvas.width = Math.max(1, Math.floor(rect.width * dpr))
+          canvas.height = Math.max(1, Math.floor(rect.height * dpr))
+
+          const ctx = canvas.getContext("2d")
+          if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+        }
+
+        rendererRef.current.render(
+          model,
+          VIEW_PRESETS[viewIndex],
+          cameraRef.current,
+          first ? { ...first.start } : undefined,
+          0
+        )
+
+      } catch (err) {
+        console.error("Toolpath preview error:", err)
+      }
+    },
+    "toolpath-preview"
+  )
+
+  return () => {
+    eventBus.off("toolpath:preview", listenerId)
+  }
+}, [viewIndex])
+
+
     // ▶️ Animación
     const animateToolhead = (model: ToolpathModel) => {
         const baseSpeed = 0.99
@@ -488,6 +526,7 @@ const ToolpathPanel: FunctionalComponent = () => {
         }
     }
 
+if (!showPanel) return null
 
     return (
         <div class="panel panel-dashboard" id={id}>

@@ -142,6 +142,7 @@ export class CanvasRenderer {
   }
 
   // 🧭 Ejes proyectados pero anclados a pantalla
+  // 🧭 Ejes proyectados pero anclados a pantalla
   private drawCornerAxes(view: ViewPreset) {
     const ctx = this.ctx
     const dpr = window.devicePixelRatio || 1
@@ -151,11 +152,12 @@ export class CanvasRenderer {
     const axisLen = 1
 
     const axes = [
-      { v: { x: axisLen, y: 0, z: 0 }, color: COLORS.axisX, show: true },
-      { v: { x: 0, y: axisLen, z: 0 }, color: COLORS.axisY, show: true },
+      { v: { x: axisLen, y: 0, z: 0 }, color: COLORS.axisX, label: "x", show: true },
+      { v: { x: 0, y: axisLen, z: 0 }, color: COLORS.axisY, label: "y", show: true },
       {
         v: { x: 0, y: 0, z: axisLen },
         color: COLORS.axisZ,
+        label: "z",
         show: view.id !== "top",
       },
     ]
@@ -163,9 +165,7 @@ export class CanvasRenderer {
     const o2 = view.projection(origin)
 
     const isoOffsetX =
-      view.id === "oblique" || view.id === "iso"
-        ? 8
-        : 0
+      view.id === "oblique" || view.id === "iso" ? 8 : 0
 
     const baseX = 20 + isoOffsetX
     const baseY = cssH - 20
@@ -174,21 +174,43 @@ export class CanvasRenderer {
     ctx.save()
     ctx.lineWidth = 2
 
+    // 🔤 estilo letras
+    ctx.font = "10px system-ui, -apple-system, Segoe UI, Roboto, Arial"
+    ctx.textBaseline = "middle"
+    ctx.textAlign = "left"
+
     for (const axis of axes) {
       if (!axis.show) continue
 
       const p2 = view.projection(axis.v)
 
+      const ex = baseX + (p2.x - o2.x) * scale
+      const ey = baseY + (p2.y - o2.y) * scale
+
+      // línea
       ctx.strokeStyle = axis.color
       ctx.beginPath()
       ctx.moveTo(baseX, baseY)
-      ctx.lineTo(
-        baseX + (p2.x - o2.x) * scale,
-        baseY + (p2.y - o2.y) * scale
-      )
+      ctx.lineTo(ex, ey)
       ctx.stroke()
+
+      // ➡️ vector normalizado para offset del texto
+      const vx = ex - baseX
+      const vy = ey - baseY
+      const len = Math.hypot(vx, vy) || 1
+      const nx = vx / len
+      const ny = vy / len
+
+      const pad = 6
+      ctx.fillStyle = axis.color
+      ctx.fillText(
+        axis.label,
+        ex + nx * pad,
+        ey + ny * pad
+      )
     }
 
     ctx.restore()
   }
+
 }

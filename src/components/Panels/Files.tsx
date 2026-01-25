@@ -30,9 +30,10 @@ import { Upload, RefreshCcw, FolderPlus, CornerRightUp, XCircle } from "preact-f
 import { SDCard } from "../../targets/CNC/FluidNC/icons"
 
 import { files } from "../../targets"
-import { Folder, File, Trash2, Play } from "preact-feather"
+import { Folder, File, Trash2, Play, Eye } from "preact-feather"
 import { Menu as PanelMenu } from "./"
 import { eventBus } from "../../hooks/eventBus"
+import { espHttpURL } from "../Helpers/http"
 
 const FilesPanel: FunctionalComponent = () => {
     const id = "filesPanel"
@@ -112,6 +113,7 @@ const FilesPanel: FunctionalComponent = () => {
     // Render compact panel view
     const renderCompactView = () => {
         const currentPath = getCurrentPath()
+
 
         return (
             <div class="panel panel-dashboard" id={id}>
@@ -300,28 +302,60 @@ const FilesPanel: FunctionalComponent = () => {
 
                                                         <div class="file-item-action-right">
                                                             {canProcess && (
-                                                                <ButtonImg
-                                                                    m1
-                                                                    ltooltip
-                                                                    data-tooltip={T("S74")}
-                                                                    icon={<Play />}
-                                                                    class="file-play-btn"
-                                                                    onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
-                                                                        e.currentTarget.blur()
-                                                                        useUiContextFn.haptic()
+                                                                <>
+                                                                    {/* 👁 Preview G-code (solo visual) */}
+                                                                    <ButtonImg
+                                                                        m1
+                                                                        ltooltip
+                                                                        data-tooltip={T("Preview")}
+                                                                        icon={<Eye />}
+                                                                        class="file-preview-btn"
+                                                                        onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
+                                                                            e.currentTarget.blur()
+                                                                            useUiContextFn.haptic()
 
-                                                                        // ✅ IMPORTANTE: esto evita que dispare "Download file?"
-                                                                        const cmd = files.command(
-                                                                            state.fileSystem,
-                                                                            "play",
-                                                                            currentPath[state.fileSystem],
-                                                                            line.name
-                                                                        )
-                                                                        actions.sendSerialCmd(cmd.cmd)
-                                                                    }}
-                                                                />
+                                                                            // ✅ armar URL de descarga igual que useFilesManager
+                                                                            const cmd = files.command(
+                                                                                state.fileSystem,
+                                                                                "download",
+                                                                                currentPath[state.fileSystem],
+                                                                                line.name
+                                                                            )
+                                                                            const url = espHttpURL(cmd.url, cmd.args)
+
+                                                                            eventBus.emit("toolpath:preview", {
+                                                                                url,
+                                                                                filename: line.name,
+                                                                            })
+                                                                        }}
+                                                                    />
+
+
+                                                                    {/* ▶ Ejecutar G-code */}
+                                                                    <ButtonImg
+                                                                        m1
+                                                                        ltooltip
+                                                                        data-tooltip={T("S74")}
+                                                                        icon={<Play />}
+                                                                        class="file-play-btn"
+                                                                        onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
+                                                                            e.currentTarget.blur()
+                                                                            useUiContextFn.haptic()
+
+                                                                            // evita que dispare "Download file?"
+                                                                            const cmd = files.command(
+                                                                                state.fileSystem,
+                                                                                "play",
+                                                                                currentPath[state.fileSystem],
+                                                                                line.name
+                                                                            )
+                                                                            actions.sendSerialCmd(cmd.cmd)
+                                                                        }}
+                                                                    />
+                                                                </>
                                                             )}
                                                         </div>
+
                                                     </div>
                                                 </div>
                                             </div>
