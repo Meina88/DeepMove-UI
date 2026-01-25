@@ -7,8 +7,19 @@ export function topView(p: Point3D) {
     }
 }
 
+export function frontView(p: Point3D) {
+  return {
+    x: p.x,
+    y: -p.z,
+  }
+}
 
-
+export function sideView(p: Point3D) {
+  return {
+    x: p.y,
+    y: -p.z,
+  }
+}
 
 export function obliqueView(p: Point3D) {
     return {
