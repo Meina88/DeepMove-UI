@@ -10,6 +10,7 @@ import { ContainerHelper, FullScreenButton, CloseButton } from "../Controls"
 import { Menu as PanelMenu } from "./"
 import { Eye } from "preact-feather"
 import { useUiContextFn } from "../../contexts"
+import { useTargetContext } from "../../targets"
 
 import { CanvasRenderer } from "../Toolpath"
 import { VIEW_PRESETS } from "../Toolpath/render/ViewPresets"
@@ -25,9 +26,11 @@ import { eventBus } from "../../hooks/eventBus"
 
 
 const ToolpathPanel: FunctionalComponent = () => {
-const id = "toolpathPanel"
-const showPanel = useUiContextFn.getValue("showtoolpathpanel")
-// NO retornar acá (así se montan los hooks y el listener)
+    const id = "toolpathPanel"
+    const showPanel = useUiContextFn.getValue("showtoolpathpanel")
+    const { positions } = useTargetContext()
+
+    // NO retornar acá (así se montan los hooks y el listener)
 
 
     const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -39,12 +42,8 @@ const showPanel = useUiContextFn.getValue("showtoolpathpanel")
     // 🔵 Toolhead
     const [toolPos, setToolPos] = useState<{ x: number; y: number; z: number } | null>(null)
 
-    // ▶️ Play / Pause
-    const [playing, setPlaying] = useState(true)
-    const playingRef = useRef(true)
 
-    // ⏩ Velocidad visual
-    const speedRef = useRef(1)
+
 
     // 🎥 Cámara (ZOOM / PAN)
     const cameraRef = useRef({
@@ -77,10 +76,28 @@ const showPanel = useUiContextFn.getValue("showtoolpathpanel")
     // 🟦 Progreso de segmentos completados
     const completedSegRef = useRef<number>(-1)
 
-    // sync state → ref
-    useEffect(() => {
-        playingRef.current = playing
-    }, [playing])
+
+// 🔴 TOOL REAL — sigue WPos (igual que Jog: positions.wx/wy/wz suelen ser strings)
+useEffect(() => {
+  if (!positions) return
+
+  // 1) Preferimos WPos si existe
+  const rawX = (positions as any).wx ?? (positions as any).x
+  const rawY = (positions as any).wy ?? (positions as any).y
+  const rawZ = (positions as any).wz ?? (positions as any).z
+
+  const x = typeof rawX === "number" ? rawX : parseFloat(String(rawX))
+  const y = typeof rawY === "number" ? rawY : parseFloat(String(rawY))
+  const z = typeof rawZ === "number" ? rawZ : parseFloat(String(rawZ))
+
+  if (!Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(z)) return
+
+  setToolPos({ x, y, z })
+}, [positions])
+
+
+
+
 
     // 🔁 Redraw
     useEffect(() => {
@@ -361,138 +378,91 @@ const showPanel = useUiContextFn.getValue("showtoolpathpanel")
     }, [viewIndex, toolPos])
 
 
-useEffect(() => {
-  const listenerId = eventBus.on(
-    "toolpath:preview",
-    async (data: { url: string; filename: string }) => {
+    useEffect(() => {
+        const listenerId = eventBus.on(
+            "toolpath:preview",
+            async (data: { url: string; filename: string }) => {
 
-      console.log("📩 toolpath:preview", data)
+                console.log("📩 toolpath:preview", data)
 
-      try {
-        eventBus.emit("openpanel", "toolpathPanel")
+                try {
+                    eventBus.emit("openpanel", "toolpathPanel")
 
-        if (rafRef.current) {
-          cancelAnimationFrame(rafRef.current)
-          rafRef.current = null
-        }
+                    if (rafRef.current) {
+                        cancelAnimationFrame(rafRef.current)
+                        rafRef.current = null
+                    }
 
-        segIndexRef.current = 0
-        tRef.current = 0
-        completedSegRef.current = -1
-        setPlaying(false)
+                    segIndexRef.current = 0
+                    tRef.current = 0
+                    completedSegRef.current = -1                    
 
-        // 🔽 DESCARGA DIRECTA (URL YA RESUELTA)
-        const res = await httpAdapter(data.url, {
-          method: "GET",
-          id: "download-toolpath-preview",
-        })
+                    // 🔽 DESCARGA DIRECTA (URL YA RESUELTA)
+                    const res = await httpAdapter(data.url, {
+                        method: "GET",
+                        id: "download-toolpath-preview",
+                    })
 
-        const result = await res.response
-        const gcodeText =
-          typeof result === "string"
-            ? result
-            : await result.text()
+                    const result = await res.response
+                    const gcodeText =
+                        typeof result === "string"
+                            ? result
+                            : await result.text()
 
-        // 🔽 PARSE
-        const model = new ToolpathModel()
-        new ModalInterpreter(model).parse(gcodeText)
-        modelRef.current = model
+                    // 🔽 PARSE
+                    const model = new ToolpathModel()
+                    new ModalInterpreter(model).parse(gcodeText)
+                    modelRef.current = model
 
-        const first = model.segments[0]
-        setToolPos(first ? { ...first.start } : null)
+                    const first = model.segments[0]
+                    setToolPos(first ? { ...first.start } : null)
 
-        cameraRef.current.zoom = 1
-        cameraRef.current.panX = 0
-        cameraRef.current.panY = 0
+                    cameraRef.current.zoom = 1
+                    cameraRef.current.panX = 0
+                    cameraRef.current.panY = 0
 
-        const canvas = canvasRef.current
-        if (!canvas) return
+                    const canvas = canvasRef.current
+                    if (!canvas) return
 
-        if (!rendererRef.current) {
-          rendererRef.current = new CanvasRenderer(canvas)
+                    if (!rendererRef.current) {
+                        rendererRef.current = new CanvasRenderer(canvas)
 
-          const rect = canvas.getBoundingClientRect()
-          const dpr = window.devicePixelRatio || 1
-          canvas.width = Math.max(1, Math.floor(rect.width * dpr))
-          canvas.height = Math.max(1, Math.floor(rect.height * dpr))
+                        const rect = canvas.getBoundingClientRect()
+                        const dpr = window.devicePixelRatio || 1
+                        canvas.width = Math.max(1, Math.floor(rect.width * dpr))
+                        canvas.height = Math.max(1, Math.floor(rect.height * dpr))
 
-          const ctx = canvas.getContext("2d")
-          if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-        }
+                        const ctx = canvas.getContext("2d")
+                        if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+                    }
 
-        rendererRef.current.render(
-          model,
-          VIEW_PRESETS[viewIndex],
-          cameraRef.current,
-          first ? { ...first.start } : undefined,
-          0
+                    rendererRef.current.render(
+                        model,
+                        VIEW_PRESETS[viewIndex],
+                        cameraRef.current,
+                        first ? { ...first.start } : undefined,
+                        0
+                    )
+
+                } catch (err) {
+                    console.error("Toolpath preview error:", err)
+                }
+            },
+            "toolpath-preview"
         )
 
-      } catch (err) {
-        console.error("Toolpath preview error:", err)
-      }
-    },
-    "toolpath-preview"
-  )
-
-  return () => {
-    eventBus.off("toolpath:preview", listenerId)
-  }
-}, [viewIndex])
-
-
-    // ▶️ Animación
-    const animateToolhead = (model: ToolpathModel) => {
-        const baseSpeed = 0.99
-
-        const step = () => {
-            if (!playingRef.current) {
-                rafRef.current = requestAnimationFrame(step)
-                return
-            }
-
-            const seg = model.segments[segIndexRef.current]
-            if (!seg) return
-
-            tRef.current += baseSpeed * speedRef.current
-
-            if (tRef.current >= 1) {
-                completedSegRef.current = segIndexRef.current
-                tRef.current = 0
-                segIndexRef.current++
-
-                if (segIndexRef.current >= model.segments.length) {
-                    rafRef.current = null
-                    setPlaying(false)
-                    return
-                }
-
-                rafRef.current = requestAnimationFrame(step)
-                return
-            }
-
-            setToolPos({
-                x: seg.start.x + (seg.end.x - seg.start.x) * tRef.current,
-                y: seg.start.y + (seg.end.y - seg.start.y) * tRef.current,
-                z: seg.start.z + (seg.end.z - seg.start.z) * tRef.current,
-            })
-
-            rafRef.current = requestAnimationFrame(step)
+        return () => {
+            eventBus.off("toolpath:preview", listenerId)
         }
+    }, [viewIndex])
 
-        rafRef.current = requestAnimationFrame(step)
-    }
 
-    const startAnimation = () => {
-        const model = modelRef.current
-        if (!model) return
-        if (rafRef.current !== null) return
-        animateToolhead(model)
-    }
+
+
+
 
     // ⏹ Stop / Reset
-    const stopAndReset = () => {
-        setPlaying(false)
+    const stopAndReset = () => {       
 
         if (rafRef.current) {
             cancelAnimationFrame(rafRef.current)
@@ -526,44 +496,25 @@ useEffect(() => {
         }
     }
 
-if (!showPanel) return null
 
-    return (
-        <div class="panel panel-dashboard" id={id}>
+
+return (
+  <div
+    class="panel panel-dashboard"
+    id={id}
+    style={!showPanel ? { display: "none" } : undefined}
+  >
+
             <ContainerHelper id={id} />
 
             <div class="navbar">
-                <span class="navbar-section feather-icon-container">
-                    <Eye />
-                    <strong class="text-ellipsis">{T("Toolpath")}</strong>
-                </span>
-
                 <span class="navbar-section">
-                    <button class="btn btn-link" onClick={stopAndReset}>⏹</button>
-
-                    <button
-                        class="btn btn-link"
-                        onClick={() => {
-                            setPlaying(p => {
-                                const next = !p
-                                if (next) startAnimation()
-                                return next
-                            })
-                        }}
-                    >
-                        {playing ? "⏸" : "▶"}
-                    </button>
-
-                    <button class="btn btn-link" onClick={() => speedRef.current = Math.max(0.25, speedRef.current / 1.25)}>−</button>
-                    <span style={{ minWidth: 36, textAlign: "center", fontSize: "0.8em" }}>
-                        {speedRef.current.toFixed(2)}x
-                    </span>
-                    <button class="btn btn-link" onClick={() => speedRef.current = Math.min(4, speedRef.current * 1.25)}>+</button>
-
                     <PanelMenu items={[]} />
                     <FullScreenButton elementId={id} />
                     <CloseButton elementId={id} hideOnFullScreen />
                 </span>
+
+
             </div>
 
             <div class="panel-body panel-body-dashboard m-2">

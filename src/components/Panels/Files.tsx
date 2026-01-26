@@ -349,6 +349,22 @@ const FilesPanel: FunctionalComponent = () => {
                                                                                 currentPath[state.fileSystem],
                                                                                 line.name
                                                                             )
+
+// ✅ cargar el toolpath del mismo archivo que se va a ejecutar
+const dl = files.command(
+  state.fileSystem,
+  "download",
+  currentPath[state.fileSystem],
+  line.name
+)
+const url = espHttpURL(dl.url, dl.args)
+
+eventBus.emit("toolpath:preview", {
+  url,
+  filename: line.name,
+})
+
+
                                                                             actions.sendSerialCmd(cmd.cmd)
                                                                         }}
                                                                     />
