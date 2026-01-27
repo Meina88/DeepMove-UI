@@ -44,6 +44,10 @@ type PlaneAxes = {
 
 export class ModalInterpreter {
     private model: ToolpathModel
+    private maxSegments?: number
+    private stopParsing = false
+
+
 
     // Posición real (machine space interno para el intérprete)
     private machinePos: Point3D = { x: 0, y: 0, z: 0 }
@@ -56,9 +60,18 @@ export class ModalInterpreter {
         g92Offset: { x: 0, y: 0, z: 0 },
     }
 
-    constructor(model: ToolpathModel) {
+    constructor(
+        model: ToolpathModel,
+        options?: {
+            maxSegments?: number
+            onProgress?: (percent: number) => void
+        }
+    ) {
+
         this.model = model
+        this.maxSegments = options?.maxSegments
     }
+
 
     reset() {
         this.machinePos = { x: 0, y: 0, z: 0 }
@@ -72,6 +85,7 @@ export class ModalInterpreter {
     }
 
     parse(gcode: string): ToolpathModel {
+        this.stopParsing = false
         this.reset()
         this.model.clear()
 
@@ -304,10 +318,24 @@ export class ModalInterpreter {
     }
 
     private addLineWithG92(start: Point3D, end: Point3D, type: SegmentType) {
+        // ⛔ Si ya llegamos al límite, no agregamos más segmentos
+        if (this.stopParsing) return
+
         const s = this.applyG92(start)
         const e = this.applyG92(end)
+
         this.model.addSegment({ start: s, end: e, type })
+
+        // ⛔ Límite de segmentos (PC / Mobile)
+        if (this.maxSegments && this.model.segments.length >= this.maxSegments) {
+            console.warn(
+                `[Toolpath] Segment limit reached (${this.maxSegments}). Parsing stopped.`
+            )
+            this.stopParsing = true
+        }
     }
+
+
 
     private applyG92(p: Point3D): Point3D {
         return {

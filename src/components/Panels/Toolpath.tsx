@@ -38,6 +38,8 @@ const ToolpathPanel: FunctionalComponent = () => {
     const modelRef = useRef<ToolpathModel | null>(null)
 
     const [viewIndex, setViewIndex] = useState(0)
+    const [isRendering, setIsRendering] = useState(false)
+
 
     // 🔵 Toolhead
     const [toolPos, setToolPos] = useState<{ x: number; y: number; z: number } | null>(null)
@@ -77,23 +79,23 @@ const ToolpathPanel: FunctionalComponent = () => {
     const completedSegRef = useRef<number>(-1)
 
 
-// 🔴 TOOL REAL — sigue WPos (igual que Jog: positions.wx/wy/wz suelen ser strings)
-useEffect(() => {
-  if (!positions) return
+    // 🔴 TOOL REAL — sigue WPos (igual que Jog: positions.wx/wy/wz suelen ser strings)
+    useEffect(() => {
+        if (!positions) return
 
-  // 1) Preferimos WPos si existe
-  const rawX = (positions as any).wx ?? (positions as any).x
-  const rawY = (positions as any).wy ?? (positions as any).y
-  const rawZ = (positions as any).wz ?? (positions as any).z
+        // 1) Preferimos WPos si existe
+        const rawX = (positions as any).wx ?? (positions as any).x
+        const rawY = (positions as any).wy ?? (positions as any).y
+        const rawZ = (positions as any).wz ?? (positions as any).z
 
-  const x = typeof rawX === "number" ? rawX : parseFloat(String(rawX))
-  const y = typeof rawY === "number" ? rawY : parseFloat(String(rawY))
-  const z = typeof rawZ === "number" ? rawZ : parseFloat(String(rawZ))
+        const x = typeof rawX === "number" ? rawX : parseFloat(String(rawX))
+        const y = typeof rawY === "number" ? rawY : parseFloat(String(rawY))
+        const z = typeof rawZ === "number" ? rawZ : parseFloat(String(rawZ))
 
-  if (!Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(z)) return
+        if (!Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(z)) return
 
-  setToolPos({ x, y, z })
-}, [positions])
+        setToolPos({ x, y, z })
+    }, [positions])
 
 
 
@@ -387,6 +389,7 @@ useEffect(() => {
 
                 try {
                     eventBus.emit("openpanel", "toolpathPanel")
+                    setIsRendering(true)
 
                     if (rafRef.current) {
                         cancelAnimationFrame(rafRef.current)
@@ -395,7 +398,7 @@ useEffect(() => {
 
                     segIndexRef.current = 0
                     tRef.current = 0
-                    completedSegRef.current = -1                    
+                    completedSegRef.current = -1
 
                     // 🔽 DESCARGA DIRECTA (URL YA RESUELTA)
                     const res = await httpAdapter(data.url, {
@@ -411,8 +414,20 @@ useEffect(() => {
 
                     // 🔽 PARSE
                     const model = new ToolpathModel()
-                    new ModalInterpreter(model).parse(gcodeText)
+
+                    const isSmallScreen = window.innerWidth <= 768
+
+                    const maxSegments = isSmallScreen
+                        ? useUiContextFn.getValue("toolpathMaxSegmentsMobile")
+                        : useUiContextFn.getValue("toolpathMaxSegmentsDesktop")
+
+                    new ModalInterpreter(model, {
+                        maxSegments: Number(maxSegments) || undefined,
+                    }).parse(gcodeText)
+
                     modelRef.current = model
+
+
 
                     const first = model.segments[0]
                     setToolPos(first ? { ...first.start } : null)
@@ -443,9 +458,12 @@ useEffect(() => {
                         first ? { ...first.start } : undefined,
                         0
                     )
+                    setIsRendering(false)
+
 
                 } catch (err) {
                     console.error("Toolpath preview error:", err)
+                    setIsRendering(false)
                 }
             },
             "toolpath-preview"
@@ -462,7 +480,7 @@ useEffect(() => {
 
 
     // ⏹ Stop / Reset
-    const stopAndReset = () => {       
+    const stopAndReset = () => {
 
         if (rafRef.current) {
             cancelAnimationFrame(rafRef.current)
@@ -498,33 +516,53 @@ useEffect(() => {
 
 
 
-return (
-  <div
-    class="panel panel-dashboard"
-    id={id}
-    style={!showPanel ? { display: "none" } : undefined}
-  >
+    return (
+        <div
+            class="panel panel-dashboard"
+            id={id}
+            style={!showPanel ? { display: "none" } : undefined}
+        >
 
             <ContainerHelper id={id} />
 
             <div class="navbar">
-                <span class="navbar-section">
-                    <PanelMenu items={[]} />
-                    <FullScreenButton elementId={id} />
-                    <CloseButton elementId={id} hideOnFullScreen />
+                <span class="navbar-section feather-icon-container">
+                    <Eye />
+                    <strong class="text-ellipsis">Toolpath</strong>
                 </span>
 
-
+                <span class="navbar-section">
+                    <span class="full-height">
+                        <PanelMenu items={[]} />
+                        <FullScreenButton elementId={id} />
+                        <CloseButton elementId={id} hideOnFullScreen={true} />
+                    </span>
+                </span>
             </div>
 
-            <div class="panel-body panel-body-dashboard m-2">
+
+
+
+
+
+            <div
+                class="panel-body panel-body-dashboard m-2"
+                style={{ position: "relative" }}
+            >
                 <canvas
                     ref={canvasRef}
-                    style={{ width: "100%", height: "100%", background: "#111", borderRadius: "6px", touchAction: "none" }}
+                    style={{
+                        width: "100%",
+                        height: "100%",
+                        background: "#111",
+                        borderRadius: "6px",
+                        touchAction: "none",
+                    }}
+
                     onClick={() => {
                         if (hasMovedRef.current) return
 
-                        // esperamos por si viene un segundo click
+                        // esperar por si viene un segundo click
                         if (clickTimeoutRef.current) {
                             clearTimeout(clickTimeoutRef.current)
                             clickTimeoutRef.current = null
@@ -547,11 +585,38 @@ return (
 
                         resetCamera()
                     }}
-
-
-
                 />
+
+
+                {isRendering && (
+                    <div
+                        style={{
+                            position: "absolute",
+                            inset: 0,
+                            background: "rgba(0,0,0,0,0,0)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            zIndex: 10,
+                            borderRadius: "6px",
+                            pointerEvents: "none",
+                            color: "#fff",
+                            fontSize: "14px",
+                            letterSpacing: "0.5px",
+                        }}
+                    >
+                        ⏳
+                    </div>
+                )}
             </div>
+
+
+
+
+
+
+
+
         </div>
     )
 }
@@ -560,7 +625,7 @@ const ToolpathPanelElement = {
     id: "toolpathPanel",
     content: <ToolpathPanel />,
     name: "Toolpath",
-    icon: "GitCommit",
+    icon: "Eye",
     show: "showtoolpathpanel",
     onstart: "opentoolpathonstart",
     settingid: "toolpath",

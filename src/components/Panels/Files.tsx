@@ -342,31 +342,35 @@ const FilesPanel: FunctionalComponent = () => {
                                                                             e.currentTarget.blur()
                                                                             useUiContextFn.haptic()
 
-                                                                            // evita que dispare "Download file?"
                                                                             const cmd = files.command(
                                                                                 state.fileSystem,
                                                                                 "play",
                                                                                 currentPath[state.fileSystem],
                                                                                 line.name
                                                                             )
-
-// ✅ cargar el toolpath del mismo archivo que se va a ejecutar
-const dl = files.command(
-  state.fileSystem,
-  "download",
-  currentPath[state.fileSystem],
-  line.name
-)
-const url = espHttpURL(dl.url, dl.args)
-
-eventBus.emit("toolpath:preview", {
-  url,
-  filename: line.name,
-})
-
-
                                                                             actions.sendSerialCmd(cmd.cmd)
+
+                                                                            // // 🔽 preview del mismo archivo
+                                                                            // const dl = files.command(
+                                                                            //     state.fileSystem,
+                                                                            //     "download",
+                                                                            //     currentPath[state.fileSystem],
+                                                                            //     line.name
+                                                                            // )
+                                                                            // const url = espHttpURL(dl.url, dl.args)
+
+                                                                            // // 1️⃣ primero preview
+                                                                            // eventBus.emit("toolpath:preview", {
+                                                                            //     url,
+                                                                            //     filename: line.name,
+                                                                            // })
+
+                                                                            // // 2️⃣ luego ejecutar (espera mínima)
+                                                                            // setTimeout(() => {
+                                                                            //     actions.sendSerialCmd(cmd.cmd)
+                                                                            // }, 150) // ⬅️ CLAVE
                                                                         }}
+
                                                                     />
                                                                 </>
                                                             )}

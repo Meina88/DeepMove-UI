@@ -1,6 +1,6 @@
 export const COLORS = {
     // Fondo
-    background: "#211e1e",
+    background: "#000000",
 
     // Trayectorias
     rapid: "rgba(0, 170, 255, 0.6)",
