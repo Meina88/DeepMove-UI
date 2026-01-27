@@ -338,38 +338,51 @@ const FilesPanel: FunctionalComponent = () => {
                                                                         data-tooltip={T("S74")}
                                                                         icon={<Play />}
                                                                         class="file-play-btn"
+
+
                                                                         onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
                                                                             e.currentTarget.blur()
                                                                             useUiContextFn.haptic()
 
+                                                                            const isSmallScreen = window.innerWidth <= 768
+
+                                                                            const previewOnPlay = isSmallScreen
+                                                                                ? useUiContextFn.getValue("filesPreviewOnPlayMobile")
+                                                                                : useUiContextFn.getValue("filesPreviewOnPlayDesktop")
+
+                                                                            // ▶ Ejecutar G-code (SIEMPRE)
                                                                             const cmd = files.command(
                                                                                 state.fileSystem,
                                                                                 "play",
                                                                                 currentPath[state.fileSystem],
                                                                                 line.name
                                                                             )
-                                                                            actions.sendSerialCmd(cmd.cmd)
 
-                                                                            // // 🔽 preview del mismo archivo
-                                                                            // const dl = files.command(
-                                                                            //     state.fileSystem,
-                                                                            //     "download",
-                                                                            //     currentPath[state.fileSystem],
-                                                                            //     line.name
-                                                                            // )
-                                                                            // const url = espHttpURL(dl.url, dl.args)
+                                                                            // 🔽 Preview del toolpath (OPCIONAL)
+                                                                            if (previewOnPlay) {
+                                                                                const dl = files.command(
+                                                                                    state.fileSystem,
+                                                                                    "download",
+                                                                                    currentPath[state.fileSystem],
+                                                                                    line.name
+                                                                                )
 
-                                                                            // // 1️⃣ primero preview
-                                                                            // eventBus.emit("toolpath:preview", {
-                                                                            //     url,
-                                                                            //     filename: line.name,
-                                                                            // })
+                                                                                const url = espHttpURL(dl.url, dl.args)
 
-                                                                            // // 2️⃣ luego ejecutar (espera mínima)
-                                                                            // setTimeout(() => {
-                                                                            //     actions.sendSerialCmd(cmd.cmd)
-                                                                            // }, 150) // ⬅️ CLAVE
+                                                                                eventBus.emit("toolpath:preview", {
+                                                                                    url,
+                                                                                    filename: line.name,
+                                                                                })
+
+                                                                                // pequeña espera para evitar competir con memoria
+                                                                                setTimeout(() => {
+                                                                                    actions.sendSerialCmd(cmd.cmd)
+                                                                                }, 150)
+                                                                            } else {
+                                                                                actions.sendSerialCmd(cmd.cmd)
+                                                                            }
                                                                         }}
+
 
                                                                     />
                                                                 </>
