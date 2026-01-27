@@ -9,13 +9,13 @@ export const VIEW_PRESETS: ViewPreset[] = [
         showAxes: true,
         showBounds: false,
     },
-    // {
-    //     id: "front",
-    //     name: "Front",
-    //     projection: frontView,
-    //     showAxes: true,
-    //     showBounds: true,
-    // },
+     {
+         id: "front",
+         name: "Front",
+         projection: frontView,
+         showAxes: true,
+         showBounds: true,
+     },
     // {
     //     id: "side",
     //     name: "Side",
