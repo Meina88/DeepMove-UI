@@ -343,9 +343,9 @@ const sendJogCommand = (axis: string, stepIndexOverride?: number) => {
 
         switch (step) {
             case 100: return baseFeed
-            case 10: return baseFeed / 3
-            case 1: return baseFeed / 9
-            case 0.1: return baseFeed / 27
+            case 10: return baseFeed / 4
+            case 1: return baseFeed / 16
+            case 0.1: return baseFeed / 64
             default: return baseFeed
         }
     }
