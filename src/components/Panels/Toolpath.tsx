@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from "preact/hooks"
 import { T } from "../Translations"
 import { ContainerHelper, FullScreenButton, CloseButton } from "../Controls"
 import { Menu as PanelMenu } from "./"
-import { Eye } from "preact-feather"
+import { Eye, CheckCircle, Circle } from "preact-feather"
 import { useUiContextFn } from "../../contexts"
 import { useTargetContext } from "../../targets"
 
@@ -39,6 +39,15 @@ const ToolpathPanel: FunctionalComponent = () => {
 
     const [viewIndex, setViewIndex] = useState(0)
     const [isRendering, setIsRendering] = useState(false)
+    const [showGrid, setShowGrid] = useState<boolean>(() => {
+  const v = localStorage.getItem("toolpath.showGrid")
+  return v === null ? true : v === "true"
+})
+
+useEffect(() => {
+  localStorage.setItem("toolpath.showGrid", String(showGrid))
+}, [showGrid])
+
 
 
     // 🔵 Toolhead
@@ -105,6 +114,7 @@ const ToolpathPanel: FunctionalComponent = () => {
     useEffect(() => {
         const renderer = rendererRef.current
         const model = modelRef.current
+        
         if (!renderer || !model) return
 
         renderer.render(
@@ -112,7 +122,8 @@ const ToolpathPanel: FunctionalComponent = () => {
             VIEW_PRESETS[viewIndex],
             cameraRef.current,              // ✅ camera
             toolPos ?? undefined,
-            completedSegRef.current + 1
+            completedSegRef.current + 1,
+            showGrid
         )
     }, [viewIndex, toolPos])
 
@@ -139,7 +150,8 @@ const ToolpathPanel: FunctionalComponent = () => {
                     VIEW_PRESETS[viewIndex],
                     cameraRef.current,           // ✅ camera
                     toolPos ?? undefined,
-                    completedSegRef.current + 1
+                    completedSegRef.current + 1,
+                    showGrid
                 )
             }
         }
@@ -179,7 +191,8 @@ const ToolpathPanel: FunctionalComponent = () => {
                     VIEW_PRESETS[viewIndex],
                     cameraRef.current,
                     toolPos ?? undefined,
-                    completedSegRef.current + 1
+                    completedSegRef.current + 1,
+                    showGrid
                 )
             }
         }
@@ -227,7 +240,8 @@ const ToolpathPanel: FunctionalComponent = () => {
                     VIEW_PRESETS[viewIndex],
                     cameraRef.current,
                     toolPos ?? undefined,
-                    completedSegRef.current + 1
+                    completedSegRef.current + 1,
+                    showGrid
                 )
             }
         }
@@ -343,7 +357,8 @@ const ToolpathPanel: FunctionalComponent = () => {
                 VIEW_PRESETS[viewIndex],
                 cameraRef.current,
                 toolPos ?? undefined,
-                completedSegRef.current + 1
+                completedSegRef.current + 1,
+                showGrid
             )
         }
 
@@ -475,6 +490,20 @@ const ToolpathPanel: FunctionalComponent = () => {
     }, [viewIndex])
 
 
+useEffect(() => {
+  const renderer = rendererRef.current
+  const model = modelRef.current
+  if (!renderer || !model) return
+
+  renderer.render(
+    model,
+    VIEW_PRESETS[viewIndex],
+    cameraRef.current,
+    toolPos ?? undefined,
+    completedSegRef.current + 1,
+    showGrid
+  )
+}, [showGrid])
 
 
 
@@ -509,10 +538,28 @@ const ToolpathPanel: FunctionalComponent = () => {
                 VIEW_PRESETS[viewIndex],
                 cameraRef.current,
                 toolPos ?? undefined,
-                completedSegRef.current + 1
+                completedSegRef.current + 1,
+                showGrid
             )
         }
     }
+
+
+//     const menu = [
+//   {
+//     label: T("grid"),
+//     displayToggle: () => (
+//       <span class="feather-icon-container">
+//         {showGrid ? (
+//           <CheckCircle style={{ width: "0.8rem", height: "0.8rem" }} />
+//         ) : (
+//           <Circle style={{ width: "0.8rem", height: "0.8rem" }} />
+//         )}
+//       </span>
+//     ),
+//     onClick: () => setShowGrid(v => !v),
+//   },
+// ]
 
 
 
@@ -525,20 +572,37 @@ const ToolpathPanel: FunctionalComponent = () => {
 
             <ContainerHelper id={id} />
 
-            <div class="navbar">
-                <span class="navbar-section feather-icon-container">
-                    <Eye />
-                    <strong class="text-ellipsis">Toolpath</strong>
-                </span>
+<div class="navbar">
+  <span class="navbar-section feather-icon-container">
+    <Eye />
+    <strong class="text-ellipsis">Toolpath</strong>
+  </span>
 
-                <span class="navbar-section">
-                    <span class="full-height">
-                        <PanelMenu items={[]} />
-                        <FullScreenButton elementId={id} />
-                        <CloseButton elementId={id} hideOnFullScreen={true} />
-                    </span>
-                </span>
-            </div>
+  <span class="navbar-section">
+    <span class="full-height">
+      <PanelMenu
+  items={[
+    {
+      label: (
+        <label style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+          <input
+            type="checkbox"
+            checked={showGrid}
+            onChange={() => setShowGrid(v => !v)}
+          />
+          Grid
+        </label>
+      ),
+    },
+  ]}
+/>
+
+      <FullScreenButton elementId={id} />
+      <CloseButton elementId={id} hideOnFullScreen={true} />
+    </span>
+  </span>
+</div>
+
 
 
 

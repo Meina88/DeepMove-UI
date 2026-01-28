@@ -278,6 +278,7 @@
     "HTTP port": "HTTP port",
     "Telnet port": "Telnet port",
     "Ftp ports": "Ftp ports",
+    "Grid":"Grid",
     "Telnet Client": "Telnet Client",
     "Ftp Client": "Ftp Client",
     "Websocket port": "Websocket port",

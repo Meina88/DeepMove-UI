@@ -11,13 +11,15 @@ export class CanvasRenderer {
     this.ctx = ctx
   }
 
-  render(
-    model: ToolpathModel,
-    view: ViewPreset,
-    camera?: { zoom: number; panX: number; panY: number },
-    toolPos?: { x: number; y: number; z: number },
-    completedSegments: number = 0
-  ) {
+render(
+  model: ToolpathModel,
+  view: ViewPreset,
+  camera?: { zoom: number; panX: number; panY: number },
+  toolPos?: { x: number; y: number; z: number },
+  completedSegments: number = 0,
+  showGrid: boolean = true
+)
+ {
     const ctx = this.ctx
 
     const dpr = window.devicePixelRatio || 1
@@ -76,13 +78,17 @@ export class CanvasRenderer {
 
     const offsetX = cssW / 2 - center2DX * scale + panX
     const offsetY = cssH / 2 - center2DY * scale + panY
+    
 const gridPlane = this.getGridPlane(view.id)
 
-if (gridPlane === "XY" && view.id === "top") {
-  this.drawGridXY(ctx, view, scale, offsetX, offsetY)
-} else {
-  this.drawProjectedGrid(ctx, view, scale, offsetX, offsetY, gridPlane)
+if (showGrid) {
+  if (gridPlane === "XY" && view.id === "top") {
+    this.drawGridXY(ctx, view, scale, offsetX, offsetY)
+  } else {
+    this.drawProjectedGrid(ctx, view, scale, offsetX, offsetY, gridPlane)
+  }
 }
+
 
 
 
