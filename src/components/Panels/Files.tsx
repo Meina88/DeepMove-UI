@@ -65,50 +65,74 @@ const FilesPanel: FunctionalComponent = () => {
         }
     }, [])
 
-    useEffect(() => {
-        const newMenu = () => {
-            const rawMenuItems = [
-                {
-                    capability: "CreateDir",
-                    label: T("S90"),
-                    icon: (
-                        <span class="feather-icon-container">
-                            <FolderPlus style={{ width: "0.8rem", height: "0.8rem" }} />
-                        </span>
-                    ),
-                    onClick: actions.showCreateDirModal,
-                },
-                {
-                    capability: "Upload",
-                    label: T("S89"),
-                    displayToggle: () => (
-                        <span class="feather-icon-container">
-                            <Upload style={{ width: "0.8rem", height: "0.8rem" }} />
-                        </span>
-                    ),
-                    onClick: actions.openFileUploadBrowser,
-                },
-                { divider: true },
-                {
-                    label: T("S50"),
-                    onClick: actions.onRefresh,
-                    icon: (
-                        <span class="feather-icon-container">
-                            <RefreshCcw style={{ width: "0.8rem", height: "0.8rem" }} />
-                        </span>
-                    ),
-                },
-            ]
-            const capabilities = ["CreateDir", "Upload"].filter((cap) => files.capability(state.fileSystem, cap))
+useEffect(() => {
+  const newMenu = () => {
+    const fsItems: PanelMenuItem[] = files.supported
+      .filter((fs: any) => fs.depend && fs.depend())
+      .map((fs: any) => ({
+        label:
+          (state.fileSystem === fs.value ? "✓ " : "") + T(fs.name),
+        onClick: () => {
+          actions.onSelectFS({
+            target: { value: fs.value },
+          } as unknown as Event)
+        },
+      }))
 
-            return rawMenuItems.filter((item) => {
-                if (item.capability) return capabilities.includes(item.capability)
-                if (item.divider && capabilities.length <= 0) return false
-                return true
-            })
-        }
-        setMenu(newMenu())
-    }, [state.fileSystem])
+    const menuItems: PanelMenuItem[] = [
+      {
+        label: T("Storage"),
+        icon: (
+          <span class="feather-icon-container">
+            <SDCard />
+          </span>
+        ),
+        onClick: () => {}, // título visual
+      },
+
+      ...fsItems,
+
+      { divider: true },
+
+      {
+        label: T("S90"),
+        icon: (
+          <span class="feather-icon-container">
+            <FolderPlus />
+          </span>
+        ),
+        onClick: actions.showCreateDirModal,
+      },
+
+      {
+        label: T("S89"),
+        icon: (
+          <span class="feather-icon-container">
+            <Upload />
+          </span>
+        ),
+        onClick: actions.openFileUploadBrowser,
+      },
+
+      { divider: true },
+
+      {
+        label: T("S50"),
+        icon: (
+          <span class="feather-icon-container">
+            <RefreshCcw />
+          </span>
+        ),
+        onClick: actions.onRefresh,
+      },
+    ]
+
+    return menuItems
+  }
+
+  setMenu(newMenu())
+}, [state.fileSystem])
+
 
     // Render compact panel view
     const renderCompactView = () => {
@@ -121,35 +145,38 @@ const FilesPanel: FunctionalComponent = () => {
                 {!isFullScreen && (
                     <Fragment>
                         <input type="file" ref={fileref} class="d-none" onChange={(e) => actions.filesSelected(e)} />
-                        <div class="navbar">
-                            <span class="navbar-section  feather-icon-container">
-                                <SDCard />
-                                <strong class="text-ellipsis">{T("S65")}</strong>
-                            </span>
+<div class="navbar files-navbar">
+    {/* ── IZQUIERDA: título + info SD ── */}
+    <span class="navbar-section files-navbar-left feather-icon-container">
+        <SDCard />
+        <strong class="text-ellipsis">{T("S65")}</strong>
 
-                            <span class="navbar-section">
-                                <span class="full-height">
-                                    {state.fileSystem != "" && !state.isLoading && <PanelMenu items={menu || []} />}
-                                    <FullScreenButton elementId={id} />
-                                    <CloseButton elementId={id} hideOnFullScreen={true} />
-                                </span>
-                            </span>
-                        </div>
-                        <div class="input-group m-2">
-                            <div>
-                                <select
-                                    class="form-select"
-                                    onChange={(e) => actions.onSelectFS(e)}
-                                    value={state.fileSystem}>
-                                    {files.supported.map((element: any) => {
-                                        if (element.depend)
-                                            if (element.depend())
-                                                return <option key={element.value} value={element.value}>{T(element.name)}</option>
-                                    })}
-                                </select>
-                            </div>
-                            <div class="form-control m-1">{state.filePath ? state.filePath : ""}</div>
-                        </div>
+        {!state.isLoading && state.filesList && (
+            <span class="files-sd-text">
+                SD: {state.filesList.used} / {state.filesList.total}
+            </span>
+        )}
+    </span>
+
+    {/* ── DERECHA: barra + acciones ── */}
+    <span class="navbar-section files-navbar-right">
+        {!state.isLoading && state.filesList && state.filesList.occupation !== undefined && (
+            <span class="files-sd-bar">
+                <span
+                    class="files-sd-bar-fill"
+                    style={{ width: `${state.filesList.occupation}%` }}
+
+                />
+            </span>
+        )}
+
+        <span class="full-height">
+            {state.fileSystem != "" && !state.isLoading && <PanelMenu items={menu || []} />}
+            <FullScreenButton elementId={id} />
+            <CloseButton elementId={id} hideOnFullScreen={true} />
+        </span>
+    </span>
+</div>
 
                         <div
                             ref={dropRef}
@@ -396,35 +423,6 @@ const FilesPanel: FunctionalComponent = () => {
                                     })}
 
                                 </Fragment>
-                            )}
-                        </div>
-                        <div class="files-list-footer">
-                            {!state.isLoading && state.filesList && state.filesList.occupation && (
-                                <div class="filelist-occupation">
-                                    <div class="flex-pack">
-                                        {T("S98")}:{state.filesList.total}
-                                    </div>
-                                    <div class="m-1">-</div>
-                                    <div class="flex-pack m-2">
-                                        {T("S99")}:{state.filesList.used}
-                                    </div>
-                                    <div class="flex-pack hide-low m-1">
-                                        <div class="bar bar-sm" style="width:4rem">
-                                            <div
-                                                class="bar-item"
-                                                role="progressbar"
-                                                style={`width:${state.filesList.occupation}%`}
-                                                aria-valuenow={Number(state.filesList.occupation)}
-                                                aria-valuemin={0}
-                                                aria-valuemax={100}></div>
-                                        </div>
-
-                                        <span class="m-1">{state.filesList.occupation}%</span>
-                                    </div>
-                                </div>
-                            )}
-                            {!state.isLoading && state.filesList && state.filesList.status && (
-                                <div class="file-status">{T(state.filesList.status)}</div>
                             )}
                         </div>
                     </Fragment>

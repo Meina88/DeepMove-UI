@@ -158,3 +158,88 @@
     background-color: rgba($error-color, 0.16);
     transform: scale(0.92);
 }
+
+
+
+/* ============================= */
+/* Files panel header SD status */
+/* ============================= */
+
+#filesPanel .files-navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* ── LADO IZQUIERDO ── */
+
+#filesPanel .files-navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+#filesPanel .files-sd-text {
+  font-size: 0.65rem;
+  opacity: 0.55;
+  margin-left: 6px;
+  white-space: nowrap;
+}
+
+/* ── LADO DERECHO ── */
+
+#filesPanel .files-navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* barra contenedora */
+#filesPanel .files-sd-bar {
+  width: 56px;           /* pequeña */
+  height: 3px;           /* muy fina */
+  background: rgba(255,255,255,0.35);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+/* relleno */
+#filesPanel .files-sd-bar-fill {
+  height: 100%;
+  background: #ffffff;
+  opacity: 0.9;
+  transition: width 0.25s ease, background-color 0.25s ease;
+  display: block;
+
+}
+
+
+
+
+
+
+
+/* ============================= */
+/* Files panel layout fix */
+/* ============================= */
+
+#filesPanel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+#filesPanel .drop-zone.files-list {
+  flex: 1 1 auto;      /* 👈 ocupa todo el alto restante */
+  overflow-y: auto;    /* scroll interno */
+  min-height: 0;       /* 👈 CLAVE para flex + scroll */
+}
+
+/* ============================= */
+/* Files panel SD selector height fix */
+/* ============================= */
+
+#filesPanel .input-group {
+  align-items: center;     /* ← en vez de stretch */
+  padding: 0 !important;   /* ← elimina aire interno */
+}
