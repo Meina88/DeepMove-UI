@@ -40,13 +40,45 @@ const ToolpathPanel: FunctionalComponent = () => {
     const [viewIndex, setViewIndex] = useState(0)
     const [isRendering, setIsRendering] = useState(false)
     const [showGrid, setShowGrid] = useState<boolean>(() => {
-  const v = localStorage.getItem("toolpath.showGrid")
-  return v === null ? true : v === "true"
-})
+        const v = localStorage.getItem("toolpath.showGrid")
+        return v === null ? true : v === "true"
+    })
 
-useEffect(() => {
-  localStorage.setItem("toolpath.showGrid", String(showGrid))
-}, [showGrid])
+    useEffect(() => {
+        localStorage.setItem("toolpath.showGrid", String(showGrid))
+    }, [showGrid])
+
+    type ViewId = "top" | "oblique" | "front" | "side"
+
+    const DEFAULT_VIEWS: ViewId[] = ["top", "oblique"]
+
+    const [enabledViews, setEnabledViews] = useState<ViewId[]>(() => {
+        const raw = localStorage.getItem("toolpath.enabledViews")
+        if (!raw) return DEFAULT_VIEWS
+
+        try {
+            return JSON.parse(raw)
+        } catch {
+            return DEFAULT_VIEWS
+        }
+    })
+
+    useEffect(() => {
+        localStorage.setItem(
+            "toolpath.enabledViews",
+            JSON.stringify(enabledViews)
+        )
+    }, [enabledViews])
+
+    const visiblePresets = VIEW_PRESETS.filter(v =>
+        enabledViews.includes(v.id as ViewId)
+    )
+
+    useEffect(() => {
+        if (viewIndex >= visiblePresets.length) {
+            setViewIndex(0)
+        }
+    }, [enabledViews])
 
 
 
@@ -114,12 +146,12 @@ useEffect(() => {
     useEffect(() => {
         const renderer = rendererRef.current
         const model = modelRef.current
-        
+
         if (!renderer || !model) return
 
         renderer.render(
             model,
-            VIEW_PRESETS[viewIndex],
+            visiblePresets[viewIndex],
             cameraRef.current,              // ✅ camera
             toolPos ?? undefined,
             completedSegRef.current + 1,
@@ -147,7 +179,7 @@ useEffect(() => {
             if (renderer && model) {
                 renderer.render(
                     model,
-                    VIEW_PRESETS[viewIndex],
+                    visiblePresets[viewIndex],
                     cameraRef.current,           // ✅ camera
                     toolPos ?? undefined,
                     completedSegRef.current + 1,
@@ -188,7 +220,7 @@ useEffect(() => {
             if (renderer && model) {
                 renderer.render(
                     model,
-                    VIEW_PRESETS[viewIndex],
+                    visiblePresets[viewIndex],
                     cameraRef.current,
                     toolPos ?? undefined,
                     completedSegRef.current + 1,
@@ -237,7 +269,7 @@ useEffect(() => {
             if (renderer && model) {
                 renderer.render(
                     model,
-                    VIEW_PRESETS[viewIndex],
+                    visiblePresets[viewIndex],
                     cameraRef.current,
                     toolPos ?? undefined,
                     completedSegRef.current + 1,
@@ -354,7 +386,7 @@ useEffect(() => {
 
             renderer.render(
                 model,
-                VIEW_PRESETS[viewIndex],
+                visiblePresets[viewIndex],
                 cameraRef.current,
                 toolPos ?? undefined,
                 completedSegRef.current + 1,
@@ -468,7 +500,7 @@ useEffect(() => {
 
                     rendererRef.current.render(
                         model,
-                        VIEW_PRESETS[viewIndex],
+                        visiblePresets[viewIndex],
                         cameraRef.current,
                         first ? { ...first.start } : undefined,
                         0
@@ -490,20 +522,20 @@ useEffect(() => {
     }, [viewIndex])
 
 
-useEffect(() => {
-  const renderer = rendererRef.current
-  const model = modelRef.current
-  if (!renderer || !model) return
+    useEffect(() => {
+        const renderer = rendererRef.current
+        const model = modelRef.current
+        if (!renderer || !model) return
 
-  renderer.render(
-    model,
-    VIEW_PRESETS[viewIndex],
-    cameraRef.current,
-    toolPos ?? undefined,
-    completedSegRef.current + 1,
-    showGrid
-  )
-}, [showGrid])
+        renderer.render(
+            model,
+            visiblePresets[viewIndex],
+            cameraRef.current,
+            toolPos ?? undefined,
+            completedSegRef.current + 1,
+            showGrid
+        )
+    }, [showGrid])
 
 
 
@@ -535,7 +567,7 @@ useEffect(() => {
         if (renderer && model) {
             renderer.render(
                 model,
-                VIEW_PRESETS[viewIndex],
+                visiblePresets[viewIndex],
                 cameraRef.current,
                 toolPos ?? undefined,
                 completedSegRef.current + 1,
@@ -543,25 +575,6 @@ useEffect(() => {
             )
         }
     }
-
-
-//     const menu = [
-//   {
-//     label: T("grid"),
-//     displayToggle: () => (
-//       <span class="feather-icon-container">
-//         {showGrid ? (
-//           <CheckCircle style={{ width: "0.8rem", height: "0.8rem" }} />
-//         ) : (
-//           <Circle style={{ width: "0.8rem", height: "0.8rem" }} />
-//         )}
-//       </span>
-//     ),
-//     onClick: () => setShowGrid(v => !v),
-//   },
-// ]
-
-
 
     return (
         <div
@@ -572,36 +585,67 @@ useEffect(() => {
 
             <ContainerHelper id={id} />
 
-<div class="navbar">
-  <span class="navbar-section feather-icon-container">
-    <Eye />
-    <strong class="text-ellipsis">Toolpath</strong>
-  </span>
+            <div class="navbar">
+                <span class="navbar-section feather-icon-container">
+                    <Eye />
+                    <strong class="text-ellipsis">Toolpath</strong>
+                </span>
 
-  <span class="navbar-section">
-    <span class="full-height">
-      <PanelMenu
+                <span class="navbar-section">
+                    <span class="full-height">
+<PanelMenu
   items={[
     {
-      label: (
-        <label style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-          <input
-            type="checkbox"
-            checked={showGrid}
-            onChange={() => setShowGrid(v => !v)}
-          />
-          Grid
-        </label>
+      label: "Grid",
+      displayToggle: () => (
+        <span class="feather-icon-container">
+          {showGrid ? (
+            <CheckCircle style={{ width: "0.8rem", height: "0.8rem" }} />
+          ) : (
+            <Circle style={{ width: "0.8rem", height: "0.8rem" }} />
+          )}
+        </span>
       ),
+      onClick: () => setShowGrid(v => !v),
     },
+
+    ...(["top", "oblique", "front", "side"] as ViewId[]).map(id => ({
+      label:
+        id === "top"
+          ? "Top"
+          : id === "oblique"
+          ? "Isometric"
+          : id === "front"
+          ? "Front"
+          : "Side",
+
+      displayToggle: () => (
+        <span class="feather-icon-container">
+          {enabledViews.includes(id) ? (
+            <CheckCircle style={{ width: "0.8rem", height: "0.8rem" }} />
+          ) : (
+            <Circle style={{ width: "0.8rem", height: "0.8rem" }} />
+          )}
+        </span>
+      ),
+
+      onClick: () =>
+        setEnabledViews(v =>
+          v.includes(id)
+            ? v.filter(x => x !== id)
+            : [...v, id]
+        ),
+    })),
   ]}
 />
 
-      <FullScreenButton elementId={id} />
-      <CloseButton elementId={id} hideOnFullScreen={true} />
-    </span>
-  </span>
-</div>
+
+
+                        <FullScreenButton elementId={id} />
+                        <CloseButton elementId={id} hideOnFullScreen={true} />
+                    </span>
+                </span>
+            </div>
 
 
 
@@ -633,7 +677,7 @@ useEffect(() => {
                         }
 
                         clickTimeoutRef.current = window.setTimeout(() => {
-                            setViewIndex(v => (v + 1) % VIEW_PRESETS.length)
+                            setViewIndex(v => (v + 1) % visiblePresets.length)
                             clickTimeoutRef.current = null
                         }, 250)
                     }}

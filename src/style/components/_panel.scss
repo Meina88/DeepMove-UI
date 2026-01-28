@@ -243,3 +243,18 @@
 .panel .navbar:hover {
     background-color: $panel-header-hover
 }
+
+
+
+
+/* Dropdown menu dentro del header: los iconos deben heredar el color del item */
+.panel .navbar .dropdown .menu svg,
+.panel .navbar .dropdown .menu .feather {
+  color: inherit;
+  stroke: currentColor;
+}
+
+/* (Opcional) que el “check/circle” use el color primario siempre */
+.panel .navbar .dropdown .menu .menu-item .feather-icon-container {
+  color: $primary-color;
+}

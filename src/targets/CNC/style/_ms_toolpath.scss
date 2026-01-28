@@ -36,7 +36,8 @@
 
 #toolpathPanel .panel-body-dashboard {
   flex: 1 1 auto;
-  min-height: 0;   /* 🔑 crítico en flex + grid */
+  min-height: 0;   
+  padding: 0 !important;
 }
 
 @media (max-width: 1024px) {
@@ -45,3 +46,7 @@
   }
 }
 
+
+#toolpathPanel .navbar button {
+  display: inline-flex !important;
+}
