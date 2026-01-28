@@ -65,73 +65,73 @@ const FilesPanel: FunctionalComponent = () => {
         }
     }, [])
 
-useEffect(() => {
-  const newMenu = () => {
-    const fsItems: PanelMenuItem[] = files.supported
-      .filter((fs: any) => fs.depend && fs.depend())
-      .map((fs: any) => ({
-        label:
-          (state.fileSystem === fs.value ? "✓ " : "") + T(fs.name),
-        onClick: () => {
-          actions.onSelectFS({
-            target: { value: fs.value },
-          } as unknown as Event)
-        },
-      }))
+    useEffect(() => {
+        const newMenu = () => {
+            const fsItems: PanelMenuItem[] = files.supported
+                .filter((fs: any) => fs.depend && fs.depend())
+                .map((fs: any) => ({
+                    label:
+                        (state.fileSystem === fs.value ? "✓ " : "") + T(fs.name),
+                    onClick: () => {
+                        actions.onSelectFS({
+                            target: { value: fs.value },
+                        } as unknown as Event)
+                    },
+                }))
 
-    const menuItems: PanelMenuItem[] = [
-      {
-        label: T("Storage"),
-        icon: (
-          <span class="feather-icon-container">
-            <SDCard />
-          </span>
-        ),
-        onClick: () => {}, // título visual
-      },
+            const menuItems: PanelMenuItem[] = [
+                {
+                    label: T("Storage"),
+                    icon: (
+                        <span class="feather-icon-container">
+                            <SDCard />
+                        </span>
+                    ),
+                    onClick: () => { }, // título visual
+                },
 
-      ...fsItems,
+                ...fsItems,
 
-      { divider: true },
+                { divider: true },
 
-      {
-        label: T("S90"),
-        icon: (
-          <span class="feather-icon-container">
-            <FolderPlus />
-          </span>
-        ),
-        onClick: actions.showCreateDirModal,
-      },
+                {
+                    label: T("S90"),
+                    icon: (
+                        <span class="feather-icon-container">
+                            <FolderPlus />
+                        </span>
+                    ),
+                    onClick: actions.showCreateDirModal,
+                },
 
-      {
-        label: T("S89"),
-        icon: (
-          <span class="feather-icon-container">
-            <Upload />
-          </span>
-        ),
-        onClick: actions.openFileUploadBrowser,
-      },
+                {
+                    label: T("S89"),
+                    icon: (
+                        <span class="feather-icon-container">
+                            <Upload />
+                        </span>
+                    ),
+                    onClick: actions.openFileUploadBrowser,
+                },
 
-      { divider: true },
+                { divider: true },
 
-      {
-        label: T("S50"),
-        icon: (
-          <span class="feather-icon-container">
-            <RefreshCcw />
-          </span>
-        ),
-        onClick: actions.onRefresh,
-      },
-    ]
+                {
+                    label: T("S50"),
+                    icon: (
+                        <span class="feather-icon-container">
+                            <RefreshCcw />
+                        </span>
+                    ),
+                    onClick: actions.onRefresh,
+                },
+            ]
 
-    return menuItems
-  }
+            return menuItems
+        }
 
-  setMenu(newMenu())
-}, [state.fileSystem])
+        setMenu(newMenu())
+    }, [state.fileSystem])
 
 
     // Render compact panel view
@@ -145,38 +145,38 @@ useEffect(() => {
                 {!isFullScreen && (
                     <Fragment>
                         <input type="file" ref={fileref} class="d-none" onChange={(e) => actions.filesSelected(e)} />
-<div class="navbar files-navbar">
-    {/* ── IZQUIERDA: título + info SD ── */}
-    <span class="navbar-section files-navbar-left feather-icon-container">
-        <SDCard />
-        <strong class="text-ellipsis">{T("S65")}</strong>
+                        <div class="navbar files-navbar">
+                            {/* ── IZQUIERDA: título + info SD ── */}
+                            <span class="navbar-section files-navbar-left feather-icon-container">
+                                <SDCard />
+                                <strong class="text-ellipsis">{T("S65")}</strong>
 
-        {!state.isLoading && state.filesList && (
-            <span class="files-sd-text">
-                SD: {state.filesList.used} / {state.filesList.total}
-            </span>
-        )}
-    </span>
+                                {!state.isLoading && state.filesList && (
+                                    <span class="files-sd-text">
+                                        SD: {state.filesList.used} / {state.filesList.total}
+                                    </span>
+                                )}
+                            </span>
 
-    {/* ── DERECHA: barra + acciones ── */}
-    <span class="navbar-section files-navbar-right">
-        {!state.isLoading && state.filesList && state.filesList.occupation !== undefined && (
-            <span class="files-sd-bar">
-                <span
-                    class="files-sd-bar-fill"
-                    style={{ width: `${state.filesList.occupation}%` }}
+                            {/* ── DERECHA: barra + acciones ── */}
+                            <span class="navbar-section files-navbar-right">
+                                {!state.isLoading && state.filesList && state.filesList.occupation !== undefined && (
+                                    <span class="files-sd-bar">
+                                        <span
+                                            class="files-sd-bar-fill"
+                                            style={{ width: `${state.filesList.occupation}%` }}
 
-                />
-            </span>
-        )}
+                                        />
+                                    </span>
+                                )}
 
-        <span class="full-height">
-            {state.fileSystem != "" && !state.isLoading && <PanelMenu items={menu || []} />}
-            <FullScreenButton elementId={id} />
-            <CloseButton elementId={id} hideOnFullScreen={true} />
-        </span>
-    </span>
-</div>
+                                <span class="full-height">
+                                    {state.fileSystem != "" && !state.isLoading && <PanelMenu items={menu || []} />}
+                                    <FullScreenButton elementId={id} />
+                                    <CloseButton elementId={id} hideOnFullScreen={true} />
+                                </span>
+                            </span>
+                        </div>
 
                         <div
                             ref={dropRef}
@@ -350,6 +350,15 @@ useEffect(() => {
                                                                             )
                                                                             const url = espHttpURL(cmd.url, cmd.args)
 
+                                                                            const isMobile = window.innerWidth <= 768
+
+                                                                            if (isMobile) {
+                                                                                document
+                                                                                    .getElementById("toolpathPanel")
+                                                                                    ?.scrollIntoView({ behavior: "smooth", block: "start" })
+                                                                            }
+
+
                                                                             eventBus.emit("toolpath:preview", {
                                                                                 url,
                                                                                 filename: line.name,
@@ -370,6 +379,19 @@ useEffect(() => {
                                                                         onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
                                                                             e.currentTarget.blur()
                                                                             useUiContextFn.haptic()
+
+
+                                                                            const isMobile = window.innerWidth <= 768
+
+                                                                            if (isMobile) {
+                                                                                document
+                                                                                    .getElementById("OverridesPanel")
+
+                                                                                    ?.scrollIntoView({ behavior: "smooth", block: "start" })
+                                                                            }
+
+
+
 
                                                                             const isSmallScreen = window.innerWidth <= 768
 
