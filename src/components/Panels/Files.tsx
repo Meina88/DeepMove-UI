@@ -43,6 +43,8 @@ const FilesPanel: FunctionalComponent = () => {
     const dropRef = useRef<HTMLDivElement | null>(null)
     const { modals } = useModalsContext()
     const [isFullScreen, setIsFullScreen] = useState<boolean>(false)
+    const [selectedFile, setSelectedFile] = useState<string | null>(null)
+
 
     // Register the file input ref with the hook
     useEffect(() => {
@@ -181,6 +183,13 @@ const FilesPanel: FunctionalComponent = () => {
                         <div
                             ref={dropRef}
                             class="drop-zone files-list m-1"
+                            onClick={(e) => {
+  // si el click fue directamente sobre el fondo del listado
+  if (e.target === e.currentTarget) {
+    setSelectedFile(null)
+  }
+}}
+
                             onDragOver={(e) => {
                                 dropRef.current?.classList.add("drop-zone--over")
                                 e.preventDefault()
@@ -272,7 +281,14 @@ const FilesPanel: FunctionalComponent = () => {
                                         )
 
                                         return (
-                                            <div class="file-item form-control" key={line.name}>
+                                            <div
+  class={`file-item form-control ${selectedFile === line.name ? "is-selected" : ""}`}
+  key={line.name}
+  onClick={() => {
+    setSelectedFile(line.name)
+  }}
+>
+
                                                 {/* ─── Fila superior: nombre + tamaño ─── */}
                                                 <div
                                                     class={`file-item-header ${canDownloadOrOpen ? "file-line-action" : ""}`}

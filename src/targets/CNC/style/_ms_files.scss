@@ -25,6 +25,16 @@
 }
 
 
+.file-item.is-selected {
+  background-color: rgba($primary-color, 0.08);
+  box-shadow: 0 0 0 0px rgba($primary-color, 0.35);
+}
+
+.file-item.is-selected .file-item-name span {
+  color: $primary-color;
+}
+
+
 
 /* Header */
 .file-item-header {
