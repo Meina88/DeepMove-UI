@@ -93,7 +93,7 @@ input[type="range"]::-ms-thumb {
 
 .drop-zone {
     border: none;
-    height: 70%;
+    height: 100%;
 }
 
 .selection-list {
@@ -110,8 +110,7 @@ input[type="range"]::-ms-thumb {
     background-color: #f1f1fc;
 }
 
-.files-list {
-    border: 0.05rem solid #dadee4;
+.files-list {    
     border-radius: $border-radius;
     padding: 5px 5px !important;
     overflow-x: hidden;
@@ -202,10 +201,10 @@ span.input-group-addon {
     font-size: $font-size-sm;
     white-space: pre-wrap;
     word-break: break-all;
-    border: 0.05rem solid #dadee4;
+    border: 0.05rem solid $border-color-light;
     border-radius: $border-radius;
     padding: 5px 5px !important;
-    margin-top: 0px !important;
+   
     overflow-x: hidden;
     overflow-y: scroll !important;
     user-select: text;
@@ -382,7 +381,8 @@ color: $body-font-color;
     -webkit-user-select:auto!important;
     -ms-user-select: auto!important;
     overflow: hidden;
-    background-color: #fff;
+    background-color: $bg-color;
+
 }
 
 .fallback-content {

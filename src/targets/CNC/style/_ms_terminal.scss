@@ -18,3 +18,32 @@
 .terminal-input-main {
     flex: 1;
 }
+
+
+
+/* ============================= */
+/* Terminal panel scrollbar */
+/* ============================= */
+
+#terminalPanel .terminal {
+  scrollbar-width: thin;
+  scrollbar-color: $primary-color $bg-color-dark;
+}
+
+#terminalPanel .terminal::-webkit-scrollbar {
+  width: 8px;
+}
+
+#terminalPanel .terminal::-webkit-scrollbar-track {
+  background-color: $bg-color-dark;
+  border-radius: 8px;
+}
+
+#terminalPanel .terminal::-webkit-scrollbar-thumb {
+  background-color: rgba($primary-color, 0.6);
+  border-radius: 8px;
+}
+
+#terminalPanel .terminal::-webkit-scrollbar-thumb:hover {
+  background-color: $primary-color;
+}
