@@ -1,24 +1,43 @@
-export const COLORS = {
-    // Fondo
-    background: "#000000",
+// Colors.ts
+// Toolpath color resolver from CSS variables (runtime-safe)
 
-    // Trayectorias
-    rapid: "rgba(0, 170, 255, 0.6)",
-    feed: "#ffb000",
-    feedCut: "#ff8c00",
+function cssVar(name: string, fallback: string): string {
+  if (typeof window === "undefined") return fallback
 
-    // ✅ NUEVO: segmentos ya ejecutados
-    completed: "#00c8ff",   // celeste limpio, bien legible
+  const value = getComputedStyle(document.documentElement)
+    .getPropertyValue(name)
+    .trim()
 
-    // Ejes
-    axisX: "#ff5555",
-    axisY: "#55ff55",
-    axisZ: "#5599ff",
+  return value || fallback
+}
 
-    // Origen
-    origin: "#ffffff",
+export function getToolpathColors() {
+  return {
+    // Background
+    background: cssVar("--tp-bg", "#111"),
 
-    // Toolhead
-    tool: "#ffffff",
-    toolGlow: "rgba(255, 255, 255, 0.6)",
+    // Toolpath segments
+    rapid: cssVar("--tp-rapid", "#777"),
+    linear: cssVar("--tp-linear", "#4da3ff"),
+    arc: cssVar("--tp-arc", "#4ddc8c"),
+
+    // Feed visualization
+    feed: cssVar("--tp-feed", "#4da3ff"),
+    feedCut: cssVar("--tp-feed-cut", "#ff9f1a"),
+
+    // Completed path
+    completed: cssVar("--tp-completed", "#ffcc33"),
+
+    // Tool position
+    tool: cssVar("--tp-tool", "#ff4d4d"),
+
+    // Grid
+    gridMajor: cssVar("--tp-grid-major", "rgba(255,255,255,0.12)"),
+    gridMinor: cssVar("--tp-grid-minor", "rgba(255,255,255,0.05)"),
+
+    // Axis
+    axisX: cssVar("--tp-axis-x", "rgba(255,0,0,0.9)"),
+    axisY: cssVar("--tp-axis-y", "rgba(0,255,0,0.9)"),
+    axisZ: cssVar("--tp-axis-z", "rgba(0,128,255,0.9)"),
+  }
 }

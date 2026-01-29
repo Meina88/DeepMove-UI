@@ -217,7 +217,7 @@
             $gray-color-light );
 
     border-radius: $border-radius;
-    box-shadow: inset 0 0 0 1px $border-color;
+    
 }
 
 
@@ -414,7 +414,7 @@
         color: $light-color;
 
         background-color: $primary-color; // 🔵 acción normal
-        box-shadow: 0 4px 10px rgba($dark-color, 0.35);
+        
 
         transition:
             background-color 150ms ease,
@@ -505,7 +505,7 @@
     padding: $unit-3;
 
     background-color: $bg-color;
-    box-shadow: 0 2px 2px rgba(0,0,0,0.04);
+    
 
     border:none;
     border-radius: 10px;
@@ -621,7 +621,7 @@
         align-items: center;
         justify-content: center;
 
-        box-shadow: 0 3px 8px rgba($dark-color, 0.28);
+        
 
         transition:
             background-color 120ms ease,

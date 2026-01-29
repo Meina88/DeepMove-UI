@@ -145,24 +145,27 @@ const ToolpathPanel: FunctionalComponent = () => {
     // 🔁 Redraw
     useEffect(() => {
         const renderer = rendererRef.current
-        const model = modelRef.current
-
-        if (!renderer || !model) return
+        if (!renderer) return
 
         renderer.render(
-            model,
+            modelRef.current ?? null,
             visiblePresets[viewIndex],
-            cameraRef.current,              // ✅ camera
+            cameraRef.current,          // camera
             toolPos ?? undefined,
             completedSegRef.current + 1,
             showGrid
         )
-    }, [viewIndex, toolPos])
+    }, [viewIndex, toolPos, showGrid])
+
 
     // 📐 Resize
     useEffect(() => {
         const canvas = canvasRef.current
         if (!canvas) return
+
+        if (!rendererRef.current) {
+            rendererRef.current = new CanvasRenderer(canvas)
+        }
 
         const resize = () => {
             const rect = canvas.getBoundingClientRect()
@@ -175,17 +178,16 @@ const ToolpathPanel: FunctionalComponent = () => {
             if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
 
             const renderer = rendererRef.current
-            const model = modelRef.current
-            if (renderer && model) {
-                renderer.render(
-                    model,
-                    visiblePresets[viewIndex],
-                    cameraRef.current,           // ✅ camera
-                    toolPos ?? undefined,
-                    completedSegRef.current + 1,
-                    showGrid
-                )
-            }
+            if (!renderer) return
+
+            renderer.render(
+                modelRef.current ?? null,
+                visiblePresets[viewIndex],
+                cameraRef.current,
+                toolPos ?? undefined,
+                completedSegRef.current + 1,
+                showGrid
+            )
         }
 
         resize()
@@ -199,7 +201,7 @@ const ToolpathPanel: FunctionalComponent = () => {
             ro.disconnect()
             window.removeEventListener("resize", resize)
         }
-    }, [viewIndex, toolPos])
+    }, [viewIndex, toolPos, showGrid])
 
     // 🖱️ Zoom con rueda
     useEffect(() => {
@@ -216,17 +218,16 @@ const ToolpathPanel: FunctionalComponent = () => {
             )
 
             const renderer = rendererRef.current
-            const model = modelRef.current
-            if (renderer && model) {
-                renderer.render(
-                    model,
-                    visiblePresets[viewIndex],
-                    cameraRef.current,
-                    toolPos ?? undefined,
-                    completedSegRef.current + 1,
-                    showGrid
-                )
-            }
+            if (!renderer) return
+
+            renderer.render(
+                modelRef.current ?? null,
+                visiblePresets[viewIndex],
+                cameraRef.current,
+                toolPos ?? undefined,
+                completedSegRef.current + 1,
+                showGrid
+            )
         }
 
         canvas.addEventListener("wheel", onWheel, { passive: false })
@@ -234,7 +235,8 @@ const ToolpathPanel: FunctionalComponent = () => {
         return () => {
             canvas.removeEventListener("wheel", onWheel)
         }
-    }, [viewIndex, toolPos])
+    }, [viewIndex, toolPos, showGrid])
+
 
 
     // 🖐️ Pan con drag (mouse)
@@ -244,17 +246,17 @@ const ToolpathPanel: FunctionalComponent = () => {
 
         const onMouseDown = (e: MouseEvent) => {
             draggingRef.current = true
-            hasMovedRef.current = false   // 👈 IMPORTANTE
+            hasMovedRef.current = false
             lastMouseRef.current = { x: e.clientX, y: e.clientY }
             canvas.style.cursor = "grabbing"
         }
-
 
         const onMouseMove = (e: MouseEvent) => {
             if (!draggingRef.current) return
 
             const dx = e.clientX - lastMouseRef.current.x
             const dy = e.clientY - lastMouseRef.current.y
+
             if (Math.abs(dx) > 2 || Math.abs(dy) > 2) {
                 hasMovedRef.current = true
             }
@@ -265,17 +267,16 @@ const ToolpathPanel: FunctionalComponent = () => {
             cameraRef.current.panY += dy
 
             const renderer = rendererRef.current
-            const model = modelRef.current
-            if (renderer && model) {
-                renderer.render(
-                    model,
-                    visiblePresets[viewIndex],
-                    cameraRef.current,
-                    toolPos ?? undefined,
-                    completedSegRef.current + 1,
-                    showGrid
-                )
-            }
+            if (!renderer) return
+
+            renderer.render(
+                modelRef.current ?? null,
+                visiblePresets[viewIndex],
+                cameraRef.current,
+                toolPos ?? undefined,
+                completedSegRef.current + 1,
+                showGrid
+            )
         }
 
         const stopDrag = () => {
@@ -294,7 +295,8 @@ const ToolpathPanel: FunctionalComponent = () => {
             window.removeEventListener("mouseup", stopDrag)
             canvas.removeEventListener("mouseleave", stopDrag)
         }
-    }, [viewIndex, toolPos])
+    }, [viewIndex, toolPos, showGrid])
+
 
     const getTouchCenter = (t1: Touch, t2: Touch) => ({
         x: (t1.clientX + t2.clientX) / 2,
@@ -346,8 +348,7 @@ const ToolpathPanel: FunctionalComponent = () => {
             e.preventDefault()
 
             const renderer = rendererRef.current
-            const model = modelRef.current
-            if (!renderer || !model) return
+            if (!renderer) return
 
             // ✌️ Pinch zoom (2 dedos)
             if (e.touches.length === 2) {
@@ -383,9 +384,8 @@ const ToolpathPanel: FunctionalComponent = () => {
                 cameraRef.current.panY += dy
             }
 
-
             renderer.render(
-                model,
+                modelRef.current ?? null,
                 visiblePresets[viewIndex],
                 cameraRef.current,
                 toolPos ?? undefined,
@@ -393,6 +393,7 @@ const ToolpathPanel: FunctionalComponent = () => {
                 showGrid
             )
         }
+
 
 
         const onTouchEnd = (e: TouchEvent) => {
@@ -522,21 +523,6 @@ const ToolpathPanel: FunctionalComponent = () => {
     }, [viewIndex])
 
 
-    useEffect(() => {
-        const renderer = rendererRef.current
-        const model = modelRef.current
-        if (!renderer || !model) return
-
-        renderer.render(
-            model,
-            visiblePresets[viewIndex],
-            cameraRef.current,
-            toolPos ?? undefined,
-            completedSegRef.current + 1,
-            showGrid
-        )
-    }, [showGrid])
-
 
 
 
@@ -556,25 +542,25 @@ const ToolpathPanel: FunctionalComponent = () => {
         if (first) setToolPos({ ...first.start })
     }
 
-    // 🎯 Reset cámara: centrar modelo (zoom/pan default)
+    // 🎯 Reset cámara: centrar vista (zoom/pan default)
     const resetCamera = () => {
         cameraRef.current.zoom = 1
         cameraRef.current.panX = 0
         cameraRef.current.panY = 0
 
         const renderer = rendererRef.current
-        const model = modelRef.current
-        if (renderer && model) {
-            renderer.render(
-                model,
-                visiblePresets[viewIndex],
-                cameraRef.current,
-                toolPos ?? undefined,
-                completedSegRef.current + 1,
-                showGrid
-            )
-        }
+        if (!renderer) return
+
+        renderer.render(
+            modelRef.current ?? null,
+            visiblePresets[viewIndex],
+            cameraRef.current,
+            toolPos ?? undefined,
+            completedSegRef.current + 1,
+            showGrid
+        )
     }
+
 
     return (
         <div
@@ -593,51 +579,51 @@ const ToolpathPanel: FunctionalComponent = () => {
 
                 <span class="navbar-section">
                     <span class="full-height">
-<PanelMenu
-  items={[
-    {
-      label: "Grid",
-      displayToggle: () => (
-        <span class="feather-icon-container">
-          {showGrid ? (
-            <CheckCircle style={{ width: "0.8rem", height: "0.8rem" }} />
-          ) : (
-            <Circle style={{ width: "0.8rem", height: "0.8rem" }} />
-          )}
-        </span>
-      ),
-      onClick: () => setShowGrid(v => !v),
-    },
+                        <PanelMenu
+                            items={[
+                                {
+                                    label: "Grid",
+                                    displayToggle: () => (
+                                        <span class="feather-icon-container">
+                                            {showGrid ? (
+                                                <CheckCircle style={{ width: "0.8rem", height: "0.8rem" }} />
+                                            ) : (
+                                                <Circle style={{ width: "0.8rem", height: "0.8rem" }} />
+                                            )}
+                                        </span>
+                                    ),
+                                    onClick: () => setShowGrid(v => !v),
+                                },
 
-    ...(["top", "oblique", "front", "side"] as ViewId[]).map(id => ({
-      label:
-        id === "top"
-          ? "Top"
-          : id === "oblique"
-          ? "Isometric"
-          : id === "front"
-          ? "Front"
-          : "Side",
+                                ...(["top", "oblique", "front", "side"] as ViewId[]).map(id => ({
+                                    label:
+                                        id === "top"
+                                            ? "Top"
+                                            : id === "oblique"
+                                                ? "Isometric"
+                                                : id === "front"
+                                                    ? "Front"
+                                                    : "Side",
 
-      displayToggle: () => (
-        <span class="feather-icon-container">
-          {enabledViews.includes(id) ? (
-            <CheckCircle style={{ width: "0.8rem", height: "0.8rem" }} />
-          ) : (
-            <Circle style={{ width: "0.8rem", height: "0.8rem" }} />
-          )}
-        </span>
-      ),
+                                    displayToggle: () => (
+                                        <span class="feather-icon-container">
+                                            {enabledViews.includes(id) ? (
+                                                <CheckCircle style={{ width: "0.8rem", height: "0.8rem" }} />
+                                            ) : (
+                                                <Circle style={{ width: "0.8rem", height: "0.8rem" }} />
+                                            )}
+                                        </span>
+                                    ),
 
-      onClick: () =>
-        setEnabledViews(v =>
-          v.includes(id)
-            ? v.filter(x => x !== id)
-            : [...v, id]
-        ),
-    })),
-  ]}
-/>
+                                    onClick: () =>
+                                        setEnabledViews(v =>
+                                            v.includes(id)
+                                                ? v.filter(x => x !== id)
+                                                : [...v, id]
+                                        ),
+                                })),
+                            ]}
+                        />
 
 
 
@@ -662,7 +648,6 @@ const ToolpathPanel: FunctionalComponent = () => {
                     style={{
                         width: "100%",
                         height: "100%",
-                        background: "#111",
                         borderRadius: "6px",
                         touchAction: "none",
                     }}

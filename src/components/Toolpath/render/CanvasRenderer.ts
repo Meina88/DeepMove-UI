@@ -1,6 +1,7 @@
 import { ToolpathModel } from "../core/ToolpathModel"
 import { ViewPreset } from "../types/toolpath.types"
-import { COLORS } from "./Colors"
+import { getToolpathColors } from "./Colors"
+
 
 export class CanvasRenderer {
   private ctx: CanvasRenderingContext2D
@@ -12,14 +13,15 @@ export class CanvasRenderer {
   }
 
 render(
-  model: ToolpathModel,
-  view: ViewPreset,
-  camera?: { zoom: number; panX: number; panY: number },
-  toolPos?: { x: number; y: number; z: number },
-  completedSegments: number = 0,
-  showGrid: boolean = true
-)
- {
+  model: ToolpathModel | null,
+
+    view: ViewPreset,
+    camera?: { zoom: number; panX: number; panY: number },
+    toolPos?: { x: number; y: number; z: number },
+    completedSegments: number = 0,
+    showGrid: boolean = true
+  ) {
+    const COLORS = getToolpathColors()
     const ctx = this.ctx
 
     const dpr = window.devicePixelRatio || 1
@@ -34,7 +36,15 @@ render(
 
 
 
-    const bbox = model.bbox
+const bbox = model?.bbox ?? {
+  minX: -100,
+  maxX: 100,
+  minY: -100,
+  maxY: 100,
+  minZ: 0,
+  maxZ: 0,
+}
+
 
     const centerX = (bbox.minX + bbox.maxX) / 2
     const centerY = (bbox.minY + bbox.maxY) / 2
@@ -78,16 +88,16 @@ render(
 
     const offsetX = cssW / 2 - center2DX * scale + panX
     const offsetY = cssH / 2 - center2DY * scale + panY
-    
-const gridPlane = this.getGridPlane(view.id)
 
-if (showGrid) {
-  if (gridPlane === "XY" && view.id === "top") {
-    this.drawGridXY(ctx, view, scale, offsetX, offsetY)
-  } else {
-    this.drawProjectedGrid(ctx, view, scale, offsetX, offsetY, gridPlane)
-  }
-}
+    const gridPlane = this.getGridPlane(view.id)
+
+    if (showGrid) {
+      if (gridPlane === "XY" && view.id === "top") {
+        this.drawGridXY(ctx, view, scale, offsetX, offsetY, COLORS)
+      } else {
+        this.drawProjectedGrid(ctx, view, scale, offsetX, offsetY, gridPlane, COLORS)
+      }
+    }
 
 
 
@@ -95,43 +105,46 @@ if (showGrid) {
     ctx.lineCap = "round"
     ctx.lineJoin = "round"
 
-    const maxSeg = Math.min(model.segments.length, completedSegments)
+   if (model) {
+  const maxSeg = Math.min(model.segments.length, completedSegments)
 
-    model.segments.forEach((seg, index) => {
-      const a3 = {
-        x: seg.start.x - centerX,
-        y: seg.start.y - centerY,
-        z: seg.start.z - centerZ,
-      }
-      const b3 = {
-        x: seg.end.x - centerX,
-        y: seg.end.y - centerY,
-        z: seg.end.z - centerZ,
-      }
+  model.segments.forEach((seg, index) => {
+    const a3 = {
+      x: seg.start.x - centerX,
+      y: seg.start.y - centerY,
+      z: seg.start.z - centerZ,
+    }
+    const b3 = {
+      x: seg.end.x - centerX,
+      y: seg.end.y - centerY,
+      z: seg.end.z - centerZ,
+    }
 
-      const a2 = view.projection(a3)
-      const b2 = view.projection(b3)
+    const a2 = view.projection(a3)
+    const b2 = view.projection(b3)
 
-      const isCompleted = index < maxSeg
+    const isCompleted = index < maxSeg
 
-      if (isCompleted) {
-        ctx.strokeStyle = COLORS.completed
-        ctx.lineWidth = 2.4
-      } else if (seg.type === "rapid") {
-        ctx.strokeStyle = COLORS.rapid
-        ctx.setLineDash([5, 4])
-        ctx.lineWidth = 1
-      } else {
-        ctx.strokeStyle = b3.z < 0 ? COLORS.feedCut : COLORS.feed
-        ctx.lineWidth = b3.z < 0 ? 2.2 : 1.6
-      }
+    if (isCompleted) {
+      ctx.strokeStyle = COLORS.completed
+      ctx.lineWidth = 2.4
+    } else if (seg.type === "rapid") {
+      ctx.strokeStyle = COLORS.rapid
+      ctx.setLineDash([5, 4])
+      ctx.lineWidth = 1
+    } else {
+      ctx.strokeStyle = b3.z < 0 ? COLORS.feedCut : COLORS.feed
+      ctx.lineWidth = b3.z < 0 ? 2.2 : 1.6
+    }
 
-      ctx.beginPath()
-      ctx.moveTo(offsetX + a2.x * scale, offsetY + a2.y * scale)
-      ctx.lineTo(offsetX + b2.x * scale, offsetY + b2.y * scale)
-      ctx.stroke()
-      ctx.setLineDash([])
-    })
+    ctx.beginPath()
+    ctx.moveTo(offsetX + a2.x * scale, offsetY + a2.y * scale)
+    ctx.lineTo(offsetX + b2.x * scale, offsetY + b2.y * scale)
+    ctx.stroke()
+    ctx.setLineDash([])
+  })
+}
+
 
     if (toolPos) {
       const p3 = {
@@ -154,26 +167,26 @@ if (showGrid) {
     }
 
     if (view.showAxes) {
-      this.drawCornerAxes(view)
+      this.drawCornerAxes(view, COLORS)
     }
   }
 
   private getGridPlane(viewId: string): "XY" | "XZ" | "YZ" {
-  switch (viewId) {
-    case "top":
-    case "oblique":
-      return "XY"
+    switch (viewId) {
+      case "top":
+      case "oblique":
+        return "XY"
 
-    case "front":
-      return "XZ"
+      case "front":
+        return "XZ"
 
-    case "side":
-      return "YZ"
+      case "side":
+        return "YZ"
 
-    default:
-      return "XY"
+      default:
+        return "XY"
+    }
   }
-}
 
 
   private drawGridXY(
@@ -181,7 +194,8 @@ if (showGrid) {
     view: ViewPreset,
     scale: number,
     offsetX: number,
-    offsetY: number
+    offsetY: number,
+    COLORS: ReturnType<typeof getToolpathColors>
   ) {
     if (view.id !== "top") return
 
@@ -200,8 +214,9 @@ if (showGrid) {
 
     for (let x = Math.floor(minX / GRID_MM) * GRID_MM; x <= maxX; x += GRID_MM) {
       ctx.beginPath()
-      ctx.strokeStyle = x % GRID_MAJOR === 0 ? "#2c2c2c" : "#1f1f1f"
-      ctx.lineWidth = x === 0 ? 2 : 1
+      ctx.strokeStyle = x % GRID_MAJOR === 0 ? COLORS.gridMajor : COLORS.gridMinor
+      ctx.lineWidth = x % GRID_MAJOR === 0 ? 0.6 : 0.3
+
 
       const sx = offsetX + x * scale
       ctx.moveTo(sx, 0)
@@ -211,8 +226,9 @@ if (showGrid) {
 
     for (let y = Math.floor(minY / GRID_MM) * GRID_MM; y <= maxY; y += GRID_MM) {
       ctx.beginPath()
-      ctx.strokeStyle = y % GRID_MAJOR === 0 ? "#2c2c2c" : "#1f1f1f"
-      ctx.lineWidth = y === 0 ? 2 : 1
+      ctx.strokeStyle = y % GRID_MAJOR === 0 ? COLORS.gridMajor : COLORS.gridMinor
+      ctx.lineWidth = y % GRID_MAJOR === 0 ? 0.6 : 0.3
+
 
       const sy = offsetY - y * scale
       ctx.moveTo(0, sy)
@@ -223,17 +239,17 @@ if (showGrid) {
     ctx.restore()
   }
 
-private drawProjectedGrid(
-  ctx: CanvasRenderingContext2D,
-  view: ViewPreset,
-  scale: number,
-  offsetX: number,
-  offsetY: number,
-  plane: "XY" | "XZ" | "YZ"
-)
- {
+  private drawProjectedGrid(
+    ctx: CanvasRenderingContext2D,
+    view: ViewPreset,
+    scale: number,
+    offsetX: number,
+    offsetY: number,
+    plane: "XY" | "XZ" | "YZ",
+    COLORS: ReturnType<typeof getToolpathColors>
+  ) {
     const GRID_MINOR = 10
-const GRID_MAJOR = GRID_MINOR * 5
+    const GRID_MAJOR = GRID_MINOR * 5
 
 
     // tamaño del viewport en mundo (mm)
@@ -244,124 +260,130 @@ const GRID_MAJOR = GRID_MINOR * 5
     const RANGE_X = viewW
     const RANGE_Y = viewH
 
-// ─────────────────────────────
-// SUB GRID (fino)
-// ─────────────────────────────
-ctx.strokeStyle = "rgba(255,255,255,0.07)"
-ctx.lineWidth = plane === "XY" ? 1 : 1.6
+    // ─────────────────────────────
+    // SUB GRID (fino)
+    // ─────────────────────────────
+    ctx.strokeStyle = COLORS.gridMinor
+    ctx.lineWidth = 0.3
 
 
-// Líneas paralelas al eje principal (Y / Z según plano)
-for (
-  let y = Math.floor(-RANGE_Y / GRID_MINOR) * GRID_MINOR;
-  y <= RANGE_Y;
-  y += GRID_MINOR
-) {
-  const a3 =
-    plane === "XY" ? { x: -RANGE_X, y, z: 0 } :
-    plane === "XZ" ? { x: -RANGE_X, y: 0, z: y } :
-                     { x: 0, y: -RANGE_Y, z: y }
 
-  const b3 =
-    plane === "XY" ? { x: RANGE_X, y, z: 0 } :
-    plane === "XZ" ? { x: RANGE_X, y: 0, z: y } :
-                     { x: 0, y: RANGE_Y, z: y }
+    // Líneas paralelas al eje principal (Y / Z según plano)
+    for (
+      let y = Math.floor(-RANGE_Y / GRID_MINOR) * GRID_MINOR;
+      y <= RANGE_Y;
+      y += GRID_MINOR
+    ) {
+      const a3 =
+        plane === "XY" ? { x: -RANGE_X, y, z: 0 } :
+          plane === "XZ" ? { x: -RANGE_X, y: 0, z: y } :
+            { x: 0, y: -RANGE_Y, z: y }
 
-  const a2 = view.projection(a3)
-  const b2 = view.projection(b3)
+      const b3 =
+        plane === "XY" ? { x: RANGE_X, y, z: 0 } :
+          plane === "XZ" ? { x: RANGE_X, y: 0, z: y } :
+            { x: 0, y: RANGE_Y, z: y }
 
-  ctx.beginPath()
-  ctx.moveTo(offsetX + a2.x * scale, offsetY + a2.y * scale)
-  ctx.lineTo(offsetX + b2.x * scale, offsetY + b2.y * scale)
-  ctx.stroke()
-}
+      const a2 = view.projection(a3)
+      const b2 = view.projection(b3)
 
-// Líneas paralelas al eje secundario (X / Y según plano)
-for (
-  let x = Math.floor(-RANGE_X / GRID_MINOR) * GRID_MINOR;
-  x <= RANGE_X;
-  x += GRID_MINOR
-) {
-  const a3 =
-    plane === "XY" ? { x, y: -RANGE_Y, z: 0 } :
-    plane === "XZ" ? { x, y: 0, z: -RANGE_Y } :
-                     { x: 0, y: x, z: -RANGE_Y }
+      ctx.beginPath()
+      ctx.moveTo(offsetX + a2.x * scale, offsetY + a2.y * scale)
+      ctx.lineTo(offsetX + b2.x * scale, offsetY + b2.y * scale)
+      ctx.stroke()
+    }
 
-  const b3 =
-    plane === "XY" ? { x, y: RANGE_Y, z: 0 } :
-    plane === "XZ" ? { x, y: 0, z: RANGE_Y } :
-                     { x: 0, y: x, z: RANGE_Y }
+    // Líneas paralelas al eje secundario (X / Y según plano)
+    for (
+      let x = Math.floor(-RANGE_X / GRID_MINOR) * GRID_MINOR;
+      x <= RANGE_X;
+      x += GRID_MINOR
+    ) {
+      const a3 =
+        plane === "XY" ? { x, y: -RANGE_Y, z: 0 } :
+          plane === "XZ" ? { x, y: 0, z: -RANGE_Y } :
+            { x: 0, y: x, z: -RANGE_Y }
 
-  const a2 = view.projection(a3)
-  const b2 = view.projection(b3)
+      const b3 =
+        plane === "XY" ? { x, y: RANGE_Y, z: 0 } :
+          plane === "XZ" ? { x, y: 0, z: RANGE_Y } :
+            { x: 0, y: x, z: RANGE_Y }
 
-  ctx.beginPath()
-  ctx.moveTo(offsetX + a2.x * scale, offsetY + a2.y * scale)
-  ctx.lineTo(offsetX + b2.x * scale, offsetY + b2.y * scale)
-  ctx.stroke()
-}
+      const a2 = view.projection(a3)
+      const b2 = view.projection(b3)
 
-// ─────────────────────────────
-// GRID MAYOR
-// ─────────────────────────────
-ctx.strokeStyle = "rgba(255,255,255,0.14)"
-ctx.lineWidth = 1.2
+      ctx.beginPath()
+      ctx.moveTo(offsetX + a2.x * scale, offsetY + a2.y * scale)
+      ctx.lineTo(offsetX + b2.x * scale, offsetY + b2.y * scale)
+      ctx.stroke()
+    }
 
-for (
-  let y = Math.floor(-RANGE_Y / GRID_MAJOR) * GRID_MAJOR;
-  y <= RANGE_Y;
-  y += GRID_MAJOR
-) {
-  const a3 =
-    plane === "XY" ? { x: -RANGE_X, y, z: 0 } :
-    plane === "XZ" ? { x: -RANGE_X, y: 0, z: y } :
-                     { x: 0, y: -RANGE_Y, z: y }
+    // ─────────────────────────────
+    // GRID MAYOR
+    // ─────────────────────────────
+    ctx.strokeStyle = COLORS.gridMajor
+    ctx.lineWidth = 0.6
 
-  const b3 =
-    plane === "XY" ? { x: RANGE_X, y, z: 0 } :
-    plane === "XZ" ? { x: RANGE_X, y: 0, z: y } :
-                     { x: 0, y: RANGE_Y, z: y }
 
-  const a2 = view.projection(a3)
-  const b2 = view.projection(b3)
+    for (
+      let y = Math.floor(-RANGE_Y / GRID_MAJOR) * GRID_MAJOR;
+      y <= RANGE_Y;
+      y += GRID_MAJOR
+    ) {
+      const a3 =
+        plane === "XY" ? { x: -RANGE_X, y, z: 0 } :
+          plane === "XZ" ? { x: -RANGE_X, y: 0, z: y } :
+            { x: 0, y: -RANGE_Y, z: y }
 
-  ctx.beginPath()
-  ctx.moveTo(offsetX + a2.x * scale, offsetY + a2.y * scale)
-  ctx.lineTo(offsetX + b2.x * scale, offsetY + b2.y * scale)
-  ctx.stroke()
-}
+      const b3 =
+        plane === "XY" ? { x: RANGE_X, y, z: 0 } :
+          plane === "XZ" ? { x: RANGE_X, y: 0, z: y } :
+            { x: 0, y: RANGE_Y, z: y }
 
-for (
-  let x = Math.floor(-RANGE_X / GRID_MAJOR) * GRID_MAJOR;
-  x <= RANGE_X;
-  x += GRID_MAJOR
-) {
-  const a3 =
-    plane === "XY" ? { x, y: -RANGE_Y, z: 0 } :
-    plane === "XZ" ? { x, y: 0, z: -RANGE_Y } :
-                     { x: 0, y: x, z: -RANGE_Y }
+      const a2 = view.projection(a3)
+      const b2 = view.projection(b3)
 
-  const b3 =
-    plane === "XY" ? { x, y: RANGE_Y, z: 0 } :
-    plane === "XZ" ? { x, y: 0, z: RANGE_Y } :
-                     { x: 0, y: x, z: RANGE_Y }
+      ctx.beginPath()
+      ctx.moveTo(offsetX + a2.x * scale, offsetY + a2.y * scale)
+      ctx.lineTo(offsetX + b2.x * scale, offsetY + b2.y * scale)
+      ctx.stroke()
+    }
 
-  const a2 = view.projection(a3)
-  const b2 = view.projection(b3)
+    for (
+      let x = Math.floor(-RANGE_X / GRID_MAJOR) * GRID_MAJOR;
+      x <= RANGE_X;
+      x += GRID_MAJOR
+    ) {
+      const a3 =
+        plane === "XY" ? { x, y: -RANGE_Y, z: 0 } :
+          plane === "XZ" ? { x, y: 0, z: -RANGE_Y } :
+            { x: 0, y: x, z: -RANGE_Y }
 
-  ctx.beginPath()
-  ctx.moveTo(offsetX + a2.x * scale, offsetY + a2.y * scale)
-  ctx.lineTo(offsetX + b2.x * scale, offsetY + b2.y * scale)
-  ctx.stroke()
-}
-  ctx.stroke()
-}
+      const b3 =
+        plane === "XY" ? { x, y: RANGE_Y, z: 0 } :
+          plane === "XZ" ? { x, y: 0, z: RANGE_Y } :
+            { x: 0, y: x, z: RANGE_Y }
+
+      const a2 = view.projection(a3)
+      const b2 = view.projection(b3)
+
+      ctx.beginPath()
+      ctx.moveTo(offsetX + a2.x * scale, offsetY + a2.y * scale)
+      ctx.lineTo(offsetX + b2.x * scale, offsetY + b2.y * scale)
+      ctx.stroke()
+    }
+    ctx.stroke()
+  }
 
 
 
   // 🧭 Ejes proyectados pero anclados a pantalla
   // 🧭 Ejes proyectados pero anclados a pantalla
-  private drawCornerAxes(view: ViewPreset) {
+  private drawCornerAxes(
+    view: ViewPreset,
+    COLORS: ReturnType<typeof getToolpathColors>
+  ) {
+
     const ctx = this.ctx
     const dpr = window.devicePixelRatio || 1
     const cssH = this.canvas.height / dpr
@@ -370,15 +392,26 @@ for (
     const axisLen = 1
 
     const axes = [
-      { v: { x: axisLen, y: 0, z: 0 }, color: COLORS.axisX, label: "x", show: true },
-      { v: { x: 0, y: axisLen, z: 0 }, color: COLORS.axisY, label: "y", show: true },
+      {
+        v: { x: axisLen, y: 0, z: 0 },
+        color: COLORS.axisX,
+        label: "X",
+        show: true,
+      },
+      {
+        v: { x: 0, y: axisLen, z: 0 },
+        color: COLORS.axisY,
+        label: "Y",
+        show: true,
+      },
       {
         v: { x: 0, y: 0, z: axisLen },
         color: COLORS.axisZ,
-        label: "z",
+        label: "Z",
         show: view.id !== "top",
       },
     ]
+
 
     const o2 = view.projection(origin)
 
