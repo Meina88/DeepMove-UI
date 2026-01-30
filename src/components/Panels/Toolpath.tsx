@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from "preact/hooks"
 import { T } from "../Translations"
 import { ContainerHelper, FullScreenButton, CloseButton } from "../Controls"
 import { Menu as PanelMenu } from "./"
-import { Eye, CheckCircle, Circle } from "preact-feather"
+import { Eye, CheckCircle, Circle, Trash2 } from "preact-feather"
 import { useUiContextFn } from "../../contexts"
 import { useTargetContext } from "../../targets"
 
@@ -20,9 +20,7 @@ import { ModalInterpreter } from "../Toolpath/core/ModalInterpreter"
 
 import { httpAdapter } from "../../adapters/httpAdapter"
 import { eventBus } from "../../hooks/eventBus"
-
-
-
+import { ClearPath } from "../../targets/CNC/FluidNC/icons"
 
 
 const ToolpathPanel: FunctionalComponent = () => {
@@ -113,11 +111,13 @@ const ToolpathPanel: FunctionalComponent = () => {
     const rafRef = useRef<number | null>(null)
 
     // Estado interno de animación
-    const segIndexRef = useRef(0)
-    const tRef = useRef(0)
+    
 
-    // 🟦 Progreso de segmentos completados
-    const completedSegRef = useRef<number>(-1)
+   
+   
+
+
+
 
 
     // 🔴 TOOL REAL — sigue WPos (igual que Jog: positions.wx/wy/wz suelen ser strings)
@@ -139,6 +139,7 @@ const ToolpathPanel: FunctionalComponent = () => {
     }, [positions])
 
 
+   
 
 
 
@@ -151,8 +152,7 @@ const ToolpathPanel: FunctionalComponent = () => {
             modelRef.current ?? null,
             visiblePresets[viewIndex],
             cameraRef.current,          // camera
-            toolPos ?? undefined,
-            completedSegRef.current + 1,
+            toolPos ?? undefined,            
             showGrid
         )
     }, [viewIndex, toolPos, showGrid])
@@ -184,8 +184,7 @@ const ToolpathPanel: FunctionalComponent = () => {
                 modelRef.current ?? null,
                 visiblePresets[viewIndex],
                 cameraRef.current,
-                toolPos ?? undefined,
-                completedSegRef.current + 1,
+                toolPos ?? undefined,                
                 showGrid
             )
         }
@@ -224,8 +223,7 @@ const ToolpathPanel: FunctionalComponent = () => {
                 modelRef.current ?? null,
                 visiblePresets[viewIndex],
                 cameraRef.current,
-                toolPos ?? undefined,
-                completedSegRef.current + 1,
+                toolPos ?? undefined,                
                 showGrid
             )
         }
@@ -273,8 +271,7 @@ const ToolpathPanel: FunctionalComponent = () => {
                 modelRef.current ?? null,
                 visiblePresets[viewIndex],
                 cameraRef.current,
-                toolPos ?? undefined,
-                completedSegRef.current + 1,
+                toolPos ?? undefined,                
                 showGrid
             )
         }
@@ -388,8 +385,7 @@ const ToolpathPanel: FunctionalComponent = () => {
                 modelRef.current ?? null,
                 visiblePresets[viewIndex],
                 cameraRef.current,
-                toolPos ?? undefined,
-                completedSegRef.current + 1,
+                toolPos ?? undefined,                
                 showGrid
             )
         }
@@ -503,7 +499,7 @@ const ToolpathPanel: FunctionalComponent = () => {
                         visiblePresets[viewIndex],
                         cameraRef.current,
                         first ? { ...first.start } : undefined,
-                        0
+                        
                     )
 
                     setIsRendering(false)
@@ -533,9 +529,7 @@ const ToolpathPanel: FunctionalComponent = () => {
                 }
 
                 // reset refs
-                segIndexRef.current = 0
-                tRef.current = 0
-                completedSegRef.current = -1
+
                 modelRef.current = null
                 setToolPos(null)
 
@@ -554,7 +548,7 @@ const ToolpathPanel: FunctionalComponent = () => {
                         visiblePresets[viewIndex],
                         cameraRef.current,
                         undefined,
-                        0
+                        
                     )
                 }
             },
@@ -568,21 +562,7 @@ const ToolpathPanel: FunctionalComponent = () => {
 
 
 
-    // ⏹ Stop / Reset
-    const stopAndReset = () => {
 
-        if (rafRef.current) {
-            cancelAnimationFrame(rafRef.current)
-            rafRef.current = null
-        }
-
-        segIndexRef.current = 0
-        tRef.current = 0
-        completedSegRef.current = -1
-
-        const first = modelRef.current?.segments[0]
-        if (first) setToolPos({ ...first.start })
-    }
 
     // 🎯 Reset cámara: centrar vista (zoom/pan default)
     const resetCamera = () => {
@@ -597,8 +577,7 @@ const ToolpathPanel: FunctionalComponent = () => {
             modelRef.current ?? null,
             visiblePresets[viewIndex],
             cameraRef.current,
-            toolPos ?? undefined,
-            completedSegRef.current + 1,
+            toolPos ?? undefined,            
             showGrid
         )
     }
@@ -667,6 +646,16 @@ const ToolpathPanel: FunctionalComponent = () => {
                             ]}
                         />
 
+<button
+  class="btn btn-sm btn-error"
+  title="Clear toolpath"
+  onClick={() => eventBus.emit("toolpath:reset", null)}
+  style={{ marginRight: "0.5rem" }}
+>
+  <span class="feather-icon-container">
+    <ClearPath height="0.9em" />
+  </span>
+</button>
 
 
                         <FullScreenButton elementId={id} />

@@ -153,6 +153,35 @@ const Flare: FunctionalComponent<IconProps> = ({ height = "1.2em" }) => (
     </svg>
 )
 
+/*
+ *clear path (broom) icon
+ * default height is 1.2em
+ */
+const ClearPath: FunctionalComponent<IconProps> = ({ height = "1.2em" }) => (
+  <svg
+    height={height}
+    viewBox="0 0 7000 7000"
+    xmlns="http://www.w3.org/2000/svg"
+  >    {/* Escoba – parte 1 */}
+    <path
+      fill="currentColor"
+      d="M5389 6905 c-26 -8 -63 -31 -84 -52 -49 -49 -860 -1446 -852 -1467 3 -6 45 -34 93 -62 49 -28 134 -77 189 -109 55 -32 157 -91 227 -131 l127 -72 149 257 c291 502 650 1127 672 1171 35 67 33 149 -6 219 -32 60 -68 87 -261 195 -115 65 -174 77 -254 51z"
+    />
+
+    {/* Escoba – parte 2 */}
+    <path
+      fill="currentColor"
+      d="M3483 5604 c-23 -9 -59 -32 -80 -53 -52 -52 -222 -351 -235 -415 -16 -75 9 -154 65 -208 60 -59 2011 -1183 2077 -1197 87 -19 194 25 243 99 13 19 64 105 113 190 l89 155 0 75 c0 96 -31 154 -108 204 -45 30 -814 475 -1713 991 -324 186 -348 195 -451 159z"
+    />
+
+    {/* Escoba – parte 3 */}
+    <path
+      fill="currentColor"
+      d="M2927 4760 c-159 -256 -356 -500 -592 -735 -200 -201 -382 -352 -765 -640 -166 -124 -300 -230 -298 -235 2 -4 49 -59 104 -122 141 -157 394 -402 548 -531 l130 -108 80 79 c45 43 249 242 454 441 204 200 372 361 372 358 0 -3 -136 -251 -301 -551 -166 -301 -300 -548 -298 -550 20 -19 272 -176 397 -247 509 -293 1123 -537 1838 -733 72 -20 135 -36 140 -36 5 0 9 118 10 273 0 206 4 301 18 392 69 473 212 903 483 1453 58 118 101 217 97 222 -9 8 -62 39 -1129 655 -341 197 -751 434 -912 526 -160 93 -298 171 -305 174 -10 4 -33 -24 -71 -85z"
+    />
+  </svg>
+)
+
 const iconsTarget = {
     Fan: <Fan />,
     FeedRate: <FeedRate />,
@@ -163,8 +192,9 @@ const iconsTarget = {
     Joystick: <Joystick />,
     Status: <Status />,
     Diamond: <Diamond />,
-    Flare: <Flare />
+    Flare: <Flare />,
+    ClearPath: <ClearPath />
 } as const
 
-export { Fan, FeedRate, FlowRate, SDCard, Mixer, Outputs, Joystick, Status, Diamond, Flare, iconsTarget }
+export { Fan, FeedRate, FlowRate, SDCard, Mixer, Outputs, Joystick, Status, Diamond, Flare, iconsTarget, ClearPath }
 

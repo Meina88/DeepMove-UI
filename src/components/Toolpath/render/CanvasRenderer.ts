@@ -17,8 +17,7 @@ render(
 
     view: ViewPreset,
     camera?: { zoom: number; panX: number; panY: number },
-    toolPos?: { x: number; y: number; z: number },
-    completedSegments: number = 0,
+    toolPos?: { x: number; y: number; z: number },    
     showGrid: boolean = true
   ) {
     const COLORS = getToolpathColors()
@@ -106,7 +105,7 @@ const bbox = model?.bbox ?? {
     ctx.lineJoin = "round"
 
    if (model) {
-  const maxSeg = Math.min(model.segments.length, completedSegments)
+  const maxSeg = Math.min(model.segments.length)
 
   model.segments.forEach((seg, index) => {
     const a3 = {
@@ -125,17 +124,17 @@ const bbox = model?.bbox ?? {
 
     const isCompleted = index < maxSeg
 
-    if (isCompleted) {
-      ctx.strokeStyle = COLORS.completed
-      ctx.lineWidth = 2.4
-    } else if (seg.type === "rapid") {
-      ctx.strokeStyle = COLORS.rapid
-      ctx.setLineDash([5, 4])
-      ctx.lineWidth = 1
-    } else {
-      ctx.strokeStyle = b3.z < 0 ? COLORS.feedCut : COLORS.feed
-      ctx.lineWidth = b3.z < 0 ? 2.2 : 1.6
-    }
+if (seg.type === "rapid") {
+  ctx.strokeStyle = COLORS.rapid
+  ctx.setLineDash([5, 4])      // rapid siempre punteado
+  ctx.lineWidth = 1
+
+} else {
+  ctx.strokeStyle = COLORS.feed
+  ctx.setLineDash([])          // feed siempre sólido
+  ctx.lineWidth = 1.6
+}
+
 
     ctx.beginPath()
     ctx.moveTo(offsetX + a2.x * scale, offsetY + a2.y * scale)

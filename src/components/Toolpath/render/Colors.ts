@@ -23,7 +23,7 @@ export function getToolpathColors() {
 
     // Feed visualization
     feed: cssVar("--tp-feed", "#4da3ff"),
-    feedCut: cssVar("--tp-feed-cut", "#ff9f1a"),
+    
 
     // Completed path
     completed: cssVar("--tp-completed", "#ffcc33"),
