@@ -148,26 +148,49 @@
     color: $primary-color;
 }
 
-.file-trash-btn {
-    background-color: rgba($dark-color, 0.03);
-    border: 0px solid rgba($border-color-dark, 0.35);
+/* Trash button – mismo estilo que Eye */
+/* ============================= */
+/* Trash button – same style as Eye */
+/* ============================= */
 
-    box-shadow: none !important;
-    color: $gray-color-dark;
-    min-width: 36px;
-    min-height: 36px;
-    border-radius: $border-radius;
+#filesPanel .file-trash-btn {
+  //background-color: transparent !important;
+  border: 1px solid $primary-color !important;
+  color: $primary-color !important;
+
+  box-shadow: none !important;
+
+  min-width: 36px;
+  min-height: 36px;
+  border-radius: $border-radius;
+
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    transform 0.15s ease;
 }
 
-.file-trash-btn:hover {
-    color: $error-color;
-    background-color: rgba($error-color, 0.08);
-    border-color: rgba($error-color, 0.4);
+/* icon */
+#filesPanel .file-trash-btn svg {
+  color: $primary-color !important;
 }
 
-.file-trash-btn:active {
-    background-color: rgba($error-color, 0.16);
-    transform: scale(0.92);
+/* Hover → rojo */
+#filesPanel .file-trash-btn:hover {
+  background-color: rgba($error-color, 0.08) !important;
+  border-color: $error-color !important;
+  color: $error-color !important;
+}
+
+#filesPanel .file-trash-btn:hover svg {
+  color: $error-color !important;
+}
+
+/* Active */
+#filesPanel .file-trash-btn:active {
+  background-color: rgba($error-color, 0.16) !important;
+  transform: scale(0.92);
 }
 
 
