@@ -240,6 +240,7 @@
     display: flex;
     flex-direction: column;
     height: 100%;
+    position: relative;
 }
 
 #filesPanel .drop-zone.files-list {
@@ -249,6 +250,7 @@
     /* scroll interno */
     min-height: 0;
     /* 👈 CLAVE para flex + scroll */
+    padding-bottom: 84px;
 }
 
 /* ============================= */
@@ -268,26 +270,132 @@
 /* ============================= */
 
 #filesPanel .drop-zone.files-list {
-  /* Firefox */
-  scrollbar-width: thin;
-  scrollbar-color: $primary-color $bg-color-dark;
+    /* Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: $primary-color $bg-color-dark;
 }
 
 /* WebKit browsers */
 #filesPanel .drop-zone.files-list::-webkit-scrollbar {
-  width: 8px;
+    width: 8px;
 }
 
 #filesPanel .drop-zone.files-list::-webkit-scrollbar-track {
-  background-color: $bg-color-dark;
-  border-radius: 8px;
+    background-color: $bg-color-dark;
+    border-radius: 8px;
 }
 
 #filesPanel .drop-zone.files-list::-webkit-scrollbar-thumb {
-  background-color: rgba($primary-color, 0.6);
-  border-radius: 8px;
+    background-color: rgba($primary-color, 0.6);
+    border-radius: 8px;
 }
 
 #filesPanel .drop-zone.files-list::-webkit-scrollbar-thumb:hover {
-  background-color: $primary-color;
+    background-color: $primary-color;
+}
+
+
+
+/* ============================= */
+/* Floating Action Button (FAB) */
+/* ============================= */
+
+#filesPanel .files-fab-wrapper {
+    position: absolute;
+    left: 50%;
+    bottom: 14px;
+    transform: translateX(-50%);
+    z-index: 20;
+
+
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+
+
+    background: transparent;
+
+}
+
+
+
+
+/* ============================= */
+/* FAB main button */
+/* ============================= */
+
+#filesPanel .files-upload-fab {
+    width: 54px;
+    height: 54px;
+    border-radius: 999px;
+
+    border: none;
+    cursor: pointer;
+
+    background: $primary-color;
+    color: #fff;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;    
+
+    transition:
+        transform 0.25s ease,
+        background 0.2s ease;
+}
+
+#filesPanel .files-upload-fab svg {
+    width: 22px;
+    height: 22px;
+}
+
+#filesPanel .files-upload-fab:hover {
+    background: $primary-color-dark;
+}
+
+#filesPanel .files-upload-fab:active {
+    transform: scale(0.94);
+}
+
+/* Rotate + when open */
+#filesPanel .files-fab-wrapper.is-open.is-visible .files-upload-fab {
+    transform: translateY(0) rotate(45deg);
+}
+
+
+/* ============================= */
+/* FAB secondary actions */
+/* ============================= */
+
+#filesPanel .files-fab-action {
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+
+    border: 0;
+    cursor: pointer;
+
+    background: rgba(0, 0, 0, 0.65);
+    color: #fff;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    opacity: 0;
+    transform: translateY(10px) scale(0.8);
+    pointer-events: none;
+
+    transition:
+        opacity 0.25s ease,
+        transform 0.25s ease,
+        background 0.2s ease;
+}
+
+#filesPanel .files-fab-wrapper.is-open .files-fab-action {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
 }

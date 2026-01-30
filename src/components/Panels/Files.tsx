@@ -26,7 +26,7 @@ import { FilesTab } from "../../pages/tablet/FilesTab"
 import { Loading, ButtonImg, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
 import { useUiContextFn, useModalsContext } from "../../contexts"
 import { showConfirmationModal } from "../Modal"
-import { Upload, RefreshCcw, FolderPlus, CornerRightUp, XCircle } from "preact-feather"
+import { Upload, RefreshCcw, FolderPlus, CornerRightUp, XCircle, Plus } from "preact-feather"
 import { SDCard } from "../../targets/CNC/FluidNC/icons"
 
 import { files } from "../../targets"
@@ -40,12 +40,15 @@ const FilesPanel: FunctionalComponent = () => {
     const [state, actions] = useFilesManager()
     const [menu, setMenu] = useState<PanelMenuItem[] | null>(null)
     const fileref = useRef<HTMLInputElement | null>(null)
+
+
     const dropRef = useRef<HTMLDivElement | null>(null)
     const { modals } = useModalsContext()
     const [isFullScreen, setIsFullScreen] = useState<boolean>(false)
     const [selectedFile, setSelectedFile] = useState<string | null>(null)
+    const [fabOpen, setFabOpen] = useState(false)
 
-
+    
     // Register the file input ref with the hook
     useEffect(() => {
         setFileRef(fileref.current)
@@ -96,26 +99,6 @@ const FilesPanel: FunctionalComponent = () => {
 
                 { divider: true },
 
-                {
-                    label: T("S90"),
-                    icon: (
-                        <span class="feather-icon-container">
-                            <FolderPlus />
-                        </span>
-                    ),
-                    onClick: actions.showCreateDirModal,
-                },
-
-                {
-                    label: T("S89"),
-                    icon: (
-                        <span class="feather-icon-container">
-                            <Upload />
-                        </span>
-                    ),
-                    onClick: actions.openFileUploadBrowser,
-                },
-
                 { divider: true },
 
                 {
@@ -134,6 +117,17 @@ const FilesPanel: FunctionalComponent = () => {
 
         setMenu(newMenu())
     }, [state.fileSystem])
+
+
+    useEffect(() => {
+    if (!fabOpen) return
+
+    const close = () => setFabOpen(false)
+    document.addEventListener("click", close)
+
+    return () => document.removeEventListener("click", close)
+}, [fabOpen])
+
 
 
     // Render compact panel view
@@ -184,11 +178,11 @@ const FilesPanel: FunctionalComponent = () => {
                             ref={dropRef}
                             class="drop-zone files-list m-1"
                             onClick={(e) => {
-  // si el click fue directamente sobre el fondo del listado
-  if (e.target === e.currentTarget) {
-    setSelectedFile(null)
-  }
-}}
+                                // si el click fue directamente sobre el fondo del listado
+                                if (e.target === e.currentTarget) {
+                                    setSelectedFile(null)
+                                }
+                            }}
 
                             onDragOver={(e) => {
                                 dropRef.current?.classList.add("drop-zone--over")
@@ -282,12 +276,12 @@ const FilesPanel: FunctionalComponent = () => {
 
                                         return (
                                             <div
-  class={`file-item form-control ${selectedFile === line.name ? "is-selected" : ""}`}
-  key={line.name}
-  onClick={() => {
-    setSelectedFile(line.name)
-  }}
->
+                                                class={`file-item form-control ${selectedFile === line.name ? "is-selected" : ""}`}
+                                                key={line.name}
+                                                onClick={() => {
+                                                    setSelectedFile(line.name)
+                                                }}
+                                            >
 
                                                 {/* ─── Fila superior: nombre + tamaño ─── */}
                                                 <div
@@ -463,6 +457,56 @@ const FilesPanel: FunctionalComponent = () => {
                                 </Fragment>
                             )}
                         </div>
+
+                        {/* Floating Upload Button (+) */}
+                        
+<div class={`files-fab-wrapper ${fabOpen ? "is-open" : ""}`}>
+
+    {/* Action: Upload file */}
+    <button
+        type="button"
+        class="files-fab-action"
+        aria-label={T("S89")}
+        onClick={(e) => {
+            e.stopPropagation()
+            setFabOpen(false)
+            actions.openFileUploadBrowser()
+        }}>
+        <Upload />
+    </button>
+
+    {/* Action: Create directory */}
+
+<button
+    type="button"
+    class="files-fab-action"
+    aria-label={T("S88")}
+    onClick={(e) => {
+        e.stopPropagation()
+        setFabOpen(false)
+        actions.showCreateDirModal()
+    }}>
+    <FolderPlus />
+</button>
+
+
+    {/* Main FAB */}
+    <button
+        type="button"
+        class="files-upload-fab"
+        aria-label={T("S89")}
+        onClick={(e) => {
+            e.stopPropagation()
+            setFabOpen((v) => !v)
+        }}>
+        <Plus />
+    </button>
+</div>
+
+
+
+
+
                     </Fragment>
                 )}
 
