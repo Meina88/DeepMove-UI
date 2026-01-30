@@ -427,7 +427,6 @@ const ToolpathPanel: FunctionalComponent = () => {
         }
     }, [viewIndex, toolPos])
 
-
     useEffect(() => {
         const listenerId = eventBus.on(
             "toolpath:preview",
@@ -439,16 +438,16 @@ const ToolpathPanel: FunctionalComponent = () => {
                     eventBus.emit("openpanel", "toolpathPanel")
                     setIsRendering(true)
 
+                    // cancelar animación previa
                     if (rafRef.current) {
                         cancelAnimationFrame(rafRef.current)
                         rafRef.current = null
                     }
 
-                    segIndexRef.current = 0
-                    tRef.current = 0
-                    completedSegRef.current = -1
+                    // ─────────────────────────────
+                    // 🔽 DESCARGA DEL G-CODE
+                    // ─────────────────────────────
 
-                    // 🔽 DESCARGA DIRECTA (URL YA RESUELTA)
                     const res = await httpAdapter(data.url, {
                         method: "GET",
                         id: "download-toolpath-preview",
@@ -460,11 +459,13 @@ const ToolpathPanel: FunctionalComponent = () => {
                             ? result
                             : await result.text()
 
-                    // 🔽 PARSE
+                    // ─────────────────────────────
+                    // 🔽 PARSE DEL TOOLPATH
+                    // ─────────────────────────────
+
                     const model = new ToolpathModel()
 
                     const isSmallScreen = window.innerWidth <= 768
-
                     const maxSegments = isSmallScreen
                         ? useUiContextFn.getValue("toolpathMaxSegmentsMobile")
                         : useUiContextFn.getValue("toolpathMaxSegmentsDesktop")
@@ -475,14 +476,12 @@ const ToolpathPanel: FunctionalComponent = () => {
 
                     modelRef.current = model
 
-
-
                     const first = model.segments[0]
                     setToolPos(first ? { ...first.start } : null)
 
-                    cameraRef.current.zoom = 1
-                    cameraRef.current.panX = 0
-                    cameraRef.current.panY = 0
+                    // ─────────────────────────────
+                    // 🎨 RENDER INICIAL
+                    // ─────────────────────────────
 
                     const canvas = canvasRef.current
                     if (!canvas) return
@@ -506,8 +505,8 @@ const ToolpathPanel: FunctionalComponent = () => {
                         first ? { ...first.start } : undefined,
                         0
                     )
-                    setIsRendering(false)
 
+                    setIsRendering(false)
 
                 } catch (err) {
                     console.error("Toolpath preview error:", err)
@@ -523,6 +522,49 @@ const ToolpathPanel: FunctionalComponent = () => {
     }, [viewIndex])
 
 
+    useEffect(() => {
+        const resetId = eventBus.on(
+            "toolpath:reset",
+            () => {
+                // cancelar animación
+                if (rafRef.current) {
+                    cancelAnimationFrame(rafRef.current)
+                    rafRef.current = null
+                }
+
+                // reset refs
+                segIndexRef.current = 0
+                tRef.current = 0
+                completedSegRef.current = -1
+                modelRef.current = null
+                setToolPos(null)
+
+                // reset cámara
+                cameraRef.current.zoom = 1
+                cameraRef.current.panX = 0
+                cameraRef.current.panY = 0
+
+                // renderizar modelo vacío (CLAVE)
+                const canvas = canvasRef.current
+                if (canvas && rendererRef.current) {
+                    const emptyModel = new ToolpathModel()
+
+                    rendererRef.current.render(
+                        emptyModel,
+                        visiblePresets[viewIndex],
+                        cameraRef.current,
+                        undefined,
+                        0
+                    )
+                }
+            },
+            "toolpath-reset"
+        )
+
+        return () => {
+            eventBus.off("toolpath:reset", resetId)
+        }
+    }, [viewIndex])
 
 
 

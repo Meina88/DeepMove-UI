@@ -48,7 +48,7 @@ const FilesPanel: FunctionalComponent = () => {
     const [selectedFile, setSelectedFile] = useState<string | null>(null)
     const [fabOpen, setFabOpen] = useState(false)
 
-    
+
     // Register the file input ref with the hook
     useEffect(() => {
         setFileRef(fileref.current)
@@ -120,13 +120,13 @@ const FilesPanel: FunctionalComponent = () => {
 
 
     useEffect(() => {
-    if (!fabOpen) return
+        if (!fabOpen) return
 
-    const close = () => setFabOpen(false)
-    document.addEventListener("click", close)
+        const close = () => setFabOpen(false)
+        document.addEventListener("click", close)
 
-    return () => document.removeEventListener("click", close)
-}, [fabOpen])
+        return () => document.removeEventListener("click", close)
+    }, [fabOpen])
 
 
 
@@ -379,71 +379,65 @@ const FilesPanel: FunctionalComponent = () => {
 
                                                                     {/* ▶ Ejecutar G-code */}
                                                                     <ButtonImg
-                                                                        m1
-                                                                        ltooltip
-                                                                        data-tooltip={T("S74")}
-                                                                        icon={<Play />}
-                                                                        class="file-play-btn"
+    m1
+    ltooltip
+    data-tooltip={T("S74")}
+    icon={<Play />}
+    class="file-play-btn"
+    onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
+        e.currentTarget.blur()
+        useUiContextFn.haptic()
+
+        const isMobile = window.innerWidth <= 768
+
+        if (isMobile) {
+            document
+                .getElementById("OverridesPanel")
+                ?.scrollIntoView({ behavior: "smooth", block: "start" })
+        }
+
+        const previewOnPlay = isMobile
+            ? useUiContextFn.getValue("filesPreviewOnPlayMobile")
+            : useUiContextFn.getValue("filesPreviewOnPlayDesktop")
+
+        // 🔄 Resetear SIEMPRE el toolpath
+        eventBus.emit("toolpath:reset", null)
 
 
-                                                                        onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
-                                                                            e.currentTarget.blur()
-                                                                            useUiContextFn.haptic()
+        // ▶ Ejecutar G-code (SIEMPRE)
+        const cmd = files.command(
+            state.fileSystem,
+            "play",
+            currentPath[state.fileSystem],
+            line.name
+        )
 
+        if (previewOnPlay) {
+            const dl = files.command(
+                state.fileSystem,
+                "download",
+                currentPath[state.fileSystem],
+                line.name
+            )
 
-                                                                            const isMobile = window.innerWidth <= 768
+            const url = espHttpURL(dl.url, dl.args)
 
-                                                                            if (isMobile) {
-                                                                                document
-                                                                                    .getElementById("OverridesPanel")
+            // 🔍 Preview limpio
+            eventBus.emit("toolpath:preview", {
+                url,
+                filename: line.name,
+            })
 
-                                                                                    ?.scrollIntoView({ behavior: "smooth", block: "start" })
-                                                                            }
+            // ⏱ Delay corto por estabilidad/memoria
+            setTimeout(() => {
+                actions.sendSerialCmd(cmd.cmd)
+            }, 150)
+        } else {
+            actions.sendSerialCmd(cmd.cmd)
+        }
+    }}
+/>
 
-
-
-
-                                                                            const isSmallScreen = window.innerWidth <= 768
-
-                                                                            const previewOnPlay = isSmallScreen
-                                                                                ? useUiContextFn.getValue("filesPreviewOnPlayMobile")
-                                                                                : useUiContextFn.getValue("filesPreviewOnPlayDesktop")
-
-                                                                            // ▶ Ejecutar G-code (SIEMPRE)
-                                                                            const cmd = files.command(
-                                                                                state.fileSystem,
-                                                                                "play",
-                                                                                currentPath[state.fileSystem],
-                                                                                line.name
-                                                                            )
-
-                                                                            // 🔽 Preview del toolpath (OPCIONAL)
-                                                                            if (previewOnPlay) {
-                                                                                const dl = files.command(
-                                                                                    state.fileSystem,
-                                                                                    "download",
-                                                                                    currentPath[state.fileSystem],
-                                                                                    line.name
-                                                                                )
-
-                                                                                const url = espHttpURL(dl.url, dl.args)
-
-                                                                                eventBus.emit("toolpath:preview", {
-                                                                                    url,
-                                                                                    filename: line.name,
-                                                                                })
-
-                                                                                // pequeña espera para evitar competir con memoria
-                                                                                setTimeout(() => {
-                                                                                    actions.sendSerialCmd(cmd.cmd)
-                                                                                }, 150)
-                                                                            } else {
-                                                                                actions.sendSerialCmd(cmd.cmd)
-                                                                            }
-                                                                        }}
-
-
-                                                                    />
                                                                 </>
                                                             )}
                                                         </div>
@@ -459,49 +453,49 @@ const FilesPanel: FunctionalComponent = () => {
                         </div>
 
                         {/* Floating Upload Button (+) */}
-                        
-<div class={`files-fab-wrapper ${fabOpen ? "is-open" : ""}`}>
 
-    {/* Action: Upload file */}
-    <button
-        type="button"
-        class="files-fab-action"
-        aria-label={T("S89")}
-        onClick={(e) => {
-            e.stopPropagation()
-            setFabOpen(false)
-            actions.openFileUploadBrowser()
-        }}>
-        <Upload />
-    </button>
+                        <div class={`files-fab-wrapper ${fabOpen ? "is-open" : ""}`}>
 
-    {/* Action: Create directory */}
+                            {/* Action: Upload file */}
+                            <button
+                                type="button"
+                                class="files-fab-action"
+                                aria-label={T("S89")}
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    setFabOpen(false)
+                                    actions.openFileUploadBrowser()
+                                }}>
+                                <Upload />
+                            </button>
 
-<button
-    type="button"
-    class="files-fab-action"
-    aria-label={T("S88")}
-    onClick={(e) => {
-        e.stopPropagation()
-        setFabOpen(false)
-        actions.showCreateDirModal()
-    }}>
-    <FolderPlus />
-</button>
+                            {/* Action: Create directory */}
+
+                            <button
+                                type="button"
+                                class="files-fab-action"
+                                aria-label={T("S88")}
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    setFabOpen(false)
+                                    actions.showCreateDirModal()
+                                }}>
+                                <FolderPlus />
+                            </button>
 
 
-    {/* Main FAB */}
-    <button
-        type="button"
-        class="files-upload-fab"
-        aria-label={T("S89")}
-        onClick={(e) => {
-            e.stopPropagation()
-            setFabOpen((v) => !v)
-        }}>
-        <Plus />
-    </button>
-</div>
+                            {/* Main FAB */}
+                            <button
+                                type="button"
+                                class="files-upload-fab"
+                                aria-label={T("S89")}
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    setFabOpen((v) => !v)
+                                }}>
+                                <Plus />
+                            </button>
+                        </div>
 
 
 
