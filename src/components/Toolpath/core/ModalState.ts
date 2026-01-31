@@ -22,4 +22,12 @@ export interface ModalState {
    * visualPos = machinePos + g92Offset
    */
   g92Offset: Point3D
+
+    /** 
+   * Modo de distancia para I/J (G90.1 / G91.1)
+   * Independiente de G90 / G91
+   */
+  ijDistance: "absolute" | "incremental"
+
+  
 }

@@ -57,7 +57,9 @@ export class ModalInterpreter {
         plane: "G17",
         units: "mm",
         distance: "absolute",
+        ijDistance: "incremental",
         g92Offset: { x: 0, y: 0, z: 0 },
+
     }
 
     constructor(
@@ -80,6 +82,7 @@ export class ModalInterpreter {
             plane: "G17",
             units: "mm",
             distance: "absolute",
+            ijDistance: "incremental",
             g92Offset: { x: 0, y: 0, z: 0 },
         }
     }
@@ -174,6 +177,10 @@ export class ModalInterpreter {
         if (this.hasGCode(words, 90)) this.modal.distance = "absolute"
         if (this.hasGCode(words, 91)) this.modal.distance = "incremental"
 
+        // IJ Distance (independent of G90/G91)
+        if (this.hasGCode(words, 90.1)) this.modal.ijDistance = "absolute"
+        if (this.hasGCode(words, 91.1)) this.modal.ijDistance = "incremental"
+
         // Plane
         if (this.hasGCode(words, 17)) this.modal.plane = "G17"
         if (this.hasGCode(words, 18)) this.modal.plane = "G18"
@@ -233,10 +240,16 @@ export class ModalInterpreter {
             words[axes.i] !== undefined || words[axes.j] !== undefined
 
         if (hasIJK) {
-            center = { x: p0.x + offI, y: p0.y + offJ }
+            // I/J/K pueden ser incremental (G91.1) o absolute (G90.1)
+            if (this.modal.ijDistance === "incremental") {
+                center = { x: p0.x + offI, y: p0.y + offJ }
+            } else {
+                center = { x: offI, y: offJ }
+            }
         } else if (words.R !== undefined) {
             center = this.computeCenterFromR(p0, p1, this.toMM(words.R), clockwise)
         }
+
 
         if (!center) {
             // Fallback seguro: si no podemos resolver el arco, lo dibujamos como línea
@@ -432,13 +445,6 @@ export class ModalInterpreter {
         } else {
             if (delta < 0) delta += Math.PI * 2
         }
-
-        // ✅ PARCHE CLAVE: forzar arco corto para IJK
-        // En CNC, con I/J/K siempre se usa el arco menor (|delta| <= π)
-        if (Math.abs(delta) > Math.PI) {
-            delta += delta > 0 ? -Math.PI * 2 : Math.PI * 2
-        }
-
 
         // Vueltas completas (P)
         const turns = Math.max(1, Math.floor(P ?? 1))

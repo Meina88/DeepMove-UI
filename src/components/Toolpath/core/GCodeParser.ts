@@ -141,14 +141,33 @@ export class GCodeParser {
         const ex = end.x - center.x
         const ey = end.y - center.y
 
-        let startAngle = Math.atan2(sy, sx)
-        let endAngle = Math.atan2(ey, ex)
+let startAngle = Math.atan2(sy, sx)
+let endAngle = Math.atan2(ey, ex)
 
-        let delta = endAngle - startAngle
+const TWO_PI = Math.PI * 2
 
-if (clockwise && delta < 0) delta += Math.PI * 2
-if (!clockwise && delta > 0) delta -= Math.PI * 2
+// Normalizar a [0, 2π)
+const norm = (a: number) => (a < 0 ? a + TWO_PI : a)
 
+const a0 = norm(startAngle)
+const a1 = norm(endAngle)
+
+let delta: number
+
+if (clockwise) {
+    // Distancia horaria (positiva), luego la hacemos negativa para avanzar CW
+    let d = a0 - a1
+    if (d <= 0) d += TWO_PI
+    delta = -d
+} else {
+    // Distancia antihoraria (positiva)
+    let d = a1 - a0
+    if (d <= 0) d += TWO_PI
+    delta = d
+}
+
+// Importante: usar el ángulo normalizado como base de integración
+startAngle = a0
 
         const steps = Math.max(2, Math.ceil(Math.abs(delta) / ARC_STEP_ANGLE))
         const step = delta / steps
