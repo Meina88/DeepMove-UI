@@ -519,46 +519,49 @@ const ToolpathPanel: FunctionalComponent = () => {
 
 
     useEffect(() => {
-        const resetId = eventBus.on(
-            "toolpath:reset",
-            () => {
-                // cancelar animación
-                if (rafRef.current) {
-                    cancelAnimationFrame(rafRef.current)
-                    rafRef.current = null
-                }
+    const resetId = eventBus.on(
+        "toolpath:reset",
+        () => {
+            // ⛔ cancelar animaciones
+            if (rafRef.current) {
+                cancelAnimationFrame(rafRef.current)
+                rafRef.current = null
+            }
 
-                // reset refs
+            // 🧹 LIBERAR MODELO (CLAVE)
+            if (modelRef.current) {
+                modelRef.current.segments.length = 0
+                modelRef.current.bbox = undefined as any
+            }
+            modelRef.current = null
 
-                modelRef.current = null
-                setToolPos(null)
+            // 🔴 tool off
+            setToolPos(null)
 
-                // reset cámara
-                cameraRef.current.zoom = 1
-                cameraRef.current.panX = 0
-                cameraRef.current.panY = 0
+            // 🎥 reset cámara
+            cameraRef.current.zoom = 1
+            cameraRef.current.panX = 0
+            cameraRef.current.panY = 0
 
-                // renderizar modelo vacío (CLAVE)
-                const canvas = canvasRef.current
-                if (canvas && rendererRef.current) {
-                    const emptyModel = new ToolpathModel()
+            // 🎨 render SIN modelo (canvas vacío)
+            if (rendererRef.current) {
+                rendererRef.current.render(
+                    null,
+                    visiblePresets[viewIndex],
+                    cameraRef.current,
+                    undefined,
+                    showGrid
+                )
+            }
+        },
+        "toolpath-reset"
+    )
 
-                    rendererRef.current.render(
-                        emptyModel,
-                        visiblePresets[viewIndex],
-                        cameraRef.current,
-                        undefined,
+    return () => {
+        eventBus.off("toolpath:reset", resetId)
+    }
+}, [viewIndex, showGrid])
 
-                    )
-                }
-            },
-            "toolpath-reset"
-        )
-
-        return () => {
-            eventBus.off("toolpath:reset", resetId)
-        }
-    }, [viewIndex])
 
 
 
