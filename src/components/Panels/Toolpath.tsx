@@ -591,6 +591,8 @@ const ToolpathPanel: FunctionalComponent = () => {
         >
 
             <ContainerHelper id={id} />
+
+            
 <div class="navbar">
     {/* IZQUIERDA: título + clear */}
 <span class="navbar-section">
@@ -623,6 +625,7 @@ const ToolpathPanel: FunctionalComponent = () => {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+    transform: "rotate(180deg) scaleX(-1)",
     padding: "0.35rem",   // opcional, ajusta el “aire”
   }}
 >

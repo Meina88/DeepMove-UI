@@ -362,10 +362,9 @@ $jog-radial-offset: 5px; // movimiento radial hacia afuera de los botones tácti
 /* svg visual */
 .jog-xy-pad .jog-cell svg {
     position: absolute;
-    width: 120px;
-    height: 120px;
     pointer-events: none;
     z-index: 1;
+    will-change: transform, opacity;
 }
 
 .jog-xy-pad .jog-cell svg path {
@@ -379,7 +378,7 @@ $jog-radial-offset: 5px; // movimiento radial hacia afuera de los botones tácti
 
 .jog-xy-pad .jog-xy-hit:active + svg path {
     fill: $primary-color-dark;
-    transform: scale(0.97);
+    opacity: 0.85;
 }
 
 
@@ -400,6 +399,7 @@ $jog-radial-offset: 5px; // movimiento radial hacia afuera de los botones tácti
     box-shadow: none !important;
     outline: none !important;
 }
+
 
 
 /* =========================
