@@ -392,9 +392,10 @@ const OverridesPanel: FunctionalComponent = () => {
                     {/* Archivo en ejecución */}
                     {streamStatus?.name && (
                         <div class="run-file-name">
-                            {streamStatus.name}
+                            {streamStatus.name.split("/").pop()}
                         </div>
                     )}
+
 
 
 
@@ -408,50 +409,50 @@ const OverridesPanel: FunctionalComponent = () => {
 
                     </div>
 
-                  <div class="override-rocker">
+                    <div class="override-rocker">
 
-    {/* +10% */}
-    <button
-        class="rocker-btn rocker-plus"
-        onClick={() => {
-            useUiContextFn.haptic()
-            sendOverride("spindle", "+10")
-        }}
-    >
-        <Plus size={18} />
-    </button>
+                        {/* +10% */}
+                        <button
+                            class="rocker-btn rocker-plus"
+                            onClick={() => {
+                                useUiContextFn.haptic()
+                                sendOverride("spindle", "+10")
+                            }}
+                        >
+                            <Plus size={18} />
+                        </button>
 
-    {/* SPEED = RESET 100% */}
-<button
-    class="rocker-label-btn"
-    onClick={() => {
-        if (uiSpindleOverride !== 100) {
-            useUiContextFn.haptic()
-            sendOverride("spindle", "100")
-        }
-    }}
->
-    {uiSpindleOverride === 100 ? (
-        "RPM"
-    ) : (
-        <RefreshCw size={16} />
-    )}
-</button>
+                        {/* SPEED = RESET 100% */}
+                        <button
+                            class="rocker-label-btn"
+                            onClick={() => {
+                                if (uiSpindleOverride !== 100) {
+                                    useUiContextFn.haptic()
+                                    sendOverride("spindle", "100")
+                                }
+                            }}
+                        >
+                            {uiSpindleOverride === 100 ? (
+                                "RPM"
+                            ) : (
+                                <RefreshCw size={16} />
+                            )}
+                        </button>
 
 
 
-    {/* -10% */}
-    <button
-        class="rocker-btn rocker-minus"
-        onClick={() => {
-            useUiContextFn.haptic()
-            sendOverride("spindle", "-10")
-        }}
-    >
-        <Minus size={18} />
-    </button>
+                        {/* -10% */}
+                        <button
+                            class="rocker-btn rocker-minus"
+                            onClick={() => {
+                                useUiContextFn.haptic()
+                                sendOverride("spindle", "-10")
+                            }}
+                        >
+                            <Minus size={18} />
+                        </button>
 
-</div>
+                    </div>
 
                 </div>
 
@@ -513,48 +514,48 @@ const OverridesPanel: FunctionalComponent = () => {
 
                     <div class="override-rocker">
 
-    {/* +10% */}
-    <button
-        class="rocker-btn rocker-plus"
-        onClick={() => {
-            useUiContextFn.haptic()
-            sendOverride("feed", "+10")
-        }}
-    >
-        <Plus size={18} />
-    </button>
+                        {/* +10% */}
+                        <button
+                            class="rocker-btn rocker-plus"
+                            onClick={() => {
+                                useUiContextFn.haptic()
+                                sendOverride("feed", "+10")
+                            }}
+                        >
+                            <Plus size={18} />
+                        </button>
 
-    {/* FEED = RESET 100% */}
-<button
-    class="rocker-label-btn"
-    onClick={() => {
-        if (uiFeedOverride !== 100) {
-            useUiContextFn.haptic()
-            sendOverride("feed", "100")
-        }
-    }}
->
-    {uiFeedOverride === 100 ? (
-        "FEED"
-    ) : (
-        <RefreshCw size={16} />
-    )}
-</button>
+                        {/* FEED = RESET 100% */}
+                        <button
+                            class="rocker-label-btn"
+                            onClick={() => {
+                                if (uiFeedOverride !== 100) {
+                                    useUiContextFn.haptic()
+                                    sendOverride("feed", "100")
+                                }
+                            }}
+                        >
+                            {uiFeedOverride === 100 ? (
+                                "FEED"
+                            ) : (
+                                <RefreshCw size={16} />
+                            )}
+                        </button>
 
 
 
-    {/* -10% */}
-    <button
-        class="rocker-btn rocker-minus"
-        onClick={() => {
-            useUiContextFn.haptic()
-            sendOverride("feed", "-10")
-        }}
-    >
-        <Minus size={18} />
-    </button>
+                        {/* -10% */}
+                        <button
+                            class="rocker-btn rocker-minus"
+                            onClick={() => {
+                                useUiContextFn.haptic()
+                                sendOverride("feed", "-10")
+                            }}
+                        >
+                            <Minus size={18} />
+                        </button>
 
-</div>
+                    </div>
 
                 </div>
 
