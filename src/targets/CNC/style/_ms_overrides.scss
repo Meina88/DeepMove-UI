@@ -162,10 +162,10 @@
     grid-template-columns: 1fr 130px 1fr;
 
     grid-template-rows:
-        220px                          // 🔒 placeholder (gauge)
-        auto                           // status (lock)
-        $control-size-lg + $unit-3     // 🔒 hold
-        auto;                          // botones +/- 
+        220px // 🔒 placeholder (gauge)
+        auto // status (lock)
+        $control-size-lg + $unit-3 // 🔒 hold
+        auto; // botones +/- 
 
     grid-template-areas:
         "placeholder placeholder placeholder"
@@ -184,7 +184,7 @@
 
 #OverridesPanel .overrides-graphs {
     display: grid;
-    
+
     grid-template-columns: 1fr auto 1fr;
     grid-template-rows: auto;
     align-items: end;
@@ -202,7 +202,7 @@
     flex-direction: column;
     align-items: center;
     gap: 0.35rem;
-    
+
 }
 
 #OverridesPanel .graph-bar {
@@ -212,13 +212,12 @@
     width: 24px;
     height: 140px;
 
-    background: linear-gradient(to top,
-            lighten($gray-color-light, 6%),
-            $gray-color-light );
+    background: $bg-color-light;     
+    
 
     border-radius: $border-radius;
-    
 }
+
 
 
 #OverridesPanel .graph-bar-fill {
@@ -339,8 +338,8 @@
 
         user-select: none;
     }
-    
-    
+
+
 
 }
 
@@ -386,7 +385,7 @@
 
 
 
-   
+
 #OverridesPanel .override-buttons-container {
     grid-area: hold;
 
@@ -414,7 +413,7 @@
         color: $light-color;
 
         background-color: $primary-color; // 🔵 acción normal
-        
+
 
         transition:
             background-color 150ms ease,
@@ -439,23 +438,23 @@
     /* =========================
        ▶ START / PLAY
        ========================= */
-/* ▶ PLAY */
-.override-hold-btn.is-play {
-    background-color: $primary-color;
-    color: $btn-primary-color;
+    /* ▶ PLAY */
+    .override-hold-btn.is-play {
+        background-color: $primary-color;
+        color: $btn-primary-color;
 
-    box-shadow:
-        0 4px 10px rgba($primary-color, 0.35),
-        0 0 0 1px rgba($primary-color-dark, 0.4);
+        box-shadow:
+            0 4px 10px rgba($primary-color, 0.35),
+            0 0 0 1px rgba($primary-color-dark, 0.4);
 
-    &:hover {
-        background-color: $primary-color-dark;
+        &:hover {
+            background-color: $primary-color-dark;
+        }
+
+        &:active {
+            transform: scale(0.96);
+        }
     }
-
-    &:active {
-        transform: scale(0.96);
-    }
-}
 
 
     /* ▶ START / PLAY — corrección óptica */
@@ -505,14 +504,14 @@
     padding: $unit-3;
 
     background-color: $bg-color;
-    
 
-    border:none;
+
+    border: none;
     border-radius: 10px;
 
     box-sizing: border-box;
 
-    
+
 }
 
 
@@ -554,23 +553,23 @@
 
 #OverridesPanel {
 
-     /* 🟢 0–40% */
-  .power-low {
-    stroke: $success-color;
-    color: $success-color;
-  }
+    /* 🟢 0–40% */
+    .power-low {
+        stroke: $success-color;
+        color: $success-color;
+    }
 
-  /* 🟡 40–70% */
-  .power-mid {
-    stroke: $warning-color;
-    color: $warning-color;
-  }
+    /* 🟡 40–70% */
+    .power-mid {
+        stroke: $warning-color;
+        color: $warning-color;
+    }
 
-  /* 🔴 70–100% */
-  .power-high {
-    stroke: $error-color;
-    color: $error-color;
-  }
+    /* 🔴 70–100% */
+    .power-high {
+        stroke: $error-color;
+        color: $error-color;
+    }
 
     /* 🔵 GAUGE PROGRESO (arco interno) */
     .gauge-progress-fill {
@@ -592,7 +591,7 @@
         stroke-linecap: round;
     }
 
-    .gauge-fill {        
+    .gauge-fill {
         stroke-width: 14;
         stroke-linecap: round;
 
@@ -621,7 +620,7 @@
         align-items: center;
         justify-content: center;
 
-        
+
 
         transition:
             background-color 120ms ease,
@@ -688,6 +687,138 @@
 }
 
 /* =========================
+   OVERRIDES — ROCKER VERTICAL (SPEED / FEED)
+   ========================= */
+
+#OverridesPanel {
+
+    .override-rocker {
+        width: 56px;
+        height: 168px;
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+
+        padding: 6px 0;
+
+        border-radius: 28px;
+        background-color: $bg-color-light;
+
+        /* neumorphism soft */
+        box-shadow:
+            -2px -2px 3px rgba(255, 255, 255, 0.65),
+            2px 2px 3px rgba(0, 0, 0, 0.25);
+
+        user-select: none;
+    }
+
+    /* =========================
+     BOTONES + / -
+     ========================= */
+
+    .rocker-btn {
+        width: 100%;
+        height: 44px;
+
+        border: none;
+        background: none;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        color: $primary-color;
+
+        transition:
+            background-color 120ms ease,
+            transform 90ms ease;
+
+        svg {
+            stroke: currentColor;
+        }
+
+        &:hover {
+            background-color: rgba($primary-color, 0.08);
+        }
+
+        &:active {
+            transform: scale(0.94);
+            background-color: rgba($primary-color, 0.14);
+        }
+    }
+
+    .rocker-plus {
+        border-radius: 22px 22px 8px 8px;
+    }
+
+    .rocker-minus {
+        border-radius: 8px 8px 22px 22px;
+    }
+
+    /* =========================
+     LABEL CENTRAL (RESET 100%)
+     ========================= */
+
+    .rocker-label-btn {
+    all: unset;
+
+    width: 100%;
+    padding: 6px 0;
+
+    text-align: center;
+
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+
+    color: $text-muted-color;
+
+    user-select: none;
+}
+
+/* =========================
+   ESTADO RESET (ACCIONAL)
+   ========================= */
+
+.rocker-label-btn[data-reset="true"] {
+    cursor: pointer;
+}
+
+/* ÍCONO RESET */
+.rocker-label-btn svg {
+    width: 20px;
+    height: 20px;
+
+    stroke-width: 2.2;
+    stroke: $primary-color;
+
+    cursor: pointer;
+
+    transition: transform 120ms ease;
+}
+
+/* Hover SOLO cuando hay acción */
+.rocker-label-btn[data-reset="true"]:hover svg {
+    transform: rotate(-20deg);
+}
+
+/* Active SOLO reset */
+.rocker-label-btn[data-reset="true"]:active svg {
+    transform: scale(0.9);
+}
+
+}
+
+.rocker-label-btn:hover svg {
+  transform: rotate(-20deg);
+  transition: transform 120ms ease;
+}
+
+
+
+/* =========================
    ARCHIVO EN EJECUCIÓN
    ========================= */
 
@@ -729,7 +860,7 @@
     height: 22px;
     border-radius: 999px;
 
-    background: $gray-color-light;
+    background: $bg-color-light;
     border: $border-width solid $border-color;
 
     position: relative;
@@ -754,7 +885,7 @@
     height: 18px;
     border-radius: 50%;
 
-    background: $bg-color-light;
+    background: $gray-color-light;
     box-shadow:
         0 1px 3px rgba($dark-color, 0.45);
 

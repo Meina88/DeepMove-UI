@@ -49,31 +49,31 @@ const OverridesControls: FunctionalComponent<{
         <div class="status-ctrls center-only">
             <div class="lock-control">
 
-<div class="link-switch-wrap">
-    {/* 🔓 UNLOCK */}
-    <Unlock size={12} class={`link-switch-icon ${!linked ? "active" : ""}`} />
+                <div class="link-switch-wrap">
+                    {/* 🔓 UNLOCK */}
+                    <Unlock size={12} class={`link-switch-icon ${!linked ? "active" : ""}`} />
 
-    {/* SWITCH */}
-    <div
-        class={`link-switch ${linked ? "is-on" : ""}`}
-        role="switch"
-        aria-checked={linked}
-        title={
-            linked
-                ? T("Feed & Spindle linked")
-                : T("Feed & Spindle independent")
-        }
-        onClick={() => {
-            useUiContextFn.haptic()
-            setLinked(!linked)
-        }}
-    >
-        <div class="link-switch-thumb" />
-    </div>
+                    {/* SWITCH */}
+                    <div
+                        class={`link-switch ${linked ? "is-on" : ""}`}
+                        role="switch"
+                        aria-checked={linked}
+                        title={
+                            linked
+                                ? T("Feed & Spindle linked")
+                                : T("Feed & Spindle independent")
+                        }
+                        onClick={() => {
+                            useUiContextFn.haptic()
+                            setLinked(!linked)
+                        }}
+                    >
+                        <div class="link-switch-thumb" />
+                    </div>
 
-    {/* 🔒 LOCK */}
-    <Lock size={12} class={`link-switch-icon ${linked ? "active" : ""}`} />
-</div>
+                    {/* 🔒 LOCK */}
+                    <Lock size={12} class={`link-switch-icon ${linked ? "active" : ""}`} />
+                </div>
 
 
 
@@ -95,7 +95,7 @@ const OverridesPanel: FunctionalComponent = () => {
     const { targetCommands } = useTargetCommands()
     const [linked, setLinked] = useState(false)
     const { status, streamStatus, states } = useTargetContext() as {
-        
+
         status?: {
             state?: string
             power?: { value: number }
@@ -112,13 +112,13 @@ const OverridesPanel: FunctionalComponent = () => {
     }
 
     const canResumeFromDoor =
-    status?.state === "Door" && status?.substate === 0
+        status?.state === "Door" && status?.substate === 0
 
     const isRun = status?.state === "Run"
-const isHold = status?.state === "Hold"
+    const isHold = status?.state === "Hold"
 
-const canPause = isRun
-const canPlay = isHold || canResumeFromDoor
+    const canPause = isRun
+    const canPlay = isHold || canResumeFromDoor
 
 
     const powerW = status?.power?.value ?? 0
@@ -389,12 +389,12 @@ const canPlay = isHold || canResumeFromDoor
                     </div>
 
 
-{/* Archivo en ejecución */}
-{streamStatus?.name && (
-    <div class="run-file-name">
-        {streamStatus.name}
-    </div>
-)}
+                    {/* Archivo en ejecución */}
+                    {streamStatus?.name && (
+                        <div class="run-file-name">
+                            {streamStatus.name}
+                        </div>
+                    )}
 
 
 
@@ -408,45 +408,51 @@ const canPlay = isHold || canResumeFromDoor
 
                     </div>
 
-                    <div class="states-buttons-container override-circular">
+                  <div class="override-rocker">
 
-                        {/* +10 */}
-                        <ButtonImg
-                            class="override-step-btn"
-                            icon={<Plus size={18} />}
-                            tooltip
-                            data-tooltip="+10%"
-                            onClick={() => {
-                                useUiContextFn.haptic()
-                                sendOverride("spindle", "+10")
-                            }}
-                        />
+    {/* +10% */}
+    <button
+        class="rocker-btn rocker-plus"
+        onClick={() => {
+            useUiContextFn.haptic()
+            sendOverride("spindle", "+10")
+        }}
+    >
+        <Plus size={18} />
+    </button>
 
-                        {/* RESET */}
-                        <ButtonImg
-                            class="override-center-btn"
-                            icon={<RefreshCw size={18} />}
-                            tooltip
-                            data-tooltip="100%"
-                            onClick={() => {
-                                useUiContextFn.haptic()
-                                sendOverride("spindle", "100")
-                            }}
-                        />
+    {/* SPEED = RESET 100% */}
+<button
+    class="rocker-label-btn"
+    onClick={() => {
+        if (uiSpindleOverride !== 100) {
+            useUiContextFn.haptic()
+            sendOverride("spindle", "100")
+        }
+    }}
+>
+    {uiSpindleOverride === 100 ? (
+        "RPM"
+    ) : (
+        <RefreshCw size={16} />
+    )}
+</button>
 
-                        {/* -10 */}
-                        <ButtonImg
-                            class="override-step-btn"
-                            icon={<Minus size={18} />}
-                            tooltip
-                            data-tooltip="-10%"
-                            onClick={() => {
-                                useUiContextFn.haptic()
-                                sendOverride("spindle", "-10")
-                            }}
-                        />
 
-                    </div>
+
+    {/* -10% */}
+    <button
+        class="rocker-btn rocker-minus"
+        onClick={() => {
+            useUiContextFn.haptic()
+            sendOverride("spindle", "-10")
+        }}
+    >
+        <Minus size={18} />
+    </button>
+
+</div>
+
                 </div>
 
 
@@ -454,42 +460,42 @@ const canPlay = isHold || canResumeFromDoor
                 {/* ⏸️ / ▶️ HOLD – START (CENTRO INFERIOR) */}
 
 
-<div class="override-buttons-container">
+                <div class="override-buttons-container">
 
-    {/* ⏸️ PAUSE — solo en Run */}
-    {canPause && (
-        <ButtonImg
-            class="override-hold-btn is-hold"
-            icon={<Pause size={22} />}
-            tooltip
-            data-tooltip={T("Hold")}
-            onClick={() => {
-                useUiContextFn.haptic()
-                targetCommands("#FEEDHOLD#")
-            }}
-        />
-    )}
+                    {/* ⏸️ PAUSE — solo en Run */}
+                    {canPause && (
+                        <ButtonImg
+                            class="override-hold-btn is-hold"
+                            icon={<Pause size={22} />}
+                            tooltip
+                            data-tooltip={T("Hold")}
+                            onClick={() => {
+                                useUiContextFn.haptic()
+                                targetCommands("#FEEDHOLD#")
+                            }}
+                        />
+                    )}
 
-    {/* ▶️ PLAY — siempre visible */}
-    {!canPause && (
-        <ButtonImg
-            class={`override-hold-btn is-play ${!canPlay ? "is-disabled" : ""}`}
-            icon={<Play size={22} />}
-            tooltip
-            data-tooltip={
-                canPlay
-                    ? T("CN61")
-                    : T("Action not available")
-            }
-            onClick={() => {
-                if (!canPlay) return
-                useUiContextFn.haptic()
-                targetCommands("#CYCLESTART#")
-            }}
-        />
-    )}
+                    {/* ▶️ PLAY — siempre visible */}
+                    {!canPause && (
+                        <ButtonImg
+                            class={`override-hold-btn is-play ${!canPlay ? "is-disabled" : ""}`}
+                            icon={<Play size={22} />}
+                            tooltip
+                            data-tooltip={
+                                canPlay
+                                    ? T("CN61")
+                                    : T("Action not available")
+                            }
+                            onClick={() => {
+                                if (!canPlay) return
+                                useUiContextFn.haptic()
+                                targetCommands("#CYCLESTART#")
+                            }}
+                        />
+                    )}
 
-</div>
+                </div>
 
 
 
@@ -505,45 +511,51 @@ const canPlay = isHold || canResumeFromDoor
                     </div>
 
 
-                    <div class="states-buttons-container override-circular">
+                    <div class="override-rocker">
 
-                        {/* +10 */}
-                        <ButtonImg
-                            class="override-step-btn"
-                            icon={<Plus size={18} />}
-                            tooltip
-                            data-tooltip="+10%"
-                            onClick={() => {
-                                useUiContextFn.haptic()
-                                sendOverride("feed", "+10")
-                            }}
-                        />
+    {/* +10% */}
+    <button
+        class="rocker-btn rocker-plus"
+        onClick={() => {
+            useUiContextFn.haptic()
+            sendOverride("feed", "+10")
+        }}
+    >
+        <Plus size={18} />
+    </button>
 
-                        {/* RESET */}
-                        <ButtonImg
-                            class="override-center-btn"
-                            icon={<RefreshCw size={18} />}
-                            tooltip
-                            data-tooltip="100%"
-                            onClick={() => {
-                                useUiContextFn.haptic()
-                                sendOverride("feed", "100")
-                            }}
-                        />
+    {/* FEED = RESET 100% */}
+<button
+    class="rocker-label-btn"
+    onClick={() => {
+        if (uiFeedOverride !== 100) {
+            useUiContextFn.haptic()
+            sendOverride("feed", "100")
+        }
+    }}
+>
+    {uiFeedOverride === 100 ? (
+        "FEED"
+    ) : (
+        <RefreshCw size={16} />
+    )}
+</button>
 
-                        {/* -10 */}
-                        <ButtonImg
-                            class="override-step-btn"
-                            icon={<Minus size={18} />}
-                            tooltip
-                            data-tooltip="-10%"
-                            onClick={() => {
-                                useUiContextFn.haptic()
-                                sendOverride("feed", "-10")
-                            }}
-                        />
 
-                    </div>
+
+    {/* -10% */}
+    <button
+        class="rocker-btn rocker-minus"
+        onClick={() => {
+            useUiContextFn.haptic()
+            sendOverride("feed", "-10")
+        }}
+    >
+        <Minus size={18} />
+    </button>
+
+</div>
+
                 </div>
 
 
