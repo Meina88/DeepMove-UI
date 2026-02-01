@@ -137,26 +137,35 @@ useEffect(() => {
 
     let lastScrollTop = list.scrollTop
     let timeout: any = null
+    
+const onScroll = () => {
+    const current = list.scrollTop
+    const delta = current - lastScrollTop
 
-    const onScroll = () => {
-        const current = list.scrollTop
-        const delta = current - lastScrollTop
+    // Dirección (ya lo tenías)
+    fab.classList.remove("scroll-up", "scroll-down")
 
-        fab.classList.remove("scroll-up", "scroll-down")
-
-        if (delta > 0) {
-            fab.classList.add("scroll-down")
-        } else if (delta < 0) {
-            fab.classList.add("scroll-up")
-        }
-
-        lastScrollTop = current
-
-        clearTimeout(timeout)
-        timeout = setTimeout(() => {
-            fab.classList.remove("scroll-up", "scroll-down")
-        }, 140)
+    if (delta > 0) {
+        fab.classList.add("scroll-down")
+    } else if (delta < 0) {
+        fab.classList.add("scroll-up")
     }
+
+    // 👇 NUEVO: ocultar si no estamos arriba
+    if (current > 8) {
+        fab.classList.add("is-hidden")
+    } else {
+        fab.classList.remove("is-hidden")
+    }
+
+    lastScrollTop = current
+
+    clearTimeout(timeout)
+    timeout = setTimeout(() => {
+        fab.classList.remove("scroll-up", "scroll-down")
+    }, 120)
+}
+
 
     list.addEventListener("scroll", onScroll)
     return () => list.removeEventListener("scroll", onScroll)

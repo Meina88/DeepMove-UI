@@ -344,17 +344,14 @@
 /* Scroll hacia abajo */
 #filesPanel .files-fab-wrapper.scroll-down {
     transition-duration: 200ms; // responde sin brusquedad
-    transform: translateX(-50%) translateY(6px);
+    transform: translateX(-50%) translateY(-2px);
 }
 
 /* Scroll hacia arriba */
 #filesPanel .files-fab-wrapper.scroll-up {
     transition-duration: 260ms; // retorno aún más suave
-    transform: translateX(-50%) translateY(-4px);
+    transform: translateX(-50%) translateY(2px);
 }
-
-
-
 
 
 /* ============================= */
