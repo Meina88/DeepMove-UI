@@ -8,6 +8,7 @@ interface MenuItem {
     icon?: ComponentChildren
     onClick?: (e: TargetedMouseEvent<HTMLElement>) => void
     displayToggle?: () => ComponentChildren
+    className?: string
 }
 
 const Menu = ({ items }: { items: MenuItem[] }) => {
@@ -31,7 +32,10 @@ const Menu = ({ items }: { items: MenuItem[] }) => {
                             return <li class="divider" key={i}></li>
                         }
                         return (
-                            <li class="menu-item" key={i}>
+                            <li
+    class={`menu-item ${item.className || ""}`}
+    key={i}
+>
                                 <div
                                     className="menu-entry"
                                     onClick={item.onClick}

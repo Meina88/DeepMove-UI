@@ -422,3 +422,10 @@
     transform: translateY(0) scale(1);
     pointer-events: auto;
 }
+
+
+.menu-item.panel-menu-subitem {
+    padding-left: 1.25rem;
+    opacity: 0.85;
+    font-size: 0.95em;
+}

@@ -77,6 +77,7 @@ const FilesPanel: FunctionalComponent = () => {
                 .map((fs: any) => ({
                     label:
                         (state.fileSystem === fs.value ? "✓ " : "") + T(fs.name),
+                        className: "panel-menu-subitem",
                     onClick: () => {
                         actions.onSelectFS({
                             target: { value: fs.value },
@@ -97,9 +98,7 @@ const FilesPanel: FunctionalComponent = () => {
 
                 ...fsItems,
 
-                { divider: true },
-
-                { divider: true },
+                { divider: true },                
 
                 {
                     label: T("S50"),

@@ -90,6 +90,7 @@ export interface PanelMenuItem {
     icon?: ComponentChildren
     onClick?: (e: TargetedMouseEvent<HTMLElement>) => void
     displayToggle?: () => ComponentChildren
+    className?: string
 }
 
 // File list structure returned from API

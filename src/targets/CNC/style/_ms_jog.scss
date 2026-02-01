@@ -1,5 +1,14 @@
 @import "../../../style/variables";
 
+// Superficie pasiva (botones neutros, knob, arcos inactivos)
+$jog-surface: hsl(0, 0%, 18%);   // similar a trash btn bg
+$jog-surface-dark: hsl(0, 0%, 14%);
+$jog-surface-border: hsl(0, 0%, 24%);
+
+// Texto / íconos sobre superficie pasiva
+$jog-surface-text: hsl(0, 0%, 82%);
+
+
 /* =========================
    JOG PANEL — BOTONES CON ICONO
    ========================= */
@@ -232,6 +241,14 @@
 }
 
 
+.jog-position-action svg {
+  color: $gray-color-light;
+}
+.jog-position-action:hover svg {
+  color: $light-color;
+}
+
+
 .jog-position-sub-header {
     min-width: 26px;
     height: 26px;
@@ -244,8 +261,8 @@
     font-weight: 600;
     text-transform: uppercase;
 
-    color: $primary-color;
-    background-color: rgba($primary-color, 0.12);
+    color: $text-muted-color;
+    background-color: $bg-color-light;
 
     border-right: 1px solid $border-color;
 
@@ -272,8 +289,14 @@
     margin-left: 16px;
 }
 
+/* Z jog arrows — icon black */
 
-//////////////
+.jog-axis-group .jog-buttons-container button svg {
+    color: #000; // negro real
+}
+
+
+
 
 
 /* ===============================
@@ -407,50 +430,61 @@ $jog-radial-offset: 5px; // movimiento radial hacia afuera de los botones tácti
    ========================= */
 
 .jog-global-btn {
-    background-color: $primary-color;
-    color: $light-color;
-    border: none;
+    background-color: $bg-color-light;   // ⬅️ oscuro
+    color: $primary-color;
+
+    border: 1px solid $primary-color;
+    border-radius: 6px;
 
     font-weight: 600;
     letter-spacing: 0.02em;
 
     transition:
         background-color 120ms ease,
+        color 120ms ease,
+        box-shadow 120ms ease,
         transform 80ms ease;
 }
 
 .jog-global-btn svg {
+    color: $primary-color;
+}
+
+.jog-global-btn svg:hover {
+    color: $primary-color;
+}
+
+.jog-global-btn:hover {
+    background-color: rgba($primary-color, 0.12); // sutil glow
     color: $light-color;
 }
 
-
-
-.jog-global-btn:hover {
-    background-color: $primary-color-dark;
+.jog-global-btn:hover svg {
+    color: $light-color;
 }
 
 .jog-global-btn:active {
-    background-color: $primary-color-dark;
-    transform: translateY(3px);
+    background-color: rgba($primary-color, 0.14);
+    transform: translateY(2px);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
 }
-
 
 .jog-global-btn:focus,
 .jog-global-btn:focus-visible {
     outline: none;
-    box-shadow: none;
+    box-shadow: 0 0 0 1px rgba($primary-color, 0.4);
 }
-
 
 .jog-global-btn {
     width: 100%;
     margin: 4px 0;
     padding: 6px 0;
-    border-radius: 6px;
 }
 
+
+
 /* =========================
-   JOG — ROTARY STEP KNOB
+   JOG — ROTARY STEP KNOB (REAL KNOB)
    ========================= */
 
 .jog-step-knob-rotary {
@@ -459,44 +493,65 @@ $jog-radial-offset: 5px; // movimiento radial hacia afuera de los botones tácti
   height: 72px;
   border-radius: 50%;
 
-  background: $primary-color;
+  background:
+    radial-gradient(
+      circle at 30% 30%,
+      hsl(0, 0%, 22%),
+      hsl(0, 0%, 14%) 55%,
+      hsl(0, 0%, 10%) 100%
+    );
+
+  box-shadow:
+    inset 0 2px 4px rgba(0,0,0,0.6),
+    inset 0 -1px 2px rgba(255,255,255,0.08);
+
   cursor: pointer;
 
   display: flex;
   align-items: center;
   justify-content: center;
-
- 
 }
 
+.jog-step-knob-rotary:active {
+  box-shadow:
+    inset 0 3px 6px rgba(0,0,0,0.8),
+    0 2px 4px rgba(0,0,0,0.6);
+}
+
+/* valor numérico */
+.jog-step-knob-value {
+  font-size: 0.8rem;
+  font-weight: 700;
+
+  color: $primary-color;
+  text-shadow: 0 1px 1px rgba(0,0,0,0.8);
+
+  user-select: none;
+}
+
+/* punto indicador */
 .jog-step-knob-indicator {
   position: absolute;
-  
 
   width: 8px;
   height: 8px;
   border-radius: 50%;
 
-  background: $light-color;
+  background: $primary-color;
 
-  
+  box-shadow:
+    0 0 6px rgba($primary-color, 0.9),
+    inset 0 0 2px rgba(255,255,255,0.4);
+
   transition: transform 100ms ease-out;
 }
 
-
-.jog-step-knob-value {
-  font-size: 0.8rem;
-  font-weight: 600;
-
-  color: $light-color;
-  user-select: none;
-}
-
-
+/* puntos pasivos */
 .jog-step-detent {
   position: absolute;
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
-  background: rgba($light-color, 0.35);
+
+  background: rgba(255,255,255,0.18);
 }
