@@ -127,6 +127,41 @@ const FilesPanel: FunctionalComponent = () => {
         return () => document.removeEventListener("click", close)
     }, [fabOpen])
 
+useEffect(() => {
+    const list = dropRef.current
+    const fab = document.querySelector(
+        "#filesPanel .files-fab-wrapper"
+    ) as HTMLElement | null
+
+    if (!list || !fab) return
+
+    let lastScrollTop = list.scrollTop
+    let timeout: any = null
+
+    const onScroll = () => {
+        const current = list.scrollTop
+        const delta = current - lastScrollTop
+
+        fab.classList.remove("scroll-up", "scroll-down")
+
+        if (delta > 0) {
+            fab.classList.add("scroll-down")
+        } else if (delta < 0) {
+            fab.classList.add("scroll-up")
+        }
+
+        lastScrollTop = current
+
+        clearTimeout(timeout)
+        timeout = setTimeout(() => {
+            fab.classList.remove("scroll-up", "scroll-down")
+        }, 140)
+    }
+
+    list.addEventListener("scroll", onScroll)
+    return () => list.removeEventListener("scroll", onScroll)
+}, [])
+
 
 
     // Render compact panel view
