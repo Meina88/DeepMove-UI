@@ -37,6 +37,9 @@ const PanelNavigator: FunctionalComponent = () => {
 
   // ✅ ESTE es el estado real del botón (solo por acción del usuario)
   const [isLatched, setIsLatched] = useState(false)
+  // ⏳ Evita doble click / spam de reset (PC principalmente)
+const [resetBusy, setResetBusy] = useState(false)
+
 
   const goToPanel = (id?: string) => {
     if (!id) return
@@ -67,6 +70,13 @@ const PanelNavigator: FunctionalComponent = () => {
 
 
   const onResetPress = () => {
+  // 🚫 Ignorar clicks repetidos durante la ventana crítica
+  if (resetBusy) return
+
+  setResetBusy(true)
+  window.setTimeout(() => {
+    setResetBusy(false)
+  }, 350)
     useUiContextFn.haptic([50, 80, 50, 80, 50])
 
     // Normalizá por si viene "ALARM", "Alarm:..." etc.
@@ -112,10 +122,12 @@ const PanelNavigator: FunctionalComponent = () => {
           return (
             <button
               key={`reset-${i}`}
-              class={
-                "panel-navigator-btn panel-navigator-btn-reset" +
-                (isLatched ? " is-locked" : "")
-              }
+class={
+  "panel-navigator-btn panel-navigator-btn-reset" +
+  (isLatched ? " is-locked" : "") +
+  (resetBusy ? " is-busy" : "")
+}
+
               aria-pressed={isLatched}
               title={T("Soft Reset")}
               onClick={(e) => {

@@ -95,18 +95,42 @@ $link-color-light: lighten($link-color, 12%) !default;
 // Panel Navigator (Mobile Bottom Bar)
 // =====================================================
 
+// Fondo del dock (azul más sólido, menos translúcido)
 $panelnav-bg-color: $primary-color;
-$panelnav-bg-alpha: 0.95;
+$panelnav-bg-alpha: 0.97;
 
+// Botones laterales — blanco técnico translúcido
 $panelnav-btn-bg-color: $light-color;
-$panelnav-btn-bg-alpha: 0.18;
-$panelnav-btn-icon-color: $primary-color-dark;
+$panelnav-btn-bg-alpha: 0.15;
 
-$panelnav-btn-active-bg-alpha: 0.32;
+// Iconos laterales — blanco suave (no azul)
+$panelnav-btn-icon-color: hsla(210, 20%, 98%, 0.92);
 
+// Estado activo de botones laterales
+$panelnav-btn-active-bg-alpha: 0.38;
+
+// Reset — rojo alarma (sin cambios semánticos)
 $panelnav-reset-color: $error-color;
-$panelnav-reset-highlight: lighten($error-color, 8%);
-$panelnav-reset-shadow: darken($error-color, 18%);
+$panelnav-reset-highlight: lighten($error-color, 10%);
+$panelnav-reset-shadow: darken($error-color, 20%);
+
+
+// =====================================================
+// Panel Navigator — Reset button states (SEMANTIC)
+// =====================================================
+
+// Hover (PC) — sutil, no juguetón
+$panelnav-reset-hover-brightness: 1.06;
+$panelnav-reset-hover-lift: -1px;
+
+// Locked / Alarm — más hundido, más serio
+$panelnav-reset-locked-brightness: 0.82;
+$panelnav-reset-locked-press: 2px;
+
+// Busy / Debounce — apenas atenuado
+$panelnav-reset-busy-brightness: 0.88;
+
+
 
 // =====================================================
 // Fonts

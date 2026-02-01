@@ -10,10 +10,9 @@
    MOBILE BASE (≤480px)
    ===================================================== */
 
-
 /* =========================
-       CONTENEDOR
-       ========================= */
+   CONTENEDOR
+   ========================= */
 
 .panel-navigator {
     display: flex;
@@ -26,23 +25,19 @@
     transform: translateX(-50%);
     z-index: 1000;
 
-    /* ancho responsive real */
     width: clamp(300px, 92vw, 420px);
 
     padding: 10px 18px;
     gap: 14px;
 
     background: rgba($panelnav-bg-color, $panelnav-bg-alpha);
-
     backdrop-filter: blur(10px);
     border-radius: 50px;
-
-
 }
 
 /* =========================
-       BOTONES NORMALES (paneles)
-       ========================= */
+   BOTONES NORMALES
+   ========================= */
 
 .panel-navigator-btn {
     all: unset;
@@ -54,7 +49,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    /* ✅ corregido */
 
     background: rgba($panelnav-btn-bg-color, $panelnav-btn-bg-alpha);
     color: $panelnav-btn-icon-color;
@@ -73,28 +67,31 @@
 }
 
 .panel-navigator-btn:active {
-    background: rgba($panelnav-btn-bg-color,
-            $panelnav-btn-active-bg-alpha );
+    background: rgba(
+        $panelnav-btn-bg-color,
+        $panelnav-btn-active-bg-alpha
+    );
     transform: scale(0.94);
 }
 
 /* =========================
-       BOTÓN STOP / RESET (CENTRAL)
-       ========================= */
+   BOTÓN RESET
+   ========================= */
 
 .panel-navigator-btn-reset {
     width: 62px;
     height: 62px;
     border-radius: 50%;
 
-
     display: flex;
     align-items: center;
     justify-content: center;
 
-    background: radial-gradient(circle at 30% 30%,
-            $panelnav-reset-highlight,
-            $panelnav-reset-color);
+    background: radial-gradient(
+        circle at 30% 30%,
+        $panelnav-reset-highlight,
+        $panelnav-reset-color
+    );
 
     color: #fff;
 
@@ -120,12 +117,12 @@
 }
 
 /* =========================
-       ESTADO LOCKED (EMERGENCIA ACTIVA)
-       ========================= */
+   ESTADO LOCKED (ALARM)
+   ========================= */
 
 .panel-navigator-btn-reset.is-locked {
-    transform: translateY(2px);
-    filter: brightness(0.85) saturate(1.15);
+    transform: translateY($panelnav-reset-locked-press);
+    filter: brightness($panelnav-reset-locked-brightness) saturate(1.15);
 
     box-shadow:
         0 3px 10px rgba(0, 0, 0, 0.65),
@@ -135,13 +132,13 @@
 }
 
 .panel-navigator-btn-reset.is-locked:active {
-    transform: translateY(2px) scale(0.96);
+    transform: translateY($panelnav-reset-locked-press) scale(0.96);
     filter: brightness(0.82);
 }
 
 /* =========================
-       SLOT VACÍO (layout estable)
-       ========================= */
+   SLOT VACÍO
+   ========================= */
 
 .panel-navigator-btn-empty {
     width: 44px;
@@ -150,10 +147,10 @@
     pointer-events: none;
 }
 
-
 /* =====================================================
-   EXTRA SMALL (≤380px) — Galaxy S9 / SE
+   EXTRA SMALL
    ===================================================== */
+
 @media (max-width: 380px) {
     .panel-navigator {
         width: 96vw;
@@ -163,50 +160,55 @@
 }
 
 /* =====================================================
-   DESKTOP REAL — RESET FLOATING BUTTON (SIN BARRA)
+   DESKTOP REAL (≥1024px)
    ===================================================== */
+
 @media (min-width: 1024px) {
 
-    /* Quitar estética de barra */
+    /* Contenedor sin barra */
     .panel-navigator {
         background: transparent;
         backdrop-filter: none;
         box-shadow: none;
         padding: 0;
         width: auto;
-
         justify-content: center;
     }
 
-    .panel-navigator-btn-reset:hover {
-        filter: brightness(1.1);
-        transform: translateY(-1px);
-        box-shadow:
-            0 10px 22px rgba(0, 0, 0, 0.55),
-            inset 0 0 0 2px rgba($light-color, 0.2);
-    }
-
-    /* Asegurar que solo el reset sea visible */
+    /* Ocultar botones normales */
     .panel-navigator-btn {
         display: none;
     }
 
+    /* Reset grande */
     .panel-navigator-btn-reset {
         display: flex;
         cursor: pointer;
         width: 72px;
         height: 72px;
     }
+
+    /* Hover SOLO si NO está locked */
+    .panel-navigator-btn-reset:not(.is-locked):hover {
+        filter: brightness($panelnav-reset-hover-brightness);
+        transform: translateY($panelnav-reset-hover-lift);
+        box-shadow:
+            0 10px 22px rgba(0, 0, 0, 0.55),
+            inset 0 0 0 2px rgba($light-color, 0.2);
+    }
 }
+
+/* =========================
+   BUSY (DEBOUNCE)
+   ========================= */
 
 .panel-navigator-btn-reset.is-busy {
     pointer-events: none;
-    filter: brightness(0.9);
+    filter: brightness($panelnav-reset-busy-brightness);
 }
 
-
 /* =====================================================
-   DESACTIVAR MENÚ CONTEXTUAL EN CONTROLES TÁCTILES
+   TOUCH HARDENING
    ===================================================== */
 
 .panel-navigator-btn,
@@ -216,12 +218,9 @@
 .jog-control,
 button {
     -webkit-touch-callout: none;
-    /* iOS / Chrome */
     -webkit-user-select: none;
     user-select: none;
 
     -webkit-tap-highlight-color: transparent;
-
     touch-action: manipulation;
-    /* 🔑 clave */
 }
