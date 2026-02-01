@@ -7,79 +7,84 @@ $version: "0.5.9";
 $rtl: false !default;
 
 // =====================================================
-// Core colors — Siemens Industrial LIGHT theme
+// Core colors — STRAVA DARK inspired (CNC/HMI)
 // =====================================================
 
-$primary-color:       hsl(210, 85%, 42%);   // azul Siemens
-$primary-color-dark:  hsl(210, 90%, 32%);
-$primary-color-light: hsl(210, 85%, 55%);
+// Acento principal (naranja Strava-like)
+$primary-color:       hsl(22, 90%, 52%);
+$primary-color-dark:  hsl(22, 90%, 42%);
+$primary-color-light: hsl(22, 92%, 60%);
 
-$secondary-color: hsl(210, 25%, 70%) !default; // gris azulado técnico
-$secondary-color-dark: hsl(210, 25%, 58%) !default;
-$secondary-color-light: hsl(210, 30%, 82%) !default;
+// Secundario (gris técnico)
+$secondary-color:       hsl(0, 0%, 55%) !default;
+$secondary-color-dark:  hsl(0, 0%, 42%) !default;
+$secondary-color-light: hsl(0, 0%, 68%) !default;
 
 // Button text colors
-$btn-primary-color: #ffffff !default;
-$btn-primary-color-dark: #ffffff !default;
-$btn-primary-color-light: #ffffff !default;
+$btn-primary-color: #0c0c0c !default;
+$btn-primary-color-dark: #0c0c0c !default;
+$btn-primary-color-light: #0c0c0c !default;
 
 // =====================================================
-// Gray colors (HMI / gabinete claro)
+// Gray colors (Dark HMI surfaces)
 // =====================================================
 
-$dark-color: hsl(210, 20%, 18%) !default;   // texto principal
-$light-color: hsl(210, 20%, 98%) !default;  // bg-light
-$gray-color: hsl(210, 10%, 55%) !default;
-$gray-color-dark: hsl(210, 10%, 40%) !default;
-$gray-color-light: hsl(210, 12%, 88%) !default;
+// En dark theme, el “dark-color” pasa a ser texto principal claro
+$dark-color: hsl(0, 0%, 92%) !default;   // texto principal (claro)
+$light-color: hsl(0, 0%, 98%) !default;  // blanco técnico (para highlights / overlays)
+
+$gray-color:       hsl(0, 0%, 62%) !default;
+$gray-color-dark:  hsl(0, 0%, 48%) !default;
+$gray-color-light: hsl(0, 0%, 78%) !default;
 
 // =====================================================
 // Borders
 // =====================================================
 
-$border-color: hsl(210, 18%, 82%) !default;
-$border-color-dark: hsl(210, 18%, 70%) !default;
-$border-color-light: hsl(210, 18%, 90%) !default;
+$border-color:       hsl(0, 0%, 20%) !default;
+$border-color-dark:  hsl(0, 0%, 16%) !default;
+$border-color-light: hsl(0, 0%, 26%) !default;
 
 // =====================================================
-// Backgrounds
+// Backgrounds (Strava-like: negro cálido)
 // =====================================================
 
-$bg-color: hsl(210, 20%, 96%);
-$bg-color-dark: hsl(210, 18%, 92%);
-$bg-color-light: hsl(210, 20%, 99%);
+$bg-color:       hsl(0, 0%, 9%);   // fondo principal
+$bg-color-dark:  hsl(0, 0%, 6%);   // más profundo
+$bg-color-light: hsl(0, 0%, 13%);  // superficie / cards
 
 // =====================================================
 // Control colors
 // =====================================================
 
 $success-color: hsl(140, 55%, 42%);   // verde OK industrial
-$warning-color: hsl(45, 95%, 50%);    // amarillo advertencia
-$error-color: hsl(0, 75%, 48%);       // rojo alarma
+$warning-color: hsl(38, 95%, 55%);    // warning cercano al acento (Strava-ish)
+$error-color:   hsl(0, 78%, 52%);     // rojo alarma (mantener semántica)
 
 // =====================================================
 // Panel headers
 // =====================================================
 
-$panel-header-bg: $primary-color;
-$panel-header-text: #ffffff;
-$panel-header-hover: $primary-color-light;
+// En Strava dark, headers “surface” (no barra naranja)
+$panel-header-bg: $bg-color-light;
+$panel-header-text: hsl(0, 0%, 96%);
+$panel-header-hover: hsl(0, 0%, 16%);
 
 // =====================================================
 // Other colors
 // =====================================================
 
-$code-color: hsl(195, 85%, 45%) !default; // azul técnico
-$highlight-color: hsla(210, 85%, 42%, 0.18) !default;
+$code-color: hsl(195, 85%, 55%) !default; // cian técnico sobre dark
+$highlight-color: hsla(22, 90%, 52%, 0.18) !default; // highlight naranja sutil
 $body-bg: $bg-color !default;
 
 // =====================================================
 // Typography
 // =====================================================
 
-$text-strong-color: hsl(210, 25%, 15%);
-$text-normal-color: hsl(210, 20%, 22%);
-$text-muted-color: hsl(210, 10%, 45%);
+$text-strong-color: hsl(0, 0%, 96%);
+$text-normal-color: hsl(0, 0%, 84%);
+$text-muted-color:  hsl(0, 0%, 62%);
 
 $body-font-color: $text-normal-color !default;
 
@@ -88,38 +93,37 @@ $body-font-color: $text-normal-color !default;
 // =====================================================
 
 $link-color: $primary-color !default;
-$link-color-dark: darken($link-color, 12%) !default;
-$link-color-light: lighten($link-color, 12%) !default;
+$link-color-dark: darken($link-color, 10%) !default;
+$link-color-light: lighten($link-color, 10%) !default;
 
 // =====================================================
-// Panel Navigator (Mobile Bottom Bar)
+// Panel Navigator (Mobile Bottom Bar) — Strava Dark
 // =====================================================
 
-// Fondo del dock (azul más sólido, menos translúcido)
-$panelnav-bg-color: $primary-color;
-$panelnav-bg-alpha: 0.97;
+// Fondo del dock (negro cálido, tipo Strava)
+$panelnav-bg-color: $bg-color;
+$panelnav-bg-alpha: 0.92;
 
-// Botones laterales — blanco técnico translúcido
+// Botones laterales — “vidrio” muy sutil (no blancos sólidos)
 $panelnav-btn-bg-color: $light-color;
-$panelnav-btn-bg-alpha: 0.15;
+$panelnav-btn-bg-alpha: 0.08;
 
-// Iconos laterales — blanco suave (no azul)
-$panelnav-btn-icon-color: hsla(210, 20%, 98%, 0.92);
+// Iconos laterales — blanco técnico
+$panelnav-btn-icon-color: hsla(0, 0%, 98%, 0.88);
 
-// Estado activo de botones laterales
-$panelnav-btn-active-bg-alpha: 0.38;
+// Estado activo de botones laterales (un poco más presente)
+$panelnav-btn-active-bg-alpha: 0.14;
 
-// Reset — rojo alarma (sin cambios semánticos)
+// Reset — rojo alarma (no usar naranja para esto)
 $panelnav-reset-color: $error-color;
 $panelnav-reset-highlight: lighten($error-color, 10%);
 $panelnav-reset-shadow: darken($error-color, 20%);
-
 
 // =====================================================
 // Panel Navigator — Reset button states (SEMANTIC)
 // =====================================================
 
-// Hover (PC) — sutil, no juguetón
+// Hover (PC) — sutil
 $panelnav-reset-hover-brightness: 1.06;
 $panelnav-reset-hover-lift: -1px;
 
@@ -129,8 +133,6 @@ $panelnav-reset-locked-press: 2px;
 
 // Busy / Debounce — apenas atenuado
 $panelnav-reset-busy-brightness: 0.88;
-
-
 
 // =====================================================
 // Fonts
@@ -240,22 +242,21 @@ $zindex-3: 300 !default;
 $zindex-4: 400 !default;
 
 // =====================================================
-// Toolpath / Canvas — Siemens LIGHT
+// Toolpath / Canvas — Strava Dark
 // =====================================================
 
 :root {
-  --tp-bg: hsl(210, 20%, 97%);
+  --tp-bg: hsl(0, 0%, 10%);
 
-  --tp-rapid: hsl(210, 8%, 60%);
-  --tp-linear: hsl(210, 85%, 50%);
-  --tp-arc: hsl(210, 70%, 45%);
+  --tp-rapid: hsl(0, 0%, 55%);
+  --tp-linear: hsl(22, 90%, 52%);  // naranja acento
+  --tp-arc: hsl(22, 85%, 45%);
 
-  --tp-feed: hsl(210, 85%, 50%);  
+  --tp-feed: hsl(22, 90%, 52%);
 
-  --tp-completed: hsl(210, 60%, 65%);
-  --tp-tool: hsl(195, 90%, 50%);
+  --tp-completed: hsl(0, 0%, 62%);
+  --tp-tool: hsl(195, 90%, 55%);
 
---tp-grid-major: hsla(210, 8%, 45%, 0.25);
---tp-grid-minor: hsla(210, 6%, 45%, 0.10);
-
+  --tp-grid-major: hsla(0, 0%, 70%, 0.12);
+  --tp-grid-minor: hsla(0, 0%, 70%, 0.06);
 }
