@@ -232,6 +232,7 @@ span.input-group-addon {
         word-break: break-all;
     }
 }
+
 @keyframes border-dance {
     0% {
         background-position:
@@ -240,6 +241,7 @@ span.input-group-addon {
             0 100%,
             100% 0;
     }
+
     100% {
         background-position:
             100% 0,
@@ -452,6 +454,7 @@ a label {
 .form-select {
     color: var(--ms-text-normal);
 }
+
 .notification-line {
     padding-top: 4px !important;
     padding-left: 4px;
@@ -470,8 +473,8 @@ a label {
     margin-left: 0.25rem;
 }
 
-.tooltip > svg,
-.tooltip > span {
+.tooltip>svg,
+.tooltip>span {
     pointer-events: none;
 }
 
@@ -499,7 +502,7 @@ a label {
 
 .has-modification label,
 .has-modification .form-input-hint,
-.is-modified + .form-input-hint {
+.is-modified+.form-input-hint {
     color: var(--ms-warning);
 }
 
@@ -527,28 +530,28 @@ a label {
     border-color: var(--ms-warning);
 }
 
-.has-modification .form-checkbox input:checked + .form-icon,
-.form-checkbox.is-modified input:checked + .form-icon,
-.has-modification .form-radio input:checked + .form-icon,
-.form-radio.is-modified input:checked + .form-icon,
-.has-modification .form-switch input:checked + .form-icon,
-.form-switch.is-modified input:checked + .form-icon {
+.has-modification .form-checkbox input:checked+.form-icon,
+.form-checkbox.is-modified input:checked+.form-icon,
+.has-modification .form-radio input:checked+.form-icon,
+.form-radio.is-modified input:checked+.form-icon,
+.has-modification .form-switch input:checked+.form-icon,
+.form-switch.is-modified input:checked+.form-icon {
     background: var(--ms-warning);
     border-color: var(--ms-warning);
 }
 
-.has-modification .form-checkbox input:focus + .form-icon,
-.form-checkbox.is-modified input:focus + .form-icon,
-.has-modification .form-radio input:focus + .form-icon,
-.form-radio.is-modified input:focus + .form-icon,
-.has-modification .form-switch input:focus + .form-icon,
-.form-switch.is-modified input:focus + .form-icon {
+.has-modification .form-checkbox input:focus+.form-icon,
+.form-checkbox.is-modified input:focus+.form-icon,
+.has-modification .form-radio input:focus+.form-icon,
+.form-radio.is-modified input:focus+.form-icon,
+.has-modification .form-switch input:focus+.form-icon,
+.form-switch.is-modified input:focus+.form-icon {
     border-color: var(--ms-warning);
     box-shadow: 0 0 0 0.1rem hsla(22, 90%, 52%, 0.2);
 }
 
-.has-modification .form-checkbox input:indeterminate + .form-icon,
-.form-checkbox.is-modified input:indeterminate + .form-icon {
+.has-modification .form-checkbox input:indeterminate+.form-icon,
+.form-checkbox.is-modified input:indeterminate+.form-icon {
     background: var(--ms-warning);
     border-color: var(--ms-warning);
 }
@@ -568,11 +571,11 @@ a label {
     input[type="radio"] {
         display: none;
 
-        &:not(:disabled) ~ label {
+        &:not(:disabled)~label {
             cursor: pointer;
         }
 
-        &:disabled ~ label {
+        &:disabled~label {
             color: var(--ms-disabled);
             border-color: var(--ms-disabled);
             box-shadow: none;
@@ -594,12 +597,12 @@ a label {
         min-width: 2rem;
     }
 
-    input[type="radio"]:active + label {
+    input[type="radio"]:active+label {
         background: var(--ms-accent);
         color: var(--ms-text-inverse);
     }
 
-    input[type="radio"]:checked + label {
+    input[type="radio"]:checked+label {
         background: var(--ms-accent);
         color: var(--ms-text-inverse);
     }
@@ -659,6 +662,7 @@ a label {
     justify-content: space-between;
     padding: 0px 12px;
 }
+
 .text-like-icon {
     font-size: 1.4rem;
     vertical-align: top;
@@ -732,7 +736,7 @@ a label {
 
     pointer-events: none;
 
-    > .toast {
+    >.toast {
         pointer-events: auto;
         margin: 0;
         padding: $unit-2 $unit-3;
@@ -749,27 +753,29 @@ a label {
     }
 
     .toast-error {
-        background-color: rgba(var(--ms-error), 0.95);
+        background-color: color-mix(in srgb, var(--ms-error) 95%, transparent);
         color: var(--ms-text-inverse);
     }
 
     .toast-warning {
-        background-color: rgba(var(--ms-warning), 0.95);
+        background-color: color-mix(in srgb, var(--ms-warning) 95%, transparent);
         color: var(--ms-text-strong);
     }
 
     .toast-success {
-        background-color: rgba(var(--ms-success), 0.95);
+        background-color: color-mix(in srgb, var(--ms-success) 95%, transparent);
         color: var(--ms-text-inverse);
     }
 
     .toast-info {
-        background-color: rgba(var(--ms-accent), 0.95);
+        background-color: color-mix(in srgb, var(--ms-accent) 95%, transparent);
         color: var(--ms-text-inverse);
     }
+
 }
 
 @media (max-width: $size-xs) {
+
     [class~="col-"],
     .column {
         flex-basis: 100%;
