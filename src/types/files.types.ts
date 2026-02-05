@@ -1,5 +1,5 @@
 /*
-files.types.ts - Shared types for Files panel and FilesTab
+files.types.ts - Shared types for Files panel.
 
 Copyright (c) 2025 Mike Melancon. All rights reserved.
 
@@ -103,6 +103,3 @@ export interface FilesList {
     status: string
 }
 
-// Sort options for FilesTab
-export type SortField = "name" | "size" | "date"
-export type SortOrder = "asc" | "desc"

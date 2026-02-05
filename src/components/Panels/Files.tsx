@@ -22,7 +22,6 @@ import { useEffect, useRef, useState } from "preact/hooks"
 import { T } from "../Translations"
 import { useFilesManager, fileSizeString, getCurrentPath, setFileRef } from "../../hooks/useFilesManager"
 import type { FileEntry, PanelMenuItem } from "../../types/files.types"
-import { FilesTab } from "../../pages/tablet/FilesTab"
 import { Loading, ButtonImg, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
 import { useUiContextFn, useModalsContext } from "../../contexts"
 import { showConfirmationModal } from "../Modal"
@@ -545,9 +544,7 @@ const onScroll = () => {
 
 
                     </Fragment>
-                )}
-
-                {isFullScreen && <FilesTab></FilesTab>}
+                )}                
             </div>
         )
     }
