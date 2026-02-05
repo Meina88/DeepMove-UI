@@ -273,9 +273,9 @@
    Spectre — Filters
    ===================================================== */
 
-.filter .filter-nav .chip {
-  /* estado activo (pisado por :checked vía extend) */
-}
+// .filter .filter-nav .chip {
+//   /* estado activo (pisado por :checked vía extend) */
+// }
 
 .filter .filter-nav .chip {
   background-color: var(--ms-bg-surface);
@@ -935,12 +935,9 @@ select.form-select {
    Loading spinner override
    ========================= */
 
-.loading {
-  border-color: var(--primary-color) !important;
-  border-right-color: transparent !important;
-}
-
-/* Tamaño grande */
-.loading.loading-lg {
+.loading::after {
   border-width: 0.2rem;
+  border-style: solid;
+  border-color: transparent;
+  border-top-color: var(--ms-accent);
 }

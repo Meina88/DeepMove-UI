@@ -47,6 +47,7 @@ const ConnectionContainer: FunctionalComponent = () => {
     let contentAction: any
     let intervalTimer = 0
 
+    
     if (
         !connection.connectionState.connected ||
         connection.connectionState.updating
