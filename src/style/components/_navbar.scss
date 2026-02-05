@@ -29,7 +29,7 @@
 /* Offline / Sleep */
 .state-offline,
 .state-sleep {
-    background: var(--ms-gray);
+    background: hsl(0, 0%, 62%);
     box-shadow: 0 0 3px rgba(0, 0, 0, 0.25);
 }
 
@@ -40,7 +40,7 @@
     border-radius: 50%;
     flex: 0 0 auto;
     margin: 0 6px;
-    background: var(--ms-gray-dark);
+    background: hsl(0, 0%, 48%);
 }
 
 /* =========================
@@ -49,20 +49,20 @@
 
 /* Idle */
 .state-idle {
-    background: var(--ms-success);
+    background: hsl(140, 55%, 42%);
     box-shadow:
-        0 0 4px var(--ms-success),
-        0 0 8px var(--ms-success),
-        0 0 14px var(--ms-success);
+        0 0 4px hsl(140, 55%, 42%),
+        0 0 8px hsl(140, 55%, 42%),
+        0 0 14px hsl(140, 55%, 42%);
 }
 
 /* Run */
 .state-run {
-    background: var(--ms-success);
+    background: hsl(140, 55%, 42%);
     box-shadow:
-        0 0 4px var(--ms-success),
-        0 0 8px var(--ms-success),
-        0 0 14px var(--ms-success);
+        0 0 4px hsl(140, 55%, 42%),
+        0 0 8px hsl(140, 55%, 42%),
+        0 0 14px hsl(140, 55%, 42%);
 }
 
 /* Pulso suave de trabajo */
@@ -78,31 +78,31 @@
 
 /* 🕹️ JOG / JOYSTICK */
 .state-jog {
-    background: var(--ms-success);
+    background: hsl(140, 55%, 42%);
     box-shadow:
-        0 0 3px var(--ms-success),
-        0 0 6px var(--ms-success),
-        0 0 14px var(--ms-success);
+        0 0 3px hsl(140, 55%, 42%),
+        0 0 6px hsl(140, 55%, 42%),
+        0 0 14px hsl(140, 55%, 42%);
 }
 
 /* Hold / Door */
 .state-hold,
 .state-door {
-    background: var(--ms-warning);
+    background: hsl(38, 95%, 55%);
     box-shadow:
-        0 0 4px var(--ms-warning),
-        0 0 8px var(--ms-warning),
-        0 0 14px var(--ms-warning);
+        0 0 4px hsl(38, 95%, 55%),
+        0 0 8px hsl(38, 95%, 55%),
+        0 0 14px hsl(38, 95%, 55%);
 }
 
 /* Alarm / Error */
 .state-alarm,
 .state-error {
-    background: var(--ms-error);
+    background: hsl(0, 78%, 52%);
     box-shadow:
-        0 0 5px var(--ms-error),
-        0 0 10px var(--ms-error),
-        0 0 18px var(--ms-error);
+        0 0 5px hsl(0, 78%, 52%),
+        0 0 10px hsl(0, 78%, 52%),
+        0 0 18px hsl(0, 78%, 52%);
 }
 
 /* Parpadeo en alarma */
@@ -116,14 +116,14 @@
     animation: alarm-blink 0.25s infinite;
 }
 
-/* 🏠 HOMING */
+/* 🏠 HOMING (fucsia original) */
 .state-home,
 .state-homing {
-    background: var(--ms-accent);
+    background: hsl(295, 85%, 55%);
     box-shadow:
-        0 0 4px var(--ms-accent),
-        0 0 8px var(--ms-accent),
-        0 0 14px var(--ms-accent);
+        0 0 4px hsl(295, 85%, 55%),
+        0 0 8px hsl(295, 85%, 55%),
+        0 0 14px hsl(295, 85%, 55%);
 }
 
 @keyframes homing-pulse {
