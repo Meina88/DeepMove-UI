@@ -78,7 +78,7 @@
 
 .buttons-bar-label {
     font-size: 0.8rem;
-    color: $primary-color;
+    color: var(--ms-accent);
 }
 
 .jog-container {
@@ -162,12 +162,12 @@
 .jog-distance-selector-header {
     border: $border-width solid $primary-color;
     border-radius: $border-radius $border-radius 0 0;
-    color: $primary-color-dark;
+    color: var(--ms-accent)-dark;
     background-color: $bg-color;
 }
 
 #selectAxisList{
-    border-color: $primary-color !important
+    border-color: var(--ms-accent) !important
 }
 // proximas 10 filas reacomodan los botones de Wpos por eje y Mpos por eje.
 .jog-position-row {

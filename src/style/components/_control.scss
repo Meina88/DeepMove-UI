@@ -213,7 +213,7 @@ span.input-group-addon {
     -ms-user-select: text;
 
     .echo {
-        color: $primary-color;
+        color: var(--ms-accent);
     }
     .error {
         color: $error-color;
@@ -242,14 +242,6 @@ span.input-group-addon {
             100% 100%;
     }
 }
-
-.comment {
-    background-color: rgba($primary-color, 0.06);
-    color: $primary-color-dark;
-    padding-left: 0.5rem;
-    border-left: 0.15rem solid rgba($primary-color, 0.5);
-}
-
 
 .submitBtn {
     display: none;
@@ -309,7 +301,7 @@ span.input-group-addon {
 
 .file-line:hover {
 color: $body-font-color;
-    background-color: rgba($primary-color, 0.06);
+    background-color: rgba(var(--ms-accent), 0.06);
 }
 
 
@@ -588,11 +580,11 @@ a label {
     }
 
     input[type="radio"]:active + label {
-        background: $primary-color;
+        background: var(--ms-accent);
         color: $light-color;
     }
     input[type="radio"]:checked + label {
-        background: $primary-color;
+        background: var(--ms-accent);
         color: $light-color;
     }
     .last-button {
@@ -759,7 +751,7 @@ a label {
     }
 
     .toast-info {
-        background-color: rgba($primary-color, 0.95);
+        background-color: rgba(var(--ms-accent), 0.95);
         color: $light-color;
     }
 }

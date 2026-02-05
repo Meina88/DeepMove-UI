@@ -235,14 +235,14 @@
 #OverridesPanel .graph-bar.spindle .graph-bar-fill {
     background: linear-gradient(to top,
             darken($primary-color, 6%),
-            $primary-color );
+            var(--ms-accent) );
 }
 
 
 #OverridesPanel .graph-bar.feed .graph-bar-fill {
     background: linear-gradient(to top,
             darken($primary-color, 6%),
-            $primary-color );
+            var(--ms-accent) );
 }
 
 #OverridesPanel .graph-value {
@@ -318,7 +318,7 @@
         }
 
         &:hover {
-            color: $primary-color;
+            color: var(--ms-accent);
         }
 
         &:active {
@@ -412,7 +412,7 @@
         border: none;
         color: $light-color;
 
-        background-color: $primary-color; // 🔵 acción normal
+        background-color: var(--ms-accent); // 🔵 acción normal
 
 
         transition:
@@ -440,11 +440,11 @@
        ========================= */
     /* ▶ PLAY */
     .override-hold-btn.is-play {
-        background-color: $primary-color;
+        background-color: var(--ms-accent);
         color: $btn-primary-color;
 
         box-shadow:
-            0 4px 10px rgba($primary-color, 0.35),
+            0 4px 10px rgba(var(--ms-accent), 0.35),
             0 0 0 1px rgba($primary-color-dark, 0.4);
 
         &:hover {
@@ -466,7 +466,7 @@
        ⏸ HOLD (MISMA BASE VISUAL)
        ========================= */
     .override-hold-btn.is-hold {
-        background-color: $primary-color; // 🔵 NO amarillo
+        background-color: var(--ms-accent); // 🔵 NO amarillo
 
         &:hover {
             background-color: $primary-color-dark;
@@ -573,7 +573,7 @@
 
     /* 🔵 GAUGE PROGRESO (arco interno) */
     .gauge-progress-fill {
-        stroke: rgba($primary-color, 0.55);
+        stroke: rgba(var(--ms-accent), 0.55);
         stroke-width: 8;
         stroke-linecap: round;
 
@@ -613,7 +613,7 @@
         border-radius: 50%;
         border: none;
 
-        background-color: $primary-color;
+        background-color: var(--ms-accent);
         color: $btn-primary-color;
 
         display: flex;
@@ -678,7 +678,7 @@
 
     font-size: 0.75rem;
     font-weight: 600;
-    color: $primary-color;
+    color: var(--ms-accent);
     text-align: center;
 
     line-height: 1;
@@ -729,7 +729,7 @@
         align-items: center;
         justify-content: center;
 
-        color: $primary-color;
+        color: var(--ms-accent);
 
         transition:
             background-color 120ms ease,
@@ -740,12 +740,12 @@
         }
 
         &:hover {
-            background-color: rgba($primary-color, 0.08);
+            background-color: rgba(var(--ms-accent), 0.08);
         }
 
         &:active {
             transform: scale(0.94);
-            background-color: rgba($primary-color, 0.14);
+            background-color: rgba(var(--ms-accent), 0.14);
         }
     }
 
@@ -792,7 +792,7 @@
     height: 20px;
 
     stroke-width: 2.2;
-    stroke: $primary-color;
+    stroke: var(--ms-accent);
 
     cursor: pointer;
 
@@ -902,13 +902,13 @@
    ========================= */
 
 .link-switch.is-on {
-    background: $primary-color;
-    border-color: $primary-color-dark;
+    background: var(--ms-accent);
+    border-color: var(--ms-accent)-dark;
 
     .link-switch-thumb {
         background: $light-color; // o $bg-color-light
         box-shadow:
-            0 0 0 2px rgba($primary-color, 0.35),
+            0 0 0 2px rgba(var(--ms-accent), 0.35),
             0 2px 4px rgba($dark-color, 0.45);
 
         transform: translateX(20px);
@@ -946,7 +946,7 @@
 
 /* Activo según estado */
 .link-switch-icon.active {
-    color: $primary-color;
+    color: var(--ms-accent);
     opacity: 1;
 }
 

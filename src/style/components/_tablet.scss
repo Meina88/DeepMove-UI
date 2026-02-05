@@ -24,13 +24,13 @@
             color: $body-font-color;
 
             &:hover {
-                color: $primary-color;
+                color: var(--ms-accent);
             }
         }
 
         &.active a {
-            border-bottom-color: $primary-color;
-            color: $primary-color;
+            border-bottom-color: var(--ms-accent);
+            color: var(--ms-accent);
         }
     }
 }
@@ -93,9 +93,9 @@
         transition: all 0.2s ease;
 
         &.active {
-            background-color: $primary-color;
+            background-color: var(--ms-accent);
             color: $light-color;
-            border-color: $primary-color;
+            border-color: var(--ms-accent);
 
             .toggle-label {
                 color: $light-color;
@@ -299,8 +299,8 @@
     color: #000;
 
     &.drop-zone--over {
-        background-color: rgba($primary-color, 0.1);
-        border: 2px dashed $primary-color;
+        background-color: rgba(var(--ms-accent), 0.1);
+        border: 2px dashed var(--ms-accent);
     }
 }
 
@@ -331,7 +331,7 @@
     @media (hover: hover) {
         &:hover {
             background-color: $bg-color;
-            border-color: $primary-color;
+            border-color: var(--ms-accent);
         }
     }
 
@@ -636,8 +636,8 @@
 
     &.active {
         background-color: $bg-color-light;
-        color: $primary-color;
-        border-left-color: $primary-color;
+        color: var(--ms-accent);
+        border-left-color: var(--ms-accent);
     }
 
     &:active {
@@ -787,8 +787,8 @@
 
     @media (hover: hover) {
         &:hover {
-            border-color: $primary-color;
-            box-shadow: 0 2px 8px rgba($primary-color, 0.2);
+            border-color: var(--ms-accent);
+            box-shadow: 0 2px 8px rgba(var(--ms-accent), 0.2);
         }
     }
 

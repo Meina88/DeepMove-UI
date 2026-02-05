@@ -173,7 +173,7 @@ $jog-surface-text: hsl(0, 0%, 82%);
 .jog-axis-group .jog-buttons-container button {
     width: 50px;
     height: 50px;
-    background-color: $primary-color;
+    background-color: var(--ms-accent);
     color: #fff;
     border: none;
 
@@ -208,16 +208,16 @@ $jog-surface-text: hsl(0, 0%, 82%);
 .jog-axis-group .jog-buttons-container button:focus-visible {
     outline: none;
     box-shadow: none;
-    background-color: $primary-color;
+    background-color: var(--ms-accent);
 }
 
 
 .jog-axis-header {
     display: none;
-    background-color: rgba($primary-color, 0.06);
-    color: $primary-color;
+    background-color: rgba(var(--ms-accent), 0.06);
+    color: var(--ms-accent);
 
-    border-bottom: 1px solid rgba($primary-color, 0.2);
+    border-bottom: 1px solid rgba(var(--ms-accent), 0.2);
 
     font-size: 0.55rem;
     font-weight: 600;
@@ -391,7 +391,7 @@ $jog-radial-offset: 5px; // movimiento radial hacia afuera de los botones tácti
 }
 
 .jog-xy-pad .jog-cell svg path {
-    fill: $primary-color;
+    fill: var(--ms-accent);
     transition: fill 120ms ease, transform 120ms ease;
 }
 
@@ -431,9 +431,9 @@ $jog-radial-offset: 5px; // movimiento radial hacia afuera de los botones tácti
 
 .jog-global-btn {
     background-color: $bg-color-light;   // ⬅️ oscuro
-    color: $primary-color;
+    color: var(--ms-accent);
 
-    border: 1px solid $primary-color;
+    border: 1px solid var(--ms-accent);
     border-radius: 6px;
 
     font-weight: 600;
@@ -447,15 +447,15 @@ $jog-radial-offset: 5px; // movimiento radial hacia afuera de los botones tácti
 }
 
 .jog-global-btn svg {
-    color: $primary-color;
+    color: var(--ms-accent);
 }
 
 .jog-global-btn svg:hover {
-    color: $primary-color;
+    color: var(--ms-accent);
 }
 
 .jog-global-btn:hover {
-    background-color: rgba($primary-color, 0.12); // sutil glow
+    background-color: rgba(var(--ms-accent), 0.12); // sutil glow
     color: $light-color;
 }
 
@@ -464,7 +464,7 @@ $jog-radial-offset: 5px; // movimiento radial hacia afuera de los botones tácti
 }
 
 .jog-global-btn:active {
-    background-color: rgba($primary-color, 0.14);
+    background-color: rgba(var(--ms-accent), 0.14);
     transform: translateY(2px);
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
 }
@@ -472,7 +472,7 @@ $jog-radial-offset: 5px; // movimiento radial hacia afuera de los botones tácti
 .jog-global-btn:focus,
 .jog-global-btn:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 1px rgba($primary-color, 0.4);
+    box-shadow: 0 0 0 1px rgba(var(--ms-accent), 0.4);
 }
 
 .jog-global-btn {
@@ -523,7 +523,7 @@ $jog-radial-offset: 5px; // movimiento radial hacia afuera de los botones tácti
   font-size: 0.8rem;
   font-weight: 700;
 
-  color: $primary-color;
+  color: var(--ms-accent);
   text-shadow: 0 1px 1px rgba(0,0,0,0.8);
 
   user-select: none;
@@ -537,10 +537,10 @@ $jog-radial-offset: 5px; // movimiento radial hacia afuera de los botones tácti
   height: 8px;
   border-radius: 50%;
 
-  background: $primary-color;
+  background: var(--ms-accent);
 
   box-shadow:
-    0 0 6px rgba($primary-color, 0.9),
+    0 0 6px rgba(var(--ms-accent), 0.9),
     inset 0 0 2px rgba(255,255,255,0.4);
 
   transition: transform 100ms ease-out;

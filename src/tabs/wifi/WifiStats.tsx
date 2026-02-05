@@ -42,7 +42,7 @@ interface WifiStatsProps {
 const WifiStats: FunctionalComponent<WifiStatsProps> = ({ stats, onRefresh }) => {
     return (
         <Fragment>
-            <div class="card"  style={{ background: "var(--highlight-color)" }}>
+            <div class="card"  style={{ background: "var(--ms-highlight)" }}>
                 <div class="card-body">
                    
                     <div class="container">

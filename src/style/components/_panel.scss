@@ -83,14 +83,14 @@
 .panel .navbar .btn:hover,
 .panel .navbar .btn.btn-link:hover {
     background-color: rgba($light-color, 0.15);
-    border-color: rgba($primary-color, 0.25);
+    border-color: rgba(var(--ms-accent), 0.25);
 }
 
 .panel .navbar .btn:active,
 .panel .navbar .btn.active,
 .panel .navbar .dropdown.active>.dropdown-toggle.btn {
-    background-color: rgba($primary-color, 0.12);
-    border-color: rgba($primary-color, 0.35);
+    background-color: rgba(var(--ms-accent), 0.12);
+    border-color: rgba(var(--ms-accent), 0.35);
 }
 
 .panel .navbar .btn-header,
@@ -256,5 +256,5 @@
 
 /* (Opcional) que el “check/circle” use el color primario siempre */
 .panel .navbar .dropdown .menu .menu-item .feather-icon-container {
-  color: $primary-color;
+  color: var(--ms-accent);
 }

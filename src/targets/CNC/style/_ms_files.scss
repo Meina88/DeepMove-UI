@@ -20,18 +20,18 @@
 
     /* feedback táctil */
     &:active {
-        background-color: rgba($primary-color, 0.06);
+        background-color: rgba(var(--ms-accent), 0.06);
     }
 }
 
 
 .file-item.is-selected {
-    background-color: rgba($primary-color, 0.08);
-    box-shadow: 0 0 0 0px rgba($primary-color, 0.35);
+    background-color: rgba(var(--ms-accent), 0.08);
+    box-shadow: 0 0 0 0px rgba(var(--ms-accent), 0.35);
 }
 
 .file-item.is-selected .file-item-name span {
-    color: $primary-color;
+    color: var(--ms-accent);
 }
 
 
@@ -91,9 +91,9 @@
 
 /* ✅ SOLO el Play macizo */
 .file-play-btn {
-    background-color: $primary-color !important;
+    background-color: var(--ms-accent) !important;
     color: #fff !important;
-    border-color: $primary-color !important;
+    border-color: var(--ms-accent) !important;
 }
 
 .file-play-btn svg {
@@ -120,7 +120,7 @@
         height: 1.05rem;
         flex-shrink: 0;
 
-        color: rgba($primary-color, 0.85);
+        color: rgba(var(--ms-accent), 0.85);
     }
 
     span {
@@ -145,7 +145,7 @@
 
 
 .file-item-header:active .file-item-name span {
-    color: $primary-color;
+    color: var(--ms-accent);
 }
 
 /* Trash button – mismo estilo que Eye */
@@ -155,8 +155,8 @@
 
 #filesPanel .file-trash-btn {
     //background-color: transparent !important;
-    border: 1px solid $primary-color !important;
-    color: $primary-color !important;
+    border: 1px solid var(--ms-accent) !important;
+    color: var(--ms-accent) !important;
 
     box-shadow: none !important;
 
@@ -173,7 +173,7 @@
 
 /* icon */
 #filesPanel .file-trash-btn svg {
-    color: $primary-color !important;
+    color: var(--ms-accent) !important;
 }
 
 /* Hover → rojo */
@@ -295,7 +295,7 @@
 #filesPanel .drop-zone.files-list {
     /* Firefox */
     scrollbar-width: thin;
-    scrollbar-color: $primary-color $bg-color-dark;
+    scrollbar-color: var(--ms-accent) $bg-color-dark;
 }
 
 /* WebKit browsers */
@@ -309,12 +309,12 @@
 }
 
 #filesPanel .drop-zone.files-list::-webkit-scrollbar-thumb {
-    background-color: rgba($primary-color, 0.6);
+    background-color: rgba(var(--ms-accent), 0.6);
     border-radius: 8px;
 }
 
 #filesPanel .drop-zone.files-list::-webkit-scrollbar-thumb:hover {
-    background-color: $primary-color;
+    background-color: var(--ms-accent);
 }
 
 
@@ -366,7 +366,7 @@
     border: none;
     cursor: pointer;
 
-    background: $primary-color;
+    background: var(--ms-accent);
     color: #fff;
 
     display: flex;

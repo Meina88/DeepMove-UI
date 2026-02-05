@@ -25,8 +25,8 @@
 
     .btn-header:hover,
     .btn-close:hover {
-        color: $primary-color !important;
-        background-color: rgba($primary-color, 0.08) !important;        
+        color: var(--ms-accent) !important;
+        background-color: rgba(var(--ms-accent), 0.08) !important;        
         opacity: 1;
     }
 

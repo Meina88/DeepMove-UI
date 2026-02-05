@@ -27,7 +27,7 @@
 
 #terminalPanel .terminal {
   scrollbar-width: thin;
-  scrollbar-color: $primary-color $bg-color-dark;
+  scrollbar-color: var(--ms-accent) $bg-color-dark;
 }
 
 #terminalPanel .terminal::-webkit-scrollbar {
@@ -40,10 +40,10 @@
 }
 
 #terminalPanel .terminal::-webkit-scrollbar-thumb {
-  background-color: rgba($primary-color, 0.6);
+  background-color: rgba(var(--ms-accent), 0.6);
   border-radius: 8px;
 }
 
 #terminalPanel .terminal::-webkit-scrollbar-thumb:hover {
-  background-color: $primary-color;
+  background-color: var(--ms-accent);
 }

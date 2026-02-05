@@ -1,0 +1,946 @@
+.form-autocomplete-input.is-focused {
+  border-color: var(--ms-accent);
+}
+
+
+/* =====================================================
+   Spectre — Avatars
+   ===================================================== */
+
+.avatar {
+  background-color: var(--ms-accent);
+  color: var(--ms-text-strong);
+}
+
+/* Avatar secondary elements */
+.avatar .avatar-icon,
+.avatar .avatar-presence {
+  background-color: var(--ms-bg-surface);
+}
+
+/* Presence states (semantic) */
+.avatar .avatar-presence {
+  box-shadow: 0 0 0 var(--ms-border-width-lg, 0.1rem) var(--ms-text-strong);
+}
+
+.avatar .avatar-presence.online {
+  background-color: var(--ms-success);
+}
+
+.avatar .avatar-presence.busy {
+  background-color: var(--ms-error);
+}
+
+.avatar .avatar-presence.away {
+  background-color: var(--ms-warning);
+}
+
+
+/* =====================================================
+   Spectre — Badges
+   ===================================================== */
+
+.badge::after {
+  background-color: var(--ms-accent);
+  color: var(--ms-text-strong);
+  box-shadow: 0 0 0 0.1rem var(--ms-bg-surface);
+}
+
+/* =====================================================
+   Spectre — Bars / Progress / Sliders
+   ===================================================== */
+
+/* Fondo de la barra */
+.bar {
+  background-color: var(--ms-bg-surface);
+}
+
+/* Progreso */
+.bar .bar-item {
+  background-color: var(--ms-accent);
+  color: var(--ms-text-strong);
+}
+
+/* Slider track */
+.bar-slider .bar-item:first-child {
+  background-color: var(--ms-bg-surface);
+}
+
+/* Slider knob */
+.bar-slider .bar-slider-btn {
+  background-color: var(--ms-accent);
+}
+
+.bar-slider .bar-slider-btn:active {
+  box-shadow: 0 0 0 0.1rem var(--ms-accent);
+}
+
+/* =====================================================
+   Spectre — Buttons (FULL override, safe)
+   ===================================================== */
+
+.btn {
+  background-color: var(--ms-bg-surface);
+  border-color: var(--ms-border);
+  color: var(--ms-text-normal);
+
+  &:hover,
+  &:focus,
+  &:focus-visible {
+    background-color: var(--ms-bg-hover, var(--ms-bg-surface));
+    border-color: var(--ms-accent);
+    color: var(--ms-text-strong);
+  }
+
+  &:active,
+  &.active,
+  &:active:hover {
+    background-color: var(--ms-accent-dark);
+    border-color: var(--ms-accent-dark);
+    color: var(--ms-text-strong);
+  }
+}
+
+/* ---------- Primary ---------- */
+.btn.btn-primary {
+  background-color: var(--ms-accent);
+  border-color: var(--ms-accent-dark);
+  color: var(--ms-accent-contrast);
+
+  &:hover,
+  &:focus,
+  &:focus-visible {
+    background-color: var(--ms-accent-dark);
+    border-color: var(--ms-accent-dark);
+  }
+}
+
+/* ---------- Success / Error ---------- */
+.btn.btn-success {
+  background-color: var(--ms-success);
+  border-color: var(--ms-success);
+  color: var(--ms-text-strong);
+}
+
+.btn.btn-error {
+  background-color: var(--ms-error);
+  border-color: var(--ms-error);
+  color: var(--ms-text-strong);
+}
+
+/* ---------- Link ---------- */
+.btn.btn-link {
+  background: transparent;
+  border-color: transparent;
+  color: var(--ms-accent);
+
+  &:hover,
+  &:focus,
+  &:focus-visible {
+    background: transparent;
+    border-color: transparent;
+    color: var(--ms-accent-light);
+  }
+}
+
+/* ---------- Action (icon buttons) ---------- */
+.btn.btn-action {
+  color: var(--ms-text-muted);
+
+  &:hover,
+  &:focus {
+    background-color: var(--ms-bg-hover, var(--ms-bg-surface));
+    color: var(--ms-text-strong);
+  }
+}
+
+/* ---------- Clear ---------- */
+.btn.btn-clear {
+  background: transparent;
+  border: none;
+  color: var(--ms-text-muted);
+
+  &:hover,
+  &:focus {
+    background-color: rgba(255, 255, 255, 0.08);
+    color: var(--ms-text-strong);
+  }
+}
+
+
+/* =====================================================
+   Spectre — Buttons (FORCED OVERRIDES)
+   ===================================================== */
+
+.btn:hover,
+.btn:focus {
+  background-color: var(--ms-btn-hover-bg) !important;
+  border-color: var(--ms-btn-hover-border) !important;
+  color: var(--ms-text-strong) !important;
+}
+
+/* Link buttons (tabs, navbar, WiFi, etc) */
+.btn.btn-link:hover,
+.btn.btn-link:focus,
+.tab .tab-item a:hover,
+.navbar a:hover {
+  background-color: transparent !important;
+  border-color: transparent !important;
+  color: var(--ms-link-hover) !important;
+}
+
+
+/* =====================================================
+   Spectre — Calendar (themeable)
+   ===================================================== */
+
+.calendar {
+  border-color: var(--ms-border);
+}
+
+/* Header / nav */
+.calendar .calendar-nav,
+.calendar .calendar-header {
+  background-color: var(--ms-bg-main);
+}
+
+.calendar .calendar-header {
+  color: var(--ms-text-muted);
+}
+
+/* Body text */
+.calendar .calendar-body {
+  color: var(--ms-text-muted);
+}
+
+.calendar .calendar-date .date-item {
+  color: var(--ms-text-muted);
+}
+
+/* Today */
+.calendar .calendar-date .date-item.date-today {
+  border-color: var(--ms-accent-dark);
+  color: var(--ms-accent);
+}
+
+/* Hover / focus */
+.calendar .calendar-date .date-item:hover,
+.calendar .calendar-date .date-item:focus {
+  background-color: var(--ms-bg-hover, var(--ms-bg-surface));
+  border-color: var(--ms-accent-dark);
+  color: var(--ms-accent);
+}
+
+/* Active / selected */
+.calendar .calendar-date .date-item.active,
+.calendar .calendar-date .date-item:active {
+  background-color: var(--ms-accent-dark);
+  border-color: var(--ms-accent-dark);
+  color: var(--ms-text-strong);
+}
+
+/* Range */
+.calendar .calendar-range::before {
+  background-color: var(--ms-accent-muted, var(--ms-accent));
+}
+
+.calendar .calendar-range.range-start .date-item,
+.calendar .calendar-range.range-end .date-item {
+  background-color: var(--ms-accent-dark);
+  border-color: var(--ms-accent-dark);
+  color: var(--ms-text-strong);
+}
+
+.calendar .calendar-range .date-item {
+  color: var(--ms-accent);
+}
+
+/* =====================================================
+   Spectre — Chips
+   ===================================================== */
+
+.chip {
+  background-color: var(--ms-bg-surface);
+  color: var(--ms-text-normal);
+}
+
+.chip.active {
+  background-color: var(--ms-accent);
+  color: var(--ms-text-strong);
+}
+
+/* =====================================================
+   Spectre — Filters
+   ===================================================== */
+
+.filter .filter-nav .chip {
+  /* estado activo (pisado por :checked vía extend) */
+}
+
+.filter .filter-nav .chip {
+  background-color: var(--ms-bg-surface);
+  color: var(--ms-text-normal);
+}
+
+.filter input[type="checkbox"]:checked~.filter-nav .chip {
+  background-color: var(--ms-accent);
+  color: var(--ms-text-strong);
+}
+
+
+/* =====================================================
+   Inputs / Textarea / Select
+   ===================================================== */
+
+.form-input,
+.form-select {
+  background-color: var(--ms-bg-surface);
+  border-color: var(--ms-border);
+  color: var(--ms-text-normal);
+}
+
+.form-input::placeholder {
+  color: var(--ms-text-muted);
+}
+
+.form-input:focus,
+.form-select:focus {
+  border-color: var(--ms-accent);
+}
+
+
+/* =====================================================
+   Labels
+   ===================================================== */
+
+.form-label {
+  color: var(--ms-text-normal);
+}
+
+/* =====================================================
+   Input hint
+   ===================================================== */
+.form-input-hint {
+  color: var(--ms-text-muted);
+}
+
+.has-success .form-input-hint {
+  color: var(--ms-success);
+}
+
+.has-error .form-input-hint {
+  color: var(--ms-error);
+}
+
+
+/* =====================================================
+   Checkbox / Radio
+   ===================================================== */
+
+.form-checkbox .form-icon,
+.form-radio .form-icon {
+  background-color: var(--ms-bg-surface);
+  border-color: var(--ms-border);
+}
+
+.form-checkbox input:checked+.form-icon,
+.form-radio input:checked+.form-icon {
+  background-color: var(--ms-accent);
+  border-color: var(--ms-accent);
+}
+
+/* =====================================================
+   Switch
+   ===================================================== */
+
+.form-switch .form-icon {
+  background-color: var(--ms-text-muted);
+}
+
+.form-switch input:checked+.form-icon {
+  background-color: var(--ms-accent);
+}
+
+/* =====================================================
+   SWITCH TRACK & KNOB
+   ===================================================== */
+
+.form-switch {
+
+  .form-icon {
+    background-color: var(--ms-gray-dark);
+  }
+
+  input:checked+.form-icon {
+    background-color: var(--ms-accent);
+  }
+
+  .form-icon::before {
+    background-color: var(--ms-bg-surface);
+  }
+}
+
+/* =====================================================
+   FORM SWITCH / CHECKBOX / RADIO — ACCENT OVERRIDE
+   ===================================================== */
+
+.form-checkbox input:checked+.form-icon,
+.form-radio input:checked+.form-icon,
+.form-switch input:checked+.form-icon {
+  background-color: var(--ms-accent) !important;
+  border-color: var(--ms-accent) !important;
+}
+
+/* Focus state (quita naranja residual) */
+.form-checkbox input:focus+.form-icon,
+.form-radio input:focus+.form-icon,
+.form-switch input:focus+.form-icon {
+  border-color: var(--ms-accent) !important;
+  box-shadow: none; // opcional, más HMI
+}
+
+
+/* =====================================================
+   Input group addon
+   ===================================================== */
+.input-group-addon {
+  background-color: var(--ms-bg-main);
+  border-color: var(--ms-border);
+  color: var(--ms-text-normal);
+}
+
+/* =====================================================
+   Estados de validación
+   ===================================================== */
+.form-input.is-success,
+.form-select.is-success {
+  border-color: var(--ms-success);
+  background-color: color-mix(in srgb, var(--ms-success) 15%, transparent);
+}
+
+.form-input.is-error,
+.form-select.is-error {
+  border-color: var(--ms-error);
+  background-color: color-mix(in srgb, var(--ms-error) 15%, transparent);
+}
+
+
+/* =====================================================
+   Disabled / Readonly
+   ===================================================== */
+.form-input:disabled,
+.form-select:disabled {
+  background-color: var(--ms-bg-dark);
+  color: var(--ms-text-muted);
+}
+
+/* =====================================================
+   Spectre — Menus
+   ===================================================== */
+
+/* Base menu container */
+.menu {
+  background-color: var(--ms-bg-surface);
+  color: var(--ms-text-normal);
+}
+
+/* =====================================================
+   Menu items
+   ===================================================== */
+
+.menu .menu-item>a {
+  color: var(--ms-text-normal);
+}
+
+/* =====================================================
+   Hover / Focus / Active
+   ===================================================== */
+
+.menu .menu-item>a:hover,
+.menu .menu-item>a:focus,
+.menu .menu-item>a.active {
+  background-color: var(--ms-highlight, rgba(255, 255, 255, 0.06));
+  color: var(--ms-accent);
+}
+
+/* =====================================================
+   Menu badges
+   ===================================================== */
+
+.menu .menu-badge .label {
+  color: var(--ms-text-strong);
+}
+
+/* =====================================================
+   Spectre — Navs
+   ===================================================== */
+
+.nav .nav-item a {
+  color: var(--ms-text-muted);
+}
+
+/* =====================================================
+   Nav hover / focus
+   ===================================================== */
+
+.nav .nav-item a:hover,
+.nav .nav-item a:focus {
+  color: var(--ms-accent);
+}
+
+/* =====================================================
+   Nav active
+   ===================================================== */
+
+.nav .nav-item.active>a {
+  color: var(--ms-text-strong);
+  font-weight: bold;
+}
+
+.nav .nav-item.active>a:hover,
+.nav .nav-item.active>a:focus {
+  color: var(--ms-accent);
+}
+
+/* =====================================================
+   Spectre — Pagination
+   ===================================================== */
+
+.pagination .page-item a {
+  color: var(--ms-text-normal);
+}
+
+/* =====================================================
+   Pagination hover / focus
+   ===================================================== */
+
+.pagination .page-item a:hover,
+.pagination .page-item a:focus {
+  color: var(--ms-accent);
+}
+
+/* =====================================================
+   Pagination active
+   ===================================================== */
+
+.pagination .page-item.active a {
+  background: var(--ms-accent);
+  color: var(--ms-bg-main);
+}
+
+/* =====================================================
+   Pagination disabled
+   ===================================================== */
+
+.pagination .page-item.disabled a {
+  cursor: default;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* =====================================================
+   Pagination subtitles
+   ===================================================== */
+
+.pagination .page-item .page-item-subtitle {
+  color: var(--ms-text-muted);
+}
+
+/* =====================================================
+   Spectre — Progress
+   ===================================================== */
+
+.progress {
+  background: var(--ms-bg-surface);
+  color: var(--ms-accent);
+}
+
+/* =====================================================
+   Progress — Filled bar
+   ===================================================== */
+
+.progress::-webkit-progress-value {
+  background: var(--ms-accent);
+}
+
+.progress::-moz-progress-bar {
+  background: var(--ms-accent);
+}
+
+/* =====================================================
+   Progress — Indeterminate
+   ===================================================== */
+
+.progress:indeterminate {
+  background:
+    var(--ms-bg-surface) linear-gradient(to right,
+      var(--ms-accent) 30%,
+      var(--ms-bg-surface) 30%) top left / 150% 150% no-repeat;
+}
+
+.progress:indeterminate::-moz-progress-bar {
+  background: transparent;
+}
+
+/* =====================================================
+   Spectre — Sliders
+   ===================================================== */
+
+.slider {
+  background: transparent;
+}
+
+/* =====================================================
+   Slider — Thumb
+   ===================================================== */
+
+.slider::-webkit-slider-thumb {
+  background: var(--ms-accent);
+}
+
+.slider::-moz-range-thumb {
+  background: var(--ms-accent);
+}
+
+.slider::-ms-thumb {
+  background: var(--ms-accent);
+}
+
+/* =====================================================
+   Slider — Disabled Thumb
+   ===================================================== */
+
+.slider:disabled::-webkit-slider-thumb,
+.slider.disabled::-webkit-slider-thumb {
+  background: var(--ms-gray-light);
+}
+
+.slider:disabled::-moz-range-thumb,
+.slider.disabled::-moz-range-thumb {
+  background: var(--ms-gray-light);
+}
+
+.slider:disabled::-ms-thumb,
+.slider.disabled::-ms-thumb {
+  background: var(--ms-gray-light);
+}
+
+/* =====================================================
+   Slider — Track
+   ===================================================== */
+
+.slider::-webkit-slider-runnable-track {
+  background: var(--ms-bg-surface);
+}
+
+.slider::-moz-range-track {
+  background: var(--ms-bg-surface);
+}
+
+.slider::-ms-track {
+  background: var(--ms-bg-surface);
+}
+
+/* =====================================================
+   Slider — Filled (IE / legacy)
+   ===================================================== */
+
+.slider::-ms-fill-lower {
+  background: var(--ms-accent);
+}
+
+/* =====================================================
+   Spectre — Steps
+   ===================================================== */
+
+.step {
+  margin: var(--ms-unit-1, 0.2rem) 0;
+}
+
+/* =====================================================
+   Step — Connector line
+   ===================================================== */
+
+.step .step-item:not(:first-child)::before {
+  background: var(--ms-accent);
+}
+
+/* =====================================================
+   Step — Label & dot (default)
+   ===================================================== */
+
+.step .step-item a {
+  color: var(--ms-accent);
+}
+
+.step .step-item a::before {
+  background: var(--ms-accent);
+  border-color: var(--ms-bg-surface);
+}
+
+/* =====================================================
+   Step — Active
+   ===================================================== */
+
+.step .step-item.active a::before {
+  background: var(--ms-bg-surface);
+  border-color: var(--ms-accent);
+}
+
+/* =====================================================
+   Step — Inactive (after active)
+   ===================================================== */
+
+.step .step-item.active~.step-item::before {
+  background: var(--ms-border);
+}
+
+.step .step-item.active~.step-item a {
+  color: var(--ms-text-muted);
+}
+
+.step .step-item.active~.step-item a::before {
+  background: var(--ms-border);
+}
+
+/* =====================================================
+   Spectre — Tabs (base)
+   ===================================================== */
+
+.tab {
+  border-bottom-color: var(--ms-border);
+}
+
+/* =====================================================
+   Tab — Items (default)
+   ===================================================== */
+
+.tab .tab-item a {
+  color: var(--ms-text-normal);
+}
+
+/* Hover / focus */
+.tab .tab-item a:hover,
+.tab .tab-item a:focus {
+  color: var(--ms-accent);
+}
+
+/* =====================================================
+   Tab — Active
+   ===================================================== */
+
+.tab .tab-item.active a,
+.tab .tab-item a.active {
+  border-bottom-color: var(--ms-accent);
+  color: var(--ms-accent);
+}
+
+/* =====================================================
+   Tab — Block mode badges
+   ===================================================== */
+
+.tab.tab-block .tab-item .badge[data-badge]::after {
+  background: var(--ms-accent);
+  color: var(--ms-text-strong);
+}
+
+/* =====================================================
+   Spectre — Timeline
+   ===================================================== */
+
+.timeline .timeline-item::before {
+  background: var(--ms-border);
+}
+
+/* =====================================================
+   Timeline — Icon base
+   ===================================================== */
+
+.timeline .timeline-icon {
+  color: var(--ms-text-strong);
+}
+
+/* Punto interno (default state) */
+.timeline .timeline-icon::before {
+  border-color: var(--ms-accent);
+}
+
+/* =====================================================
+   Timeline — Active / Large icon
+   ===================================================== */
+
+.timeline .timeline-icon.icon-lg {
+  background: var(--ms-accent);
+}
+
+/* =====================================================
+   Timeline — Content
+   ===================================================== */
+
+.timeline .timeline-content {
+  color: var(--ms-text-normal);
+}
+
+
+
+
+
+
+
+
+/* =====================================================
+   Spectre Base — Document / Typography
+   ===================================================== */
+
+/* Fondo y texto global */
+html,
+body {
+  background: var(--ms-bg-main);
+  color: var(--ms-text-normal);
+  font-family: var(--ms-font-body, inherit);
+}
+
+/* =====================================================
+   Spectre Base — Links
+   ===================================================== */
+
+a {
+  color: var(--ms-accent);
+  text-decoration: none;
+}
+
+a:focus,
+a:hover,
+a:active,
+a.active {
+  color: var(--ms-accent-dark);
+  text-decoration: underline;
+}
+
+a:visited {
+  color: var(--ms-accent-light);
+}
+
+
+/* =====================================================
+   Cards
+   ===================================================== */
+
+.card {
+  background: var(--ms-bg-surface);
+  border: var(--ms-border) solid var(--ms-border-dark);
+  border-radius: var(--ms-radius, 0.2rem);
+}
+
+/* =====================================================
+   Spectre — text-primary override (THEME SAFE)
+   ===================================================== */
+
+.text-primary {
+  color: var(--ms-accent) !important;
+}
+
+/* =====================================================
+   Spectre — Selects override 
+   ===================================================== */
+
+.form-select {
+  background: var(--ms-bg-surface);
+  border: 1px solid var(--ms-border);
+  color: var(--ms-text-normal);
+}
+
+/* Select con flecha */
+.form-select:not([multiple]):not([size]) {
+  background:
+    var(--ms-bg-surface) url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'%3E%3Cpath fill='%23cccccc' d='M2 0L0 2h4zm0 5L0 3h4z'/%3E%3C/svg%3E") no-repeat right .6rem center / .5rem .6rem;
+}
+
+/* Focus */
+.form-select:focus {
+  border-color: var(--ms-accent);
+  outline: none;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--ms-accent) 30%, transparent);
+}
+
+/* =====================================================
+   Spectre — Force Select & Option Text Color (Dark Theme)
+   ===================================================== */
+
+.form-select,
+select.form-select {
+  color: var(--ms-text-strong);
+  background-color: var(--ms-bg-surface);
+}
+
+.form-select option {
+  background-color: var(--ms-bg-surface);
+  color: var(--ms-text-strong);
+}
+
+/* =====================================================
+   Spectre — Comment Utility Override
+   ===================================================== */
+
+.comment {
+  background-color: rgba(var(--ms-accent), 0.06);
+  border-left: 0.15rem solid rgba(var(--ms-accent), 0.5);
+  color: var(--ms-text-normal);
+  padding-left: 0.5rem;
+}
+
+
+/* =====================================================
+   Spectre — Labels (FINAL OVERRIDE)
+   ===================================================== */
+
+/* Base label */
+.label {
+  background-color: var(--ms-bg-surface);
+  color: var(--ms-text-normal);
+  border: 1px solid var(--ms-border);
+}
+
+/* Primary */
+.label.label-primary {
+  background-color: var(--ms-accent);
+  color: var(--ms-text-strong);
+  border-color: var(--ms-accent);
+}
+
+/* Secondary */
+.label.label-secondary {
+  background-color: var(--ms-secondary);
+  color: var(--ms-text-strong);
+  border-color: var(--ms-secondary);
+}
+
+/* Success / Warning / Error */
+.label.label-success {
+  background-color: var(--ms-success);
+  color: var(--ms-text-strong);
+}
+
+.label.label-warning {
+  background-color: var(--ms-warning);
+  color: var(--ms-text-inverse);
+}
+
+.label.label-error {
+  background-color: var(--ms-error);
+  color: var(--ms-text-strong);
+}
+
+/* =========================
+   Loading spinner override
+   ========================= */
+
+.loading {
+  border-color: var(--primary-color) !important;
+  border-right-color: transparent !important;
+}
+
+/* Tamaño grande */
+.loading.loading-lg {
+  border-width: 0.2rem;
+}

@@ -4,7 +4,7 @@
 
 .mobile-view section .active,
 .mobile-view li .active {
-    background-color: rgba($primary-color, 0.12) !important;
+    background-color: rgba(var(--ms-accent), 0.12) !important;
 }
 
 
@@ -20,7 +20,7 @@
 
 /* Navbar pages — active */
 .navbar .feather-icon-container.active {
-    color: $primary-color;
+    color: var(--ms-accent);
 }
 
 

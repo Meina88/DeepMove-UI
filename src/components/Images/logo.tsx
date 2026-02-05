@@ -33,7 +33,7 @@ interface LogoProps {
  */
 const AppLogo: FunctionalComponent<LogoProps> = ({
   height = "50px",
-  color = "currentColor",
+  color = "var(--ms-accent)",
   bgcolor = "white",
 }) => {
   const { interfaceSettings } = useSettingsContext()

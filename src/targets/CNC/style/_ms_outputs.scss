@@ -91,7 +91,7 @@
 
   /* Botones normales (M3, M5, M4, D1..D4) */
   .btn {
-    background: $primary-color;
+    background: var(--ms-accent);
     color: $btn-primary-color;
 
     border: $border-width solid transparent;
@@ -113,7 +113,7 @@
 
   /* Botón activo (modo actual M3/M4/etc) */
   .btn-primary {
-    background: $primary-color;
+    background: var(--ms-accent);
     color: $btn-primary-color;
     box-shadow: inset 0 0 0 1px rgba(255,255,255,0.15);
   }
@@ -144,8 +144,8 @@
     align-items: center;
     justify-content: center;
 
-    background: rgba($primary-color, 0.12);
-    color: $primary-color;
+    background: rgba(var(--ms-accent), 0.12);
+    color: var(--ms-accent);
 
     font-size: $font-size-sm;
     font-weight: 600;
@@ -172,8 +172,8 @@
 }
 
 #SpindlePanel .extra-control-header {
-  background: rgba($primary-color, 0.12);
-  color: $primary-color;
+  background: rgba(var(--ms-accent), 0.12);
+  color: var(--ms-accent);
 
   padding: 4px 10px;
   font-size: $font-size-sm;
