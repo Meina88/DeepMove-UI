@@ -940,3 +940,25 @@
         }
     }
 }
+
+
+/* ScanPacksList – selector sin chrome */
+
+.select-inactive {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.select-inactive:hover {
+    background: transparent !important;
+}
+
+.select-inactive svg {
+    opacity: 0.25;
+}
+
+.select-active svg {
+    opacity: 1;
+}
+

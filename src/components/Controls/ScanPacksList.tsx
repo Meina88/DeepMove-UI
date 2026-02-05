@@ -1,19 +1,5 @@
 /*
 ScanPacksList.js - ESP3D WebUI component file
-
- Copyright (c) 2021 Luc LEBOSSE. All rights reserved.
-
- This code is free software; you can redistribute it and/or
- modify it under the terms of the GNU Lesser General Public
- License as published by the Free Software Foundation; either
- version 2.1 of the License, or (at your option) any later version.
- This code is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- Lesser General Public License for more details.
- You should have received a copy of the GNU Lesser General Public
- License along with This code; if not, write to the Free Software
- Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 import { Fragment } from "preact"
@@ -32,28 +18,35 @@ import { CheckCircle } from "preact-feather"
 
 interface ScanPacksListProps {
     id: string
+    value?: string
     setValue: (val: string) => void
     refreshfn: (fn: () => void) => void
 }
 
-interface PackFileEntry { name: string }
+interface PackFileEntry {
+    name: string
+}
 
-const ScanPacksList = ({ id, setValue, refreshfn }: ScanPacksListProps) => {
+const ScanPacksList = ({
+    id,
+    value,
+    setValue,
+    refreshfn,
+}: ScanPacksListProps) => {
     const { modals } = useModalsContext()
     const { toasts } = useToastsContext()
     const [isLoading, setIsLoading] = useState(true)
-
     const [packsList, setPacksList] = useState<PackFileEntry[]>([])
     const { createNewRequest } = useHttpQueue()
+
     const ScanPacks = () => {
         setIsLoading(true)
 
         createNewRequest(
             espHttpURL(
                 useSettingsContextFn.getValue("HostTarget"),
-
                 {
-                    path: useSettingsContextFn.getValue("HostUploadPath"), //yes it is upload not download as relative to target
+                    path: useSettingsContextFn.getValue("HostUploadPath"),
                 }
             ),
             { method: "GET" },
@@ -71,10 +64,12 @@ const ScanPacksList = ({ id, setValue, refreshfn }: ScanPacksListProps) => {
             }
         )
     }
+
     useEffect(() => {
         ScanPacks()
         refreshfn(ScanPacks)
     }, [])
+
     return (
         <Fragment>
             {isLoading && <Loading />}
@@ -84,25 +79,33 @@ const ScanPacksList = ({ id, setValue, refreshfn }: ScanPacksListProps) => {
                     <thead class="hide-low">
                         <tr>
                             <th>
-                                {id == "languagePickup" ? T("S67") : T("S183")}
+                                {id === "languagePickup"
+                                    ? T("S67")
+                                    : T("S183")}
                             </th>
                             <th>{T("S178")}</th>
                         </tr>
                     </thead>
+
                     <tbody>
+                        {/* DEFAULT / NONE */}
                         <tr>
                             <td>
-                                {id == "languagePickup"
+                                {id === "languagePickup"
                                     ? T("lang", true)
                                     : T("none")}
                             </td>
-
                             <td>
                                 <ButtonImg
                                     m2
                                     ltooltip
+                                    class={
+                                        value === "default"
+                                            ? "select-active"
+                                            : "select-inactive"
+                                    }
                                     data-tooltip={
-                                        id == "languagePickup"
+                                        id === "languagePickup"
                                             ? T("S179")
                                             : T("S180")
                                     }
@@ -117,13 +120,19 @@ const ScanPacksList = ({ id, setValue, refreshfn }: ScanPacksListProps) => {
                                 />
                             </td>
                         </tr>
+
+                        {/* PACKS */}
                         {packsList.map((e) => {
                             if (
-                                (id == "languagePickup" &&
-                                    e.name.match(/^lang-\w*.json(.gz)*/g)) ||
-                                (id == "themePickup" &&
+                                (id === "languagePickup" &&
+                                    e.name.match(
+                                        /^lang-\w*.json(.gz)*/g
+                                    )) ||
+                                (id === "themePickup" &&
                                     e.name.match(/^theme-\w*(.gz)*/g))
-                            )
+                            ) {
+                                const entryValue = e.name.replace(".gz", "")
+
                                 return (
                                     <tr>
                                         <td>
@@ -131,19 +140,14 @@ const ScanPacksList = ({ id, setValue, refreshfn }: ScanPacksListProps) => {
                                                 class="tooltip tooltip-right"
                                                 data-tooltip={e.name}
                                             >
-                                                {id == "languagePickup"
+                                                {id === "languagePickup"
                                                     ? getLanguageName(
-                                                          e.name.replace(
-                                                              ".gz",
-                                                              ""
-                                                          )
+                                                          entryValue
                                                       )
-                                                    : e.name
-                                                          .replace(".gz", "")
-                                                          .replace(
-                                                              "theme-",
-                                                              ""
-                                                          )}
+                                                    : entryValue.replace(
+                                                          "theme-",
+                                                          ""
+                                                      )}
                                             </span>
                                         </td>
 
@@ -151,24 +155,32 @@ const ScanPacksList = ({ id, setValue, refreshfn }: ScanPacksListProps) => {
                                             <ButtonImg
                                                 m2
                                                 ltooltip
-                                                data-tooltip={id == "languagePickup"?T("S179"):T("S180")}
+                                                class={
+                                                    value === entryValue
+                                                        ? "select-active"
+                                                        : "select-inactive"
+                                                }
+                                                data-tooltip={
+                                                    id === "languagePickup"
+                                                        ? T("S179")
+                                                        : T("S180")
+                                                }
                                                 icon={<CheckCircle />}
                                                 onClick={() => {
                                                     useUiContextFn.haptic()
-                                                    setValue(
-                                                        e.name.replace(
-                                                            ".gz",
-                                                            ""
-                                                        )
-                                                    )
+                                                    setValue(entryValue)
                                                     modals.removeModal(
-                                                        modals.getModalIndex(id)
+                                                        modals.getModalIndex(
+                                                            id
+                                                        )
                                                     )
                                                 }}
                                             />
                                         </td>
                                     </tr>
                                 )
+                            }
+                            return null
                         })}
                     </tbody>
                 </table>
@@ -176,5 +188,5 @@ const ScanPacksList = ({ id, setValue, refreshfn }: ScanPacksListProps) => {
         </Fragment>
     )
 }
-export { ScanPacksList }
 
+export { ScanPacksList }

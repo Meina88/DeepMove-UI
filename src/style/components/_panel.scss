@@ -245,3 +245,31 @@
 .panel .navbar .dropdown .menu .menu-item .feather-icon-container {
     color: var(--ms-accent);
 }
+
+
+/* =========================================================
+   Theme setting: render check icon
+   ========================================================= */
+
+/* Estado inactivo: no se ve el check */
+.select-inactive svg {
+    opacity: 0;
+}
+
+/* Estado activo: se ve el check */
+.select-active svg {
+    opacity: 1;
+}
+
+/* Quitamos el chrome del botón en ambos casos */
+.select-inactive,
+.select-active {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.select-inactive:hover,
+.select-active:hover {
+    background: transparent !important;
+}

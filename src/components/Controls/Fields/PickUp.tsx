@@ -21,7 +21,7 @@ import { useEffect, useState } from "preact/hooks"
 import { Search } from "preact-feather"
 import { showModal } from "../../Modal"
 import { ScanPacksList } from "../ScanPacksList"
-import {  useUiContextFn, useModalsContext } from "../../../contexts"
+import { useUiContextFn, useModalsContext } from "../../../contexts"
 import { T, getLanguageName } from "../../Translations"
 
 interface PickUpProps {
@@ -52,8 +52,8 @@ const PickUp: FunctionalComponent<PickUpProps> = ({
             value == "default"
                 ? defaultDisplayValue
                 : id == "language"
-                  ? getLanguageName(value)
-                  : value.replace("theme-", "").replace(".gz", "")
+                    ? getLanguageName(value)
+                    : value.replace("theme-", "").replace(".gz", "")
         )
     }
 
@@ -68,8 +68,8 @@ const PickUp: FunctionalComponent<PickUpProps> = ({
             value == "default"
                 ? defaultDisplayValue
                 : id == "language"
-                  ? getLanguageName(value || "")
-                  : (value || "").replace("theme-", "").replace(".gz", "")
+                    ? getLanguageName(value || "")
+                    : (value || "").replace("theme-", "").replace(".gz", "")
         )
     }, [value])
 
@@ -96,10 +96,9 @@ const PickUp: FunctionalComponent<PickUpProps> = ({
                         content: (
                             <ScanPacksList
                                 id={modalId}
+                                value={value}
                                 setValue={onChange}
-                                refreshfn={(scanpacks: () => void) =>
-                                    (ScanPacks = scanpacks)
-                                }
+                                refreshfn={(scanpacks) => (ScanPacks = scanpacks)}
                             />
                         ),
                     })
