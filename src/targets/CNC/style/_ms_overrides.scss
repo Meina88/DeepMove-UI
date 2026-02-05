@@ -7,7 +7,7 @@
     bottom: 0;
     z-index: 2;
 
-    background-color: $bg-color-light;
+    background-color: var(--ms-bg-surface);
 }
 
 /* =========================
@@ -47,7 +47,6 @@
     filter: saturate(0.85);
 }
 
-
 /* =========================
    OVERRIDES PANEL — PROGRESS BAR
    ========================= */
@@ -57,11 +56,11 @@
     width: 100%;
     height: 22px;
 
-    border-radius: $border-radius;
+    border-radius: var(--ms-border-radius, 4px);
     overflow: hidden;
 
-    background-color: $gray-color-light;
-    border: 1px solid $border-color;
+    background-color: var(--ms-gray-light);
+    border: 1px solid var(--ms-border);
 }
 
 #OverridesPanel .progress-bar-fill {
@@ -71,8 +70,8 @@
     height: 100%;
     width: 0%;
 
-    border-radius: $border-radius;
-    background-color: $success-color;
+    border-radius: var(--ms-border-radius, 4px);
+    background-color: var(--ms-success);
 
     transition: width 250ms ease-in-out;
 }
@@ -95,11 +94,11 @@
     left: 50%;
     transform: translateX(-50%);
 
-    font-size: 1rem; // 🔁 igual que gauge-progress
-    font-weight: 700; // 🔁 igual que gauge-progress
+    font-size: 1rem;
+    font-weight: 700;
     line-height: 1;
 
-    color: $warning-color; // 🔥 color de potencia
+    color: var(--ms-warning);
 
     user-select: none;
     pointer-events: none;
@@ -111,8 +110,6 @@
         margin-left: 2px;
     }
 }
-
-
 
 /* =========================
    OVERRIDES PANEL — ANIMACIÓN RUN
@@ -143,13 +140,13 @@
 .panel-field-inline {
     display: flex;
     align-items: center;
-    gap: $unit-3;
+    gap: var(--ms-unit-3, 0.6rem);
     margin-top: 0.5rem;
 
     label {
         min-width: 120px;
         font-weight: 500;
-        color: $gray-color-dark;
+        color: var(--ms-gray-dark);
     }
 }
 
@@ -162,10 +159,7 @@
     grid-template-columns: 1fr 130px 1fr;
 
     grid-template-rows:
-        220px // 🔒 placeholder (gauge)
-        auto // status (lock)
-        $control-size-lg + $unit-3 // 🔒 hold
-        auto; // botones +/- 
+        220px auto calc(var(--ms-control-size-lg, 2rem) + var(--ms-unit-3, 0.6rem)) auto;
 
     grid-template-areas:
         "placeholder placeholder placeholder"
@@ -173,10 +167,9 @@
         "spindle     hold        feed"
         "spindle     .           feed";
 
-    row-gap: $unit-6;
-    column-gap: $unit-2;
+    row-gap: var(--ms-unit-6, 1.2rem);
+    column-gap: var(--ms-unit-2, 0.4rem);
 }
-
 
 /* =========================
    OVERRIDES PANEL — COLUMNAS DE GRÁFICOS
@@ -184,25 +177,18 @@
 
 #OverridesPanel .overrides-graphs {
     display: grid;
-
     grid-template-columns: 1fr auto 1fr;
-    grid-template-rows: auto;
     align-items: end;
-    row-gap: 0;
 
-
-    padding: $unit-2;
+    padding: var(--ms-unit-2, 0.4rem);
     box-sizing: border-box;
 }
-
-
 
 #OverridesPanel .graph-column {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 0.35rem;
-
 }
 
 #OverridesPanel .graph-bar {
@@ -212,51 +198,37 @@
     width: 24px;
     height: 140px;
 
-    background: $bg-color-light;     
-    
-
-    border-radius: $border-radius;
+    background: var(--ms-bg-surface);
+    border-radius: var(--ms-border-radius, 4px);
 }
-
-
 
 #OverridesPanel .graph-bar-fill {
     position: absolute;
     bottom: 0;
     width: 100%;
 
-    border-radius: $border-radius;
+    border-radius: var(--ms-border-radius, 4px);
     transition: height 250ms ease-out;
-
-
 }
 
-
-#OverridesPanel .graph-bar.spindle .graph-bar-fill {
-    background: linear-gradient(to top,
-            darken($primary-color, 6%),
-            var(--ms-accent) );
-}
-
-
+#OverridesPanel .graph-bar.spindle .graph-bar-fill,
 #OverridesPanel .graph-bar.feed .graph-bar-fill {
     background: linear-gradient(to top,
-            darken($primary-color, 6%),
-            var(--ms-accent) );
+            var(--ms-accent-dark),
+            var(--ms-accent));
 }
 
 #OverridesPanel .graph-value {
-    font-size: $font-size-sm;
+    font-size: var(--ms-font-size-sm, 0.72rem);
     font-weight: 600;
-    color: $text-strong-color;
+    color: var(--ms-text-strong);
     line-height: 1.1;
 }
 
 #OverridesPanel .graph-value-unit {
-    font-size: $font-size-sm * 0.85;
-    color: $text-muted-color;
+    font-size: calc(var(--ms-font-size-sm, 0.72rem) * 0.85);
+    color: var(--ms-text-muted);
 }
-
 
 #OverridesPanel .graph-center-space {
     height: 100%;
@@ -271,7 +243,6 @@
     top: -40px;
 }
 
-
 /* =========================
    OVERRIDES PANEL — STATUS CONTROLS
    ========================= */
@@ -281,7 +252,7 @@
 
     display: grid;
     grid-template-columns: 160px 80px 160px;
-    gap: $unit-2;
+    gap: var(--ms-unit-2);
 
     align-items: center;
     justify-content: center;
@@ -300,18 +271,16 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: $unit-h;
+        gap: var(--ms-unit-h);
     }
 
-    /* Botón candado flotante */
     .lock-button {
         background: none !important;
         border: none !important;
         box-shadow: none !important;
-
         padding: 0;
 
-        color: $primary-color-dark;
+        color: var(--ms-accent-dark);
 
         svg {
             stroke: currentColor;
@@ -326,24 +295,17 @@
         }
     }
 
-    /* Leyenda debajo */
     .lock-label {
         font-size: 0.7em;
         line-height: 2;
 
-        color: $text-muted-color;
-
+        color: var(--ms-text-muted);
         font-weight: 600;
         letter-spacing: 0.02em;
 
         user-select: none;
     }
-
-
-
 }
-
-
 
 #OverridesPanel .status-center {
     display: flex;
@@ -363,13 +325,12 @@
 #OverridesPanel .field-group-content.feed {
     display: grid;
     grid-auto-flow: row;
-    gap: $unit-2; // un poco más compacto
+    gap: var(--ms-unit-2);
 
     justify-items: center;
     width: 100%;
     max-width: 160px;
 }
-
 
 #OverridesPanel .field-group-content.spindle {
     grid-area: spindle;
@@ -383,9 +344,6 @@
    OVERRIDES PANEL — BOTÓN HOLD
    ========================= */
 
-
-
-
 #OverridesPanel .override-buttons-container {
     grid-area: hold;
 
@@ -393,27 +351,22 @@
     justify-content: center;
     align-items: center;
 
-    /* 🔒 reserva de espacio fija */
-    min-height: $control-size-lg + $unit-3;
-    margin: $unit-2 0;
+    min-height: calc(var(--ms-control-size-lg) + var(--ms-unit-3));
+    margin: var(--ms-unit-2) 0;
 
-    /* =========================
-       BOTÓN CENTRAL (NEUTRO)
-       ========================= */
     .override-hold-btn {
-        width: $control-size-lg + $unit-3;
-        height: $control-size-lg + $unit-3;
+        width: 65px;
+        height: 65px;
         border-radius: 50%;
+
 
         display: flex;
         align-items: center;
         justify-content: center;
 
         border: none;
-        color: $light-color;
-
-        background-color: var(--ms-accent); // 🔵 acción normal
-
+        color: var(--ms-text-inverse);
+        background-color: var(--ms-accent);
 
         transition:
             background-color 150ms ease,
@@ -423,32 +376,30 @@
         svg {
             display: block;
             stroke: currentColor;
+            width: 25px;
+            height: 25px;
         }
 
         &:hover {
-            background-color: $primary-color-dark;
+            background-color: var(--ms-accent-dark);
         }
 
         &:active {
             transform: scale(0.94);
-            box-shadow: 0 2px 5px rgba($dark-color, 0.45);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.45);
         }
     }
 
-    /* =========================
-       ▶ START / PLAY
-       ========================= */
-    /* ▶ PLAY */
     .override-hold-btn.is-play {
         background-color: var(--ms-accent);
-        color: $btn-primary-color;
+        color: var(--ms-accent-contrast);
 
         box-shadow:
             0 4px 10px rgba(var(--ms-accent), 0.35),
-            0 0 0 1px rgba($primary-color-dark, 0.4);
+            0 0 0 1px rgba(var(--ms-accent-dark), 0.4);
 
         &:hover {
-            background-color: $primary-color-dark;
+            background-color: var(--ms-accent-dark);
         }
 
         &:active {
@@ -456,26 +407,18 @@
         }
     }
 
-
-    /* ▶ START / PLAY — corrección óptica */
     .override-hold-btn.is-play svg {
         transform: translateX(2px);
     }
 
-    /* =========================
-       ⏸ HOLD (MISMA BASE VISUAL)
-       ========================= */
     .override-hold-btn.is-hold {
-        background-color: var(--ms-accent); // 🔵 NO amarillo
+        background-color: var(--ms-accent);
 
         &:hover {
-            background-color: $primary-color-dark;
+            background-color: var(--ms-accent-dark);
         }
     }
 }
-
-
-
 
 /* =========================
    OVERRIDES PANEL — BOTONES +/- %
@@ -485,7 +428,6 @@
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
-
     align-items: center;
 }
 
@@ -498,24 +440,17 @@
     position: relative;
 
     width: 100%;
-    max-width: $control-width-sm; // 320px (mobile-friendly)
-    margin: $unit-3 auto 0 auto;
+    max-width: var(--ms-control-width-sm);
+    margin: var(--ms-unit-3) auto 0 auto;
 
-    padding: $unit-3;
+    padding: var(--ms-unit-3);
 
-    background-color: $bg-color;
-
-
+    background-color: var(--ms-bg-main);
     border: none;
     border-radius: 10px;
 
     box-sizing: border-box;
-
-
 }
-
-
-
 
 /* =========================
    OVERRIDES PANEL — FOOTER DEL GRÁFICO
@@ -523,60 +458,45 @@
 
 #OverridesPanel .graph-footer {
     position: relative;
-
     width: 100%;
-    margin-top: $unit-1;
+    margin-top: var(--ms-unit-1);
 
-    padding: $unit-1 $unit-2;
+    padding: var(--ms-unit-1) var(--ms-unit-2);
 
-    background: $bg-color;
-    border-radius: $border-radius;
+    background: var(--ms-bg-main);
+    border-radius: var(--ms-border-radius);
 
-    font-size: $font-size-sm;
-    color: $text-muted-color;
+    font-size: var(--ms-font-size-sm);
+    color: var(--ms-text-muted);
 
     box-sizing: border-box;
 }
 
-
-
-
-
-
-
-
-
-
 /* =========================
-   OVERRIDES — BOTONES CIRCULARES (CORREGIDO)
+   OVERRIDES — BOTONES CIRCULARES
    ========================= */
 
 #OverridesPanel {
 
-    /* 🟢 0–40% */
     .power-low {
-        stroke: $success-color;
-        color: $success-color;
+        stroke: var(--ms-success);
+        color: var(--ms-success);
     }
 
-    /* 🟡 40–70% */
     .power-mid {
-        stroke: $warning-color;
-        color: $warning-color;
+        stroke: var(--ms-warning);
+        color: var(--ms-warning);
     }
 
-    /* 🔴 70–100% */
     .power-high {
-        stroke: $error-color;
-        color: $error-color;
+        stroke: var(--ms-error);
+        color: var(--ms-error);
     }
 
-    /* 🔵 GAUGE PROGRESO (arco interno) */
     .gauge-progress-fill {
         stroke: rgba(var(--ms-accent), 0.55);
         stroke-width: 8;
         stroke-linecap: round;
-
         transition: stroke-dashoffset 250ms ease;
     }
 
@@ -586,7 +506,7 @@
     }
 
     .gauge-track {
-        stroke: $border-color-light;
+        stroke: var(--ms-border-light);
         stroke-width: 14;
         stroke-linecap: round;
     }
@@ -594,33 +514,28 @@
     .gauge-fill {
         stroke-width: 14;
         stroke-linecap: round;
-
         transition: stroke-dashoffset 250ms ease;
     }
-
 
     .override-circular {
         display: flex;
         flex-direction: column;
-        gap: $unit-5;
+        gap: var(--ms-unit-5);
         align-items: center;
         justify-content: center;
     }
 
-    /* BASE COMÚN A TODOS */
     .override-step-btn,
     .override-center-btn {
         border-radius: 50%;
         border: none;
 
         background-color: var(--ms-accent);
-        color: $btn-primary-color;
+        color: var(--ms-accent-contrast);
 
         display: flex;
         align-items: center;
         justify-content: center;
-
-
 
         transition:
             background-color 120ms ease,
@@ -633,19 +548,18 @@
         }
 
         &:hover {
-            background-color: $primary-color-dark;
+            background-color: var(--ms-accent-dark);
         }
 
         &:active {
             transform: scale(0.94);
-            box-shadow: 0 2px 4px rgba($dark-color, 0.35);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
         }
     }
 
-    /* ↑ ↓  (MÁS GRANDES) */
     .override-step-btn {
-        width: $control-size-lg + $unit-1; // ≈ 2.4rem
-        height: $control-size-lg + $unit-1;
+        width: calc(var(--ms-control-size-lg) + var(--ms-unit-1));
+        height: calc(var(--ms-control-size-lg) + var(--ms-unit-1));
 
         svg {
             width: 22px;
@@ -653,10 +567,9 @@
         }
     }
 
-    /* ⟳ RESET (MÁS CHICO) */
     .override-center-btn {
-        width: $control-size-lg - $unit-1; // ≈ 1.8rem
-        height: $control-size-lg - $unit-1;
+        width: calc(var(--ms-control-size-lg) - var(--ms-unit-1));
+        height: calc(var(--ms-control-size-lg) - var(--ms-unit-1));
 
         svg {
             width: 15px;
@@ -665,18 +578,18 @@
     }
 }
 
-
-
-
+/* =========================
+   OVERRIDES — PROGRESS TEXTO CENTRAL
+   ========================= */
 
 #OverridesPanel .gauge-progress {
     position: absolute;
 
-    top: 70px; // centro visual del arco
+    top: 70px;
     left: 50%;
     transform: translate(-50%, -50%);
 
-    font-size: 0.75rem;
+    font-size: $font-size-sm;
     font-weight: 600;
     color: var(--ms-accent);
     text-align: center;
@@ -701,22 +614,22 @@
         align-items: center;
         justify-content: space-between;
 
-        padding: 6px 0;
+        padding: $unit-1 0;
 
         border-radius: 28px;
-        background-color: $bg-color-light;
+        background-color: var(--ms-bg-surface);
 
         /* neumorphism soft */
         box-shadow:
-            -2px -2px 3px rgba(255, 255, 255, 0.65),
-            2px 2px 3px rgba(0, 0, 0, 0.25);
+            -2px -2px 3px hsla(0, 0%, 100%, 0.06),
+            2px 2px 3px hsla(0, 0%, 0%, 0.35);
 
         user-select: none;
     }
 
     /* =========================
-     BOTONES + / -
-     ========================= */
+       BOTONES + / -
+       ========================= */
 
     .rocker-btn {
         width: 100%;
@@ -740,12 +653,12 @@
         }
 
         &:hover {
-            background-color: rgba(var(--ms-accent), 0.08);
+            background-color: hsla(var(--ms-accent), 0.08);
         }
 
         &:active {
             transform: scale(0.94);
-            background-color: rgba(var(--ms-accent), 0.14);
+            background-color: hsla(var(--ms-accent), 0.14);
         }
     }
 
@@ -758,65 +671,50 @@
     }
 
     /* =========================
-     LABEL CENTRAL (RESET 100%)
-     ========================= */
+       LABEL CENTRAL / RESET
+       ========================= */
 
     .rocker-label-btn {
-    all: unset;
+        all: unset;
 
-    width: 100%;
-    padding: 6px 0;
+        width: 100%;
+        padding: $unit-1 0;
 
-    text-align: center;
+        text-align: center;
 
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.05em;
+        font-size: $font-size-sm;
+        font-weight: 700;
+        letter-spacing: 0.05em;
 
-    color: $text-muted-color;
+        color: var(--ms-text-muted);
 
-    user-select: none;
+        user-select: none;
+    }
+
+    /* RESET activo */
+    .rocker-label-btn[data-reset="true"] {
+        cursor: pointer;
+    }
+
+    /* Ícono reset */
+    .rocker-label-btn svg {
+        width: 20px;
+        height: 20px;
+
+        stroke-width: 2.2;
+        stroke: var(--ms-accent);
+
+        transition: transform 120ms ease;
+    }
+
+    .rocker-label-btn[data-reset="true"]:hover svg {
+        transform: rotate(-20deg);
+    }
+
+    .rocker-label-btn[data-reset="true"]:active svg {
+        transform: scale(0.9);
+    }
 }
-
-/* =========================
-   ESTADO RESET (ACCIONAL)
-   ========================= */
-
-.rocker-label-btn[data-reset="true"] {
-    cursor: pointer;
-}
-
-/* ÍCONO RESET */
-.rocker-label-btn svg {
-    width: 20px;
-    height: 20px;
-
-    stroke-width: 2.2;
-    stroke: var(--ms-accent);
-
-    cursor: pointer;
-
-    transition: transform 120ms ease;
-}
-
-/* Hover SOLO cuando hay acción */
-.rocker-label-btn[data-reset="true"]:hover svg {
-    transform: rotate(-20deg);
-}
-
-/* Active SOLO reset */
-.rocker-label-btn[data-reset="true"]:active svg {
-    transform: scale(0.9);
-}
-
-}
-
-.rocker-label-btn:hover svg {
-  transform: rotate(-20deg);
-  transition: transform 120ms ease;
-}
-
-
 
 /* =========================
    ARCHIVO EN EJECUCIÓN
@@ -824,7 +722,7 @@
 
 .run-file-name {
     position: absolute;
-    bottom: $unit-2; // ahora queda DENTRO
+    bottom: $unit-2;
 
     left: 0;
     right: 0;
@@ -835,7 +733,7 @@
 
     font-size: $font-size-sm;
     font-weight: 500;
-    color: rgba($text-muted-color, 0.9);
+    color: var(--ms-text-muted);
 
     white-space: nowrap;
     overflow: hidden;
@@ -843,13 +741,6 @@
 
     pointer-events: none;
 }
-
-
-
-
-
-
-
 
 /* =========================
    LINK SWITCH (Feed ↔ Spindle)
@@ -860,8 +751,8 @@
     height: 22px;
     border-radius: 999px;
 
-    background: $bg-color-light;
-    border: $border-width solid $border-color;
+    background: var(--ms-bg-surface);
+    border: $border-width solid var(--ms-border);
 
     position: relative;
     cursor: pointer;
@@ -874,9 +765,8 @@
         background-color 160ms ease,
         border-color 160ms ease;
 
-    /* feedback táctil */
     &:active {
-        background: $secondary-color-light;
+        background: var(--ms-bg-hover);
     }
 }
 
@@ -885,9 +775,9 @@
     height: 18px;
     border-radius: 50%;
 
-    background: $gray-color-light;
+    background: var(--ms-gray-light);
     box-shadow:
-        0 1px 3px rgba($dark-color, 0.45);
+        0 1px 3px hsla(0, 0%, 0%, 0.45);
 
     transform: translateX(0);
     transition:
@@ -896,33 +786,23 @@
         box-shadow 160ms ease;
 }
 
-
 /* =========================
-   ON (linked)
+   LINK SWITCH — ON
    ========================= */
 
 .link-switch.is-on {
     background: var(--ms-accent);
-    border-color: var(--ms-accent)-dark;
+    border-color: var(--ms-accent-dark);
 
     .link-switch-thumb {
-        background: $light-color; // o $bg-color-light
+        background: var(--ms-light);
         box-shadow:
-            0 0 0 2px rgba(var(--ms-accent), 0.35),
-            0 2px 4px rgba($dark-color, 0.45);
+            0 0 0 2px hsla(var(--ms-accent), 0.35),
+            0 2px 4px hsla(0, 0%, 0%, 0.45);
 
         transform: translateX(20px);
     }
 }
-
-
-
-
-
-
-
-
-
 
 /* =========================
    LINK SWITCH — ICONOS
@@ -934,27 +814,25 @@
     gap: $unit-2;
 }
 
-/* Iconos lock / unlock */
 .link-switch-icon {
-    color: $gray-color;
+    color: var(--ms-gray);
     opacity: 0.6;
+
     transition:
         color 160ms ease,
         opacity 160ms ease,
         transform 120ms ease;
 }
 
-/* Activo según estado */
 .link-switch-icon.active {
     color: var(--ms-accent);
     opacity: 1;
-}
-
-/* pequeño feedback */
-.link-switch-icon.active {
     transform: scale(1.05);
 }
 
+/* =========================
+   HOLD DISABLED
+   ========================= */
 
 .override-hold-btn.is-disabled {
     opacity: 0.35;

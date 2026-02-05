@@ -324,6 +324,10 @@ $zindex-4: 400 !default;
   --ms-bg-overlay: hsla(0, 0%, 0%, 0.55);
   --ms-bg-glass: hsla(0, 0%, 100%, 0.08);
 
+    /* Progress / indicators (tracks) */
+  --ms-bar-track: hsla(0, 0%, 100%, 0.35);
+  --ms-bar-fill: hsla(0, 0%, 100%, 0.9);
+
   --ms-disabled: #{$gray-color-dark};
   --ms-disabled-bg: #{$bg-color-dark};
 

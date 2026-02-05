@@ -29,8 +29,8 @@
     margin: 5px;
 
     /* Theme */
-    background-color: $bg-color-light;
-    color: $body-font-color;
+    background-color: var(--ms-bg-surface);
+    color: var(--ms-text-normal);
 }
 
 /* =========================================================
@@ -50,8 +50,8 @@
    ========================================================= */
 
 .panel .navbar {
-    background-color: $panel-header-bg;
-    color: $panel-header-text;
+    background-color: var(--ms-panel-header-bg);
+    color: var(--ms-panel-header-text);
     border-bottom: none;
 
     padding-left: $unit-1;
@@ -62,18 +62,16 @@
     align-items: center;
 }
 
-
-
 .panel .navbar-section {
     background-color: transparent;
     color: inherit;
     border-bottom: none;
 }
 
-
 /* =========================================================
-   Botones de acción en la cabecera del panel (dropdown, close, etc.) 
-   =========================================================*/
+   Botones de acción en la cabecera del panel
+   ========================================================= */
+
 .panel .navbar .btn,
 .panel .navbar .btn.btn-link {
     background-color: transparent;
@@ -82,22 +80,21 @@
 
 .panel .navbar .btn:hover,
 .panel .navbar .btn.btn-link:hover {
-    background-color: rgba($light-color, 0.15);
-    border-color: rgba(var(--ms-accent), 0.25);
+    background-color: var(--ms-bg-glass);
+    border-color: var(--ms-highlight);
 }
 
 .panel .navbar .btn:active,
 .panel .navbar .btn.active,
-.panel .navbar .dropdown.active>.dropdown-toggle.btn {
-    background-color: rgba(var(--ms-accent), 0.12);
-    border-color: rgba(var(--ms-accent), 0.35);
+.panel .navbar .dropdown.active > .dropdown-toggle.btn {
+    background-color: var(--ms-highlight);
+    border-color: var(--ms-accent);
 }
 
 .panel .navbar .btn-header,
 .panel .navbar .btn-header svg {
-    color: $panel-header-text; // ← ESTO es lo que controla currentColor
+    color: var(--ms-panel-header-text);
 }
-
 
 /* =========================================================
    PANEL — TÍTULO
@@ -107,10 +104,9 @@
 .panel .navbar .panel-title {
     font-weight: 600;
     font-size: $font-size;
-    color: $panel-header-text;
+    color: var(--ms-panel-header-text);
     line-height: 1;
 }
-
 
 /* PANEL HEADERS — DESACTIVAR INTERACCIÓN */
 .panel .navbar .navbar-section.feather-icon-container {
@@ -118,17 +114,15 @@
     cursor: default;
 }
 
-
 /* =========================================================
    PANEL — CONTENIDO ESPECIAL
    ========================================================= */
 
 .panel .navbar .feather,
 .panel .navbar svg {
-    color: $panel-header-text;
-    stroke: $panel-header-text;
+    color: var(--ms-panel-header-text);
+    stroke: currentColor;
 }
-
 
 .panel .panel-body.terminal {
     height: 300px;
@@ -208,7 +202,6 @@
 
 /* =========================================================
    PANEL — ELIMINAR BOTONES DEL HEADER
-   (MAXIMIZAR + CERRAR)
    ========================================================= */
 
 .panel .btn-screen,
@@ -221,40 +214,34 @@
    ========================================================= */
 
 .panel .dropdown-toggle.btn-header {
-    color: #ffffff;
+    color: var(--ms-panel-header-text);
     background-color: transparent;
     border: 1px solid transparent;
 }
 
-
 .panel .dropdown-toggle.btn-header:hover,
 .panel .dropdown-toggle.btn-header:focus {
-    color: #ffffff;
-    background-color: rgba(255, 255, 255, 0.15);
+    color: var(--ms-panel-header-text);
+    background-color: var(--ms-bg-glass);
 }
-
 
 .panel .dropdown.active .dropdown-toggle.btn-header {
-    color: #ffffff;
-    background-color: rgba(0, 0, 0, 0.15);
+    color: var(--ms-panel-header-text);
+    background-color: var(--ms-bg-hover);
 }
-
 
 .panel .navbar:hover {
-    background-color: $panel-header-hover
+    background-color: var(--ms-panel-header-hover);
 }
 
-
-
-
-/* Dropdown menu dentro del header: los iconos deben heredar el color del item */
+/* Dropdown menu dentro del header */
 .panel .navbar .dropdown .menu svg,
 .panel .navbar .dropdown .menu .feather {
-  color: inherit;
-  stroke: currentColor;
+    color: inherit;
+    stroke: currentColor;
 }
 
-/* (Opcional) que el “check/circle” use el color primario siempre */
+/* Icono activo */
 .panel .navbar .dropdown .menu .menu-item .feather-icon-container {
-  color: var(--ms-accent);
+    color: var(--ms-accent);
 }

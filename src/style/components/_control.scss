@@ -2,6 +2,7 @@
     text-align: center;
     height: 2rem;
 }
+
 .buttons-bar {
     display: flex;
 }
@@ -10,18 +11,18 @@ input[type="range"] {
     pointer-events: none;
     cursor: pointer;
 }
+
 input[type="range"]::-webkit-slider-thumb {
-    /*Webkit Browsers like Chrome and Safari*/
     pointer-events: auto;
     cursor: pointer;
 }
+
 input[type="range"]::-moz-range-thumb {
-    /*Firefox*/
     pointer-events: auto;
     cursor: pointer;
 }
+
 input[type="range"]::-ms-thumb {
-    /*Internet Explorer*/
     pointer-events: auto;
     cursor: pointer;
 }
@@ -31,18 +32,19 @@ input[type="range"]::-ms-thumb {
 }
 
 .badge-container {
-    border: 0.05rem solid $border-color;
+    border: 0.05rem solid var(--ms-border);
     text-align: center;
     width: 1.8rem;
     height: 1.8rem;
     display: inline-block;
-    padding: 0.1rem 0.1rem 0.1rem 0.1rem;
+    padding: 0.1rem;
 }
 
 .badge-label {
     text-align: center;
     font-size: 0.7rem;
     font-weight: bold;
+    color: var(--ms-text-strong);
 }
 
 .btn-xs {
@@ -57,29 +59,29 @@ input[type="range"]::-ms-thumb {
 }
 
 .btn-header {
-    background-color: #f1f1fc;
+    background-color: var(--ms-bg-surface);
 }
 
 .emergency-btn {
-    color: #ff5160;
-    background-color: #ffffff;
-    border-color: #ff5160;
+    color: var(--ms-error);
+    background-color: var(--ms-bg-surface);
+    border-color: var(--ms-error);
 }
 
 .emergency-btn:hover {
-    background-color: #ff0000;
-    color: #ffffff;
+    background-color: var(--ms-error);
+    color: var(--ms-text-inverse);
 }
 
 .emergency-btn:active {
-    color: #ff0000;
-    background-color: #ffffff;
+    color: var(--ms-error);
+    background-color: var(--ms-bg-surface);
 }
 
 .itemEditor {
     display: flex;
     flex-direction: column;
-    border: 0.05rem solid #dadee4;
+    border: 0.05rem solid var(--ms-border-light);
     border-radius: $border-radius;
     margin-bottom: 0.4rem;
     width: 100%;
@@ -107,10 +109,10 @@ input[type="range"]::-ms-thumb {
 }
 
 .item-selection-list:hover {
-    background-color: #f1f1fc;
+    background-color: var(--ms-bg-hover);
 }
 
-.files-list {    
+.files-list {
     border-radius: $border-radius;
     padding: 5px 5px !important;
     overflow-x: hidden;
@@ -119,10 +121,11 @@ input[type="range"]::-ms-thumb {
 
 .drop-zone--over {
     border-radius: 10px;
-    background: linear-gradient(90deg, blue 50%, transparent 50%),
-        linear-gradient(90deg, blue 50%, transparent 50%),
-        linear-gradient(0deg, blue 50%, transparent 50%),
-        linear-gradient(0deg, blue 50%, transparent 50%);
+    background:
+        linear-gradient(90deg, var(--ms-accent) 50%, transparent 50%),
+        linear-gradient(90deg, var(--ms-accent) 50%, transparent 50%),
+        linear-gradient(0deg, var(--ms-accent) 50%, transparent 50%),
+        linear-gradient(0deg, var(--ms-accent) 50%, transparent 50%);
     background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
     background-size:
         15px 4px,
@@ -138,10 +141,11 @@ input[type="range"]::-ms-thumb {
 }
 
 .fieldset-bottom-separator {
-    border-bottom: 0.05rem solid #dadee4;
+    border-bottom: 0.05rem solid var(--ms-border-light);
 }
+
 .fieldset-top-separator {
-    border-top: 0.05rem solid #dadee4;
+    border-top: 0.05rem solid var(--ms-border-light);
 }
 
 .fieldset-bottom-separator legend {
@@ -150,11 +154,11 @@ input[type="range"]::-ms-thumb {
 
 .slider-ctrl label,
 span.input-group-addon {
-    color: $body-font-color;
+    color: var(--ms-text-normal);
 }
 
 .field-group {
-    color: $body-font-color;
+    color: var(--ms-text-normal);
     font-weight: 600;
 }
 
@@ -201,12 +205,13 @@ span.input-group-addon {
     font-size: $font-size-sm;
     white-space: pre-wrap;
     word-break: break-all;
-    border: 0.05rem solid $border-color-light;
+    border: 0.05rem solid var(--ms-border-light);
     border-radius: $border-radius;
     padding: 5px 5px !important;
-   
+
     overflow-x: hidden;
     overflow-y: scroll !important;
+
     user-select: text;
     -moz-user-select: text;
     -webkit-user-select: text;
@@ -215,17 +220,18 @@ span.input-group-addon {
     .echo {
         color: var(--ms-accent);
     }
+
     .error {
-        color: $error-color;
+        color: var(--ms-error);
         font-weight: 600;
     }
+
     pre {
         margin: 0px 5px;
         white-space: pre-wrap;
         word-break: break-all;
     }
 }
-
 @keyframes border-dance {
     0% {
         background-position:
@@ -252,7 +258,7 @@ span.input-group-addon {
 }
 
 .files-list-footer {
-    color: #005b96;
+    color: var(--ms-link);
 }
 
 .file-line-controls {
@@ -262,6 +268,7 @@ span.input-group-addon {
     justify-content: flex-end;
     align-items: center;
 }
+
 .flex-pack,
 .file-line-name {
     align-items: center;
@@ -290,20 +297,19 @@ span.input-group-addon {
 }
 
 .bordered {
-    border: 0.05rem solid #dadee4;
+    border: 0.05rem solid var(--ms-border-light);
     border-radius: $border-radius;
 }
 
 .bordered_warning {
-    border: 0.1rem solid $warning-color;
+    border: 0.1rem solid var(--ms-warning);
     border-radius: $border-radius;
 }
 
 .file-line:hover {
-color: $body-font-color;
-    background-color: rgba(var(--ms-accent), 0.06);
+    color: var(--ms-text-normal);
+    background-color: var(--ms-highlight);
 }
-
 
 .m-05 {
     margin: 0.05rem !important;
@@ -318,7 +324,7 @@ color: $body-font-color;
 }
 
 .contentContainer,
-.extensionContainer ,
+.extensionContainer,
 .cameraContainer,
 .imageContainer {
     border: none;
@@ -326,6 +332,7 @@ color: $body-font-color;
     flex: 1;
     padding: 5px;
 }
+
 .cameraContainer,
 .imageContainer {
     max-width: 100%;
@@ -334,56 +341,61 @@ color: $body-font-color;
     height: 100%;
     object-fit: contain;
     display: block;
-    margin: 0 auto; /* Centers the image horizontally */
+    margin: 0 auto;
 }
+
 .picture-container {
     width: 100%;
     max-height: calc(100% - 3rem);
-    display:flex;
+    display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     object-fit: contain;
 }
+
 .contentContainer,
 .extensionContainer {
     height: 100%;
     width: 100%;
-    
 }
 
 .page-container {
-    display:flex;
+    display: flex;
     flex-direction: column;
-    height: 100% ;
-    overflow: hidden;    
+    height: 100%;
+    overflow: hidden;
 }
+
 .extra-content-container {
     height: 100%;
     width: 100%;
     display: flex;
     flex-direction: column;
-    position:absolute;
+    position: absolute;
     z-index: 9999;
     opacity: 1;
     display: block;
-    pointer-events: auto!important;
-    user-select: auto!important;
-    -moz-user-select: auto!important;
-    -webkit-user-select:auto!important;
-    -ms-user-select: auto!important;
+    pointer-events: auto !important;
+    user-select: auto !important;
+    -moz-user-select: auto !important;
+    -webkit-user-select: auto !important;
+    -ms-user-select: auto !important;
     overflow: hidden;
-    background-color: $bg-color;
-
+    background-color: var(--ms-bg-main);
 }
 
 .fallback-content {
     display: none;
-    text-align: center; font-size: 1.5rem; background-color: red; color: white; margin-top: 0.5rem;
+    text-align: center;
+    font-size: 1.5rem;
+    background-color: var(--ms-error);
+    color: var(--ms-text-inverse);
+    margin-top: 0.5rem;
 }
 
 .page-target-container {
-    flex:1;
+    flex: 1;
     z-index: auto;
 }
 
@@ -391,7 +403,6 @@ color: $body-font-color;
     z-index: auto;
     overflow: hidden;
 }
-
 
 .body-extension {
     overflow-y: auto !important;
@@ -401,7 +412,7 @@ color: $body-font-color;
 .btn-header:hover,
 .mobile-view .btn-close,
 .btn-close:hover {
-    color: $gray-color-dark !important;
+    color: var(--ms-gray-dark) !important;
     background-color: transparent !important;
 }
 
@@ -414,7 +425,7 @@ color: $body-font-color;
 
 .clearShortkey,
 .passwordReveal {
-    color: #c0c0c0;
+    color: var(--ms-gray);
     cursor: pointer;
     margin-top: -0.22rem !important;
     margin-right: 0.9rem !important;
@@ -422,7 +433,7 @@ color: $body-font-color;
 
 .clearShortkey:hover,
 .passwordReveal:hover {
-    color: blue;
+    color: var(--ms-accent);
 }
 
 .align-top {
@@ -439,17 +450,17 @@ a label {
 }
 
 .form-select {
-    color: #000;
+    color: var(--ms-text-normal);
 }
-
 .notification-line {
     padding-top: 4px !important;
     padding-left: 4px;
     padding-right: 4px;
     cursor: pointer;
 }
+
 .notification-line:hover {
-    background-color: #f1f1fc;
+    background-color: var(--ms-bg-hover);
 }
 
 .feather-icon-container .text-menu-item,
@@ -463,6 +474,7 @@ a label {
 .tooltip > span {
     pointer-events: none;
 }
+
 .form-group-inline {
     margin-bottom: 0.4rem;
 }
@@ -474,36 +486,36 @@ a label {
 }
 
 .has-modification svg {
-    color: $warning-color;
+    color: var(--ms-warning);
 }
 
 .has-error svg {
-    color: $error-color;
+    color: var(--ms-error);
 }
 
 .has-success svg {
-    color: $success-color;
+    color: var(--ms-success);
 }
 
 .has-modification label,
 .has-modification .form-input-hint,
 .is-modified + .form-input-hint {
-    color: $warning-color;
+    color: var(--ms-warning);
 }
 
 .has-modification .form-input,
 .form-input.is-modified,
 .has-modification .form-select,
 .form-select.is-modified {
-    background: #fffaf7;
-    border-color: $warning-color;
+    background: var(--ms-bg-surface);
+    border-color: var(--ms-warning);
 }
 
 .has-modification .form-input:focus,
 .form-input.is-modified:focus,
 .has-modification .form-select:focus,
 .form-select.is-modified:focus {
-    box-shadow: 0 0 0 0.1rem rgba(232, 86, 0, 0.2);
+    box-shadow: 0 0 0 0.1rem hsla(22, 90%, 52%, 0.2);
 }
 
 .has-modification .form-checkbox .form-icon,
@@ -512,7 +524,7 @@ a label {
 .form-radio.is-modified .form-icon,
 .has-modification .form-switch .form-icon,
 .form-switch.is-modified .form-icon {
-    border-color: $warning-color;
+    border-color: var(--ms-warning);
 }
 
 .has-modification .form-checkbox input:checked + .form-icon,
@@ -521,8 +533,8 @@ a label {
 .form-radio.is-modified input:checked + .form-icon,
 .has-modification .form-switch input:checked + .form-icon,
 .form-switch.is-modified input:checked + .form-icon {
-    background: $warning-color;
-    border-color: $warning-color;
+    background: var(--ms-warning);
+    border-color: var(--ms-warning);
 }
 
 .has-modification .form-checkbox input:focus + .form-icon,
@@ -531,14 +543,14 @@ a label {
 .form-radio.is-modified input:focus + .form-icon,
 .has-modification .form-switch input:focus + .form-icon,
 .form-switch.is-modified input:focus + .form-icon {
-    border-color: $warning-color;
-    box-shadow: 0 0 0 0.1rem rgba(232, 86, 0, 0.2);
+    border-color: var(--ms-warning);
+    box-shadow: 0 0 0 0.1rem hsla(22, 90%, 52%, 0.2);
 }
 
 .has-modification .form-checkbox input:indeterminate + .form-icon,
 .form-checkbox.is-modified input:indeterminate + .form-icon {
-    background: $warning-color;
-    border-color: $warning-color;
+    background: var(--ms-warning);
+    border-color: var(--ms-warning);
 }
 
 .has-button-submit .form-input {
@@ -555,38 +567,43 @@ a label {
 .flatbtn {
     input[type="radio"] {
         display: none;
+
         &:not(:disabled) ~ label {
             cursor: pointer;
         }
+
         &:disabled ~ label {
-            color: hsla(150, 5%, 75%, 1);
-            border-color: hsla(150, 5%, 75%, 1);
+            color: var(--ms-disabled);
+            border-color: var(--ms-disabled);
             box-shadow: none;
             cursor: not-allowed;
         }
     }
+
     label {
         font-size: 0.8rem;
         height: 1.8rem;
         line-height: 1.8rem;
         display: block;
-        background: white;
-        border: 0.05rem solid $border-color;
+        background: var(--ms-bg-surface);
+        border: 0.05rem solid var(--ms-border);
         border-top: 0em;
         text-align: center;
-        color: $body-font-color;
+        color: var(--ms-text-normal);
         position: relative;
         min-width: 2rem;
     }
 
     input[type="radio"]:active + label {
         background: var(--ms-accent);
-        color: $light-color;
+        color: var(--ms-text-inverse);
     }
+
     input[type="radio"]:checked + label {
         background: var(--ms-accent);
-        color: $light-color;
+        color: var(--ms-text-inverse);
     }
+
     .last-button {
         border-radius: 0px 0px 5px 5px;
     }
@@ -607,19 +624,20 @@ a label {
 }
 
 .btn.btn-screen:hover {
-    background: blue;
-    color: #fff;
+    background: var(--ms-accent);
+    color: var(--ms-text-inverse);
     border: 0;
 }
 
 .nested-button {
-    color: blue ;
-    background-color: #f1f1fc;
+    color: var(--ms-accent);
+    background-color: var(--ms-bg-surface);
 }
 
 .insensitive {
     pointer-events: none;
 }
+
 .text-straigth {
     overflow: hidden !important;
     white-space: nowrap;
@@ -630,21 +648,17 @@ a label {
     min-width: 2rem;
 }
 
-.filelist-occupation {    
-    
-    color: $text-muted-color;
-    background-color: $bg-color;
-    border-top: 0px solid $border-color;
+.filelist-occupation {
+    color: var(--ms-text-muted);
+    background-color: var(--ms-bg-main);
+    border-top: 0px solid var(--ms-border);
     border-radius: 8px 8px 8px 8px;
     display: flex;
     align-items: center;
     flex-wrap: wrap;
     justify-content: space-between;
-     padding: 0px 12px;
+    padding: 0px 12px;
 }
-
-
-
 .text-like-icon {
     font-size: 1.4rem;
     vertical-align: top;
@@ -700,15 +714,14 @@ a label {
     line-height: 24px !important;
 }
 
-
 .modals-container {
-    overlay: auto!important;
-    z-index:100000 !important;
+    overlay: auto !important;
+    z-index: 100000 !important;
 }
 
 .toasts-container {
     position: fixed;
-    top: 25vh;                  /* 🎯 centro de la mitad superior */
+    top: 25vh;
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 100000 !important;
@@ -717,10 +730,10 @@ a label {
     flex-direction: column;
     gap: $unit-1;
 
-    pointer-events: none;       /* no interfiere con UI */
-    
+    pointer-events: none;
+
     > .toast {
-        pointer-events: auto;   /* pero se pueden cerrar */
+        pointer-events: auto;
         margin: 0;
         padding: $unit-2 $unit-3;
 
@@ -736,38 +749,33 @@ a label {
     }
 
     .toast-error {
-        background-color: rgba($error-color, 0.95);
-        color: $light-color;
+        background-color: rgba(var(--ms-error), 0.95);
+        color: var(--ms-text-inverse);
     }
 
     .toast-warning {
-        background-color: rgba($warning-color, 0.95);
-        color: $dark-color;
+        background-color: rgba(var(--ms-warning), 0.95);
+        color: var(--ms-text-strong);
     }
 
     .toast-success {
-        background-color: rgba($success-color, 0.95);
-        color: $light-color;
+        background-color: rgba(var(--ms-success), 0.95);
+        color: var(--ms-text-inverse);
     }
 
     .toast-info {
         background-color: rgba(var(--ms-accent), 0.95);
-        color: $light-color;
+        color: var(--ms-text-inverse);
     }
 }
 
-
 @media (max-width: $size-xs) {
-  [class~="col-"],
-  .column {
-    flex-basis: 100% ;
-    width: 100%;
-  }
+    [class~="col-"],
+    .column {
+        flex-basis: 100%;
+        width: 100%;
+    }
 }
-
-
-
-
 
 /* =====================================
    FIELDSET TITLES — LINEA CONTINUA
@@ -775,39 +783,40 @@ a label {
 
 /* 1) matar CUALQUIER borde del fieldset */
 fieldset.field-group {
-  border: 0 !important;
+    border: 0 !important;
 }
 
 /* 2) matar los separadores viejos (aunque existan en el HTML) */
 fieldset.fieldset-top-separator {
-  border-top: 0 !important;
+    border-top: 0 !important;
 }
+
 fieldset.fieldset-bottom-separator {
-  border-bottom: 0 !important;
+    border-bottom: 0 !important;
 }
 
 /* 3) legend centrado + linea por pseudo-elementos */
 .field-group legend {
-  width: 100%;
-  padding: 0;
-  margin: $unit-3 0;
+    width: 100%;
+    padding: 0;
+    margin: $unit-3 0;
 }
 
 .field-group legend .buttons-bar-label {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: $unit-3;
-  width: 100%;
-  text-align: center;
-  font-weight: 600;
-  color: $text-normal-color;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $unit-3;
+    width: 100%;
+    text-align: center;
+    font-weight: 600;
+    color: var(--ms-text-normal);
 }
 
 .field-group legend .buttons-bar-label::before,
 .field-group legend .buttons-bar-label::after {
-  content: "";
-  flex: 1;
-  height: 0.5px;
-  background: $border-color;
+    content: "";
+    flex: 1;
+    height: 0.5px;
+    background: var(--ms-border);
 }

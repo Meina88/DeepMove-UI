@@ -1,12 +1,12 @@
 @import "../../../style/variables";
 
 // Superficie pasiva (botones neutros, knob, arcos inactivos)
-$jog-surface: hsl(0, 0%, 18%);   // similar a trash btn bg
-$jog-surface-dark: hsl(0, 0%, 14%);
-$jog-surface-border: hsl(0, 0%, 24%);
+$jog-surface: var(--ms-bg-surface);
+$jog-surface-dark: var(--ms-bg-dark);
+$jog-surface-border: var(--ms-border);
 
-// Texto / íconos sobre superficie pasiva
-$jog-surface-text: hsl(0, 0%, 82%);
+/* Texto / íconos sobre superficie pasiva */
+$jog-surface-text: var(--ms-text-normal);
 
 
 /* =========================
@@ -45,7 +45,7 @@ $jog-surface-text: hsl(0, 0%, 82%);
    ========================= */
 
 .jog-axis-selector {
-    color: $body-font-color;
+    color: var(--ms-text-normal);
     font-weight: 600;
 }
 
@@ -75,10 +75,7 @@ $jog-surface-text: hsl(0, 0%, 82%);
     gap: 0px;
     max-width: 100%;
     min-width: 0;
-
-
     padding: 0px;
-
 }
 
 /* =========================
@@ -122,7 +119,7 @@ $jog-surface-text: hsl(0, 0%, 82%);
    ========================= */
 
 .jog-position-value {
-    font-weight: 500; 
+    font-weight: 500;
     letter-spacing: 0.02em;
     padding: 0 8px;
     min-width: 64px;
@@ -134,8 +131,8 @@ $jog-surface-text: hsl(0, 0%, 82%);
 
     background: transparent;
     border: none;
+    color: var(--ms-text-normal);
 }
-
 
 /* =========================
    JOG PANEL — GRID DE POSICIONES
@@ -160,11 +157,7 @@ $jog-surface-text: hsl(0, 0%, 82%);
     flex-direction: column;
     justify-content: center;
     align-items: center;
-
-
-    /* separación entre +Z y -Z */
 }
-
 
 /* =========================
    JOG MOVEMENT BUTTONS — UNIFIED STYLE
@@ -173,11 +166,11 @@ $jog-surface-text: hsl(0, 0%, 82%);
 .jog-axis-group .jog-buttons-container button {
     width: 50px;
     height: 50px;
+
     background-color: var(--ms-accent);
-    color: #fff;
+    color: var(--ms-text-inverse);
     border: none;
 
-    /* ⬇️ dejamos preparado el círculo */
     border-radius: 50%;
 
     font-weight: 600;
@@ -190,15 +183,14 @@ $jog-surface-text: hsl(0, 0%, 82%);
     box-shadow: none;
 }
 
-
 .jog-xy-pad button:hover,
 .jog-axis-group .jog-buttons-container button:hover {
-    background-color: $primary-color-dark;
+    background-color: var(--ms-accent-dark);
 }
 
 .jog-xy-pad button:active,
 .jog-axis-group .jog-buttons-container button:active {
-    background-color: $primary-color-dark;
+    background-color: var(--ms-accent-dark);
     transform: translateY(1px);
 }
 
@@ -210,7 +202,6 @@ $jog-surface-text: hsl(0, 0%, 82%);
     box-shadow: none;
     background-color: var(--ms-accent);
 }
-
 
 .jog-axis-header {
     display: none;
@@ -233,19 +224,20 @@ $jog-surface-text: hsl(0, 0%, 82%);
     display: flex;
     align-items: center;
 
-    border: 1px solid $border-color;
+    border: 1px solid var(--ms-border);
     border-radius: 8%;
     overflow: hidden;
 
-    background-color: $bg-color-light;
+    background-color: var(--ms-bg-surface);
 }
 
 
 .jog-position-action svg {
-  color: $gray-color-light;
+    color: $gray-color-light;
 }
+
 .jog-position-action:hover svg {
-  color: $light-color;
+    color: $light-color;
 }
 
 
@@ -261,11 +253,10 @@ $jog-surface-text: hsl(0, 0%, 82%);
     font-weight: 600;
     text-transform: uppercase;
 
-    color: $text-muted-color;
-    background-color: $bg-color-light;
+    color: var(--ms-text-muted);
+    background-color: var(--ms-bg-surface);
 
-    border-right: 1px solid $border-color;
-
+    border-right: 1px solid var(--ms-border);
     border-radius: 0;
 }
 
@@ -276,27 +267,20 @@ $jog-surface-text: hsl(0, 0%, 82%);
     display: flex;
     align-items: center;
     justify-content: center;
-    line-height: 1; // 🔑 mata el offset de texto
+    line-height: 1; // mata el offset de texto
 }
-
 
 .jog-buttons-main-container {
     display: flex;
     align-items: center;
-    gap: 20px; // probá 16–24px según gusto
+    gap: 20px;
 }
+
 .jog-buttons-main-container .jog-axis-group:last-child {
     margin-left: 16px;
 }
 
-/* Z jog arrows — icon black */
-
-.jog-axis-group .jog-buttons-container button svg {
-    color: #000; // negro real
-}
-
-
-
+/* Z jog arrows — icon neutral (HMI) */
 
 
 /* ===============================
@@ -347,8 +331,8 @@ $jog-surface-text: hsl(0, 0%, 82%);
     justify-content: center;
 }
 
+$jog-radial-offset: 5px;
 
-$jog-radial-offset: 5px; // movimiento radial hacia afuera de los botones táctiles del jogxy
 /* hitbox seguro */
 .jog-xy-pad .jog-xy-hit {
     position: absolute;
@@ -375,12 +359,22 @@ $jog-radial-offset: 5px; // movimiento radial hacia afuera de los botones tácti
     border-radius: 14px;
 }
 
-
 /* offsets radiales */
-.jog-arc-up    .jog-xy-hit { transform: translateY(-$jog-radial-offset); }
-.jog-arc-down  .jog-xy-hit { transform: translateY($jog-radial-offset); }
-.jog-arc-left  .jog-xy-hit { transform: translateX(-$jog-radial-offset); }
-.jog-arc-right .jog-xy-hit { transform: translateX($jog-radial-offset); }
+.jog-arc-up .jog-xy-hit {
+    transform: translateY(-$jog-radial-offset);
+}
+
+.jog-arc-down .jog-xy-hit {
+    transform: translateY($jog-radial-offset);
+}
+
+.jog-arc-left .jog-xy-hit {
+    transform: translateX(-$jog-radial-offset);
+}
+
+.jog-arc-right .jog-xy-hit {
+    transform: translateX($jog-radial-offset);
+}
 
 /* svg visual */
 .jog-xy-pad .jog-cell svg {
@@ -395,15 +389,14 @@ $jog-radial-offset: 5px; // movimiento radial hacia afuera de los botones tácti
     transition: fill 120ms ease, transform 120ms ease;
 }
 
-.jog-xy-pad .jog-xy-hit:hover + svg path {
-    fill: $primary-color-dark;
+.jog-xy-pad .jog-xy-hit:hover+svg path {
+    fill: var(--ms-accent-dark);
 }
 
-.jog-xy-pad .jog-xy-hit:active + svg path {
-    fill: $primary-color-dark;
+.jog-xy-pad .jog-xy-hit:active+svg path {
+    fill: var(--ms-accent-dark);
     opacity: 0.85;
 }
-
 
 /* neutralizar estilos genéricos que ensucian */
 .jog-xy-pad button,
@@ -411,7 +404,6 @@ $jog-radial-offset: 5px; // movimiento radial hacia afuera de los botones tácti
     background: transparent;
     box-shadow: none;
 }
-
 
 /* 🔒 XY jog: el botón NO debe pintar fondo */
 .jog-xy-pad .jog-xy-hit:hover,
@@ -423,14 +415,12 @@ $jog-radial-offset: 5px; // movimiento radial hacia afuera de los botones tácti
     outline: none !important;
 }
 
-
-
 /* =========================
    JOG — BOTONES GLOBALES (GO / FIND / SET)
    ========================= */
 
 .jog-global-btn {
-    background-color: $bg-color-light;   // ⬅️ oscuro
+    background-color: var(--ms-bg-surface);
     color: var(--ms-accent);
 
     border: 1px solid var(--ms-accent);
@@ -450,29 +440,26 @@ $jog-radial-offset: 5px; // movimiento radial hacia afuera de los botones tácti
     color: var(--ms-accent);
 }
 
-.jog-global-btn svg:hover {
-    color: var(--ms-accent);
-}
-
 .jog-global-btn:hover {
-    background-color: rgba(var(--ms-accent), 0.12); // sutil glow
-    color: $light-color;
+    background-color: var(--ms-highlight);
+    color: var(--ms-light);
 }
 
 .jog-global-btn:hover svg {
-    color: $light-color;
+    color: var(--ms-light);
 }
 
 .jog-global-btn:active {
-    background-color: rgba(var(--ms-accent), 0.14);
+    background-color: hsla(22, 90%, 52%, 0.14);
+    /* usa acento, mantiene semántica */
     transform: translateY(2px);
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+    box-shadow: inset 0 2px 4px hsla(0, 0%, 0%, 0.5);
 }
 
 .jog-global-btn:focus,
 .jog-global-btn:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 1px rgba(var(--ms-accent), 0.4);
+    box-shadow: 0 0 0 1px hsla(22, 90%, 52%, 0.4);
 }
 
 .jog-global-btn {
@@ -482,76 +469,74 @@ $jog-radial-offset: 5px; // movimiento radial hacia afuera de los botones tácti
 }
 
 
-
 /* =========================
    JOG — ROTARY STEP KNOB (REAL KNOB)
    ========================= */
 
 .jog-step-knob-rotary {
-  position: relative;
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
+    position: relative;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
 
-  background:
-    radial-gradient(
-      circle at 30% 30%,
-      hsl(0, 0%, 22%),
-      hsl(0, 0%, 14%) 55%,
-      hsl(0, 0%, 10%) 100%
-    );
+    background:
+        radial-gradient(circle at 30% 30%,
+            hsl(0, 0%, 22%),
+            hsl(0, 0%, 14%) 55%,
+            var(--ms-bg-dark) 100%);
 
-  box-shadow:
-    inset 0 2px 4px rgba(0,0,0,0.6),
-    inset 0 -1px 2px rgba(255,255,255,0.08);
+    box-shadow:
+        inset 0 2px 4px hsla(0, 0%, 0%, 0.6),
+        inset 0 -1px 2px hsla(0, 0%, 100%, 0.08);
 
-  cursor: pointer;
+    cursor: pointer;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .jog-step-knob-rotary:active {
-  box-shadow:
-    inset 0 3px 6px rgba(0,0,0,0.8),
-    0 2px 4px rgba(0,0,0,0.6);
+    box-shadow:
+        inset 0 3px 6px hsla(0, 0%, 0%, 0.8),
+        0 2px 4px hsla(0, 0%, 0%, 0.6);
 }
 
 /* valor numérico */
 .jog-step-knob-value {
-  font-size: 0.8rem;
-  font-weight: 700;
+    font-size: 0.8rem;
+    font-weight: 700;
 
-  color: var(--ms-accent);
-  text-shadow: 0 1px 1px rgba(0,0,0,0.8);
+    color: var(--ms-accent);
+    text-shadow: 0 1px 1px hsla(0, 0%, 0%, 0.8);
 
-  user-select: none;
+    user-select: none;
 }
 
 /* punto indicador */
 .jog-step-knob-indicator {
-  position: absolute;
+    position: absolute;
 
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
 
-  background: var(--ms-accent);
+    background: var(--ms-accent);
 
-  box-shadow:
-    0 0 6px rgba(var(--ms-accent), 0.9),
-    inset 0 0 2px rgba(255,255,255,0.4);
+    box-shadow:
+        inset 0 0 2px rgba(255, 255, 255, 0.35);
 
-  transition: transform 100ms ease-out;
+    transition: transform 100ms ease-out;
 }
 
 /* puntos pasivos */
 .jog-step-detent {
-  position: absolute;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
 
-  background: rgba(255,255,255,0.18);
+    background: var(--ms-bg-glass);
 }
+
+

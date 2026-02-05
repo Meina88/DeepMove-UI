@@ -9,21 +9,19 @@
     padding: 10px;
     margin-bottom: 8px;
 
-    background-color: $bg-color;
+    background-color: var(--ms-bg-main);
     border-radius: 10px;
 
-    border: 0px solid $border-color-light;
+    border: 0px solid var(--ms-border-light);
 
     transition:
         background-color 120ms ease,
         box-shadow 120ms ease;
 
-    /* feedback táctil */
     &:active {
         background-color: rgba(var(--ms-accent), 0.06);
     }
 }
-
 
 .file-item.is-selected {
     background-color: rgba(var(--ms-accent), 0.08);
@@ -33,8 +31,6 @@
 .file-item.is-selected .file-item-name span {
     color: var(--ms-accent);
 }
-
-
 
 /* Header */
 .file-item-header {
@@ -71,7 +67,7 @@
     justify-content: center;
 }
 
-/* 3 columnas: izq / centro vacío / der */
+/* 3 columnas */
 .file-item-actions-inner {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
@@ -89,10 +85,10 @@
     height: 1px;
 }
 
-/* ✅ SOLO el Play macizo */
+/* Play */
 .file-play-btn {
     background-color: var(--ms-accent) !important;
-    color: #fff !important;
+    color: var(--ms-text-inverse) !important;
     border-color: var(--ms-accent) !important;
 }
 
@@ -100,15 +96,13 @@
     transform: translateX(1px);
 }
 
-
 .file-play-btn:hover,
 .file-play-btn:active {
-    background-color: $primary-color-dark !important;
-    border-color: $primary-color-dark !important;
+    background-color: var(--ms-accent-dark) !important;
+    border-color: var(--ms-accent-dark) !important;
 }
 
-
-
+/* Nombre + icon */
 .file-item-name {
     display: flex;
     align-items: center;
@@ -119,14 +113,13 @@
         width: 1.05rem;
         height: 1.05rem;
         flex-shrink: 0;
-
         color: rgba(var(--ms-accent), 0.85);
     }
 
     span {
         font-size: 0.78rem;
         font-weight: 500;
-        color: $dark-color;
+        color: var(--ms-text-strong);
 
         overflow: hidden;
         text-overflow: ellipsis;
@@ -134,27 +127,20 @@
     }
 }
 
-
 .file-item-size {
     font-size: 0.62rem;
     font-weight: 400;
-    color: $gray-color-dark;
+    color: var(--ms-gray-dark);
     opacity: 0.65;
     flex-shrink: 0;
 }
-
 
 .file-item-header:active .file-item-name span {
     color: var(--ms-accent);
 }
 
-/* Trash button – mismo estilo que Eye */
-/* ============================= */
-/* Trash button – same style as Eye */
-/* ============================= */
-
+/* Trash button */
 #filesPanel .file-trash-btn {
-    //background-color: transparent !important;
     border: 1px solid var(--ms-accent) !important;
     color: var(--ms-accent) !important;
 
@@ -171,33 +157,26 @@
         transform 0.15s ease;
 }
 
-/* icon */
 #filesPanel .file-trash-btn svg {
     color: var(--ms-accent) !important;
 }
 
-/* Hover → rojo */
 #filesPanel .file-trash-btn:hover {
-    background-color: rgba($error-color, 0.08) !important;
-    border-color: $error-color !important;
-    color: $error-color !important;
+    background-color: rgba(var(--ms-error), 0.08) !important;
+    border-color: var(--ms-error) !important;
+    color: var(--ms-error) !important;
 }
 
 #filesPanel .file-trash-btn:hover svg {
-    color: $error-color !important;
+    color: var(--ms-error) !important;
 }
 
-/* Active */
 #filesPanel .file-trash-btn:active {
-    background-color: rgba($error-color, 0.16) !important;
+    background-color: rgba(var(--ms-error), 0.16) !important;
     transform: scale(0.92);
 }
 
-
-
-/* ============================= */
 /* Files panel header SD status */
-/* ============================= */
 
 #filesPanel .files-navbar {
     display: flex;
@@ -205,8 +184,7 @@
     justify-content: space-between;
 }
 
-/* ── LADO IZQUIERDO ── */
-
+/* Izquierda */
 #filesPanel .files-navbar-left {
     display: flex;
     align-items: center;
@@ -220,33 +198,28 @@
     white-space: nowrap;
 }
 
-/* ── LADO DERECHO ── */
-
+/* Derecha */
 #filesPanel .files-navbar-right {
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
-/* barra contenedora */
+/* Barra */
 #filesPanel .files-sd-bar {
     width: 56px;
-    /* pequeña */
     height: 3px;
-    /* muy fina */
-    background: rgba(255, 255, 255, 0.35);
+    background: var(--ms-bar-track);
     border-radius: 2px;
     overflow: hidden;
 }
 
-/* relleno */
 #filesPanel .files-sd-bar-fill {
     height: 100%;
-    background: #ffffff;
+    background: var(--ms-bar-fill);
     opacity: 0.9;
     transition: width 0.25s ease, background-color 0.25s ease;
     display: block;
-
 }
 
 
@@ -268,11 +241,8 @@
 
 #filesPanel .drop-zone.files-list {
     flex: 1 1 auto;
-    /* 👈 ocupa todo el alto restante */
     overflow-y: auto;
-    /* scroll interno */
     min-height: 0;
-    /* 👈 CLAVE para flex + scroll */
     padding-bottom: 84px;
 }
 
@@ -282,20 +252,16 @@
 
 #filesPanel .input-group {
     align-items: center;
-    /* ← en vez de stretch */
     padding: 0 !important;
-    /* ← elimina aire interno */
 }
-
 
 /* ============================= */
 /* Files panel scrollbar */
 /* ============================= */
 
 #filesPanel .drop-zone.files-list {
-    /* Firefox */
     scrollbar-width: thin;
-    scrollbar-color: var(--ms-accent) $bg-color-dark;
+    scrollbar-color: var(--ms-accent) var(--ms-bg-dark);
 }
 
 /* WebKit browsers */
@@ -304,7 +270,7 @@
 }
 
 #filesPanel .drop-zone.files-list::-webkit-scrollbar-track {
-    background-color: $bg-color-dark;
+    background-color: var(--ms-bg-dark);
     border-radius: 8px;
 }
 
@@ -316,8 +282,6 @@
 #filesPanel .drop-zone.files-list::-webkit-scrollbar-thumb:hover {
     background-color: var(--ms-accent);
 }
-
-
 
 /* ============================= */
 /* Floating Action Button (FAB) */
@@ -333,26 +297,23 @@
     transition:
         transform 700ms cubic-bezier(0.25, 0.9, 0.25, 1);
 
-
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 10px;
 }
 
-
 /* Scroll hacia abajo */
 #filesPanel .files-fab-wrapper.scroll-down {
-    transition-duration: 200ms; // responde sin brusquedad
+    transition-duration: 200ms;
     transform: translateX(-50%) translateY(-2px);
 }
 
 /* Scroll hacia arriba */
 #filesPanel .files-fab-wrapper.scroll-up {
-    transition-duration: 260ms; // retorno aún más suave
+    transition-duration: 260ms;
     transform: translateX(-50%) translateY(2px);
 }
-
 
 /* ============================= */
 /* FAB main button */
@@ -367,7 +328,7 @@
     cursor: pointer;
 
     background: var(--ms-accent);
-    color: #fff;
+    color: var(--ms-text-inverse);
 
     display: flex;
     align-items: center;
@@ -384,7 +345,7 @@
 }
 
 #filesPanel .files-upload-fab:hover {
-    background: $primary-color-dark;
+    background: var(--ms-accent-dark);
 }
 
 #filesPanel .files-upload-fab:active {
@@ -395,7 +356,6 @@
 #filesPanel .files-fab-wrapper.is-open.is-visible .files-upload-fab {
     transform: translateY(0) rotate(45deg);
 }
-
 
 /* ============================= */
 /* FAB secondary actions */
@@ -409,8 +369,11 @@
     border: 0;
     cursor: pointer;
 
-    background: rgba(0, 0, 0, 0.65);
-    color: #fff;
+    background: var(--ms-bg-glass);
+    color: var(--ms-text-strong);
+
+    border: 1px solid rgba(var(--ms-accent), 0.25);
+    backdrop-filter: blur(6px);
 
     display: flex;
     align-items: center;
@@ -426,12 +389,16 @@
         background 0.2s ease;
 }
 
+
 #filesPanel .files-fab-wrapper.is-open .files-fab-action {
     opacity: 1;
     transform: translateY(0) scale(1);
     pointer-events: auto;
 }
 
+/* ============================= */
+/* Menu subitems */
+/* ============================= */
 
 .menu-item.panel-menu-subitem {
     padding-left: 1.25rem;

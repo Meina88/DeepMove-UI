@@ -30,7 +30,7 @@
     padding: 10px 18px;
     gap: 14px;
 
-    background: rgba($panelnav-bg-color, $panelnav-bg-alpha);
+    background: var(--ms-panelnav-bg);
     backdrop-filter: blur(10px);
     border-radius: 50px;
 }
@@ -50,14 +50,14 @@
     align-items: center;
     justify-content: center;
 
-    background: rgba($panelnav-btn-bg-color, $panelnav-btn-bg-alpha);
-    color: $panelnav-btn-icon-color;
+    background: var(--ms-panelnav-btn-bg);
+    color: var(--ms-panelnav-btn-icon);
 
     transition:
-        background 0.15s ease,
-        transform 0.12s ease,
-        color 0.15s ease,
-        box-shadow 0.15s ease;
+        background-color 150ms ease,
+        transform 120ms ease,
+        color 150ms ease,
+        box-shadow 150ms ease;
 }
 
 .panel-navigator-btn svg {
@@ -67,15 +67,12 @@
 }
 
 .panel-navigator-btn:active {
-    background: rgba(
-        $panelnav-btn-bg-color,
-        $panelnav-btn-active-bg-alpha
-    );
+    background: var(--ms-panelnav-btn-bg-active);
     transform: scale(0.94);
 }
 
 /* =========================
-   BOTÓN RESET
+   BOTÓN RESET (CENTRAL)
    ========================= */
 
 .panel-navigator-btn-reset {
@@ -89,20 +86,20 @@
 
     background: radial-gradient(
         circle at 30% 30%,
-        $panelnav-reset-highlight,
-        $panelnav-reset-color
+        var(--ms-panelnav-reset-highlight),
+        var(--ms-panelnav-reset-bg)
     );
 
-    color: #fff;
+    color: var(--ms-light);
 
     box-shadow:
-        0 6px 16px rgba(0, 0, 0, 0.45),
-        inset 0 0 0 2px rgba($light-color, 0.15);
+        0 6px 16px hsla(0, 0%, 0%, 0.45),
+        inset 0 0 0 2px hsla(0, 0%, 100%, 0.15);
 
     transition:
-        transform 0.15s ease,
-        box-shadow 0.15s ease,
-        filter 0.15s ease;
+        transform 150ms ease,
+        box-shadow 150ms ease,
+        filter 150ms ease;
 }
 
 .panel-navigator-btn-reset svg {
@@ -121,18 +118,18 @@
    ========================= */
 
 .panel-navigator-btn-reset.is-locked {
-    transform: translateY($panelnav-reset-locked-press);
-    filter: brightness($panelnav-reset-locked-brightness) saturate(1.15);
+    transform: translateY(var(--ms-panelnav-reset-locked-press));
+    filter: brightness(var(--ms-panelnav-reset-locked-brightness)) saturate(1.15);
 
     box-shadow:
-        0 3px 10px rgba(0, 0, 0, 0.65),
-        inset 0 0 0 3px rgba(255, 255, 255, 0.18),
-        inset 0 10px 18px rgba(0, 0, 0, 0.55),
-        inset 0 -2px 6px rgba(255, 0, 0, 0.25);
+        0 3px 10px hsla(0, 0%, 0%, 0.65),
+        inset 0 0 0 3px hsla(0, 0%, 100%, 0.18),
+        inset 0 10px 18px hsla(0, 0%, 0%, 0.55),
+        inset 0 -2px 6px hsla(0, 100%, 50%, 0.25);
 }
 
 .panel-navigator-btn-reset.is-locked:active {
-    transform: translateY($panelnav-reset-locked-press) scale(0.96);
+    transform: translateY(var(--ms-panelnav-reset-locked-press)) scale(0.96);
     filter: brightness(0.82);
 }
 
@@ -165,7 +162,6 @@
 
 @media (min-width: 1024px) {
 
-    /* Contenedor sin barra */
     .panel-navigator {
         background: transparent;
         backdrop-filter: none;
@@ -175,12 +171,10 @@
         justify-content: center;
     }
 
-    /* Ocultar botones normales */
     .panel-navigator-btn {
         display: none;
     }
 
-    /* Reset grande */
     .panel-navigator-btn-reset {
         display: flex;
         cursor: pointer;
@@ -188,13 +182,12 @@
         height: 72px;
     }
 
-    /* Hover SOLO si NO está locked */
     .panel-navigator-btn-reset:not(.is-locked):hover {
-        filter: brightness($panelnav-reset-hover-brightness);
-        transform: translateY($panelnav-reset-hover-lift);
+        filter: brightness(var(--ms-panelnav-reset-hover-brightness));
+        transform: translateY(var(--ms-panelnav-reset-hover-lift));
         box-shadow:
-            0 10px 22px rgba(0, 0, 0, 0.55),
-            inset 0 0 0 2px rgba($light-color, 0.2);
+            0 10px 22px hsla(0, 0%, 0%, 0.55),
+            inset 0 0 0 2px hsla(0, 0%, 100%, 0.2);
     }
 }
 
@@ -204,7 +197,7 @@
 
 .panel-navigator-btn-reset.is-busy {
     pointer-events: none;
-    filter: brightness($panelnav-reset-busy-brightness);
+    filter: brightness(var(--ms-panelnav-reset-busy-brightness));
 }
 
 /* =====================================================

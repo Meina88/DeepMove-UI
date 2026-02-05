@@ -19,8 +19,6 @@ body {
     height: 100vh;
 }
 
-
-
 .flex-row-between {
     display: flex;
     justify-content: space-between;
@@ -40,8 +38,6 @@ body {
     }
 }
 
-
-
 .footer-container {
     height: 0.5rem;
 }
@@ -59,8 +55,8 @@ body {
     transform: translate(-50%, -50%);
 }
 
-.hide-low {
-}
+// .hide-low {
+// }
 
 .mobile-view .hide-low {
     display: none !important;
@@ -69,6 +65,7 @@ body {
 .mobile-view .show-low {
     display: block !important;
 }
+
 .show-low {
     display: none;
 }
@@ -87,7 +84,8 @@ body {
 }
 
 .modal-overlay {
-   opacity: 0.70;
+    opacity: 0.70;
+    background-color: var(--ms-bg-overlay);
 }
 
 .modal-container {
@@ -97,6 +95,5 @@ body {
 .page_extra {
     height: 100%;
     display: flex;
-    flex-direction: column; 
+    flex-direction: column;
 }
-

@@ -1,52 +1,92 @@
+/* ===============================
+   TOOLPATH — CANVAS WRAPPER
+   =============================== */
+
 .toolpath-canvas-wrapper {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  display: block;
-  flex: 1;
+    position: relative;
+    display: block;
+    flex: 1;
+
+    width: 100%;
+    height: 100%;
 }
 
+
+
+/* ===============================
+   TOOLPATH — VIEW TOGGLE
+   =============================== */
+
 .toolpath-view-toggle {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 5;
+    position: absolute;
+    top: $unit-2;
+    right: $unit-2;
+    z-index: $zindex-3;
 
-  padding: 4px 12px;
-  font-size: 12px;
-  border-radius: 999px;
+    padding: $unit-h $unit-3;
+    border-radius: 999px;
 
-  background: rgba(0, 0, 0, 0.45);
-  color: #fff;
-  border: 1px solid rgba(255,255,255,0.25);
+    font-size: $font-size-sm;
+    font-weight: 600;
+    letter-spacing: 0.02em;
 
-  cursor: pointer;
+    background-color: var(--ms-bg-overlay);
+    color: var(--ms-text-strong);
+
+    border: $border-width solid rgba(var(--ms-light), 0.25);
+
+    cursor: pointer;
+
+    transition:
+        background-color 120ms ease,
+        border-color 120ms ease,
+        transform 80ms ease;
 }
 
 .toolpath-view-toggle:hover {
-  background: rgba(0, 0, 0, 0.65);
+    background-color: rgba(0, 0, 0, 0.65); // ⬅️ overlay intencional (más contraste sobre canvas)
+}
+
+.toolpath-view-toggle:active {
+    transform: scale(0.96);
 }
 
 
+
+/* ===============================
+   TOOLPATH PANEL — LAYOUT
+   =============================== */
+
 #toolpathPanel {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
 #toolpathPanel .panel-body-dashboard {
-  flex: 1 1 auto;
-  min-height: 0;   
-  padding: 0 !important;
+    flex: 1 1 auto;
+    min-height: 0; // 🔑 scroll correcto con canvas
+    padding: 0 !important;
 }
 
-@media (max-width: 1024px) {
-  #toolpathPanel {
-    min-height: 50vh;
-  }
+
+
+/* ===============================
+   TOOLPATH PANEL — RESPONSIVE
+   =============================== */
+
+@media (max-width: $size-lg) {
+    #toolpathPanel {
+        min-height: 50vh;
+    }
 }
 
+
+
+/* ===============================
+   TOOLPATH PANEL — NAVBAR FIX
+   =============================== */
 
 #toolpathPanel .navbar button {
-  display: inline-flex !important;
+    display: inline-flex !important;
 }

@@ -9,16 +9,16 @@
 
     section .active,
     li .active {
-        background-color: rgba(100, 100, 100, 0.1) !important;
+        background-color: var(--ms-bg-hover) !important;
     }
 
     /* ======================================================
-   BOTONES DEL HEADER DEL PANEL (MOBILE)
-   ====================================================== */
+       BOTONES DEL HEADER DEL PANEL (MOBILE)
+       ====================================================== */
 
     .btn-header,
     .btn-close {
-        color: $gray-color-dark !important;
+        color: var(--ms-gray-dark) !important;
         background-color: transparent !important;
         opacity: 0.75;
     }
@@ -26,10 +26,9 @@
     .btn-header:hover,
     .btn-close:hover {
         color: var(--ms-accent) !important;
-        background-color: rgba(var(--ms-accent), 0.08) !important;        
+        background-color: var(--ms-highlight) !important;
         opacity: 1;
     }
-
 
     /* ======================================================
        VARIABLES DE LAYOUT (CLAVE)
@@ -40,14 +39,12 @@
         --panel-gap-side: 8px;
         --panel-gap-bottom: 16px;
         --panel-nav-height: 155px;
-        /* reduce los paneles en vertical para que entre el panel de navegación */
     }
 
     /* ======================================================
        SCROLLER REAL + SNAP
        ====================================================== */
 
-    /* ESTE es el único scroller */
     #main.main-page-container {
         height: 100dvh;
         overflow-y: auto;
@@ -59,13 +56,11 @@
         scroll-padding-top: var(--panel-gap-top);
     }
 
-    /* dashboard NO scrollea */
     #dashboard {
         height: auto;
         overflow: visible;
     }
 
-    /* contenedor de panels */
     .panels-container {
         height: auto;
         overflow: visible;
@@ -79,7 +74,6 @@
 
     .panel {
         height: calc(100dvh - var(--panel-gap-top) - var(--panel-nav-height)) !important;
-
         max-height: 100dvh !important;
 
         scroll-snap-align: start;
@@ -87,21 +81,21 @@
         overflow: hidden !important;
 
         margin:
-            0 var(--panel-gap-side) calc(var(--panel-nav-height) + var(--panel-gap-bottom)) var(--panel-gap-side) !important;
+            0 var(--panel-gap-side)
+            calc(var(--panel-nav-height) + var(--panel-gap-bottom))
+            var(--panel-gap-side) !important;
 
         display: flex;
         flex-direction: column;
     }
 
-    /* header del panel */
-    .panel>.navbar {
+    .panel > .navbar {
         flex: 0 0 auto;
         padding-left: $unit-1;
         padding-right: $unit-1;
     }
 
-    /* body del panel */
-    .panel> :not(.navbar) {
+    .panel > :not(.navbar) {
         flex: 1 1 auto;
         overflow: hidden;
     }
