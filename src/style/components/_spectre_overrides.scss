@@ -941,3 +941,15 @@ select.form-select {
   border-color: transparent;
   border-top-color: var(--ms-accent);
 }
+
+
+/* =====================================================
+   Global font override 
+   ===================================================== */
+
+html,
+body,
+.app,
+#root {
+  font-family: $base-font-family !important;
+}

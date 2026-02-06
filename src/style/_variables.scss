@@ -138,24 +138,65 @@ $panelnav-reset-busy-brightness: 0.88;
 // Fonts
 // =====================================================
 
-$base-font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI",
-  Roboto !default;
-$mono-font-family: "SF Mono", "Segoe UI Mono", "Roboto Mono", Menlo, Courier,
+// =====================================================
+// Fonts (App / HMI / CNC)
+// =====================================================
+
+$base-font-family: "Inter",
+  -apple-system,
+  BlinkMacSystemFont,
+  "Segoe UI",
+  Roboto,
+  Helvetica,
+  Arial,
+  sans-serif !default;
+
+$mono-font-family: "JetBrains Mono",
+  "SF Mono",
+  "Roboto Mono",
+  Menlo,
+  Consolas,
   monospace !default;
-$fallback-font-family: "Helvetica Neue", sans-serif !default;
 
-$cjk-zh-hans-font-family: $base-font-family, "PingFang SC",
-  "Hiragino Sans GB", "Microsoft YaHei", $fallback-font-family !default;
-$cjk-zh-hant-font-family: $base-font-family, "PingFang TC",
-  "Hiragino Sans CNS", "Microsoft JhengHei", $fallback-font-family !default;
-$cjk-jp-font-family: $base-font-family, "Hiragino Sans",
-  "Hiragino Kaku Gothic Pro", "Yu Gothic", YuGothic, Meiryo,
+$fallback-font-family: -apple-system,
+  BlinkMacSystemFont,
+  "Segoe UI",
+  Roboto,
+  Helvetica,
+  Arial,
+  sans-serif !default;
+
+$body-font-family: $base-font-family !default;
+
+// =====================================================
+// CJK font families (REQUIRED by Spectre)
+// =====================================================
+
+$cjk-zh-hans-font-family: $base-font-family,
+  "PingFang SC",
+  "Hiragino Sans GB",
+  "Microsoft YaHei",
   $fallback-font-family !default;
-$cjk-ko-font-family: $base-font-family, "Malgun Gothic",
+
+$cjk-zh-hant-font-family: $base-font-family,
+  "PingFang TC",
+  "Hiragino Sans CNS",
+  "Microsoft JhengHei",
   $fallback-font-family !default;
 
-$body-font-family: $base-font-family, $fallback-font-family !default;
+$cjk-jp-font-family: $base-font-family,
+  "Hiragino Sans",
+  "Hiragino Kaku Gothic Pro",
+  "Yu Gothic",
+  YuGothic,
+  Meiryo,
+  $fallback-font-family !default;
 
+$cjk-ko-font-family: $base-font-family,
+  "Malgun Gothic",
+  $fallback-font-family !default;
+
+  
 // =====================================================
 // Unit sizes
 // =====================================================
@@ -246,120 +287,120 @@ $zindex-4: 400 !default;
 // =====================================================
 
 :root {
-  /* =====================================================
+   /* =====================================================
      ACCENT / BRANDING
      ===================================================== */
-  --ms-accent: #{$primary-color};
-  --ms-accent-dark: #{$primary-color-dark};
-  --ms-accent-light: #{$primary-color-light};
+   --ms-accent: #{$primary-color};
+   --ms-accent-dark: #{$primary-color-dark};
+   --ms-accent-light: #{$primary-color-light};
 
-  --ms-accent-contrast: #{$btn-primary-color};
+   --ms-accent-contrast: #{$btn-primary-color};
 
-  /* =====================================================
+   /* =====================================================
      SECONDARY / NEUTRAL
      ===================================================== */
-  --ms-secondary: #{$secondary-color};
-  --ms-secondary-dark: #{$secondary-color-dark};
-  --ms-secondary-light: #{$secondary-color-light};
+   --ms-secondary: #{$secondary-color};
+   --ms-secondary-dark: #{$secondary-color-dark};
+   --ms-secondary-light: #{$secondary-color-light};
 
-  /* =====================================================
+   /* =====================================================
      BACKGROUNDS (HMI Dark)
      ===================================================== */
-  --ms-bg-main: #{$bg-color};
-  --ms-bg-dark: #{$bg-color-dark};
-  --ms-bg-surface: #{$bg-color-light};
+   --ms-bg-main: #{$bg-color};
+   --ms-bg-dark: #{$bg-color-dark};
+   --ms-bg-surface: #{$bg-color-light};
 
-  /* =====================================================
+   /* =====================================================
      TEXT
      ===================================================== */
-  --ms-text-strong: #{$text-strong-color};
-  --ms-text-normal: #{$text-normal-color};
-  --ms-text-muted: #{$text-muted-color};
+   --ms-text-strong: #{$text-strong-color};
+   --ms-text-normal: #{$text-normal-color};
+   --ms-text-muted: #{$text-muted-color};
 
-  --ms-text-inverse: #{$btn-primary-color};
+   --ms-text-inverse: #{$btn-primary-color};
 
-  /* =====================================================
+   /* =====================================================
      GRAYS / UI NEUTRALS
      ===================================================== */
-  --ms-gray: #{$gray-color};
-  --ms-gray-dark: #{$gray-color-dark};
-  --ms-gray-light: #{$gray-color-light};
+   --ms-gray: #{$gray-color};
+   --ms-gray-dark: #{$gray-color-dark};
+   --ms-gray-light: #{$gray-color-light};
 
-  --ms-light: #{$light-color};
-  --ms-dark: #{$dark-color};
+   --ms-light: #{$light-color};
+   --ms-dark: #{$dark-color};
 
-  /* =====================================================
+   /* =====================================================
      BORDERS / DIVIDERS
      ===================================================== */
-  --ms-border: #{$border-color};
-  --ms-border-dark: #{$border-color-dark};
-  --ms-border-light: #{$border-color-light};
+   --ms-border: #{$border-color};
+   --ms-border-dark: #{$border-color-dark};
+   --ms-border-light: #{$border-color-light};
 
-  /* =====================================================
+   /* =====================================================
      SEMANTIC STATES (CNC SAFE)
      ===================================================== */
-  --ms-success: #{$success-color};
-  --ms-warning: #{$warning-color};
-  --ms-error: #{$error-color};
+   --ms-success: #{$success-color};
+   --ms-warning: #{$warning-color};
+   --ms-error: #{$error-color};
 
-  /* =====================================================
+   /* =====================================================
      PANELS / HEADERS
      ===================================================== */
-  --ms-panel-header-bg: #{$panel-header-bg};
-  --ms-panel-header-text: #{$panel-header-text};
-  --ms-panel-header-hover: #{$panel-header-hover};
+   --ms-panel-header-bg: #{$panel-header-bg};
+   --ms-panel-header-text: #{$panel-header-text};
+   --ms-panel-header-hover: #{$panel-header-hover};
 
-  /* =====================================================
+   /* =====================================================
      HIGHLIGHTS / CODE
      ===================================================== */
-  --ms-highlight: #{$highlight-color};
-  --ms-code: #{$code-color};
+   --ms-highlight: #{$highlight-color};
+   --ms-code: #{$code-color};
 
-  /* =====================================================
+   /* =====================================================
    EXTRA — UX / ACCESSIBILITY / HMI
    ===================================================== */
-  --ms-accent-visited: #{$link-color-light};
-  --ms-focus: #{$primary-color};
+   --ms-accent-visited: #{$link-color-light};
+   --ms-focus: #{$primary-color};
 
-  --ms-bg-overlay: hsla(0, 0%, 0%, 0.55);
-  --ms-bg-glass: hsla(0, 0%, 100%, 0.08);
+   --ms-bg-overlay: hsla(0, 0%, 0%, 0.55);
+   --ms-bg-glass: hsla(0, 0%, 100%, 0.08);
 
-    /* Progress / indicators (tracks) */
-  --ms-bar-track: hsla(0, 0%, 100%, 0.35);
-  --ms-bar-fill: hsla(0, 0%, 100%, 0.9);
+   /* Progress / indicators (tracks) */
+   --ms-bar-track: hsla(0, 0%, 100%, 0.35);
+   --ms-bar-fill: hsla(0, 0%, 100%, 0.9);
 
-  --ms-disabled: #{$gray-color-dark};
-  --ms-disabled-bg: #{$bg-color-dark};
+   --ms-disabled: #{$gray-color-dark};
+   --ms-disabled-bg: #{$bg-color-dark};
 
-  /* =====================================================
+   /* =====================================================
    INTERACTION STATES (REQUIRED)
    ===================================================== */
 
-  --ms-bg-hover: hsl(0, 0%, 16%);
+   --ms-bg-hover: hsl(0, 0%, 16%);
 
-  /* Links */
-  --ms-link: var(--ms-accent);
-  --ms-link-hover: var(--ms-accent-light);
+   /* Links */
+   --ms-link: var(--ms-accent);
+   --ms-link-hover: var(--ms-accent-light);
 
-  /* Buttons */
-  --ms-btn-hover-bg: var(--ms-bg-hover);
-  --ms-btn-hover-border: var(--ms-accent-dark);
+   /* Buttons */
+   --ms-btn-hover-bg: var(--ms-bg-hover);
+   --ms-btn-hover-border: var(--ms-accent-dark);
 
-  /* =====================================================
+   /* =====================================================
      TOOLPATH (ya existente, lo dejo junto para coherencia)
      ===================================================== */
-  --tp-bg: hsl(0, 0%, 10%);
+   --tp-bg: hsl(0, 0%, 10%);
 
-  --tp-rapid: hsl(0, 0%, 55%);
-  --tp-linear: hsl(22, 90%, 52%);
-  --tp-arc: hsl(22, 85%, 45%);
+   --tp-rapid: hsl(0, 0%, 55%);
+   --tp-linear: hsl(22, 90%, 52%);
+   --tp-arc: hsl(22, 85%, 45%);
 
-  --tp-feed: hsl(22, 90%, 52%);
+   --tp-feed: hsl(22, 90%, 52%);
 
-  --tp-completed: hsl(0, 0%, 62%);
-  --tp-tool: hsl(195, 90%, 55%);
+   --tp-completed: hsl(0, 0%, 62%);
+   --tp-tool: hsl(195, 90%, 55%);
 
-  --tp-grid-major: hsla(0, 0%, 70%, 0.12);
-  --tp-grid-minor: hsla(0, 0%, 70%, 0.06);
+   --tp-grid-major: hsla(0, 0%, 70%, 0.12);
+   --tp-grid-minor: hsla(0, 0%, 70%, 0.06);
 
 }
