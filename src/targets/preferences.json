@@ -183,7 +183,6 @@
                     }
                 ]
             }
-
         ],
         "jog": [
             {
@@ -316,6 +315,26 @@
                 "depend": [
                     {
                         "id": "showtoolpathpanel",
+                        "value": true
+                    }
+                ]
+            }
+        ],
+        "hmi": [
+            {
+                "id": "showhmipanel",
+                "type": "boolean",
+                "label": "S63",
+                "value": true
+            },
+            {
+                "id": "openhmionstart",
+                "type": "boolean",
+                "label": "S93",
+                "value": false,
+                "depend": [
+                    {
+                        "id": "showhmipanel",
                         "value": true
                     }
                 ]

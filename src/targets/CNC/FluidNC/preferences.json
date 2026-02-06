@@ -35,18 +35,59 @@
                 "type": "list",
                 "label": "S202",
                 "value": [
-                    { "id": "Status", "name": "status" },
-                    { "id": "Toolpath", "name": "toolpath" },
-                    { "id": "Terminal", "name": "terminal" },
-                    { "id": "Jog", "name": "jog", "value": "jog" },
-                    { "id": "Probe", "name": "probe" },
-                    { "id": "Files", "name": "files" },
-                    { "id": "Laser", "name": "laser" },
-                    { "id": "Spindle", "name": "spindle" },
-                    { "id": "Overrrides", "name": "overrides" },
-                    { "id": "Notifications", "name": "notification" },
-                    { "id": "Macros", "name": "macros" },
-                    { "id": "Extracontents", "name": "extracontents" }
+                    {
+                        "id": "HMI",
+                        "name": "hmi"
+                    },
+                    {
+                        "id": "Status",
+                        "name": "status"
+                    },
+                    {
+                        "id": "Toolpath",
+                        "name": "toolpath"
+                    },
+                    {
+                        "id": "Terminal",
+                        "name": "terminal"
+                    },
+                    {
+                        "id": "Jog",
+                        "name": "jog",
+                        "value": "jog"
+                    },
+                    {
+                        "id": "Probe",
+                        "name": "probe"
+                    },
+                    {
+                        "id": "Files",
+                        "name": "files"
+                    },
+                    {
+                        "id": "Laser",
+                        "name": "laser"
+                    },
+                    {
+                        "id": "Spindle",
+                        "name": "spindle"
+                    },
+                    {
+                        "id": "Overrrides",
+                        "name": "overrides"
+                    },
+                    {
+                        "id": "Notifications",
+                        "name": "notification"
+                    },
+                    {
+                        "id": "Macros",
+                        "name": "macros"
+                    },
+                    {
+                        "id": "Extracontents",
+                        "name": "extracontents"
+                    }
                 ]
             }
         ],
@@ -85,51 +126,51 @@
                 "label": "S96",
                 "value": "g;G;gco;GCO;gcode;GCODE;nc;txt;cnc;ngc",
                 "help": "S97",
-                "depend": [{ "id": "showfilespanel", "value": true }]
+                "depend": [
+                    {
+                        "id": "showfilespanel",
+                        "value": true
+                    }
+                ]
             },
-
-
-{
-  "id": "filesplaypcgroup",
-  "type": "group",
-  "label": "S240",
-  "depend": [
-    {
-      "id": "showfilespanel",
-      "value": true
-    }
-  ],
-  "value": [
-    {
-      "id": "filesPreviewOnPlayDesktop",
-      "type": "boolean",
-      "label": "S241",
-      "value": true
-    }
-  ]
-},
-{
-  "id": "filesplaymobilegroup",
-  "type": "group",
-  "label": "S242",
-  "depend": [
-    {
-      "id": "showfilespanel",
-      "value": true
-    }
-  ],
-  "value": [
-    {
-      "id": "filesPreviewOnPlayMobile",
-      "type": "boolean",
-      "label": "S241",
-      "value": false
-    }
-  ]
-},
-
-
-
+            {
+                "id": "filesplaypcgroup",
+                "type": "group",
+                "label": "S240",
+                "depend": [
+                    {
+                        "id": "showfilespanel",
+                        "value": true
+                    }
+                ],
+                "value": [
+                    {
+                        "id": "filesPreviewOnPlayDesktop",
+                        "type": "boolean",
+                        "label": "S241",
+                        "value": true
+                    }
+                ]
+            },
+            {
+                "id": "filesplaymobilegroup",
+                "type": "group",
+                "label": "S242",
+                "depend": [
+                    {
+                        "id": "showfilespanel",
+                        "value": true
+                    }
+                ],
+                "value": [
+                    {
+                        "id": "filesPreviewOnPlayMobile",
+                        "type": "boolean",
+                        "label": "S241",
+                        "value": false
+                    }
+                ]
+            },
             {
                 "id": "flashfsgroup",
                 "type": "group",
@@ -139,7 +180,10 @@
                         "id": "showfilespanel",
                         "value": true
                     },
-                    { "connection_id": "FlashFileSystem", "value": "!='none'" }
+                    {
+                        "connection_id": "FlashFileSystem",
+                        "value": "!='none'"
+                    }
                 ],
                 "value": [
                     {
@@ -153,7 +197,12 @@
                         "type": "boolean",
                         "label": "S224",
                         "value": true,
-                        "depend": [{ "id": "flashfs", "value": true }]
+                        "depend": [
+                            {
+                                "id": "flashfs",
+                                "value": true
+                            }
+                        ]
                     }
                 ]
             },
@@ -166,13 +215,21 @@
                         "id": "showfilespanel",
                         "value": true
                     },
-                    { "connection_id": "SDConnection", "value": "!='none'" }
+                    {
+                        "connection_id": "SDConnection",
+                        "value": "!='none'"
+                    }
                 ],
                 "value": [
                     {
                         "id": "directsd",
                         "type": "boolean",
-                        "depend": [{ "connection_id": "SDConnection", "value": "!='none'" }],
+                        "depend": [
+                            {
+                                "connection_id": "SDConnection",
+                                "value": "!='none'"
+                            }
+                        ],
                         "label": "S63",
                         "value": true
                     },
@@ -181,9 +238,13 @@
                         "type": "boolean",
                         "label": "S224",
                         "value": true,
-                        "depend": [{ "id": "directsd", "value": true }]
+                        "depend": [
+                            {
+                                "id": "directsd",
+                                "value": true
+                            }
+                        ]
                     }
-                    
                 ]
             },
             {
@@ -198,30 +259,48 @@
                     },
                     {
                         "orGroups": [
-                            [{
-                                "id": "sd",
-                                "value": true
-                            }],
-                            [{
-                                "id": "flashfs",
-                                "value": true
-                            }]
+                            [
+                                {
+                                    "id": "sd",
+                                    "value": true
+                                }
+                            ],
+                            [
+                                {
+                                    "id": "flashfs",
+                                    "value": true
+                                }
+                            ]
                         ]
                     }
                 ],
                 "options": [
-                    { "value": "FLASH", "label": "S137", "depend": [{ "id": "flashfs", "value": true }] },
-                   
+                    {
+                        "value": "FLASH",
+                        "label": "S137",
+                        "depend": [
+                            {
+                                "id": "flashfs",
+                                "value": true
+                            }
+                        ]
+                    },
                     {
                         "value": "DIRECTSD",
                         "label": "S190",
                         "depend": [
-                            { "id": "directsd", "value": true },
-                            { "connection_id": "SDConnection", "value": "!='none'" }
+                            {
+                                "id": "directsd",
+                                "value": true
+                            },
+                            {
+                                "connection_id": "SDConnection",
+                                "value": "!='none'"
+                            }
                         ]
                     }
                 ]
-            }        
+            }
         ],
         "jog": [
             {
@@ -369,14 +448,18 @@
                         "depend": [
                             {
                                 "orGroups": [
-                                    [{
-                                        "id": "showx",
-                                        "value": true
-                                    }],
-                                    [{
-                                        "id": "showy",
-                                        "value": true
-                                    }]
+                                    [
+                                        {
+                                            "id": "showx",
+                                            "value": true
+                                        }
+                                    ],
+                                    [
+                                        {
+                                            "id": "showy",
+                                            "value": true
+                                        }
+                                    ]
                                 ]
                             },
                             {
@@ -529,11 +612,26 @@
                         "label": "XY",
                         "value": "100",
                         "options": [
-                            { "value": "0.1", "label": "0.1" },
-                            { "value": "1", "label": "1" },
-                            { "value": "10", "label": "10" },
-                            { "value": "50", "label": "50" },
-                            { "value": "100", "label": "100" }
+                            {
+                                "value": "0.1",
+                                "label": "0.1"
+                            },
+                            {
+                                "value": "1",
+                                "label": "1"
+                            },
+                            {
+                                "value": "10",
+                                "label": "10"
+                            },
+                            {
+                                "value": "50",
+                                "label": "50"
+                            },
+                            {
+                                "value": "100",
+                                "label": "100"
+                            }
                         ]
                     },
                     {
@@ -548,11 +646,26 @@
                             }
                         ],
                         "options": [
-                            { "value": "0.1", "label": "0.1" },
-                            { "value": "1", "label": "1" },
-                            { "value": "10", "label": "10" },
-                            { "value": "25", "label": "25" },
-                            { "value": "50", "label": "50" }
+                            {
+                                "value": "0.1",
+                                "label": "0.1"
+                            },
+                            {
+                                "value": "1",
+                                "label": "1"
+                            },
+                            {
+                                "value": "10",
+                                "label": "10"
+                            },
+                            {
+                                "value": "25",
+                                "label": "25"
+                            },
+                            {
+                                "value": "50",
+                                "label": "50"
+                            }
                         ]
                     }
                 ]

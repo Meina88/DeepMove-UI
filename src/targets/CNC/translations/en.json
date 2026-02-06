@@ -134,6 +134,7 @@
     "Sleep": "Sleep",
     "Check": "Check",
     "Door": "Door",
+    "toolpath": "Toolpath",    
     "Hold:0": "Hold complete. Ready to resume.",
     "Hold:1": "Hold in-progress. Reset will throw an alarm.",
     "Door:0": "Door closed. Ready to resume.",
@@ -184,9 +185,6 @@
     "error:35": "G2 and G3 arcs require at least one in-plane offset word.",
     "error:36": "Unused value words found in block.",
     "error:37": "G43.1 offset is not assigned to tool length axis.",
-    "error:38": "Tool number greater than max supported value.",
-
-
-    "toolpath": "Toolpath"
+    "error:38": "Tool number greater than max supported value."  
 
 }

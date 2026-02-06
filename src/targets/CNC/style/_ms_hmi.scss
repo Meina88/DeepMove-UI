@@ -1,0 +1,14 @@
+/* =========================================================
+   HMI PANEL — CLEAN INDUSTRIAL
+   ========================================================= */
+
+.panel-hmi {
+    padding: 0;
+    background: var(--bg-color-dark);
+}
+
+.hmi-root {
+    width: 100%;
+    height: 100%;
+    display: flex;
+}

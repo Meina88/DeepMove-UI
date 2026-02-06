@@ -28,9 +28,11 @@ import { LaserPanelElement } from "../../../components/Panels/LaserCNC"
 import { SpindlePanelElement } from "../../../components/Panels/SpindleCNC"
 import { OverridesPanelElement } from "../../../components/Panels/OverridesCNC"
 import { ToolpathPanelElement } from "../../../components/Panels/Toolpath"
+import { HMIPanelElement } from "../../../components/Panels/Hmi"
 
 
-const defaultPanelsList = [
+
+const defaultPanelsList = [     
     FilesPanelElement,
     ToolpathPanelElement, 
     TerminalPanelElement,
@@ -42,6 +44,7 @@ const defaultPanelsList = [
     LaserPanelElement,
     SpindlePanelElement,
     OverridesPanelElement,
+    HMIPanelElement, 
 ] as const
 
 export { defaultPanelsList }

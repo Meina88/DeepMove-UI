@@ -356,7 +356,7 @@
                 "label": "S226",
                 "help": "S227",
                 "value": 500000,
-                "min": 1000               
+                "min": 1000
             },
             {
                 "id": "toolpathMaxSegmentsMobile",
@@ -364,7 +364,27 @@
                 "label": "S228",
                 "help": "S229",
                 "value": 15000,
-                "min": 1000                
+                "min": 1000
+            }
+        ],        
+        "hmi": [
+            {
+                "id": "showhmipanel",
+                "type": "boolean",
+                "label": "S63",
+                "value": true
+            },
+            {
+                "id": "openhmionstart",
+                "type": "boolean",
+                "label": "S93",
+                "value": false,
+                "depend": [
+                    {
+                        "id": "showhmipanel",
+                        "value": true
+                    }
+                ]
             }
         ]
     }
