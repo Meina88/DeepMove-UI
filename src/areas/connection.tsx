@@ -195,12 +195,10 @@ const ConnectionContainer: FunctionalComponent = () => {
             <div class="empty fullscreen">
                 <div class="centered text-primary">
                     <div class="empty-icon">
-                        <div class="d-flex p-centered empty-content">
-                            <AppLogo />
-                            <Minus style={{ width: "50px", height: "50px" }} class="hide-low" />
-                            {contentIcon}
-                            <Minus style={{ width: "50px", height: "50px" }} class="hide-low" />
-                            <HardDrive style={{ width: "50px", height: "50px" }} />
+                        <div class="d-flex p-centered empty-content">                           
+                           
+                            {contentIcon}                         
+                           
                         </div>
                     </div>
                     <div class="empty-title h5">{contentTitle}</div>
