@@ -28,6 +28,7 @@ import {
     useUiContextFn,
 } from "../../contexts"
 import { Tool, Wifi, Info } from "preact-feather"
+import { DashGear, FluidIcon, GearIcon } from "../../targets/CNC/FluidNC/icons"
 
 interface NavItem {
     label: string
@@ -42,17 +43,19 @@ const defaultLinks: NavItem[] = [
         href: "/settings/wifi",
     },
     {
-        label: "S36",
-        icon: <AppLogo height="24px" />,
+        label: "S243", // System
+        icon: <GearIcon height="24px" />,
         href: "/settings/features",
     },
     {
-        label: "S17",
-        icon: <WebUILogo height="24px" />,
+        label: "S244", //preferences
+        icon: <DashGear height="24px"/>,
         href: "/settings/interface",
     },
     {
-        label: Target as string, icon: <Tool />, href: "/settings/machine"
+        label: "Machine", 
+        icon: <Tool height="24px" />, 
+        href: "/settings/machine",
 
     },
     {

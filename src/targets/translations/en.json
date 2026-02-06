@@ -234,6 +234,8 @@
     "S240": "PC mode",
     "S241": "Load toolpath on Play",
     "S242": "Mobile mode",
+    "S243": "System",
+    "S244": "Preferences",
     "btn+X": "X+",
     "btn-X": "X-",
     "btnHX": "Home X",
