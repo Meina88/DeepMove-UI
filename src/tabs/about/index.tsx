@@ -496,21 +496,12 @@ const About: FunctionalComponent = (): JSX.Element => {
                 class="d-none"
                 onChange={filesSelected}
             />
-            <h4>
-                {T("S12").replace(
-                    "%s",
-                    interfaceSettings.current &&
-                        interfaceSettings.current.custom &&
-                        interfaceSettings.current.custom.name
-                        ? interfaceSettings.current.custom.name
-                        : Name
-                )}
-            </h4>
+
             {isLoading && <Loading />}
 
             {!isLoading && props && (
                 <div>
-                    <hr />
+                    
                     <CenterLeft>
                         <ul>
                             <li>
@@ -596,20 +587,8 @@ const About: FunctionalComponent = (): JSX.Element => {
                                     )
                             })}
                         </ul>
-                    </CenterLeft>
-                    <hr />
-                    <div style="text-align: center;">
-                        <ButtonImg
-                            icon={<RefreshCcw />}
-                            label={T("S50")}
-                            tooltip
-                            data-tooltip={T("S23")}
-                            onClick={() => {
-                                useUiContextFn.haptic()
-                                getProps()
-                            }}
-                        />
-                    </div>
+                    </CenterLeft>                   
+
                 </div>
             )}
             <br />

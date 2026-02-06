@@ -251,14 +251,16 @@
    Theme setting: render check icon
    ========================================================= */
 
-/* Estado inactivo: no se ve el check */
+/* Estado INACTIVO → visible pero gris */
 .select-inactive svg {
-    opacity: 0;
+    opacity: 0.35;
+    color: var(--text-muted-color);
 }
 
-/* Estado activo: se ve el check */
+/* Estado ACTIVO → visible y acento */
 .select-active svg {
     opacity: 1;
+    color: var(--primary-color);
 }
 
 /* Quitamos el chrome del botón en ambos casos */
