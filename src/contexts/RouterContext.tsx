@@ -48,11 +48,9 @@ const useRouterContext = () => {
 }
 
 const RouterContextProvider: FunctionalComponent<RouterContextProviderProps> = ({ children }) => {
-    const defaultRoute = useRef<string>("/about")
-    const activeTab = useRef<string>(
-        variablesList.hideFeatures
-            ? "/settings/interface"
-            : "/settings/features"
+    const defaultRoute = useRef<string>("/settings")
+    const activeTab = useRef<string>(      
+        "/settings/interface"            
     )
     const [activeRoute, setActiveRoute] = useState<string>(defaultRoute.current)
     const [routes, setRoutes] = useState<Record<string, any>>({})

@@ -42,25 +42,33 @@ interface WifiStatsProps {
 const WifiStats: FunctionalComponent<WifiStatsProps> = ({ stats, onRefresh }) => {
     return (
         <Fragment>
-            <div class="card"  style={{ background: "var(--ms-highlight)" }}>
+            <div class="card" style={{ background: "var(--ms-highlight)" }}>
                 <div class="card-body">
-                   
+
                     <div class="container">
                         <div class="columns">
                             <div class="column col-10">
                                 <div class="columns">
-                                    <div class="column col-11"> <h4>WiFi Statistics</h4></div>
-                                    <div class="column col-1" > <ButtonImg
-                                    tooltip className="px-2"
-                                    data-tooltip={T("S23")}
-                                    icon={<RefreshCw />}
-                                    onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
-                                        useUiContextFn.haptic()
-                                        e.currentTarget.blur()
-                                        onRefresh()
-                                    }}
-                                /></div>
+                                    <div class="column col-9 col-sm-9 col-xs-9">
+                                        <h4 style={{ margin: 0, lineHeight: "32px" }}>
+                                            WiFi Statistics
+                                            <ButtonImg
+                                                tooltip
+                                                className="px-2"
+                                                style="margin-left: 8px;"
+                                                data-tooltip={T("S23")}
+                                                icon={<RefreshCw />}
+                                                onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
+                                                    useUiContextFn.haptic()
+                                                    e.currentTarget.blur()
+                                                    onRefresh()
+                                                }}
+                                            />
+                                        </h4>
+                                    </div>
                                 </div>
+
+
                                 <div class="columns">
                                     <div class="column col-3"> <b>WiFi mode:</b></div>
                                     <div class="column col-9">{stats?.currentWifiMode}</div>

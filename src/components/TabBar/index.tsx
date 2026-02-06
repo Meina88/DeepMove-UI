@@ -44,12 +44,12 @@ const defaultLinks: NavItem[] = [
     },
     {
         label: "S243", // System
-        icon: <GearIcon height="24px" />,
+        icon: <GearIcon height="28px" />,
         href: "/settings/features",
     },
     {
         label: "S244", //preferences
-        icon: <DashGear height="24px"/>,
+        icon: <DashGear height="28px"/>,
         href: "/settings/interface",
     },
     {
