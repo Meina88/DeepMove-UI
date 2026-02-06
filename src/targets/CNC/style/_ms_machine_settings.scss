@@ -1,0 +1,39 @@
+.machine-settings-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 16px;
+}
+
+/* Asegura que cada Field ocupe bien la celda */
+.machine-settings-item {
+  width: 100%;
+}
+.machine-settings-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  padding: 10px 12px;
+  border-radius: 6px;
+
+  background: var(--bg-color-light);
+  border: 1px solid var(--border-color);
+}
+.machine-settings-item label,
+.machine-settings-item .field-label {
+  font-size: 0.85rem;
+  opacity: 0.75;
+}
+@media (max-width: 1024px) {
+  .machine-settings-item {
+    margin-bottom: 8px;
+    padding: 1px 10px;
+  }
+}
+/* Desktop / PC */
+@media (min-width: 1025px) {
+  .machine-settings-item {
+    padding: 1px 20px;   // antes 10–12px
+    gap: 1px;            // reduce separación label/input
+  }
+}

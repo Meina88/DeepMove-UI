@@ -102,7 +102,7 @@ const MachineSettings = () => {
         ) {
             setCollected("0 B")
             setIsLoading(true)
-            sendSerialCmd(response.cmd, () => {})
+            sendSerialCmd(response.cmd, () => { })
         }
     }
 
@@ -174,57 +174,50 @@ const MachineSettings = () => {
                         {machineSettings.cache.length > 0 && (
                             <div>
                                 <CenterLeft bordered>
-                                    {machineSettings.cache.map((element: MachineSettingElement, index: number) => {
-                                        if ((element as any).type == "comment")
+                                    <div class="machine-settings-grid">
+                                        {machineSettings.cache.map((element: MachineSettingElement, index: number) => {
+                                            if ((element as any).type == "comment")
+                                                return (
+                                                    <div key={`comment-${index}`} class="comment m-1">
+                                                        {T(element.value)}({element.value})
+                                                    </div>
+                                                )
+
+                                            const [validation, setvalidation] = useState<any>()
+
+                                            const button = (
+                                                <ButtonImg
+                                                    className="submitBtn"
+                                                    group
+                                                    icon={<Send />}
+                                                    label={T("S81")}
+                                                    tooltip
+                                                    data-tooltip={T("S82")}
+                                                    onClick={() => {
+                                                        useUiContextFn.haptic()
+                                                        sendCommand(element, setvalidation)
+                                                    }}
+                                                />
+                                            )
+
                                             return (
-                                                <div key={`comment-${index}`} class="comment m-1  ">
-                                                    {T(element.value)}({element.value})
+                                                <div key={`field-${index}`} class="machine-settings-item">
+                                                    <Field
+                                                        type={(element as any).type}
+                                                        value={(element as any).value}
+                                                        setValue={(val: any, update: boolean = false) => {
+                                                            if (!update) (element as any).value = val
+                                                            setvalidation(generateValidation(element))
+                                                        }}
+                                                        validation={validation}
+                                                        button={button}
+                                                    />
                                                 </div>
                                             )
-                                        const [validation, setvalidation] =
-                                            useState<any>()
-                                        const button = (
-                                            <ButtonImg
-                                                className="submitBtn"
-                                                group
-                                                icon={<Send />}
-                                                label={T("S81")}
-                                                tooltip
-                                                data-tooltip={T("S82")}
-                                                onClick={() => {
-                                                    useUiContextFn.haptic()
-                                                    sendCommand(
-                                                        element,
-                                                        setvalidation
-                                                    )
-                                                }}
-                                            />
-                                        )
-                                        return (
-                                            <div key={`field-${index}`} class="m-1">
-                                                <Field
-                                                    type={(element as any).type}
-                                                    value={(element as any).value}
-                                                    setValue={(
-                                                        val: any,
-                                                        update: boolean = false
-                                                    ) => {
-                                                        if (!update) {
-                                                            (element as any).value = val
-                                                        }
-                                                        setvalidation(
-                                                            generateValidation(
-                                                                element
-                                                            )
-                                                        )
-                                                    }}
-                                                    validation={validation}
-                                                    button={button}
-                                                />
-                                            </div>
-                                        )
-                                    })}
+                                        })}
+                                    </div>
                                 </CenterLeft>
+
                             </div>
                         )}
 
