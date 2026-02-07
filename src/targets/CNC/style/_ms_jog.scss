@@ -167,41 +167,37 @@ $jog-surface-text: var(--ms-text-normal);
     width: 50px;
     height: 50px;
 
-    background-color: var(--ms-accent);
-    color: var(--ms-text-inverse);
+    background-color: var(--ms-bg-surface);
+    color: var(--ms-accent);
     border: none;
-
     border-radius: 50%;
 
-    font-weight: 600;
+box-shadow: var(--neo-shadow-raised);
 
     transition:
         background-color 120ms ease,
-        transform 80ms ease;
+        transform 90ms ease,
+        box-shadow 120ms ease;
 
-    outline: none;
-    box-shadow: none;
+    &:hover {
+        background-color: var(--ms-bg-hover);
+    }
+
+    &:active {
+        transform: scale(0.94);
+box-shadow: var(--neo-shadow-pressed);
+    }
+
+    &:focus,
+    &:focus-visible {
+        outline: none;
+box-shadow: var(--neo-shadow-raised);
+
+    }
 }
 
-.jog-xy-pad button:hover,
-.jog-axis-group .jog-buttons-container button:hover {
-    background-color: var(--ms-accent-dark);
-}
 
-.jog-xy-pad button:active,
-.jog-axis-group .jog-buttons-container button:active {
-    background-color: var(--ms-accent-dark);
-    transform: translateY(1px);
-}
 
-.jog-xy-pad button:focus,
-.jog-xy-pad button:focus-visible,
-.jog-axis-group .jog-buttons-container button:focus,
-.jog-axis-group .jog-buttons-container button:focus-visible {
-    outline: none;
-    box-shadow: none;
-    background-color: var(--ms-accent);
-}
 
 .jog-axis-header {
     display: none;
@@ -382,6 +378,7 @@ $jog-radial-offset: 5px;
     pointer-events: none;
     z-index: 1;
     will-change: transform, opacity;
+    filter: var(--neo-svg-shadow);
 }
 
 .jog-xy-pad .jog-cell svg path {
@@ -415,19 +412,39 @@ $jog-radial-offset: 5px;
     outline: none !important;
 }
 
+.jog-xy-pad .jog-xy-hit:active+svg {
+    transform: scale(0.96);
+    filter: var(--neo-svg-shadow-pressed);
+}
+
+
+
 /* =========================
    JOG — BOTONES GLOBALES (GO / FIND / SET)
    ========================= */
 
 .jog-global-btn {
+    width: 100%;
+    min-height: 36px;
+    padding: 6px 14px;
+    margin: 6px 0;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+
     background-color: var(--ms-bg-surface);
     color: var(--ms-accent);
 
-    border: 1px solid var(--ms-accent);
-    border-radius: 6px;
+    border: none;
+    border-radius: 10px;
 
     font-weight: 600;
     letter-spacing: 0.02em;
+
+    /* 👇 MISMO RELIEVE QUE Z / XY */
+    box-shadow: var(--neo-shadow-raised);
 
     transition:
         background-color 120ms ease,
@@ -440,34 +457,23 @@ $jog-radial-offset: 5px;
     color: var(--ms-accent);
 }
 
+/* Hover: solo lectura, no “material” */
 .jog-global-btn:hover {
-    background-color: var(--ms-highlight);
-    color: var(--ms-light);
+    background-color: var(--ms-bg-hover);
 }
 
-.jog-global-btn:hover svg {
-    color: var(--ms-light);
-}
-
+/* Active: MISMO hundido que Z */
 .jog-global-btn:active {
-    background-color: hsla(22, 90%, 52%, 0.14);
-    /* usa acento, mantiene semántica */
-    transform: translateY(2px);
-    box-shadow: inset 0 2px 4px hsla(0, 0%, 0%, 0.5);
+    transform: scale(0.96);
+    box-shadow: var(--neo-shadow-pressed);
 }
 
+/* Focus limpio */
 .jog-global-btn:focus,
 .jog-global-btn:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 1px hsla(22, 90%, 52%, 0.4);
+    box-shadow: var(--neo-shadow-raised);
 }
-
-.jog-global-btn {
-    width: 100%;
-    margin: 4px 0;
-    padding: 6px 0;
-}
-
 
 /* =========================
    JOG — ROTARY STEP KNOB (REAL KNOB)
@@ -538,5 +544,3 @@ $jog-radial-offset: 5px;
 
     background: var(--ms-bg-glass);
 }
-
-

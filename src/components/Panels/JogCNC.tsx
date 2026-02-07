@@ -725,6 +725,7 @@ const sendJogCommand = (axis: string, stepIndexOverride?: number) => {
                             {/* +Y */}
                             <div class="jog-cell jog-arc-up">
                                 <Button m2 class="jog-xy-hit" {...jogPressHandlers("Y+")} />
+                                
                                 <JogQuarter rotate={0} />
                             </div>
 

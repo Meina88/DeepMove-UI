@@ -5,49 +5,55 @@
 import type { FunctionalComponent } from "preact"
 import { ContainerHelper, FullScreenButton, CloseButton } from "../Controls"
 import { T } from "../Translations"
-import { Monitor } from "preact-feather"
+import { Upload } from "preact-feather"
 
 const HMIPanel: FunctionalComponent = () => {
-    const id = "hmiPanel"
+  const id = "hmiPanel"
 
-    return (
-        <div class="panel panel-dashboard panel-hmi" id={id}>
-            <ContainerHelper id={id} />
+  return (
+    <div class="panel panel-dashboard panel-hmi" id={id}>
+      {/* OBLIGATORIO */}
+      <ContainerHelper id={id} />
 
-            {/* Header igual a otros paneles */}
-            <div class="navbar">
-                <span class="navbar-section feather-icon-container">
-                    {/* Separación sin CSS externo */}
-                    <span style={{ display: "inline-flex", marginRight: "0.35rem" }}>
-                        <Monitor />
-                    </span>
-                    <strong class="text-ellipsis">{T("HMI")}</strong>
-                </span>
+<header class="navbar">
 
-                <span class="navbar-section">
-                    <span class="full-height">
-                        <FullScreenButton elementId={id} />
-                        <CloseButton elementId={id} hideOnFullScreen={true} />
-                    </span>
-                </span>
-            </div>
+  {/* IZQUIERDA */}
+  <span class="navbar-section">
+    <span class="feather-icon-container">
+      <Upload />
+    </span>
+    <strong class="text-ellipsis" style={{ marginLeft: "0.4rem" }}>
+      {T("HMI")}
+    </strong>
+  </span>
 
-            {/* Área HMI limpia */}
-            <div class="hmi-root">
-                {/* vacío por ahora */}
-            </div>
-        </div>
-    )
+  {/* DERECHA */}
+  <span class="navbar-section">
+    <span class="full-height">
+      <FullScreenButton elementId={id} />      
+    </span>
+  </span>
+
+</header>
+
+
+
+      {/* CUERPO HMI */}
+      <div class="panel-body panel-body-dashboard hmi-root">
+        {/* contenido futuro */}
+      </div>
+    </div>
+  )
 }
 
 const HMIPanelElement = {
-    id: "hmiPanel",
-    content: <HMIPanel />,
-    name: "S245",
-    icon: "Monitor",
-    show: "showhmipanel",
-    onstart: "openhmionstart",
-    settingid: "hmi",
+  id: "hmiPanel",
+  content: <HMIPanel />,
+  name: "Hmi",
+  icon: "Upload",
+  show: "showhmipanel",
+  onstart: "openhmionstart",
+  settingid: "hmi",
 }
 
 export { HMIPanel, HMIPanelElement }
