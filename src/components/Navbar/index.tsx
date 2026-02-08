@@ -21,8 +21,8 @@
 */
 import { Fragment, ComponentChildren, TargetedMouseEvent } from "preact"
 import { useState, useEffect, useRef } from "preact/hooks"
-import { iconsFeather } from "../Images"
-import { iconsTarget, AppLogo } from "../../targets"
+import { iconsFeather, } from "../Images"
+import { iconsTarget, AppLogo, } from "../../targets"
 import { useTargetContext } from "../../targets"
 import { Link } from "../Router"
 import { T } from "../Translations"
@@ -30,7 +30,6 @@ import {
     useSettingsContext,
     useUiContext,
     useModalsContext,
-    useRouterContext,
     useUiContextFn,
 } from "../../contexts"
 import { useWebSocketService } from "../../hooks/useWebSocketService";
@@ -50,6 +49,8 @@ import {
     Power,
 } from "preact-feather"
 import { useTargetCommands } from "../../hooks"
+import { DashboardIcon } from "../../targets/CNC/FluidNC/icons"
+
 
 
 
@@ -86,6 +87,9 @@ function isIOS(): boolean {
 
 const Navbar = () => {
     const lastValidState = useRef<string>("Offline");
+    const [isSettingsPage, setIsSettingsPage] = useState(
+        window.location.hash.startsWith("#/settings")
+    )
 
     const { connectionSettings } = useSettingsContext()
     const { uisettings } = useUiContext()
@@ -113,6 +117,7 @@ const Navbar = () => {
         status: { state?: string }
     }
     const isIdle = status?.state === "Idle"
+
 
 
     /*
@@ -143,14 +148,14 @@ const Navbar = () => {
     const menuLinks: NavLinkItem[] = []
     const rawState = status?.state;
 
-if (rawState && rawState !== "?") {
-    lastValidState.current = rawState;
-}
+    if (rawState && rawState !== "?") {
+        lastValidState.current = rawState;
+    }
 
-const effectiveState =
-    !rawState || rawState === "?"
-        ? lastValidState.current
-        : rawState;
+    const effectiveState =
+        !rawState || rawState === "?"
+            ? lastValidState.current
+            : rawState;
 
     if (uisettings.current) {
         if (uisettings.getValue("showextracontents")) {
@@ -231,6 +236,17 @@ const effectiveState =
         }
     }
 
+    const toggleSettingsDashboard = () => {
+        useUiContextFn.haptic()
+
+        if (isSettingsPage) {
+            window.location.hash = "#/dashboard"
+        } else {
+            window.location.hash = "#/settings"
+        }
+    }
+
+
     useEffect(() => {
         const handleFullscreenChange = () => {
             setIsFullscreen(!!document.fullscreenElement)
@@ -240,6 +256,19 @@ const effectiveState =
             document.removeEventListener('fullscreenchange', handleFullscreenChange)
         }
     }, [])
+
+    useEffect(() => {
+        const onHashChange = () => {
+            setIsSettingsPage(window.location.hash.startsWith("#/settings"))
+        }
+
+        window.addEventListener("hashchange", onHashChange)
+
+        return () => {
+            window.removeEventListener("hashchange", onHashChange)
+        }
+    }, [])
+
 
     if (uisettings.current) {
         return (
@@ -265,31 +294,26 @@ const effectiveState =
                         <RefreshCw />
                     </span>
 
-                        {/* ● Estado CNC (TERCER CASILLERO) */}
-<div
-class={`cnc-status-led ${
-    effectiveState
-        ? `state-${effectiveState.toLowerCase()}`
-        : "state-offline"
-}`}
-title={effectiveState || "Offline"}
+                    {/* ● Estado CNC (TERCER CASILLERO) */}
+                    <div
+                        class={`cnc-status-led ${effectiveState
+                            ? `state-${effectiveState.toLowerCase()}`
+                            : "state-offline"
+                            }`}
+                        title={effectiveState || "Offline"}
 
-/>
+                    />
 
 
                 </section>
 
                 {/* CENTRO */}
                 <section class="navbar-section navbar-center">
-
-                    <Link
-                        href="/dashboard"
-                        className="navbar-brand logo no-box"
-                    >
+                    <div className="navbar-brand logo no-box">
                         <AppLogo bgcolor="#ffffff" />
-                    </Link>
-
+                    </div>
                 </section>
+
 
                 {/* DERECHA */}
                 <section class="navbar-section navbar-right">
@@ -305,13 +329,14 @@ title={effectiveState || "Offline"}
                     )}
 
                     {/* ⚙ Settings */}
-                    <Link
-                        href="/settings"
-                        id="settingsLink"
+                    <span
                         className="btn btn-link no-box feather-icon-container"
+                        onClick={toggleSettingsDashboard}
+                        title={isSettingsPage ? "Volver al Dashboard" : "Settings"}
                     >
-                        <Settings />
-                    </Link>
+                        {isSettingsPage ? <DashboardIcon /> : <Settings />}
+                    </span>
+
 
                 </section>
 

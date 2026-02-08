@@ -233,6 +233,21 @@ const GearIcon: FunctionalComponent<IconProps> = ({ height = "1.2em" }) => (
     </svg>
 )
 
+const DashboardIcon: FunctionalComponent<IconProps> = ({ height = "1.5em" }) => (
+    <svg
+        height={height}
+        viewBox="0 -960 960 960"
+        fill="currentColor"
+        xmlns="http://www.w3.org/2000/svg"
+    >
+        <g transform="translate(0 0)">
+            <path d="M520-600v-240h320v240H520ZM120-440v-400h320v400H120Zm400 320v-400h320v400H520Zm-400 0v-240h320v240H120Zm80-400h160v-240H200v240Zm400 320h160v-240H600v240Zm0-480h160v-80H600v80ZM200-200h160v-80H200v80Z"/>
+        </g>
+    </svg>
+)
+
+
+
 
 const iconsTarget = {
     Fan: <Fan />,
@@ -248,8 +263,10 @@ const iconsTarget = {
     ClearPath: <ClearPath />,
     DashGear: <DashGear />,
     FluidIcon: <FluidIcon />,
-    GearIcon: <GearIcon />    
+    GearIcon: <GearIcon />,
+    DashboardIcon: <DashboardIcon />       
+    
 } as const
 
-export { Fan, FeedRate, FlowRate, SDCard, Mixer, Outputs, Joystick, Status, Diamond, Flare, iconsTarget, ClearPath, DashGear, FluidIcon, GearIcon }
+export { Fan, FeedRate, FlowRate, SDCard, Mixer, Outputs, Joystick, Status, Diamond, Flare, iconsTarget, ClearPath, DashGear, FluidIcon, GearIcon, DashboardIcon }
 
