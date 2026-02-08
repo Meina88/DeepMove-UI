@@ -186,6 +186,8 @@
     }
 }
 
+
+
 /* =========================================================
    PANEL — CONTEXTO DE COLUMNA
    ========================================================= */
@@ -285,3 +287,29 @@
 .select-active:hover {
     background: transparent !important;
 }
+
+
+/* =====================================================
+   SETTINGS / INTERFACE TAB — SINGLE SCROLLER (MOBILE)
+   ===================================================== */
+
+.settings-tab-scroll {
+  max-height: calc(100dvh - 170px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+}
+
+/* IMPORTANT: dentro de Settings/interface, los paneles NO scrollean */
+.settings-tab-scroll .panel {
+  overflow: visible !important;
+  max-height: none !important;
+  height: auto !important;
+}
+
+.settings-tab-scroll .panel-body-interface {
+  overflow: visible !important;
+  min-height: auto !important;
+}
+

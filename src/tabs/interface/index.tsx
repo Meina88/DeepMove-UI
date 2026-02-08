@@ -449,7 +449,8 @@ const InterfaceTab = () => {
     //console.log(JSON.stringify(interfaceSettings.current, null, 2))
     return (
         <div>
-            <div id="interface" style="max-height: calc(100dvh - 170px); overflow-y: scroll;">
+<div id="interface" class="settings-tab-scroll">
+
                 <input
                     ref={inputFile}
                     type="file"
