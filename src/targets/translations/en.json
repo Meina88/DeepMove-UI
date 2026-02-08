@@ -227,7 +227,7 @@
     "S222": "Error loading file:",
     "S223": "Default filesystem",
     "S224": "Sort files",
-    "S225": "Documentation",
+    "S225": "Firmware documentation",
     "S226": "Maximum number of segments in PC mode",
     "S227": "Limits the number of toolpath segments loaded on desktop devices to improve performance.",
     "S228": "Maximum number of segments in Mobile mode",

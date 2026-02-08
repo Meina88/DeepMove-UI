@@ -96,3 +96,70 @@
         overflow: hidden;
     }
 }
+/* =====================================================
+   ABOUT TAB — BASE LAYOUT
+   ===================================================== */
+
+#about ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    display: flex;
+    flex-direction: column;
+    gap: $unit-4;
+}
+
+/* =====================================================
+   ABOUT TAB — CARD ITEM (Strava Dark / Neumorphic)
+   ===================================================== */
+
+#about li {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; // texto alineado a la izquierda
+
+    background-color: var(--ms-bg-surface);
+    border: $border-width solid var(--ms-border);
+    border-radius: $border-radius;
+
+    padding: $unit-4;
+
+    box-shadow: var(--neo-shadow-soft);
+}
+
+/* =====================================================
+   ABOUT TAB — ACTIONS / BUTTONS
+   ===================================================== */
+
+/* Separación vertical entre texto y botones */
+#about li .btn,
+#about li button {
+    margin-top: 6px;
+}
+
+/* Contenedor visual de botones → centrado */
+#about li > .feather-icon-container,
+#about li > div,
+#about li > span + .btn,
+#about li > span + button {
+    align-self: center;
+}
+
+/* Botones del About: tamaño uniforme */
+#about .btn {
+    min-height: 36px;
+    min-width: 44px;
+    padding: 0 12px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+/* Íconos: tamaño consistente (evita botones "raros") */
+#about .btn svg {
+    width: 16px;
+    height: 16px;
+}

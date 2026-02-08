@@ -13,7 +13,9 @@ interface ToastContent {
 
 interface Toast extends ToastContent {
 	id: string
+	updatedAt?: number
 }
+
 
 interface Notification extends Toast {
 	time: string
@@ -94,41 +96,40 @@ const addToast = useCallback((newToast: Omit<Toast, "id">) => {
         }:${now.getMinutes().toString().padStart(2, "0")
         }:${now.getSeconds().toString().padStart(2, "0")}`
 
-    // 🔁 Si el toast ya existe → lo refrescamos
     if (existingIndex !== -1) {
-        const existingToast = toastsRef.current[existingIndex]
+    const existingToast = toastsRef.current[existingIndex]
 
-        const refreshedToast = {
-            ...existingToast,
-            id: generateUID(), // nuevo id → reinicia el timeout
-        }
-
-        const newToastList = [
-            ...toastsRef.current.slice(0, existingIndex),
-            refreshedToast,
-            ...toastsRef.current.slice(existingIndex + 1),
-        ]
-
-        toastsRef.current = newToastList
-        setToasts(newToastList)
-
-        // también refrescamos notifications
-        setNotifications([
-            ...notificationsRef.current,
-            { ...newToast, id: refreshedToast.id, time },
-        ])
-
-        return
+    const refreshedToast: Toast = {
+        ...existingToast,
+        updatedAt: Date.now(), // 👈 reinicia timeout SIN cambiar identidad
     }
 
-    // 🆕 Toast nuevo
-    const id = generateUID()
+    const newToastList = [
+        ...toastsRef.current.slice(0, existingIndex),
+        refreshedToast,
+        ...toastsRef.current.slice(existingIndex + 1),
+    ]
 
-    setToasts([...toastsRef.current, { ...newToast, id }])
+    toastsRef.current = newToastList
+    setToasts(newToastList)
+
+    // Log histórico sí se refresca
     setNotifications([
         ...notificationsRef.current,
-        { ...newToast, id, time },
+        { ...newToast, id: existingToast.id, time },
     ])
+
+    return
+}
+
+
+const id = generateUID()
+
+setToasts([
+    ...toastsRef.current,
+    { ...newToast, id, updatedAt: Date.now() },
+])
+
 }, [])
 
 

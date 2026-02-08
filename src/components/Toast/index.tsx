@@ -29,16 +29,18 @@ interface ToastProps {
   remove: (id: string | number) => void
 }
 
-const Toast = ({ index, type = "", children, timeout = 2000, remove }: ToastProps) => {
-  useEffect(() => {
-    let timer: any
-    if (timeout) {
-      timer = setTimeout(() => {
-        remove(index)
-      }, timeout)
-      return () => clearTimeout(timer)
-    }
-  }, [])
+const Toast = ({ index, type = "", children, timeout = 2000, remove, updatedAt }: any) => {
+
+useEffect(() => {
+  if (!timeout) return
+
+  const timer = setTimeout(() => {
+    remove(index)
+  }, timeout)
+
+  return () => clearTimeout(timer)
+}, [updatedAt])
+
 
   return (
     <SpectreToast {...{ [type]: true }}>
@@ -59,13 +61,15 @@ const ToastsContainer = () => {
     toasts.toastList && (
       <div class="toasts-container">
         {toasts.toastList.map((toast: any) => {
-          const { id, type, content } = toast
+          const { id, type, content, updatedAt } = toast
+
           return (
             <Toast
               remove={(id: any) => toasts.removeToast([String(id)])}
               index={id}
               type={type}
               key={id}
+              updatedAt={updatedAt}
             >
               {typeof content === 'string' ? T(content) : content}
             </Toast>

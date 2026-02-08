@@ -107,9 +107,18 @@ const CustomEntry: FunctionalComponent = (): JSX.Element => {
             )
         }
         return (
-            <li class="feather-icon-container">
-                {HelpEntry} {InfoEntry}
+            <li class="about-item">
+                <div class="about-item-title">
+                    <span class="text-primary text-label">
+                        {T("S225")}:
+                    </span>
+                </div>
+
+                <div class="about-item-actions">
+                    {HelpEntry} {InfoEntry}
+                </div>
             </li>
+
         )
     }
 
@@ -133,7 +142,7 @@ const CustomEntry: FunctionalComponent = (): JSX.Element => {
             <span class="text-primary text-label">
                 {T("S225")}:
             </span>
-             {HelpEntry}
+            {HelpEntry}
         </li>
     )
 
@@ -161,26 +170,26 @@ const About: FunctionalComponent = (): JSX.Element => {
     const getProps = (): void => {
         setIsLoading(true)
         const callbacks = {
-                onSuccess: (result: any) => {
-                    const jsonResult = JSON.parse(result)
-                    if (
-                        jsonResult.cmd != 420 ||
-                        jsonResult.status == "error" ||
-                        !jsonResult.data
-                    ) {
-                        toasts.addToast({ content: T("S194"), type: "error" })
-                        setIsLoading(false)
-                        return
-                    }
-                    setProps([...jsonResult.data])
-                    about = [...jsonResult.data]
+            onSuccess: (result: any) => {
+                const jsonResult = JSON.parse(result)
+                if (
+                    jsonResult.cmd != 420 ||
+                    jsonResult.status == "error" ||
+                    !jsonResult.data
+                ) {
+                    toasts.addToast({ content: T("S194"), type: "error" })
                     setIsLoading(false)
-                },
-                onFail: (error: any) => {
-                    setIsLoading(false)
-                    toasts.addToast({ content: error, type: "error" })
-                    console.log(error)
-                },
+                    return
+                }
+                setProps([...jsonResult.data])
+                about = [...jsonResult.data]
+                setIsLoading(false)
+            },
+            onFail: (error: any) => {
+                setIsLoading(false)
+                toasts.addToast({ content: error, type: "error" })
+                console.log(error)
+            },
         }
         targetCommands("[ESP420]json=yes", undefined, undefined, callbacks)
     }
@@ -195,7 +204,7 @@ const About: FunctionalComponent = (): JSX.Element => {
                 ) || []
         if (/trident/i.test(M[1])) {
             tem = /\brv[ :]+(\d+)/g.exec(ua) || []
-            return `IE ${  tem[1] || ""}`
+            return `IE ${tem[1] || ""}`
         }
         if (M[1] === "Chrome") {
             tem = ua.match(/\b(OPR|Edge)\/(\d+)/)
@@ -233,7 +242,7 @@ const About: FunctionalComponent = (): JSX.Element => {
         }
 
         (window as any).open(url, "_blank")
-        (e.target as HTMLElement).blur()
+            (e.target as HTMLElement).blur()
     }
 
     const downloadFromGithub = (): void => {
@@ -289,7 +298,7 @@ const About: FunctionalComponent = (): JSX.Element => {
                 formData.append("createPath", "true")
 
                 const filename = "index.html.gz"
-                const arg = `${useSettingsContextFn.getValue("HostUploadPath") + filename  }S`
+                const arg = `${useSettingsContextFn.getValue("HostUploadPath") + filename}S`
                 formData.append(arg, String(blob.size))
                 formData.append(
                     "myfiles",
@@ -365,7 +374,7 @@ const About: FunctionalComponent = (): JSX.Element => {
     const onWebUiGit = (e: MouseEvent) => {
         useUiContextFn.haptic();
         (window as any).open(webUiUrl, "_blank")
-        (e.target as HTMLElement).blur()
+            (e.target as HTMLElement).blur()
     }
 
     const uploadFiles = (): void => {
@@ -379,7 +388,7 @@ const About: FunctionalComponent = (): JSX.Element => {
                 const file = list[i]
                 const arg =
                     `${useSettingsContextFn.getValue("HostUploadPath") +
-                    file.name 
+                    file.name
                     }S`
                 //append file size first to check updload is complete
                 formData.append(arg, String(file.size))
@@ -443,7 +452,7 @@ const About: FunctionalComponent = (): JSX.Element => {
             const reg_search = /(?<label>[^\(]*)\s\((?<content>[^\)]*)/
             let res = reg_search.exec(value)
             if (res && res.groups) {
-                return `${T(res.groups.label)  } (${  T(res.groups.content)  })`
+                return `${T(res.groups.label)} (${T(res.groups.content)})`
             }
         }
 
@@ -501,69 +510,66 @@ const About: FunctionalComponent = (): JSX.Element => {
 
             {!isLoading && props && (
                 <div>
-                    
+
                     <CenterLeft>
                         <ul>
-                            <li>
-                                <span class="text-primary text-label">
-                                    {T("S150")}:{" "}
-                                </span>
-                                <span class="text-dark">
-                                    <Esp3dVersion />
-                                </span>
-                                <ButtonImg
-                                    sm
-                                    mx2
-                                    tooltip
-                                    data-tooltip={T("S20")}
-                                    icon={<Github />}
-                                    onClick={onWebUiGit}
-                                />
-                                {(isFlashFS || isSDFS) && (
+
+                            <li class="about-item">
+                                <div class="about-item-title">
+                                    <span class="text-primary text-label">{T("S150")}:</span>{" "}
+                                    <span class="text-dark"><Esp3dVersion /></span>
+                                </div>
+
+                                <div class="about-item-actions">
                                     <ButtonImg
                                         sm
-                                        mx2
                                         tooltip
-                                        data-tooltip={T("S171")}
-                                        icon={<UploadCloud />}
-                                        label={T("S25")}
-                                        onClick={onWebUiUpdate}
+                                        data-tooltip={T("S20")}
+                                        icon={<Github />}
+                                        onClick={onWebUiGit}
                                     />
-                                )}
+                                    {(isFlashFS || isSDFS) && (
+                                        <ButtonImg
+                                            sm
+                                            tooltip
+                                            data-tooltip={T("S171")}
+                                            icon={<UploadCloud />}
+                                            label={T("S25")}
+                                            onClick={onWebUiUpdate}
+                                        />
+                                    )}
+                                </div>
                             </li>
-                            <li>
-                                <span class="text-primary text-label">
-                                    {T("FW ver")}:
-                                </span>
-                                <span class="text-dark">
-                                    {props.find(
-                                        (element) => element.id == "FW version"
-                                    ) &&
-                                        props.find(
-                                            (element) => element.id == "FW version"
-                                        )?.value}
-                                </span>
-                                <ButtonImg
-                                    sm
-                                    mx2
-                                    tooltip
-                                    data-tooltip={T("S20")}
-                                    icon={<Github />}
-                                    onClick={onFWGit}
-                                />
-                                {connectionSettings.current.WebUpdate ==
-                                    "Enabled" && (
+
+                            <li class="about-item">
+                                <div class="about-item-title">
+                                    <span class="text-primary text-label">{T("FW ver")}:</span>{" "}
+                                    <span class="text-dark">
+                                        {props.find(e => e.id == "FW version")?.value}
+                                    </span>
+                                </div>
+
+                                <div class="about-item-actions">
                                     <ButtonImg
                                         sm
-                                        mx2
                                         tooltip
-                                        data-tooltip={T("S172")}
-                                        icon={<UploadCloud />}
-                                        label={T("S25")}
-                                        onClick={onFWUpdate}
+                                        data-tooltip={T("S20")}
+                                        icon={<Github />}
+                                        onClick={onFWGit}
                                     />
-                                )}
+                                    {connectionSettings.current.WebUpdate == "Enabled" && (
+                                        <ButtonImg
+                                            sm
+                                            tooltip
+                                            data-tooltip={T("S172")}
+                                            icon={<UploadCloud />}
+                                            label={T("S25")}
+                                            onClick={onFWUpdate}
+                                        />
+                                    )}
+                                </div>
                             </li>
+
                             <CustomEntry />
                             <li>
                                 <span class="text-primary text-label">
@@ -587,7 +593,7 @@ const About: FunctionalComponent = (): JSX.Element => {
                                     )
                             })}
                         </ul>
-                    </CenterLeft>                   
+                    </CenterLeft>
 
                 </div>
             )}
