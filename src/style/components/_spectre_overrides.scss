@@ -953,3 +953,30 @@ body,
 #root {
   font-family: $base-font-family !important;
 }
+
+
+
+
+/* =========================================
+   TABBAR — active = color only
+   ========================================= */
+
+.tab.tab-block {
+  .tab-item {
+    a {
+      border: none !important;
+      border-bottom: none !important;
+      background: none !important;
+      box-shadow: none !important;
+    }
+
+    a.active {
+      border: none !important;
+      border-bottom: none !important;
+      background: none !important;
+      box-shadow: none !important;
+
+      color: var(--ms-accent) !important; // icono (y texto) en naranja
+    }
+  }
+}

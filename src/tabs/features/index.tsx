@@ -481,7 +481,8 @@ const FeaturesTab = () => {
     //console.log(featuresSettings.current)
     return (
         <div>
-            <div id="features" style="max-height: calc(100dvh - 170px); overflow-y: scroll;">
+<div id="features" class="settings-scroll-root">
+
                 <input
                     ref={inputFile}
                     type="file"

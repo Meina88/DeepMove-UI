@@ -188,6 +188,8 @@
 
 
 
+
+
 /* =========================================================
    PANEL — CONTEXTO DE COLUMNA
    ========================================================= */
@@ -313,3 +315,34 @@
   min-height: auto !important;
 }
 
+/* =====================================================
+   SETTINGS / FEATURES / SYSTEM — SINGLE SCROLLER (MOBILE)
+   ===================================================== */
+
+#features.settings-scroll-root {
+    max-height: calc(100dvh - 170px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+}
+/* =====================================================
+   SETTINGS (Interface / System / Machine) — MOBILE FIX
+   ===================================================== */
+
+@media (max-width: 480px) {
+
+    #settings .panel {
+        height: auto !important;
+        max-height: none !important;
+
+        scroll-snap-align: none !important;
+        overflow: visible !important;
+
+        margin-bottom: 12px !important;
+    }
+
+    #settings .panel > :not(.navbar) {
+        overflow: visible !important;
+    }
+
+}
