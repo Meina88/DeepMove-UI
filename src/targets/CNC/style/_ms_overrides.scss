@@ -88,28 +88,41 @@
     text-align: right;
 }
 
-#OverridesPanel .power-value {
-    position: absolute;
-    top: -20px;
-    left: 50%;
-    transform: translateX(-50%);
+#OverridesPanel {
 
-    font-size: 1rem;
-    font-weight: 700;
-    line-height: 1;
+    .power-value {
+        position: absolute;
+        top: -20px;
+        left: 50%;
+        transform: translateX(-50%);
 
-    color: var(--ms-warning);
+        font-size: 1rem;
+        font-weight: 700;
+        line-height: 1;
 
-    user-select: none;
-    pointer-events: none;
+        color: var(--ms-accent) !important;
+        fill: var(--ms-accent) !important;
+        stroke: var(--ms-accent) !important;
 
-    span {
-        font-size: 0.85rem;
-        font-weight: 600;
-        opacity: 0.75;
-        margin-left: 2px;
+        user-select: none;
+        pointer-events: none;
+
+        * {
+            color: var(--ms-accent) !important;
+            fill: var(--ms-accent) !important;
+            stroke: var(--ms-accent) !important;
+        }
+
+        span {
+            font-size: 0.85rem;
+            font-weight: 600;
+            opacity: 0.75;
+            margin-left: 2px;
+        }
     }
+
 }
+
 
 /* =========================
    OVERRIDES PANEL — ANIMACIÓN RUN
@@ -182,12 +195,15 @@
 
     padding: var(--ms-unit-2, 0.4rem);
     box-sizing: border-box;
+    min-height: 240px; // 👈 probá 220–240
+    align-items: center; // centra verticalmente el contenido
 }
 
 #OverridesPanel .graph-column {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     gap: 0.35rem;
 }
 
@@ -198,7 +214,7 @@
     width: 24px;
     height: 140px;
 
-    background: var(--ms-bg-surface);
+    background: var(--ms-bg-dark);
     border-radius: var(--ms-border-radius, 4px);
 }
 
@@ -240,7 +256,12 @@
     flex-direction: column;
     align-items: center;
     user-select: none;
-    top: -40px;
+    top: -10px;
+}
+
+.run-file-name--spacer {
+    visibility: hidden;
+    pointer-events: none;
 }
 
 /* =========================
@@ -341,7 +362,7 @@
 }
 
 /* =========================
-   OVERRIDES PANEL — BOTÓN HOLD
+   OVERRIDES PANEL — BOTÓN HOLD (NEOMORPHIC)
    ========================= */
 
 #OverridesPanel .override-buttons-container {
@@ -359,14 +380,17 @@
         height: 65px;
         border-radius: 50%;
 
-
         display: flex;
         align-items: center;
         justify-content: center;
 
         border: none;
-        color: var(--ms-text-inverse);
-        background-color: var(--ms-accent);
+
+        /* ⬇️ MISMO MATERIAL QUE RPM / FEED */
+        background-color: var(--ms-bg-surface);
+        box-shadow: var(--neo-shadow-raised);
+
+        color: var(--ms-accent);
 
         transition:
             background-color 150ms ease,
@@ -375,48 +399,39 @@
 
         svg {
             display: block;
-            stroke: currentColor;
             width: 25px;
             height: 25px;
+            stroke: currentColor;
         }
 
         &:hover {
-            background-color: var(--ms-accent-dark);
+            background-color: var(--ms-bg-hover);
         }
 
         &:active {
             transform: scale(0.94);
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.45);
+            box-shadow: var(--neo-shadow-pressed);
         }
     }
+
+    /* =========================
+       ▶ PLAY
+       ========================= */
 
     .override-hold-btn.is-play {
-        background-color: var(--ms-accent);
-        color: var(--ms-accent-contrast);
+        color: var(--ms-accent);
 
-        box-shadow:
-            0 4px 10px rgba(var(--ms-accent), 0.35),
-            0 0 0 1px rgba(var(--ms-accent-dark), 0.4);
-
-        &:hover {
-            background-color: var(--ms-accent-dark);
-        }
-
-        &:active {
-            transform: scale(0.96);
+        svg {
+            transform: translateX(2px);
         }
     }
 
-    .override-hold-btn.is-play svg {
-        transform: translateX(2px);
-    }
+    /* =========================
+       ⏸ HOLD
+       ========================= */
 
     .override-hold-btn.is-hold {
-        background-color: var(--ms-accent);
-
-        &:hover {
-            background-color: var(--ms-accent-dark);
-        }
+        color: var(--ms-accent);
     }
 }
 
@@ -435,6 +450,10 @@
    OVERRIDES PANEL — PLACEHOLDER SUPERIOR
    ========================= */
 
+/* =========================
+   OVERRIDES PANEL — PLACEHOLDER SUPERIOR (NEUMORPHIC)
+   ========================= */
+
 #OverridesPanel .overrides-top-placeholder {
     grid-area: placeholder;
     position: relative;
@@ -445,12 +464,16 @@
 
     padding: var(--ms-unit-3);
 
-    background-color: var(--ms-bg-main);
-    border: none;
+    background-color: var(--ms-bg-surface);
     border-radius: 10px;
+    border: none;
+
+    /* ⬇️ NEUMORPHISM SOFT (SURFACE) */
+    box-shadow: var(--neo-shadow-pressed);
 
     box-sizing: border-box;
 }
+
 
 /* =========================
    OVERRIDES PANEL — FOOTER DEL GRÁFICO
@@ -494,10 +517,10 @@
     }
 
     .gauge-progress-fill {
-        stroke: rgba(var(--ms-accent), 0.55);
-        stroke-width: 8;
+        stroke: var(--ms-accent);
+        stroke-width: 10;
         stroke-linecap: round;
-        transition: stroke-dashoffset 250ms ease;
+        filter: brightness(1.15);
     }
 
     .power-gauge {
@@ -620,9 +643,7 @@
         background-color: var(--ms-bg-surface);
 
         /* neumorphism soft */
-        box-shadow:
-            -2px -2px 3px hsla(0, 0%, 100%, 0.06),
-            2px 2px 3px hsla(0, 0%, 0%, 0.35);
+        box-shadow: var(--neo-shadow-soft);
 
         user-select: none;
     }
@@ -752,7 +773,7 @@
     border-radius: 999px;
 
     background: var(--ms-bg-surface);
-    border: $border-width solid var(--ms-border);
+    border: none;
 
     position: relative;
     cursor: pointer;
@@ -761,12 +782,14 @@
     align-items: center;
     padding: 2px;
 
+    box-shadow: var(--neo-shadow-raised);
+
     transition:
         background-color 160ms ease,
         border-color 160ms ease;
 
     &:active {
-        background: var(--ms-bg-hover);
+        background: var(--neo-shadow-pressed);
     }
 }
 
@@ -791,14 +814,15 @@
    ========================= */
 
 .link-switch.is-on {
-    background: var(--ms-accent);
+    background: linear-gradient(to bottom,
+            var(--ms-accent-dark),
+            var(--ms-accent));
     border-color: var(--ms-accent-dark);
 
     .link-switch-thumb {
-        background: var(--ms-light);
-        box-shadow:
-            0 0 0 2px hsla(var(--ms-accent), 0.35),
-            0 2px 4px hsla(0, 0%, 0%, 0.45);
+        background: var(--ms-bg-surface);
+
+        box-shadow: var(--neo-shadow-pressed);
 
         transform: translateX(20px);
     }
@@ -839,7 +863,3 @@
     pointer-events: none;
     filter: grayscale(1);
 }
-
-
-
-

@@ -39,6 +39,7 @@ const PanelNavigator: FunctionalComponent = () => {
   const [isLatched, setIsLatched] = useState(false)
   // ⏳ Evita doble click / spam de reset (PC principalmente)
 const [resetBusy, setResetBusy] = useState(false)
+const [activePanelId, setActivePanelId] = useState<string | null>(null)
 
 
   const goToPanel = (id?: string) => {
@@ -67,6 +68,30 @@ const [resetBusy, setResetBusy] = useState(false)
   }, [machineState, isAlarm, isIdle])
 
 
+useEffect(() => {
+  if (!panels?.visibles?.length) return
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          setActivePanelId(entry.target.id)
+        }
+      })
+    },
+    {
+      root: null,        // viewport
+      threshold: 0.6,    // 60% visible = activo
+    }
+  )
+
+  panels.visibles.forEach((panel: any) => {
+    const el = document.getElementById(panel.id)
+    if (el) observer.observe(el)
+  })
+
+  return () => observer.disconnect()
+}, [panels.visibles])
 
 
   const onResetPress = () => {
@@ -159,15 +184,19 @@ class={
         const iconKey = panel.icon as string
 
         return (
-          <button
-            key={panelId}
-            class="panel-navigator-btn"
-            onClick={() => {
-              uiFn.haptic()
-              goToPanel(panelId)
-            }}
-            title={T(panelName)}
-          >
+<button
+  key={panelId}
+  class={
+    "panel-navigator-btn" +
+    (activePanelId === panelId ? " is-active" : "")
+  }
+  onClick={() => {
+    uiFn.haptic()
+    goToPanel(panelId)
+  }}
+  title={T(panelName)}
+>
+
             {iconsList[iconKey] ?? iconKey}
           </button>
         )

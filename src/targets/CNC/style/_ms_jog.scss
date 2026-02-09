@@ -104,7 +104,7 @@ $jog-surface-text: var(--ms-text-normal);
 .jog-goto-btn,
 .jog-global-btn {
     width: 50%;
-    max-width: 100%;
+    max-width: 85%;
 
     padding: 4px 6px;
     font-size: 0.6rem;
@@ -151,6 +151,7 @@ $jog-surface-text: var(--ms-text-normal);
    ========================= */
 
 .jog-axis-group .jog-buttons-container {
+    
     height: 175px;
     gap: 30px;
     display: flex;
@@ -195,8 +196,6 @@ box-shadow: var(--neo-shadow-raised);
 
     }
 }
-
-
 
 
 .jog-axis-header {
@@ -382,18 +381,21 @@ $jog-radial-offset: 5px;
 }
 
 .jog-xy-pad .jog-cell svg path {
-    fill: var(--ms-accent);
+    fill: var(--ms-bg-surface);
     transition: fill 120ms ease, transform 120ms ease;
 }
 
-.jog-xy-pad .jog-xy-hit:hover+svg path {
-    fill: var(--ms-accent-dark);
+/* Hover = igual que botones Z */
+.jog-xy-pad .jog-xy-hit:hover + svg {
+    filter: var(--neo-svg-shadow);
 }
 
-.jog-xy-pad .jog-xy-hit:active+svg path {
-    fill: var(--ms-accent-dark);
-    opacity: 0.85;
+/* Active = hundido como botones Z */
+.jog-xy-pad .jog-xy-hit:active + svg {
+    transform: scale(0.96);
+    filter: var(--neo-svg-shadow-pressed);
 }
+
 
 /* neutralizar estilos genéricos que ensucian */
 .jog-xy-pad button,
@@ -543,4 +545,20 @@ $jog-radial-offset: 5px;
     border-radius: 50%;
 
     background: var(--ms-bg-glass);
+}
+
+/* DEBUG — fondo de flecha */
+.jog-arrow-bg {
+  fill: var(--ms-accent);
+}
+
+
+/* XY hover = pétalo gris (igual que fondo del botón ±Z) */
+.jog-xy-pad .jog-xy-hit:hover + svg path {
+    fill: var(--ms-bg-hover);
+}
+
+/* XY active = mismo gris + hundido */
+.jog-xy-pad .jog-xy-hit:active + svg path {
+    fill: var(--ms-bg-hover);
 }

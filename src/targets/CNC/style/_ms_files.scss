@@ -4,28 +4,37 @@
     display: flex;
     flex-direction: column;
     gap: 6px;
-    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.04);
+    margin-left: 10px;
+    margin-right: 10px;
 
     padding: 10px;
     margin-bottom: 8px;
 
-    background-color: var(--ms-bg-main);
+    background-color: transparent;
     border-radius: 10px;
 
-    border: 0px solid var(--ms-border-light);
+    box-shadow: var(--neo-shadow-raised);
+    border: 1px solid rgba(255, 255, 255, 0.02);
 
     transition:
-        background-color 120ms ease,
-        box-shadow 120ms ease;
+        box-shadow 160ms ease,
+        background-color 160ms ease,
+        transform 120ms ease;
+
+    &:hover {
+        box-shadow: var(--neo-shadow-soft);
+    }
 
     &:active {
-        background-color: rgba(var(--ms-accent), 0.06);
+        box-shadow: var(--neo-shadow-pressed);
+        transform: scale(0.985);
     }
 }
 
+
 .file-item.is-selected {
     background-color: rgba(var(--ms-accent), 0.08);
-    box-shadow: 0 0 0 0px rgba(var(--ms-accent), 0.35);
+    box-shadow: var(--neo-shadow-pressed);
 }
 
 .file-item.is-selected .file-item-name span {
@@ -85,22 +94,45 @@
     height: 1px;
 }
 
-/* Play */
-.file-play-btn {
-    background-color: var(--ms-accent) !important;
-    color: var(--ms-text-inverse) !important;
-    border-color: var(--ms-accent) !important;
+/* Play — neumórfico primario */
+/* Play button — neumorphic primary action */
+
+/* Play button — neumorphic secondary (same behavior as Trash) */
+
+#filesPanel .file-play-btn {
+    min-width: 36px;
+    min-height: 36px;
+    border-radius: $border-radius;
+
+    background: transparent;
+    color: var(--ms-accent);
+
+    border: 1px solid rgba(var(--ms-accent), 0.35);
+    box-shadow: var(--neo-shadow-raised);
+
+    transition:
+        box-shadow 160ms ease,
+        transform 120ms ease,
+        color 160ms ease,
+        border-color 160ms ease;
 }
 
-.file-play-btn svg {
-    transform: translateX(1px);
+#filesPanel .file-play-btn svg {
+    color: inherit;
+    transform: translateX(1px); // mantiene la flecha centrada
 }
 
-.file-play-btn:hover,
-.file-play-btn:active {
-    background-color: var(--ms-accent-dark) !important;
-    border-color: var(--ms-accent-dark) !important;
+#filesPanel .file-play-btn:hover {
+    color: var(--ms-accent-dark);
+    border-color: var(--ms-accent-dark);
 }
+
+#filesPanel .file-play-btn:active {
+    box-shadow: var(--neo-shadow-pressed);
+    transform: scale(0.92);
+}
+
+
 
 /* Nombre + icon */
 .file-item-name {
@@ -119,7 +151,7 @@
     span {
         font-size: 0.78rem;
         font-weight: 500;
-        color: var(--ms-text-strong);
+        color: var(--ms-text-normal);
 
         overflow: hidden;
         text-overflow: ellipsis;
@@ -139,42 +171,73 @@
     color: var(--ms-accent);
 }
 
-/* Trash button */
 #filesPanel .file-trash-btn {
-    border: 1px solid var(--ms-accent) !important;
-    color: var(--ms-accent) !important;
-
-    box-shadow: none !important;
-
     min-width: 36px;
     min-height: 36px;
     border-radius: $border-radius;
 
+    background: transparent;
+    color: var(--ms-accent);
+
+    border: 1px solid rgba(var(--ms-accent), 0.35);
+    box-shadow: var(--neo-shadow-raised);
+
     transition:
-        color 0.2s ease,
-        border-color 0.2s ease,
-        background-color 0.2s ease,
-        transform 0.15s ease;
+        box-shadow 160ms ease,
+        transform 120ms ease,
+        color 160ms ease,
+        border-color 160ms ease;
+
+    &:hover {
+        color: var(--ms-error);
+        border-color: var(--ms-error);
+    }
+
+    &:active {
+        box-shadow: var(--neo-shadow-pressed);
+        transform: scale(0.92);
+    }
+
+    svg {
+        color: inherit;
+    }
 }
 
-#filesPanel .file-trash-btn svg {
-    color: var(--ms-accent) !important;
+
+/* Eye / Preview button — same neumorphic style as trash */
+
+#filesPanel .file-preview-btn {
+    min-width: 36px;
+    min-height: 36px;
+    border-radius: $border-radius;
+
+    background: transparent;
+    color: var(--ms-text-normal);
+
+    border: 1px solid rgba(var(--ms-accent), 0.25);
+    box-shadow: var(--neo-shadow-raised);
+
+    transition:
+        box-shadow 160ms ease,
+        transform 120ms ease,
+        color 160ms ease,
+        border-color 160ms ease;
 }
 
-#filesPanel .file-trash-btn:hover {
-    background-color: rgba(var(--ms-error), 0.08) !important;
-    border-color: var(--ms-error) !important;
-    color: var(--ms-error) !important;
+#filesPanel .file-preview-btn:hover {
+    color: var(--ms-accent);
+    border-color: var(--ms-accent);
 }
 
-#filesPanel .file-trash-btn:hover svg {
-    color: var(--ms-error) !important;
-}
-
-#filesPanel .file-trash-btn:active {
-    background-color: rgba(var(--ms-error), 0.16) !important;
+#filesPanel .file-preview-btn:active {
+    box-shadow: var(--neo-shadow-pressed);
     transform: scale(0.92);
 }
+
+#filesPanel .file-preview-btn svg {
+    color: inherit;
+}
+
 
 /* Files panel header SD status */
 
@@ -182,6 +245,9 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    background: var(--ms-panel-header-bg);
+    box-shadow: var(--neo-shadow-soft);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
 }
 
 /* Izquierda */
@@ -209,18 +275,25 @@
 #filesPanel .files-sd-bar {
     width: 56px;
     height: 3px;
+
     background: var(--ms-bar-track);
     border-radius: 2px;
     overflow: hidden;
 }
 
+/* Fill — legible, neutro, siempre visible */
 #filesPanel .files-sd-bar-fill {
     height: 100%;
+    display: block;
+
     background: var(--ms-bar-fill);
     opacity: 0.9;
-    transition: width 0.25s ease, background-color 0.25s ease;
-    display: block;
+
+    transition:
+        width 0.25s ease,
+        background-color 0.25s ease;
 }
+
 
 
 
@@ -240,11 +313,24 @@
 }
 
 #filesPanel .drop-zone.files-list {
-    flex: 1 1 auto;
-    overflow-y: auto;
-    min-height: 0;
-    padding-bottom: 84px;
+    background: transparent;
+    /* ← usa exactamente el bg del panel */
+    border-radius: 12px;
+
+    /* separación sutil, no hundido */
+    box-shadow: none;
+
+    padding: 8px;
+
 }
+
+/* Drag & drop feedback */
+#filesPanel .drop-zone.files-list.drop-zone--over {
+    box-shadow:
+        0 0 0 1px rgba(var(--ms-accent), 0.35);
+}
+
+
 
 /* ============================= */
 /* Files panel SD selector height fix */
@@ -294,14 +380,16 @@
     transform: translateX(-50%);
     z-index: 20;
 
-    transition:
-        transform 700ms cubic-bezier(0.25, 0.9, 0.25, 1);
-
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 10px;
+
+    /* El wrapper NO agrega color, solo acompaña */
+    transition:
+        transform 700ms cubic-bezier(0.25, 0.9, 0.25, 1);
 }
+
 
 /* Scroll hacia abajo */
 #filesPanel .files-fab-wrapper.scroll-down {
@@ -314,6 +402,8 @@
     transition-duration: 260ms;
     transform: translateX(-50%) translateY(2px);
 }
+
+
 
 /* ============================= */
 /* FAB main button */

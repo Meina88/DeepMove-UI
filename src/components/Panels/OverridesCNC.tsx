@@ -183,7 +183,6 @@ const OverridesPanel: FunctionalComponent = () => {
         (status?.state === "Run" || status?.state === "Hold") &&
         streamStatus?.processed !== undefined
 
-
     const progressPct = (() => {
         if (!hasRunProgress) return 0
 
@@ -193,12 +192,17 @@ const OverridesPanel: FunctionalComponent = () => {
         if (streamStatus?.total) {
             const total = Number(streamStatus.total) || 0
             if (total <= 0) return 0
-            return Math.max(0, Math.min(100, Math.round((processed / total) * 100)))
+            return Math.max(
+                0,
+                Math.min(100, Math.round((processed / total) * 100))
+            )
         }
 
         // Caso alternativo: processed ya viene en %
         return Math.max(0, Math.min(100, Math.round(processed)))
     })()
+
+
 
     const progressVisiblePct = Math.max(progressPct, 1)
     const progressRemainingPct = 100 - progressPct
@@ -332,7 +336,7 @@ const OverridesPanel: FunctionalComponent = () => {
                                 {/*       PROGRESO (INTERNO)      Se vacía con el avance     =*/}
                                 {hasRunProgress && (
                                     <path
-                                        d="M30 100 A70 70 0 0 1 170 100"
+                                        d="M35 100 A65 65 0 0 1 165 100"
                                         class="gauge-progress-fill"
                                         fill="none"
                                         style={{

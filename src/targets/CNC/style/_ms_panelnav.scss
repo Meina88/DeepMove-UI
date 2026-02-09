@@ -1,17 +1,5 @@
 /* =========================
-   PANEL NAVIGATOR
-   ========================= */
-
-.panel-navigator {
-    display: flex;
-}
-
-/* =====================================================
-   MOBILE BASE (≤480px)
-   ===================================================== */
-
-/* =========================
-   CONTENEDOR
+   PANEL NAVIGATOR — NEUMORPHIC
    ========================= */
 
 .panel-navigator {
@@ -20,19 +8,21 @@
     justify-content: space-between;
 
     position: fixed;
-    bottom: 12px;
+    bottom: $unit-6;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 1000;
+    z-index: $zindex-4;
 
     width: clamp(300px, 92vw, 420px);
 
-    padding: 10px 18px;
-    gap: 14px;
+    padding: $unit-4 $unit-7;
+    gap: $unit-5;
 
     background: var(--ms-panelnav-bg);
     backdrop-filter: blur(10px);
-    border-radius: 50px;
+    border-radius: 999px;
+
+    box-shadow: var(--neo-shadow-soft);
 }
 
 /* =========================
@@ -42,8 +32,8 @@
 .panel-navigator-btn {
     all: unset;
 
-    width: 44px;
-    height: 44px;
+    width: $control-size;
+    height: $control-size;
     border-radius: 50%;
 
     display: flex;
@@ -53,21 +43,22 @@
     background: var(--ms-panelnav-btn-bg);
     color: var(--ms-panelnav-btn-icon);
 
+    box-shadow: var(--neo-shadow-raised);
+
     transition:
-        background-color 150ms ease,
+        box-shadow 150ms ease,
         transform 120ms ease,
-        color 150ms ease,
-        box-shadow 150ms ease;
+        color 150ms ease;
 }
 
 .panel-navigator-btn svg {
-    width: 20px;
-    height: 20px;
+    width: $control-icon-size;
+    height: $control-icon-size;
     stroke-width: 2;
 }
 
 .panel-navigator-btn:active {
-    background: var(--ms-panelnav-btn-bg-active);
+    box-shadow: var(--neo-shadow-pressed);
     transform: scale(0.94);
 }
 
@@ -76,39 +67,34 @@
    ========================= */
 
 .panel-navigator-btn-reset {
-    width: 62px;
-    height: 62px;
+    width: $control-size-lg * 1.15;
+    height: $control-size-lg * 1.15;
     border-radius: 50%;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    background: radial-gradient(circle at 30% 30%,
-            var(--ms-panelnav-reset-highlight),
-            var(--ms-panelnav-reset-bg));
-
+    background: var(--ms-panelnav-reset-bg);
     color: var(--ms-light);
 
-    box-shadow:
-        0 6px 16px hsla(0, 0%, 0%, 0.45),
-        inset 0 0 0 2px hsla(0, 0%, 100%, 0.15);
+    box-shadow: var(--neo-shadow-deep);
 
     transition:
-        transform 150ms ease,
         box-shadow 150ms ease,
+        transform 150ms ease,
         filter 150ms ease;
 }
 
 .panel-navigator-btn-reset svg {
-    width: 26px;
-    height: 26px;
+    width: $control-icon-size * 1.4;
+    height: $control-icon-size * 1.4;
     stroke-width: 2.4;
 }
 
 .panel-navigator-btn-reset:active {
+    box-shadow: var(--neo-shadow-pressed);
     transform: scale(0.92);
-    filter: brightness(1.1);
 }
 
 /* =========================
@@ -117,18 +103,24 @@
 
 .panel-navigator-btn-reset.is-locked {
     transform: translateY(var(--ms-panelnav-reset-locked-press));
-    filter: brightness(var(--ms-panelnav-reset-locked-brightness)) saturate(1.15);
+    filter: brightness(var(--ms-panelnav-reset-locked-brightness));
 
-    box-shadow:
-        0 3px 10px hsla(0, 0%, 0%, 0.65),
-        inset 0 0 0 3px hsla(0, 0%, 100%, 0.18),
-        inset 0 10px 18px hsla(0, 0%, 0%, 0.55),
-        inset 0 -2px 6px hsla(0, 100%, 50%, 0.25);
+    box-shadow: var(--neo-shadow-pressed);
 }
 
 .panel-navigator-btn-reset.is-locked:active {
-    transform: translateY(var(--ms-panelnav-reset-locked-press)) scale(0.96);
-    filter: brightness(0.82);
+    transform:
+        translateY(var(--ms-panelnav-reset-locked-press))
+        scale(0.96);
+}
+
+/* =========================
+   BUSY (DEBOUNCE)
+   ========================= */
+
+.panel-navigator-btn-reset.is-busy {
+    pointer-events: none;
+    filter: brightness(var(--ms-panelnav-reset-busy-brightness));
 }
 
 /* =========================
@@ -136,8 +128,8 @@
    ========================= */
 
 .panel-navigator-btn-empty {
-    width: 44px;
-    height: 44px;
+    width: $control-size;
+    height: $control-size;
     opacity: 0;
     pointer-events: none;
 }
@@ -146,11 +138,11 @@
    EXTRA SMALL
    ===================================================== */
 
-@media (max-width: 380px) {
+@media (max-width: $size-xs) {
     .panel-navigator {
         width: 96vw;
-        padding: 10px 14px;
-        gap: 10px;
+        padding: $unit-4 $unit-6;
+        gap: $unit-4;
     }
 }
 
@@ -158,7 +150,7 @@
    DESKTOP REAL (≥1024px)
    ===================================================== */
 
-@media (min-width: 1024px) {
+@media (min-width: $size-lg) {
 
     .panel-navigator {
         background: transparent;
@@ -176,34 +168,27 @@
     .panel-navigator-btn-reset {
         display: flex;
         cursor: pointer;
-        width: 72px;
-        height: 72px;
+        width: $control-size-lg * 1.4;
+        height: $control-size-lg * 1.4;
     }
 
     .panel-navigator-btn-reset:not(.is-locked):hover {
         filter: brightness(var(--ms-panelnav-reset-hover-brightness));
         transform: translateY(var(--ms-panelnav-reset-hover-lift));
-        box-shadow:
-            0 10px 22px hsla(0, 0%, 0%, 0.55),
-            inset 0 0 0 2px hsla(0, 0%, 100%, 0.2);
+        box-shadow: var(--neo-shadow-deep);
     }
 }
 
-/* TABLET: ocultar panel navigator */
-@media (min-width: 481px) and (max-width: 1023px) {
+/* =====================================================
+   TABLET — ocultar panel navigator
+   ===================================================== */
+
+@media (min-width: $size-sm) and (max-width: calc(#{$size-lg} - 1px)) {
     .panel-navigator {
         display: none;
     }
 }
 
-/* =========================
-   BUSY (DEBOUNCE)
-   ========================= */
-
-.panel-navigator-btn-reset.is-busy {
-    pointer-events: none;
-    filter: brightness(var(--ms-panelnav-reset-busy-brightness));
-}
 
 /* =====================================================
    TOUCH HARDENING
@@ -221,4 +206,10 @@ button {
 
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
+}
+
+.panel-navigator-btn.is-active {
+    box-shadow: var(--neo-shadow-pressed);
+    transform: none;
+    background: var(--ms-panelnav-btn-bg);
 }
