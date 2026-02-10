@@ -52,36 +52,36 @@ const CONTINUOUS_DISTANCE = 5000
 
 
 const JogQuarter = ({ rotate = 0 }: { rotate?: number }) => {
-  const cx = 75
-  const cy = 41 // 82 / 2
+    const cx = 75
+    const cy = 41 // 82 / 2
 
-  return (
-    <svg
-      viewBox="0 0 150 82"
-      width="120"
-      height="120"
-      xmlns="http://www.w3.org/2000/svg"
-      preserveAspectRatio="xMidYMid meet"
-      style={{ display: "block" }}
-    >
-      <g transform={`rotate(${rotate} ${cx} ${cy})`}>
+    return (
+        <svg
+            viewBox="0 0 150 82"
+            width="120"
+            height="120"
+            xmlns="http://www.w3.org/2000/svg"
+            preserveAspectRatio="xMidYMid meet"
+            style={{ display: "block" }}
+        >
+            <g transform={`rotate(${rotate} ${cx} ${cy})`}>
 
-          {/* 🔵 Fondo detrás de la flecha (controlable por CSS) */}
-  <circle
-    cx={cx}
-    cy={cy}
-    r={18}
-    class="jog-arrow-bg"
-  />
-        
-          <path
-            d="M74.5957 0C100.399 -9.84196e-07 125.326 8.48829 145.646 23.917C150.191 27.3678 150.324 33.9932 146.289 38.0283L115.955 68.3623C112.323 71.9948 106.569 72.1903 102.115 69.6299C93.814 64.857 84.3379 62.2803 74.5957 62.2803C64.8535 62.2803 55.3782 64.857 47.0771 69.6299C42.6236 72.1905 36.8698 71.9948 33.2373 68.3623L2.90229 38.0283C-1.13276 33.9932 -0.999008 27.3678 3.54585 23.917C23.8661 8.48846 48.7929 7.61396e-05 74.5957 0ZM62.9013 37.0322V39.2148L65.0292 40.8506L73.8105 32.124V26.124L62.9013 37.0322ZM74.9013 32.124L83.6835 40.8506L85.8105 39.2148V37.0322L74.9013 26.124V32.124Z"
-            fill="#E5E5E5"
-          />
-        
-      </g>
-    </svg>
-  )
+                {/* 🔵 Fondo detrás de la flecha (controlable por CSS) */}
+                <circle
+                    cx={cx}
+                    cy={cy}
+                    r={18}
+                    class="jog-arrow-bg"
+                />
+
+                <path
+                    d="M74.5957 0C100.399 -9.84196e-07 125.326 8.48829 145.646 23.917C150.191 27.3678 150.324 33.9932 146.289 38.0283L115.955 68.3623C112.323 71.9948 106.569 72.1903 102.115 69.6299C93.814 64.857 84.3379 62.2803 74.5957 62.2803C64.8535 62.2803 55.3782 64.857 47.0771 69.6299C42.6236 72.1905 36.8698 71.9948 33.2373 68.3623L2.90229 38.0283C-1.13276 33.9932 -0.999008 27.3678 3.54585 23.917C23.8661 8.48846 48.7929 7.61396e-05 74.5957 0ZM62.9013 37.0322V39.2148L65.0292 40.8506L73.8105 32.124V26.124L62.9013 37.0322ZM74.9013 32.124L83.6835 40.8506L85.8105 39.2148V37.0322L74.9013 26.124V32.124Z"
+                    fill="#E5E5E5"
+                />
+
+            </g>
+        </svg>
+    )
 }
 
 /*
@@ -324,26 +324,26 @@ const JogPanel = () => {
         })
     }
 
-const sendJogCommand = (axis: string, stepIndexOverride?: number) => {
-    const effectiveIndex =
-        stepIndexOverride !== undefined
-            ? stepIndexOverride
-            : jogStepIndex
+    const sendJogCommand = (axis: string, stepIndexOverride?: number) => {
+        const effectiveIndex =
+            stepIndexOverride !== undefined
+                ? stepIndexOverride
+                : jogStepIndex
 
-    const distance = jogStepsXYZ[effectiveIndex]
+        const distance = jogStepsXYZ[effectiveIndex]
 
-    const feedrate = getContinuousFeedrateForStep(
-        axis,
-        distance
-    )
+        const feedrate = getContinuousFeedrateForStep(
+            axis,
+            distance
+        )
 
-    const selected_axis = axis.startsWith("Axis")
-        ? axis.replace("Axis", currentAxis)
-        : axis
+        const selected_axis = axis.startsWith("Axis")
+            ? axis.replace("Axis", currentAxis)
+            : axis
 
-    const cmd = `$J=G91 G21 ${selected_axis}${distance} F${feedrate}`
-    targetCommands(cmd)
-}
+        const cmd = `$J=G91 G21 ${selected_axis}${distance} F${feedrate}`
+        targetCommands(cmd)
+    }
 
 
 
@@ -733,7 +733,7 @@ const sendJogCommand = (axis: string, stepIndexOverride?: number) => {
                             {/* +Y */}
                             <div class="jog-cell jog-arc-up">
                                 <Button m2 class="jog-xy-hit" {...jogPressHandlers("Y+")} />
-                                
+
                                 <JogQuarter rotate={0} />
                             </div>
 
@@ -811,6 +811,45 @@ const sendJogCommand = (axis: string, stepIndexOverride?: number) => {
                         )}
                 </div>
 
+              { /* =====================================================
+                KEYMAP BRIDGE (Keyboard → Jog actions)
+                Do not remove: required for keymap support
+                ===================================================== */}
+
+                <div class="d-none">
+                    {/* MOVES */}
+                    <button id="btn+X" onClick={() => sendJogCommand("X+")} />
+                    <button id="btn-X" onClick={() => sendJogCommand("X-")} />
+                    <button id="btn+Y" onClick={() => sendJogCommand("Y+")} />
+                    <button id="btn-Y" onClick={() => sendJogCommand("Y-")} />
+                    <button id="btn+Z" onClick={() => sendJogCommand("Z+")} />
+                    <button id="btn-Z" onClick={() => sendJogCommand("Z-")} />
+
+
+                    {/* HOME por eje */}
+                    <button id="btnHX" onClick={() => sendHomeCommand("X")} />
+                    <button id="btnHY" onClick={() => sendHomeCommand("Y")} />
+                    <button id="btnHZ" onClick={() => sendHomeCommand("Z")} />
+
+                    {/* ZERO por eje */}
+                    <button id="btnZX" onClick={() => sendZeroCommand("X")} />
+                    <button id="btnZY" onClick={() => sendZeroCommand("Y")} />
+                    <button id="btnZZ" onClick={() => sendZeroCommand("Z")} />
+
+                    {/* HOME / ZERO eje seleccionado */}
+                    <button id="btnHaxis" onClick={() => sendHomeCommand("Axis")} />
+                    <button id="btnZaxis" onClick={() => sendZeroCommand("Axis")} />
+
+                    {/* HOME / ZERO todo */}
+                    <button id="btnHAll" onClick={() => sendHomeCommand("")} />
+                    <button id="btnZAll" onClick={() => sendZeroCommand("")} />
+
+                    {/* STOP */}
+                    <button id="btnStop" onClick={cancelJog} />
+                    <button id="btnEStop" onClick={cancelJog} />
+
+
+                </div>
 
 
                 {selectableAxisLettersList.reduce((acc, letter) => {
