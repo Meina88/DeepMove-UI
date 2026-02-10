@@ -94,6 +94,7 @@ interface PositionsControlsProps {
     onWPosClick: (letter: string, position: string) => void
     onHomeAxis: (axis: string) => void
     onZeroAxis: (axis: string) => void
+    onConfirmHomeAxis: (axis: string) => void
 }
 
 
@@ -103,6 +104,7 @@ const PositionsControls = ({
     onWPosClick,
     onHomeAxis,
     onZeroAxis,
+    onConfirmHomeAxis,
 }: PositionsControlsProps) => {
     const { positions } = useTargetContext()   // ✅ acá adentro
     const isMPos = mode === "mpos"
@@ -128,23 +130,22 @@ const PositionsControls = ({
                         {/* ===== MPos ===== */}
                         {isMPos && (
                             <div class="jog-position-row">
-                                <Button
-                                    m1
-                                    class="jog-position-action"
-                                    tooltip
-                                    data-tooltip={T("CN10")}
-                                    onClick={() => {
-                                        useUiContextFn.haptic()
-                                        onHomeAxis(axis)
-                                    }}
-                                >
-                                    <Home size={"0.9rem" as any} />
-                                </Button>
+
 
                                 <div class="jog-position-ctrl">
-                                    <div class="jog-position-sub-header">
+                                    <div
+                                        class="jog-position-sub-header jog-axis-clickable"
+                                        onClick={() => {
+                                            useUiContextFn.haptic()
+                                            onConfirmHomeAxis(axis)
+                                        }}
+                                        title={T("CN10")}
+                                    >
                                         {axis}
+                                        {isMPos && <sub class="jog-axis-sub">M</sub>}
                                     </div>
+
+
                                     <div class="jog-position-value">
                                         {positions[letter]}
                                     </div>
@@ -156,9 +157,18 @@ const PositionsControls = ({
                         {isWPos && (
                             <div class="jog-position-row">
                                 <div class="jog-position-ctrl">
-                                    <div class="jog-position-sub-header">
+                                    <div
+                                        class="jog-position-sub-header jog-axis-clickable"
+                                        onClick={() => {
+                                            useUiContextFn.haptic()
+                                            onZeroAxis(axis)
+                                        }}
+                                        title={T("CN19")} // Zero axis
+                                    >
                                         {axis}
+                                        {isWPos && <sub class="jog-axis-sub jog-axis-sub-w">W</sub>}
                                     </div>
+
                                     <div
                                         class="jog-position-value jog-position-clickable"
                                         onClick={() => {
@@ -170,18 +180,7 @@ const PositionsControls = ({
                                     </div>
                                 </div>
 
-                                <Button
-                                    m1
-                                    class="jog-position-action"
-                                    tooltip
-                                    data-tooltip={T("CN19")}
-                                    onClick={() => {
-                                        useUiContextFn.haptic()
-                                        onZeroAxis(axis)
-                                    }}
-                                >
-                                    <Crosshair size={"0.9rem" as any} />
-                                </Button>
+
                             </div>
                         )}
 
@@ -206,6 +205,103 @@ const JogPanel = () => {
 
     const id = "jogPanel"
     const haptic = () => { useUiContextFn.haptic() }
+
+    const confirmGoHome = () => {
+        showModal({
+            modals,
+            id: "confirmGoHome",
+            title: T("CN10"), // Home
+            icon: <Home />,
+            button2: {
+                text: T("S28"), // Cancel
+            },
+            button1: {
+                text: T("S252"), // OK / Apply
+                cb: () => {
+                    goToMachineZero()
+                },
+            },
+            content: (
+                <div>
+                    {T("S250")}
+                </div>
+            ),
+        })
+    }
+
+    const confirmGoWork = () => {
+        showModal({
+            modals,
+            id: "confirmGoWork",
+            title: T("CN19"), // Zero / Work
+            icon: <Crosshair />,
+            button2: {
+                text: T("S28"), // Cancel
+            },
+            button1: {
+                text: T("S252"), // OK / Apply
+                cb: () => {
+                    goToWorkZero()
+                },
+            },
+            content: (
+                <div>
+                    {T("S251")}
+                </div>
+            ),
+        })
+    }
+
+
+    const confirmHomeAxis = (axis: string) => {
+        showModal({
+            modals,
+            id: `confirmHome${axis}`,   // ⬅️ obligatorio en ESP3D
+            title: `${T("CN10")} ${axis}`,
+            icon: <Home />,
+            button2: {
+                text: T("S28"), // Cancel
+            },
+            button1: {
+                text: T("CN10"), // Home
+                cb: () => {
+                    sendHomeCommand(axis)
+                },
+            },
+            content: (
+                <div>
+                    {axis
+                        ? `${T("S249")} ${axis} axis?`
+                        : `${T("S249")} all axes?`}
+                </div>
+            ),
+        })
+    }
+
+    const confirmHomeAll = () => {
+        showModal({
+            modals,
+            id: "confirmHomeAll",
+            title: T("CN10"), // Home
+            icon: <Home />,
+            button2: {
+                text: T("S28"), // Cancel
+            },
+            button1: {
+                text: T("CN10"), // Home
+                cb: () => {
+                    sendHomeCommand("")
+                },
+            },
+            content: (
+                <div>
+                    Are you sure you want to home <strong>all axes</strong>?
+                </div>
+            ),
+        })
+    }
+
+
 
 
 
@@ -235,6 +331,8 @@ const JogPanel = () => {
     }
 
     const { targetCommands } = useTargetCommands()
+
+
 
     //Send Home command
     const sendHomeCommand = (axis: string) => {
@@ -659,17 +757,19 @@ const JogPanel = () => {
                             class="jog-global-btn btn-with-icon"
                             onClick={() => {
                                 useUiContextFn.haptic()
-                                goToMachineZero()
+                                confirmGoHome()
                             }}
                         >
                             Go <Home size={"0.9rem" as any} />
                         </Button>
+
 
                         <PositionsControls
                             mode="mpos"
                             onHomeAxis={sendHomeCommand}
                             onZeroAxis={sendZeroCommand}
                             onWPosClick={showMoveToDialog}
+                            onConfirmHomeAxis={confirmHomeAxis}
                         />
 
                         <Button
@@ -677,11 +777,12 @@ const JogPanel = () => {
                             class="jog-global-btn btn-with-icon"
                             onClick={() => {
                                 useUiContextFn.haptic()
-                                sendHomeCommand("")
+                                confirmHomeAll()
                             }}
                         >
                             Find <Home size={"0.9rem" as any} />
                         </Button>
+
                     </div>
 
 
@@ -697,17 +798,19 @@ const JogPanel = () => {
                             class="jog-global-btn btn-with-icon"
                             onClick={() => {
                                 useUiContextFn.haptic()
-                                goToWorkZero()
+                                confirmGoWork()
                             }}
                         >
                             Go <Crosshair size={"0.9rem" as any} />
                         </Button>
+
 
                         <PositionsControls
                             mode="wpos"
                             onHomeAxis={sendHomeCommand}
                             onZeroAxis={sendZeroCommand}
                             onWPosClick={showMoveToDialog}
+                            onConfirmHomeAxis={confirmHomeAxis}
                         />
 
                         <Button
@@ -811,7 +914,7 @@ const JogPanel = () => {
                         )}
                 </div>
 
-              { /* =====================================================
+                { /* =====================================================
                 KEYMAP BRIDGE (Keyboard → Jog actions)
                 Do not remove: required for keymap support
                 ===================================================== */}

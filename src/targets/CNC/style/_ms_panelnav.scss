@@ -32,8 +32,8 @@
 .panel-navigator-btn {
     all: unset;
 
-    width: $control-size;
-    height: $control-size;
+    width: $control-size * 1.15;
+    height: $control-size* 1.15;
     border-radius: 50%;
 
     display: flex;
@@ -52,8 +52,8 @@
 }
 
 .panel-navigator-btn svg {
-    width: $control-icon-size;
-    height: $control-icon-size;
+    width: $control-icon-size * 1.15;
+    height: $control-icon-size * 1.15;
     stroke-width: 2;
 }
 
@@ -67,8 +67,8 @@
    ========================= */
 
 .panel-navigator-btn-reset {
-    width: $control-size-lg * 1.15;
-    height: $control-size-lg * 1.15;
+    width: $control-size-lg * 1.2;
+    height: $control-size-lg * 1.2;
     border-radius: 50%;
 
     display: flex;
@@ -87,9 +87,11 @@
 }
 
 .panel-navigator-btn-reset svg {
-    width: $control-icon-size * 1.4;
-    height: $control-icon-size * 1.4;
+    width: $control-icon-size * 1.5;
+    height: $control-icon-size * 1.5;
     stroke-width: 2.4;
+    color: var(--ms-accent);
+    
 }
 
 .panel-navigator-btn-reset:active {

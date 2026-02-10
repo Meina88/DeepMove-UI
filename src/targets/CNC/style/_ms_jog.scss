@@ -60,6 +60,7 @@ $jog-surface-text: var(--ms-text-normal);
     flex-direction: column;
     align-items: stretch;
     box-sizing: border-box;
+     padding-bottom: 20px;
 }
 
 /* =========================
@@ -140,11 +141,12 @@ $jog-surface-text: var(--ms-text-normal);
 
 .jog-positions-grid {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: 6px;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
 
-    width: 90%;
+    width: 100%;
 }
+
 
 /* =========================
    JOG PANEL — BOTONES Z (+Z / -Z)
@@ -216,11 +218,13 @@ box-shadow: var(--neo-shadow-raised);
 }
 
 .jog-position-ctrl {
+    width: 120px;    
+    margin: 0 auto;
     display: flex;
     align-items: center;
 
     border: 1px solid var(--ms-border);
-    border-radius: 8%;
+    border-radius: 6px;
     overflow: hidden;
 
     background-color: var(--ms-bg-surface);
@@ -268,6 +272,7 @@ box-shadow: var(--neo-shadow-raised);
 .jog-buttons-main-container {
     display: flex;
     align-items: center;
+    margin-top: 20px; 
     gap: 20px;
 }
 
@@ -562,3 +567,52 @@ $jog-radial-offset: 5px;
 .jog-xy-pad .jog-xy-hit:active + svg path {
     fill: var(--ms-bg-hover);
 }
+
+/* =========================================
+   JOG — AXIS LETTERS AS BUTTONS (THEME SAFE)
+   ========================================= */
+
+.jog-axis-clickable {
+  min-width: 32px;
+  height: 32px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 0px;
+
+  font-weight: 600;
+  font-size: 0.85rem;
+
+  cursor: pointer;
+  user-select: none;
+
+  color: var(--ms-accent);
+  background: var(--ms-bg-surface);
+
+  box-shadow: var(--neo-shadow-soft);
+
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.12s ease;
+}
+
+.jog-axis-clickable:hover {
+  background: var(--ms-bg-hover);
+  box-shadow: var(--neo-shadow-raised);
+}
+
+.jog-axis-clickable:active {
+  transform: scale(0.96);
+  box-shadow: var(--neo-shadow-pressed);
+}
+
+
+/* Subíndice M (Machine) */
+
+.jog-axis-sub {
+  font-size: 0.35rem;
+  margin-left: 0px;
+  position: relative;
+  top: 8px;  
+}
+
