@@ -203,21 +203,22 @@ const Navbar = () => {
 
 
 
-    const onPowerOff = () => {
-        useUiContextFn.haptic()
-        showConfirmationModal({
-            modals,
-            title: "Apagar MillingStation",
-            content: "¿Estás seguro de que querés apagar la máquina?\nLa fuente de alimentación se desconectará.",
-            button1: {
-                cb: powerOffNow,
-                text: "Apagar",
-            },
-            button2: {
-                text: "Cancelar",
-            },
-        })
-    }
+const onPowerOff = () => {
+    useUiContextFn.haptic()
+    showConfirmationModal({
+        modals,
+        title: T("S246"),
+        content: T("S247"),
+        button1: {
+            cb: powerOffNow,
+            text: T("S248"),
+        },
+        button2: {
+            text: T("S28"),
+        },
+    })
+}
+
 
     const toggleFullscreen = () => {
         useUiContextFn.haptic()
