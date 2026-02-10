@@ -669,7 +669,9 @@
                         ]
                     }
                 ]
-            },
+            }
+            ],
+            "Keymmaping": [
             {
                 "id": "keymap",
                 "sorted": false,
