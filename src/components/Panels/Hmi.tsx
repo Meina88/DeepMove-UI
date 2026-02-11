@@ -11,6 +11,9 @@ import { FilesPanel } from "./Files"
 import { JogPanel } from "./JogCNC"
 import { OverridesPanel } from "./OverridesCNC"
 import { ToolpathPanel } from "./Toolpath"
+import { useTargetCommands } from "../../hooks"
+import { useTargetContext } from "../../targets"
+import { useUiContextFn } from "../../contexts"
 
 
 
@@ -18,10 +21,24 @@ import { ToolpathPanel } from "./Toolpath"
 const HMIPanel: FunctionalComponent = () => {
   const id = "hmiPanel"
   const [isFullScreen, setIsFullScreen] = useState(false)
-
-  // 👇 todo en minúscula
+  const SOFT_RESET = "\x18"
+  const UNLOCK = "$X"
   const [activeSection, setActiveSection] = useState<string>("files")
+  const { targetCommands } = useTargetCommands()
+  const { status } = useTargetContext() as any
+  const uiFn = useUiContextFn
 
+  const machineState: string = status?.state ?? "Idle"
+  const normalizedState = String(machineState).toLowerCase()
+  const isAlarm = normalizedState.startsWith("alarm")
+  const isIdle = normalizedState === "idle"
+
+  const [isLatched, setIsLatched] = useState(false)
+  const [resetBusy, setResetBusy] = useState(false)
+
+
+
+  
   useEffect(() => {
     const handleFullScreenChange = () => {
       const isFs = document.fullscreenElement?.id === id
@@ -34,6 +51,39 @@ const HMIPanel: FunctionalComponent = () => {
       document.removeEventListener("fullscreenchange", handleFullScreenChange)
     }
   }, [])
+
+  useEffect(() => {
+  if (isAlarm) {
+    setIsLatched(true)
+  }
+
+  if (isIdle) {
+    setIsLatched(false)
+  }
+}, [isAlarm, isIdle])
+
+const onResetPress = () => {
+  if (resetBusy) return
+
+  setResetBusy(true)
+  window.setTimeout(() => {
+    setResetBusy(false)
+  }, 350)
+
+  uiFn.haptic([50, 80, 50, 80, 50])
+
+  if (isAlarm) {
+    targetCommands(SOFT_RESET)
+
+    window.setTimeout(() => {
+      targetCommands(UNLOCK)
+    }, 120)
+
+    return
+  }
+
+  targetCommands(SOFT_RESET)
+}
 
 
   return (
@@ -63,11 +113,6 @@ const HMIPanel: FunctionalComponent = () => {
         <div class="panel-body panel-body-dashboard hmi-root">
 
           <div class="hmi-layout">
-
-            {/* HEADER */}
-            <div class="hmi-header">
-              <span class="hmi-header-title">Header</span>
-            </div>
 
             {/* LEFT */}
             <div class="hmi-left">
@@ -103,7 +148,20 @@ const HMIPanel: FunctionalComponent = () => {
 
 
               {/* Botones */}
-              <div class="hmi-left-buttons">
+
+            </div>
+
+            {/* TOOLPATH */}
+            <div class="hmi-toolpath">
+              <div class="hmi-embedded-panel">
+                <ToolpathPanel embedded />
+              </div>
+            </div>
+
+
+            {/* FOOTER */}
+            <div class="hmi-footer">
+              <div class="hmi-footer-nav">
 
                 <button
                   class={`hmi-nav-btn ${activeSection === "jog" ? "is-active" : ""}`}
@@ -125,6 +183,24 @@ const HMIPanel: FunctionalComponent = () => {
                 >
                   Ov
                 </button>
+
+<button
+  class={
+    "hmi-nav-btn" +
+    (isLatched ? " is-locked" : "") +
+    (resetBusy ? " is-busy" : "")
+  }
+  aria-pressed={isLatched}
+  onClick={(e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    onResetPress()
+  }}
+>
+  Rst
+</button>
+
+
 
                 <button
                   class={`hmi-nav-btn ${activeSection === "outputs" ? "is-active" : ""}`}
@@ -150,20 +226,6 @@ const HMIPanel: FunctionalComponent = () => {
               </div>
             </div>
 
-            {/* TOOLPATH */}
-            <div class="hmi-toolpath">
-              <div class="hmi-embedded-panel">
-                <ToolpathPanel embedded />
-              </div>
-            </div>
-
-
-            {/* FOOTER */}
-            <div class="hmi-footer">
-              <div class="hmi-zone-label">
-                Footer
-              </div>
-            </div>
 
           </div>
         </div>

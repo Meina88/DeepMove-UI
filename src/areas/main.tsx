@@ -58,7 +58,7 @@ const MainContainer: FunctionalComponent = () => {
                 }, {})
 
                 if (item.target == "page") {
-                    acc[`EXTRA-${  curr.id}`] = {
+                    acc[`EXTRA-${curr.id}`] = {
                         component: (
                             <ExtraPage
                                 id={curr.id}
@@ -68,7 +68,7 @@ const MainContainer: FunctionalComponent = () => {
                                 type={item.type}
                             />
                         ),
-                        path: `/extrapage/${  curr.id}`,
+                        path: `/extrapage/${curr.id}`,
                     }
                 }
                 return acc
@@ -90,6 +90,27 @@ const MainContainer: FunctionalComponent = () => {
             processor.handle()
         }, 10000)
     }, [])
+
+    useEffect(() => {
+        const blockContextMenu = (e: Event) => {
+            e.preventDefault()
+        }
+
+        const blockDrag = (e: Event) => {
+            e.preventDefault()
+        }
+
+        document.addEventListener("contextmenu", blockContextMenu)
+        document.addEventListener("dragstart", blockDrag)
+        document.addEventListener("selectstart", blockDrag)
+
+        return () => {
+            document.removeEventListener("contextmenu", blockContextMenu)
+            document.removeEventListener("dragstart", blockDrag)
+            document.removeEventListener("selectstart", blockDrag)
+        }
+    }, [])
+
 
     return (
         <div id="main" class="main-page-container">

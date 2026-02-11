@@ -233,7 +233,7 @@
     "S228": "Maximum number of segments in Mobile mode",
     "S229": "Limits the number of toolpath segments loaded on mobile devices to improve performance.",
     "S240": "PC mode",
-    "S241": "Load toolpath on Play",
+    "S241": "Load toolpath on Start",
     "S242": "Mobile mode",
     "S243": "System",
     "S244": "Preferences",
