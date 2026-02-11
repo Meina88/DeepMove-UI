@@ -14,6 +14,8 @@ import { ToolpathPanel } from "./Toolpath"
 import { useTargetCommands } from "../../hooks"
 import { useTargetContext } from "../../targets"
 import { useUiContextFn } from "../../contexts"
+import { eventBus } from "../../hooks/eventBus"
+
 
 
 
@@ -61,6 +63,21 @@ const HMIPanel: FunctionalComponent = () => {
     setIsLatched(false)
   }
 }, [isAlarm, isIdle])
+
+useEffect(() => {
+  const id = eventBus.on(
+    "hmi:play",
+    () => {
+      setActiveSection("overrides")
+    },
+    "hmi-play-listener"
+  )
+
+  return () => {
+    eventBus.off("hmi:play", id)
+  }
+}, [])
+
 
 const onResetPress = () => {
   if (resetBusy) return

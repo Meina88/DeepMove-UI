@@ -409,7 +409,7 @@ const FilesPanel: FunctionalComponent<FilesPanelProps> = ({ embedded = false }) 
                                                                         )
                                                                         const url = espHttpURL(cmd.url, cmd.args)
 
-                                                                        const isMobile = window.innerWidth <= 768
+                                                                        const isMobile = window.innerWidth <= 480
 
                                                                         if (isMobile) {
                                                                             document
@@ -436,6 +436,8 @@ const FilesPanel: FunctionalComponent<FilesPanelProps> = ({ embedded = false }) 
                                                                     onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
                                                                         e.currentTarget.blur()
                                                                         useUiContextFn.haptic()
+                                                                        eventBus.emit("hmi:play", null)
+
 
                                                                         const isMobile = window.innerWidth <= 768
 

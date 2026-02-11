@@ -101,8 +101,6 @@ const MainContainer: FunctionalComponent = () => {
         }
 
         document.addEventListener("contextmenu", blockContextMenu)
-        document.addEventListener("dragstart", blockDrag)
-        document.addEventListener("selectstart", blockDrag)
 
         return () => {
             document.removeEventListener("contextmenu", blockContextMenu)
