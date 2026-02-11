@@ -23,7 +23,12 @@ import { eventBus } from "../../hooks/eventBus"
 import { ClearPath } from "../../targets/CNC/FluidNC/icons"
 
 
-const ToolpathPanel: FunctionalComponent = () => {
+interface ToolpathPanelProps {
+    embedded?: boolean
+}
+
+const ToolpathPanel: FunctionalComponent<ToolpathPanelProps> = ({ embedded = false }) => {
+
     const id = "toolpathPanel"
     const showPanel = useUiContextFn.getValue("showtoolpathpanel")
     const { positions } = useTargetContext()
@@ -519,48 +524,48 @@ const ToolpathPanel: FunctionalComponent = () => {
 
 
     useEffect(() => {
-    const resetId = eventBus.on(
-        "toolpath:reset",
-        () => {
-            // ⛔ cancelar animaciones
-            if (rafRef.current) {
-                cancelAnimationFrame(rafRef.current)
-                rafRef.current = null
-            }
+        const resetId = eventBus.on(
+            "toolpath:reset",
+            () => {
+                // ⛔ cancelar animaciones
+                if (rafRef.current) {
+                    cancelAnimationFrame(rafRef.current)
+                    rafRef.current = null
+                }
 
-            // 🧹 LIBERAR MODELO (CLAVE)
-            if (modelRef.current) {
-                modelRef.current.segments.length = 0
-                modelRef.current.bbox = undefined as any
-            }
-            modelRef.current = null
+                // 🧹 LIBERAR MODELO (CLAVE)
+                if (modelRef.current) {
+                    modelRef.current.segments.length = 0
+                    modelRef.current.bbox = undefined as any
+                }
+                modelRef.current = null
 
-            // 🔴 tool off
-            setToolPos(null)
+                // 🔴 tool off
+                setToolPos(null)
 
-            // 🎥 reset cámara
-            cameraRef.current.zoom = 1
-            cameraRef.current.panX = 0
-            cameraRef.current.panY = 0
+                // 🎥 reset cámara
+                cameraRef.current.zoom = 1
+                cameraRef.current.panX = 0
+                cameraRef.current.panY = 0
 
-            // 🎨 render SIN modelo (canvas vacío)
-            if (rendererRef.current) {
-                rendererRef.current.render(
-                    null,
-                    visiblePresets[viewIndex],
-                    cameraRef.current,
-                    undefined,
-                    showGrid
-                )
-            }
-        },
-        "toolpath-reset"
-    )
+                // 🎨 render SIN modelo (canvas vacío)
+                if (rendererRef.current) {
+                    rendererRef.current.render(
+                        null,
+                        visiblePresets[viewIndex],
+                        cameraRef.current,
+                        undefined,
+                        showGrid
+                    )
+                }
+            },
+            "toolpath-reset"
+        )
 
-    return () => {
-        eventBus.off("toolpath:reset", resetId)
-    }
-}, [viewIndex, showGrid])
+        return () => {
+            eventBus.off("toolpath:reset", resetId)
+        }
+    }, [viewIndex, showGrid])
 
 
 
@@ -596,104 +601,104 @@ const ToolpathPanel: FunctionalComponent = () => {
             <ContainerHelper id={id} />
 
             
-<div class="navbar">
-    {/* IZQUIERDA: título + clear */}
-<span class="navbar-section">
-    <span class="feather-icon-container">
-        <Eye />
-    </span>
-    <strong
-        class="text-ellipsis"
-        style={{ marginLeft: "0.4rem", cursor: "default" }}
-    >
-        Toolpath
-    </strong>
-</span>
+                <div class="navbar">
+                    {/* IZQUIERDA: título + clear */}
+                    <span class="navbar-section">
+                        <span class="feather-icon-container">
+                            <Eye />
+                        </span>
+                        <strong
+                            class="text-ellipsis"
+                            style={{ marginLeft: "0.4rem", cursor: "default" }}
+                        >
+                            Toolpath
+                        </strong>
+                    </span>
 
 
-<div
-  style={{
-    position: "relative",
-    zIndex: 5,
-    pointerEvents: "auto",
-    marginRight: "0.5rem",
-  }}
->
-<button
-  class="btn btn-sm btn-error"
-  title="Clear toolpath"
-  onClick={() => eventBus.emit("toolpath:reset", null)}
-  style={{
-    marginRight: "0.2rem",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    transform: "rotate(180deg) scaleX(-1)",
-    padding: "0.35rem",   // opcional, ajusta el “aire”
-  }}
->
-  <ClearPath height="1.3em" />
-</button>
+                    <div
+                        style={{
+                            position: "relative",
+                            zIndex: 5,
+                            pointerEvents: "auto",
+                            marginRight: "0.5rem",
+                        }}
+                    >
+                        <button
+                            class="btn btn-sm btn-error"
+                            title="Clear toolpath"
+                            onClick={() => eventBus.emit("toolpath:reset", null)}
+                            style={{
+                                marginRight: "0.2rem",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                transform: "rotate(180deg) scaleX(-1)",
+                                padding: "0.35rem",   // opcional, ajusta el “aire”
+                            }}
+                        >
+                            <ClearPath height="1.3em" />
+                        </button>
 
-</div>
+                    </div>
 
-    
 
-    {/* DERECHA: menú + fullscreen + close */}
-    <span class="navbar-section">
-        <span class="full-height">
-            <PanelMenu
-                items={[
-                    {
-                        label: "Grid",
-                        displayToggle: () => (
-                            <span class="feather-icon-container">
-                                {showGrid ? (
-                                    <CheckCircle style={{ width: "0.8rem", height: "0.8rem" }} />
-                                ) : (
-                                    <Circle style={{ width: "0.8rem", height: "0.8rem" }} />
-                                )}
-                            </span>
-                        ),
-                        onClick: () => setShowGrid(v => !v),
-                    },
 
-                    ...(["top", "oblique", "front", "side"] as ViewId[]).map(id => ({
-                        label:
-                            id === "top"
-                                ? "Top"
-                                : id === "oblique"
-                                    ? "Isometric"
-                                    : id === "front"
-                                        ? "Front"
-                                        : "Side",
+                    {/* DERECHA: menú + fullscreen + close */}
+                    <span class="navbar-section">
+                        <span class="full-height">
+                            <PanelMenu
+                                items={[
+                                    {
+                                        label: "Grid",
+                                        displayToggle: () => (
+                                            <span class="feather-icon-container">
+                                                {showGrid ? (
+                                                    <CheckCircle style={{ width: "0.8rem", height: "0.8rem" }} />
+                                                ) : (
+                                                    <Circle style={{ width: "0.8rem", height: "0.8rem" }} />
+                                                )}
+                                            </span>
+                                        ),
+                                        onClick: () => setShowGrid(v => !v),
+                                    },
 
-                        displayToggle: () => (
-                            <span class="feather-icon-container">
-                                {enabledViews.includes(id) ? (
-                                    <CheckCircle style={{ width: "0.8rem", height: "0.8rem" }} />
-                                ) : (
-                                    <Circle style={{ width: "0.8rem", height: "0.8rem" }} />
-                                )}
-                            </span>
-                        ),
+                                    ...(["top", "oblique", "front", "side"] as ViewId[]).map(id => ({
+                                        label:
+                                            id === "top"
+                                                ? "Top"
+                                                : id === "oblique"
+                                                    ? "Isometric"
+                                                    : id === "front"
+                                                        ? "Front"
+                                                        : "Side",
 
-                        onClick: () =>
-                            setEnabledViews(v =>
-                                v.includes(id)
-                                    ? v.filter(x => x !== id)
-                                    : [...v, id]
-                            ),
-                    })),
-                ]}
-            />
+                                        displayToggle: () => (
+                                            <span class="feather-icon-container">
+                                                {enabledViews.includes(id) ? (
+                                                    <CheckCircle style={{ width: "0.8rem", height: "0.8rem" }} />
+                                                ) : (
+                                                    <Circle style={{ width: "0.8rem", height: "0.8rem" }} />
+                                                )}
+                                            </span>
+                                        ),
 
-            <FullScreenButton elementId={id} />
-            <CloseButton elementId={id} hideOnFullScreen={true} />
-        </span>
-    </span>
-</div>
+                                        onClick: () =>
+                                            setEnabledViews(v =>
+                                                v.includes(id)
+                                                    ? v.filter(x => x !== id)
+                                                    : [...v, id]
+                                            ),
+                                    })),
+                                ]}
+                            />
 
+                            <FullScreenButton elementId={id} />
+                            <CloseButton elementId={id} hideOnFullScreen={true} />
+                        </span>
+                    </span>
+                </div>
+            
 
 
 

@@ -87,9 +87,12 @@ const OverridesControls: FunctionalComponent<{
 
 }
 
+interface OverridesPanelProps {
+    embedded?: boolean
+}
 
+const OverridesPanel: FunctionalComponent<OverridesPanelProps> = ({ embedded = false }) => {
 
-const OverridesPanel: FunctionalComponent = () => {
     const [uiSpindleOverride, setUiSpindleOverride] = useState(100)
     const [uiFeedOverride, setUiFeedOverride] = useState(100)
     const { targetCommands } = useTargetCommands()
@@ -266,23 +269,23 @@ const OverridesPanel: FunctionalComponent = () => {
     return (
         <div class="panel panel-dashboard" id={id}>
             <ContainerHelper id={id} />
-
-            <div class="navbar">
-                <span class="navbar-section feather-icon-container">
-                    <Mixer />
-                    <strong class="text-ellipsis">{T("CN65")}</strong>
-                </span>
-                <span class="navbar-section">
-                    <span class="full-height">
-                        <FullScreenButton elementId={id} />
-                        <CloseButton
-                            elementId={id}
-                            hideOnFullScreen={true}
-                        />
+            {!embedded && (
+                <div class="navbar">
+                    <span class="navbar-section feather-icon-container">
+                        <Mixer />
+                        <strong class="text-ellipsis">{T("CN65")}</strong>
                     </span>
-                </span>
-            </div>
-
+                    <span class="navbar-section">
+                        <span class="full-height">
+                            <FullScreenButton elementId={id} />
+                            <CloseButton
+                                elementId={id}
+                                hideOnFullScreen={true}
+                            />
+                        </span>
+                    </span>
+                </div>
+            )}
 
 
 

@@ -34,7 +34,13 @@ import { Menu as PanelMenu } from "./"
 import { eventBus } from "../../hooks/eventBus"
 import { espHttpURL } from "../Helpers/http"
 
-const FilesPanel: FunctionalComponent = () => {
+
+interface FilesPanelProps {
+    embedded?: boolean
+}
+
+const FilesPanel: FunctionalComponent<FilesPanelProps> = ({ embedded = false }) => {
+
     const id = "filesPanel"
     const [state, actions] = useFilesManager()
     const [menu, setMenu] = useState<PanelMenuItem[] | null>(null)
@@ -76,7 +82,7 @@ const FilesPanel: FunctionalComponent = () => {
                 .map((fs: any) => ({
                     label:
                         (state.fileSystem === fs.value ? "✓ " : "") + T(fs.name),
-                        className: "panel-menu-subitem",
+                    className: "panel-menu-subitem",
                     onClick: () => {
                         actions.onSelectFS({
                             target: { value: fs.value },
@@ -97,7 +103,7 @@ const FilesPanel: FunctionalComponent = () => {
 
                 ...fsItems,
 
-                { divider: true },                
+                { divider: true },
 
                 {
                     label: T("S50"),
@@ -126,49 +132,49 @@ const FilesPanel: FunctionalComponent = () => {
         return () => document.removeEventListener("click", close)
     }, [fabOpen])
 
-useEffect(() => {
-    const list = dropRef.current
-    const fab = document.querySelector(
-        "#filesPanel .files-fab-wrapper"
-    ) as HTMLElement | null
+    useEffect(() => {
+        const list = dropRef.current
+        const fab = document.querySelector(
+            "#filesPanel .files-fab-wrapper"
+        ) as HTMLElement | null
 
-    if (!list || !fab) return
+        if (!list || !fab) return
 
-    let lastScrollTop = list.scrollTop
-    let timeout: any = null
-    
-const onScroll = () => {
-    const current = list.scrollTop
-    const delta = current - lastScrollTop
+        let lastScrollTop = list.scrollTop
+        let timeout: any = null
 
-    // Dirección (ya lo tenías)
-    fab.classList.remove("scroll-up", "scroll-down")
+        const onScroll = () => {
+            const current = list.scrollTop
+            const delta = current - lastScrollTop
 
-    if (delta > 0) {
-        fab.classList.add("scroll-down")
-    } else if (delta < 0) {
-        fab.classList.add("scroll-up")
-    }
+            // Dirección (ya lo tenías)
+            fab.classList.remove("scroll-up", "scroll-down")
 
-    // 👇 NUEVO: ocultar si no estamos arriba
-    if (current > 8) {
-        fab.classList.add("is-hidden")
-    } else {
-        fab.classList.remove("is-hidden")
-    }
+            if (delta > 0) {
+                fab.classList.add("scroll-down")
+            } else if (delta < 0) {
+                fab.classList.add("scroll-up")
+            }
 
-    lastScrollTop = current
+            // 👇 NUEVO: ocultar si no estamos arriba
+            if (current > 8) {
+                fab.classList.add("is-hidden")
+            } else {
+                fab.classList.remove("is-hidden")
+            }
 
-    clearTimeout(timeout)
-    timeout = setTimeout(() => {
-        fab.classList.remove("scroll-up", "scroll-down")
-    }, 120)
-}
+            lastScrollTop = current
+
+            clearTimeout(timeout)
+            timeout = setTimeout(() => {
+                fab.classList.remove("scroll-up", "scroll-down")
+            }, 120)
+        }
 
 
-    list.addEventListener("scroll", onScroll)
-    return () => list.removeEventListener("scroll", onScroll)
-}, [])
+        list.addEventListener("scroll", onScroll)
+        return () => list.removeEventListener("scroll", onScroll)
+    }, [])
 
 
 
@@ -180,9 +186,9 @@ const onScroll = () => {
         return (
             <div class="panel panel-dashboard" id={id}>
                 <ContainerHelper id={id} />
-                {!isFullScreen && (
-                    <Fragment>
-                        <input type="file" ref={fileref} class="d-none" onChange={(e) => actions.filesSelected(e)} />
+                <Fragment>
+                    <input type="file" ref={fileref} class="d-none" onChange={(e) => actions.filesSelected(e)} />
+                    {!embedded && (
                         <div class="navbar files-navbar">
                             {/* ── IZQUIERDA: título + info SD ── */}
                             <span class="navbar-section files-navbar-left feather-icon-container">
@@ -215,336 +221,336 @@ const onScroll = () => {
                                 </span>
                             </span>
                         </div>
+                    )}
 
-                        <div
-                            ref={dropRef}
-                            class="drop-zone files-list m-1"
-                            onClick={(e) => {
-                                // si el click fue directamente sobre el fondo del listado
-                                if (e.target === e.currentTarget) {
-                                    setSelectedFile(null)
+                    <div
+                        ref={dropRef}
+                        class="drop-zone files-list m-1"
+                        onClick={(e) => {
+                            // si el click fue directamente sobre el fondo del listado
+                            if (e.target === e.currentTarget) {
+                                setSelectedFile(null)
+                            }
+                        }}
+
+                        onDragOver={(e) => {
+                            dropRef.current?.classList.add("drop-zone--over")
+                            e.preventDefault()
+                        }}
+                        onDragLeave={(e) => {
+                            dropRef.current?.classList.remove("drop-zone--over")
+                            e.preventDefault()
+                        }}
+                        onDragEnd={(e) => {
+                            dropRef.current?.classList.remove("drop-zone--over")
+                            e.preventDefault()
+                        }}
+                        onDrop={(e) => {
+                            dropRef.current?.classList.remove("drop-zone--over")
+                            const dt = e.dataTransfer as DataTransfer
+                            if (dt && dt.files.length) {
+                                const length = dt.items.length
+                                if (!fileref.current || (!fileref.current.multiple && length > 1)) {
+                                    e.preventDefault()
+                                    return
                                 }
-                            }}
+                            }
 
-                            onDragOver={(e) => {
-                                dropRef.current?.classList.add("drop-zone--over")
-                                e.preventDefault()
-                            }}
-                            onDragLeave={(e) => {
-                                dropRef.current?.classList.remove("drop-zone--over")
-                                e.preventDefault()
-                            }}
-                            onDragEnd={(e) => {
-                                dropRef.current?.classList.remove("drop-zone--over")
-                                e.preventDefault()
-                            }}
-                            onDrop={(e) => {
-                                dropRef.current?.classList.remove("drop-zone--over")
-                                const dt = e.dataTransfer as DataTransfer
-                                if (dt && dt.files.length) {
-                                    const length = dt.items.length
-                                    if (!fileref.current || (!fileref.current.multiple && length > 1)) {
-                                        e.preventDefault()
-                                        return
-                                    }
-                                }
+                            if (fileref.current)
+                                (fileref.current as unknown as { files: FileList }).files = dt.files
 
-                                if (fileref.current)
-                                    (fileref.current as unknown as { files: FileList }).files = dt.files
+                            actions.filesSelected(e as unknown as Event)
+                            e.preventDefault()
+                        }}>
+                        {state.isLoading && state.fileSystem != "" && (
+                            <Fragment>
+                                <div style="text-align:center">
+                                    <Loading class="m-2" />
 
-                                actions.filesSelected(e as unknown as Event)
-                                e.preventDefault()
-                            }}>
-                            {state.isLoading && state.fileSystem != "" && (
-                                <Fragment>
-                                    <div style="text-align:center">
-                                        <Loading class="m-2" />
+                                    <ButtonImg
+                                        donotdisable
+                                        icon={<XCircle />}
+                                        label={T("S28")}
+                                        btooltip
+                                        data-tooltip={T("S28")}
+                                        onClick={actions.onCancel}
+                                    />
+                                </div>
+                            </Fragment>
+                        )}
 
-                                        <ButtonImg
-                                            donotdisable
-                                            icon={<XCircle />}
-                                            label={T("S28")}
-                                            btooltip
-                                            data-tooltip={T("S28")}
-                                            onClick={actions.onCancel}
-                                        />
-                                    </div>
-                                </Fragment>
-                            )}
-
-                            {!state.isLoading && state.fileSystem != "" && state.filesList && (
-                                <Fragment>
-                                    {currentPath[state.fileSystem] != "/" && (
-                                        <div
-                                            class="file-line file-line-name"
-                                            onClick={(e: TargetedMouseEvent<HTMLDivElement>) => {
-                                                useUiContextFn.haptic()
-                                                const newpath = currentPath[state.fileSystem].substring(
-                                                    0,
-                                                    currentPath[state.fileSystem].lastIndexOf("/")
-                                                )
-
-                                                currentPath[state.fileSystem] = newpath.length == 0 ? "/" : newpath
-                                                actions.onRefresh(
-                                                    e,
-                                                    false
-                                                )
-                                            }}>
-                                            <div class="form-control go-previous file-line-name file-line-action">
-                                                <CornerRightUp />
-                                                <label class="go-previous-text">...</label>
-                                            </div>
-                                        </div>
-                                    )}
-                                    {state.filesList.files.map((line: FileEntry) => {
-                                        const canDownloadOrOpen =
-                                            files.capability(state.fileSystem, "Download") || line.size == -1
-
-                                        const canProcess =
-                                            line.size != -1 &&
-                                            files.capability(
-                                                state.fileSystem,
-                                                "Process",
-                                                currentPath[state.fileSystem],
-                                                line.name
+                        {!state.isLoading && state.fileSystem != "" && state.filesList && (
+                            <Fragment>
+                                {currentPath[state.fileSystem] != "/" && (
+                                    <div
+                                        class="file-line file-line-name"
+                                        onClick={(e: TargetedMouseEvent<HTMLDivElement>) => {
+                                            useUiContextFn.haptic()
+                                            const newpath = currentPath[state.fileSystem].substring(
+                                                0,
+                                                currentPath[state.fileSystem].lastIndexOf("/")
                                             )
 
-                                        const canDelete = files.capability(
+                                            currentPath[state.fileSystem] = newpath.length == 0 ? "/" : newpath
+                                            actions.onRefresh(
+                                                e,
+                                                false
+                                            )
+                                        }}>
+                                        <div class="form-control go-previous file-line-name file-line-action">
+                                            <CornerRightUp />
+                                            <label class="go-previous-text">...</label>
+                                        </div>
+                                    </div>
+                                )}
+                                {state.filesList.files.map((line: FileEntry) => {
+                                    const canDownloadOrOpen =
+                                        files.capability(state.fileSystem, "Download") || line.size == -1
+
+                                    const canProcess =
+                                        line.size != -1 &&
+                                        files.capability(
                                             state.fileSystem,
-                                            line.size == -1 ? "DeleteDir" : "DeleteFile",
+                                            "Process",
                                             currentPath[state.fileSystem],
                                             line.name
                                         )
 
-                                        return (
+                                    const canDelete = files.capability(
+                                        state.fileSystem,
+                                        line.size == -1 ? "DeleteDir" : "DeleteFile",
+                                        currentPath[state.fileSystem],
+                                        line.name
+                                    )
+
+                                    return (
+                                        <div
+                                            class={`file-item form-control ${selectedFile === line.name ? "is-selected" : ""}`}
+                                            key={line.name}
+                                            onClick={() => {
+                                                setSelectedFile(line.name)
+                                            }}
+                                        >
+
+                                            {/* ─── Fila superior: nombre + tamaño ─── */}
                                             <div
-                                                class={`file-item form-control ${selectedFile === line.name ? "is-selected" : ""}`}
-                                                key={line.name}
-                                                onClick={() => {
-                                                    setSelectedFile(line.name)
+                                                class={`file-item-header ${canDownloadOrOpen ? "file-line-action" : ""}`}
+                                                onClick={(e: TargetedMouseEvent<HTMLDivElement>) => {
+                                                    useUiContextFn.haptic()
+                                                    actions.ElementClicked(e as unknown as Event, line)
                                                 }}
                                             >
-
-                                                {/* ─── Fila superior: nombre + tamaño ─── */}
-                                                <div
-                                                    class={`file-item-header ${canDownloadOrOpen ? "file-line-action" : ""}`}
-                                                    onClick={(e: TargetedMouseEvent<HTMLDivElement>) => {
-                                                        useUiContextFn.haptic()
-                                                        actions.ElementClicked(e as unknown as Event, line)
-                                                    }}
-                                                >
-                                                    <div class="file-item-name">
-                                                        {line.size == -1 ? <Folder /> : <File />}
-                                                        <span class="text-ellipsis">{line.name}</span>
-                                                    </div>
-
-                                                    {line.size != -1 && <div class="file-item-size">{fileSizeString(line.size)}</div>}
+                                                <div class="file-item-name">
+                                                    {line.size == -1 ? <Folder /> : <File />}
+                                                    <span class="text-ellipsis">{line.name}</span>
                                                 </div>
 
-                                                {/* ─── Fila inferior: botones (izq Trash / der Play) ─── */}
-                                                <div class="file-item-actions">
-                                                    <div class="file-item-actions-inner">
-                                                        <div class="file-item-action-left">
-                                                            {canDelete && (
+                                                {line.size != -1 && <div class="file-item-size">{fileSizeString(line.size)}</div>}
+                                            </div>
+
+                                            {/* ─── Fila inferior: botones (izq Trash / der Play) ─── */}
+                                            <div class="file-item-actions">
+                                                <div class="file-item-actions-inner">
+                                                    <div class="file-item-action-left">
+                                                        {canDelete && (
+                                                            <ButtonImg
+                                                                class="file-trash-btn"
+                                                                m1
+                                                                ltooltip
+                                                                data-tooltip={line.size == -1 ? T("S101") : T("S100")}
+                                                                icon={<Trash2 />}
+                                                                onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
+                                                                    useUiContextFn.haptic()
+                                                                    e.currentTarget.blur()
+
+                                                                    const content = (
+                                                                        <Fragment>
+                                                                            <div>{line.size == -1 ? T("S101") : T("S100")}:</div>
+                                                                            <div style="text-align:center">
+                                                                                <li>{line.name}</li>
+                                                                            </div>
+                                                                        </Fragment>
+                                                                    )
+
+                                                                    showConfirmationModal({
+                                                                        modals,
+                                                                        title: T("S26"),
+                                                                        content,
+                                                                        button1: { cb: () => actions.deleteCommand(line), text: T("S27") },
+                                                                        button2: { text: T("S28") },
+                                                                    })
+                                                                }}
+                                                            />
+                                                        )}
+                                                    </div>
+
+                                                    <div class="file-item-action-center" />
+
+                                                    <div class="file-item-action-right">
+                                                        {canProcess && (
+                                                            <>
+                                                                {/* 👁 Preview G-code (solo visual) */}
                                                                 <ButtonImg
-                                                                    class="file-trash-btn"
                                                                     m1
                                                                     ltooltip
-                                                                    data-tooltip={line.size == -1 ? T("S101") : T("S100")}
-                                                                    icon={<Trash2 />}
+                                                                    data-tooltip={T("Preview")}
+                                                                    icon={<Eye />}
+                                                                    class="file-preview-btn"
                                                                     onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
-                                                                        useUiContextFn.haptic()
                                                                         e.currentTarget.blur()
+                                                                        useUiContextFn.haptic()
 
-                                                                        const content = (
-                                                                            <Fragment>
-                                                                                <div>{line.size == -1 ? T("S101") : T("S100")}:</div>
-                                                                                <div style="text-align:center">
-                                                                                    <li>{line.name}</li>
-                                                                                </div>
-                                                                            </Fragment>
+                                                                        // ✅ armar URL de descarga igual que useFilesManager
+                                                                        const cmd = files.command(
+                                                                            state.fileSystem,
+                                                                            "download",
+                                                                            currentPath[state.fileSystem],
+                                                                            line.name
                                                                         )
+                                                                        const url = espHttpURL(cmd.url, cmd.args)
 
-                                                                        showConfirmationModal({
-                                                                            modals,
-                                                                            title: T("S26"),
-                                                                            content,
-                                                                            button1: { cb: () => actions.deleteCommand(line), text: T("S27") },
-                                                                            button2: { text: T("S28") },
+                                                                        const isMobile = window.innerWidth <= 768
+
+                                                                        if (isMobile) {
+                                                                            document
+                                                                                .getElementById("toolpathPanel")
+                                                                                ?.scrollIntoView({ behavior: "smooth", block: "start" })
+                                                                        }
+
+
+                                                                        eventBus.emit("toolpath:preview", {
+                                                                            url,
+                                                                            filename: line.name,
                                                                         })
                                                                     }}
                                                                 />
-                                                            )}
-                                                        </div>
 
-                                                        <div class="file-item-action-center" />
 
-                                                        <div class="file-item-action-right">
-                                                            {canProcess && (
-                                                                <>
-                                                                    {/* 👁 Preview G-code (solo visual) */}
-                                                                    <ButtonImg
-                                                                        m1
-                                                                        ltooltip
-                                                                        data-tooltip={T("Preview")}
-                                                                        icon={<Eye />}
-                                                                        class="file-preview-btn"
-                                                                        onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
-                                                                            e.currentTarget.blur()
-                                                                            useUiContextFn.haptic()
+                                                                {/* ▶ Ejecutar G-code */}
+                                                                <ButtonImg
+                                                                    m1
+                                                                    ltooltip
+                                                                    data-tooltip={T("S74")}
+                                                                    icon={<Play />}
+                                                                    class="file-play-btn"
+                                                                    onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
+                                                                        e.currentTarget.blur()
+                                                                        useUiContextFn.haptic()
 
-                                                                            // ✅ armar URL de descarga igual que useFilesManager
-                                                                            const cmd = files.command(
+                                                                        const isMobile = window.innerWidth <= 768
+
+                                                                        if (isMobile) {
+                                                                            document
+                                                                                .getElementById("OverridesPanel")
+                                                                                ?.scrollIntoView({ behavior: "smooth", block: "start" })
+                                                                        }
+
+                                                                        const previewOnPlay = isMobile
+                                                                            ? useUiContextFn.getValue("filesPreviewOnPlayMobile")
+                                                                            : useUiContextFn.getValue("filesPreviewOnPlayDesktop")
+
+                                                                        // 🔄 Resetear SIEMPRE el toolpath
+                                                                        eventBus.emit("toolpath:reset", null)
+
+
+                                                                        // ▶ Ejecutar G-code (SIEMPRE)
+                                                                        const cmd = files.command(
+                                                                            state.fileSystem,
+                                                                            "play",
+                                                                            currentPath[state.fileSystem],
+                                                                            line.name
+                                                                        )
+
+                                                                        if (previewOnPlay) {
+                                                                            const dl = files.command(
                                                                                 state.fileSystem,
                                                                                 "download",
                                                                                 currentPath[state.fileSystem],
                                                                                 line.name
                                                                             )
-                                                                            const url = espHttpURL(cmd.url, cmd.args)
 
-                                                                            const isMobile = window.innerWidth <= 768
+                                                                            const url = espHttpURL(dl.url, dl.args)
 
-                                                                            if (isMobile) {
-                                                                                document
-                                                                                    .getElementById("toolpathPanel")
-                                                                                    ?.scrollIntoView({ behavior: "smooth", block: "start" })
-                                                                            }
-
-
+                                                                            // 🔍 Preview limpio
                                                                             eventBus.emit("toolpath:preview", {
                                                                                 url,
                                                                                 filename: line.name,
                                                                             })
-                                                                        }}
-                                                                    />
 
+                                                                            // ⏱ Delay corto por estabilidad/memoria
+                                                                            setTimeout(() => {
+                                                                                actions.sendSerialCmd(cmd.cmd)
+                                                                            }, 150)
+                                                                        } else {
+                                                                            actions.sendSerialCmd(cmd.cmd)
+                                                                        }
+                                                                    }}
+                                                                />
 
-                                                                    {/* ▶ Ejecutar G-code */}
-                                                                    <ButtonImg
-    m1
-    ltooltip
-    data-tooltip={T("S74")}
-    icon={<Play />}
-    class="file-play-btn"
-    onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
-        e.currentTarget.blur()
-        useUiContextFn.haptic()
-
-        const isMobile = window.innerWidth <= 768
-
-        if (isMobile) {
-            document
-                .getElementById("OverridesPanel")
-                ?.scrollIntoView({ behavior: "smooth", block: "start" })
-        }
-
-        const previewOnPlay = isMobile
-            ? useUiContextFn.getValue("filesPreviewOnPlayMobile")
-            : useUiContextFn.getValue("filesPreviewOnPlayDesktop")
-
-        // 🔄 Resetear SIEMPRE el toolpath
-        eventBus.emit("toolpath:reset", null)
-
-
-        // ▶ Ejecutar G-code (SIEMPRE)
-        const cmd = files.command(
-            state.fileSystem,
-            "play",
-            currentPath[state.fileSystem],
-            line.name
-        )
-
-        if (previewOnPlay) {
-            const dl = files.command(
-                state.fileSystem,
-                "download",
-                currentPath[state.fileSystem],
-                line.name
-            )
-
-            const url = espHttpURL(dl.url, dl.args)
-
-            // 🔍 Preview limpio
-            eventBus.emit("toolpath:preview", {
-                url,
-                filename: line.name,
-            })
-
-            // ⏱ Delay corto por estabilidad/memoria
-            setTimeout(() => {
-                actions.sendSerialCmd(cmd.cmd)
-            }, 150)
-        } else {
-            actions.sendSerialCmd(cmd.cmd)
-        }
-    }}
-/>
-
-                                                                </>
-                                                            )}
-                                                        </div>
-
+                                                            </>
+                                                        )}
                                                     </div>
+
                                                 </div>
                                             </div>
-                                        )
-                                    })}
+                                        </div>
+                                    )
+                                })}
 
-                                </Fragment>
-                            )}
-                        </div>
+                            </Fragment>
+                        )}
+                    </div>
 
-                        {/* Floating Upload Button (+) */}
+                    {/* Floating Upload Button (+) */}
 
-                        <div class={`files-fab-wrapper ${fabOpen ? "is-open" : ""}`}>
+                    <div class={`files-fab-wrapper ${fabOpen ? "is-open" : ""}`}>
 
-                            {/* Action: Upload file */}
-                            <button
-                                type="button"
-                                class="files-fab-action"
-                                aria-label={T("S89")}
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                    setFabOpen(false)
-                                    actions.openFileUploadBrowser()
-                                }}>
-                                <Upload />
-                            </button>
+                        {/* Action: Upload file */}
+                        <button
+                            type="button"
+                            class="files-fab-action"
+                            aria-label={T("S89")}
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                setFabOpen(false)
+                                actions.openFileUploadBrowser()
+                            }}>
+                            <Upload />
+                        </button>
 
-                            {/* Action: Create directory */}
+                        {/* Action: Create directory */}
 
-                            <button
-                                type="button"
-                                class="files-fab-action"
-                                aria-label={T("S88")}
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                    setFabOpen(false)
-                                    actions.showCreateDirModal()
-                                }}>
-                                <FolderPlus />
-                            </button>
-
-
-                            {/* Main FAB */}
-                            <button
-                                type="button"
-                                class="files-upload-fab"
-                                aria-label={T("S89")}
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                    setFabOpen((v) => !v)
-                                }}>
-                                <Plus />
-                            </button>
-                        </div>
+                        <button
+                            type="button"
+                            class="files-fab-action"
+                            aria-label={T("S88")}
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                setFabOpen(false)
+                                actions.showCreateDirModal()
+                            }}>
+                            <FolderPlus />
+                        </button>
 
 
+                        {/* Main FAB */}
+                        <button
+                            type="button"
+                            class="files-upload-fab"
+                            aria-label={T("S89")}
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                setFabOpen((v) => !v)
+                            }}>
+                            <Plus />
+                        </button>
+                    </div>
 
 
 
-                    </Fragment>
-                )}                
+
+
+                </Fragment>
             </div>
         )
     }

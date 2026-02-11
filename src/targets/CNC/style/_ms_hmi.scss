@@ -4,11 +4,213 @@
 
 .panel-hmi {
     padding: 0;
-    background: var(--bg-color-dark);
+
 }
 
 .hmi-root {
     width: 100%;
     height: 100%;
     display: flex;
+}
+
+
+/* =========================================================
+   HMI FULLSCREEN DESKTOP GRID
+   ========================================================= */
+
+.hmi-fullscreen {
+    height: 100vh;
+    width: 100vw;
+    max-height: none;
+    overflow: hidden;
+}
+
+.hmi-layout {
+    display: grid;
+    grid-template-columns: 40% 60%;
+    grid-template-rows: 70px 1fr 80px;
+    grid-template-areas:
+        "left header"
+        "left toolpath"
+        "left footer";
+
+    height: 100%;
+    width: 100%;
+}
+
+
+/* ================= HEADER ================= */
+
+.hmi-header {
+    grid-area: header;
+    border-bottom: 1px solid var(--ms-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+}
+
+/* ================= LEFT ================= */
+
+.hmi-left {
+    grid-area: left;
+    border-right: 1px solid var(--ms-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+}
+
+/* ================= TOOLPATH ================= */
+
+.hmi-toolpath {
+    grid-area: toolpath;
+    border-bottom: 1px solid var(--ms-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ================= FOOTER ================= */
+
+.hmi-footer {
+    grid-area: footer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ================= ZONE LABEL ================= */
+
+.hmi-zone-label {
+    font-weight: 600;
+    opacity: 0.7;
+}
+
+
+/* =========================================================
+   HMI LEFT INTERNAL LAYOUT
+   ========================================================= */
+
+.hmi-left {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    gap: 0.25rem;
+}
+
+/* Parte superior */
+.hmi-left-content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Parte inferior */
+.hmi-left-buttons {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);  
+    gap: 0.6rem;
+}
+
+
+/* Botones HMI */
+.hmi-nav-btn {
+    background: var(--ms-bg-surface);
+    border: 1px solid var(--ms-border-light);
+    color: var(--ms-text-strong);
+
+    width: 38px;
+    height: 38px;
+
+    border-radius: 50%;
+
+    font-weight: 600;
+    font-size: 0.75rem;
+    letter-spacing: 0.3px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.hmi-nav-btn:hover {
+    background: var(--ms-bg-hover);
+    border-color: var(--ms-accent-dark);
+}
+
+.hmi-nav-btn:active {
+    transform: scale(0.96);
+}
+
+.hmi-nav-btn.is-active {
+    border-color: var(--ms-accent);
+    box-shadow: 0 0 6px rgba(0, 140, 255, 0.4);
+}
+
+/* Embedded panel inside HMI */
+
+.hmi-embedded-panel {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+
+.hmi-embedded-panel .panel {
+    margin: 0;
+    border-radius: 0;
+}
+
+
+
+/* =========================================
+   Force embedded panels to fit container
+   ========================================= */
+
+.hmi-left-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0; /* 🔥 CRÍTICO */
+}
+
+/* El wrapper */
+.hmi-embedded-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0; /* 🔥 CRÍTICO */
+}
+
+/* El Files panel dentro del HMI */
+.hmi-embedded-panel > #filesPanel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100% !important;
+    max-height: none !important;
+}
+
+/* El listado debe scrollear internamente */
+.hmi-embedded-panel #filesPanel .files-list {
+    flex: 1;
+    overflow-y: auto;
+    margin: 0 !important;
+    min-height: 0; /* 🔥 MUY IMPORTANTE */
+}
+
+
+/* =========================================
+   Remove embedded panel frame inside HMI
+   ========================================= */
+
+.panel-hmi .hmi-embedded-panel > .panel {
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
 }
