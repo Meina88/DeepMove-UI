@@ -15,9 +15,7 @@ import { useTargetCommands } from "../../hooks"
 import { useTargetContext } from "../../targets"
 import { useUiContextFn } from "../../contexts"
 import { eventBus } from "../../hooks/eventBus"
-
-
-
+import { DashboardIcon } from "../../targets/CNC/FluidNC/icons"
 
 
 const HMIPanel: FunctionalComponent = () => {
@@ -38,6 +36,13 @@ const HMIPanel: FunctionalComponent = () => {
   const [isLatched, setIsLatched] = useState(false)
   const [resetBusy, setResetBusy] = useState(false)
 
+  const exitFullscreen = () => {
+    uiFn.haptic()
+
+    if (document.fullscreenElement) {
+      document.exitFullscreen?.()
+    }
+  }
 
 
 
@@ -82,26 +87,26 @@ const HMIPanel: FunctionalComponent = () => {
     }
   }, [])
 
-useEffect(() => {
-  const listenerId = eventBus.on(
-    "hmi:toggleFullscreen",
-    () => {
-      const element = document.getElementById(id)
-      if (!element) return
+  useEffect(() => {
+    const listenerId = eventBus.on(
+      "hmi:toggleFullscreen",
+      () => {
+        const element = document.getElementById(id)
+        if (!element) return
 
-      if (document.fullscreenElement === element) {
-        document.exitFullscreen?.()
-      } else {
-        element.requestFullscreen?.()
-      }
-    },
-    "hmi-fullscreen-listener"
-  )
+        if (document.fullscreenElement === element) {
+          document.exitFullscreen?.()
+        } else {
+          element.requestFullscreen?.()
+        }
+      },
+      "hmi-fullscreen-listener"
+    )
 
-  return () => {
-    eventBus.off("hmi:toggleFullscreen", listenerId)
-  }
-}, [])
+    return () => {
+      eventBus.off("hmi:toggleFullscreen", listenerId)
+    }
+  }, [])
 
 
 
@@ -149,11 +154,20 @@ useEffect(() => {
         </span>
 
         <span class="navbar-section">
-          <span class="full-height">
-            <FullScreenButton elementId={id} />
 
-
-          </span>
+          {/* Botón Panels (minimizar) — solo si está fullscreen */}
+          {isFullScreen && (
+            <button
+              class="hmi-panels-btn"
+              onClick={exitFullscreen}
+              title="Exit HMI Fullscreen"
+            >
+              <DashboardIcon height="1em" />
+              <span style={{ marginLeft: "6px" }}>
+                Panels
+              </span>
+            </button>
+          )}
         </span>
       </header>
 
