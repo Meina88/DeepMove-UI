@@ -249,3 +249,49 @@
     overflow: hidden; /* importante */
 }
 
+
+/* =========================================================
+   HMI PORTRAIT WARNING
+   ========================================================= */
+
+.hmi-portrait-warning {
+  display: none;
+}
+
+/* Solo cuando está fullscreen Y en portrait */
+@media (orientation: portrait) {
+
+  .hmi-fullscreen .hmi-layout {
+    display: none;
+  }
+
+  .hmi-fullscreen .hmi-portrait-warning {
+    display: flex;
+
+    position: absolute;
+    inset: 0;
+
+    background: var(--ms-bg-main);
+
+    align-items: center;
+    justify-content: center;
+
+    z-index: 10;
+  }
+
+  .hmi-portrait-warning-content {
+    text-align: center;
+    color: var(--ms-text-strong);
+  }
+
+  .hmi-portrait-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+
+  .hmi-portrait-text {
+    font-size: 1.2rem;
+    font-weight: 600;
+    opacity: 0.9;
+  }
+}

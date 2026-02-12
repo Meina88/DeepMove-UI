@@ -40,7 +40,7 @@ const HMIPanel: FunctionalComponent = () => {
 
 
 
-  
+
   useEffect(() => {
     const handleFullScreenChange = () => {
       const isFs = document.fullscreenElement?.id === id
@@ -55,56 +55,62 @@ const HMIPanel: FunctionalComponent = () => {
   }, [])
 
   useEffect(() => {
-  if (isAlarm) {
-    setIsLatched(true)
-  }
+    if (isAlarm) {
+      setIsLatched(true)
+    }
 
-  if (isIdle) {
-    setIsLatched(false)
-  }
-}, [isAlarm, isIdle])
+    if (isIdle) {
+      setIsLatched(false)
+    }
+  }, [isAlarm, isIdle])
 
-useEffect(() => {
-  const id = eventBus.on(
-    "hmi:play",
-    () => {
-      setActiveSection("overrides")
-    },
-    "hmi-play-listener"
-  )
+  useEffect(() => {
+    const id = eventBus.on(
+      "hmi:play",
+      () => {
+        setActiveSection("overrides")
+      },
+      "hmi-play-listener"
+    )
 
-  return () => {
-    eventBus.off("hmi:play", id)
-  }
-}, [])
+    return () => {
+      eventBus.off("hmi:play", id)
+    }
+  }, [])
 
 
-const onResetPress = () => {
-  if (resetBusy) return
+  const onResetPress = () => {
+    if (resetBusy) return
 
-  setResetBusy(true)
-  window.setTimeout(() => {
-    setResetBusy(false)
-  }, 350)
-
-  uiFn.haptic([50, 80, 50, 80, 50])
-
-  if (isAlarm) {
-    targetCommands(SOFT_RESET)
-
+    setResetBusy(true)
     window.setTimeout(() => {
-      targetCommands(UNLOCK)
-    }, 120)
+      setResetBusy(false)
+    }, 350)
 
-    return
+    uiFn.haptic([50, 80, 50, 80, 50])
+
+    if (isAlarm) {
+      targetCommands(SOFT_RESET)
+
+      window.setTimeout(() => {
+        targetCommands(UNLOCK)
+      }, 120)
+
+      return
+    }
+
+    targetCommands(SOFT_RESET)
   }
-
-  targetCommands(SOFT_RESET)
-}
 
 
   return (
-    <div class={`panel panel-dashboard panel-hmi ${isFullScreen ? "hmi-fullscreen" : ""}`} id={id}>
+    <div
+  class={`panel panel-dashboard panel-hmi ${
+    isFullScreen ? "hmi-fullscreen hmi-landscape-lock" : ""
+  }`}
+  id={id}
+>
+
       <ContainerHelper id={id} />
 
       <header class="navbar">
@@ -126,127 +132,140 @@ const onResetPress = () => {
         </span>
       </header>
 
-      {isFullScreen && (
-        <div class="panel-body panel-body-dashboard hmi-root">
+{isFullScreen && (
+  <div class="panel-body panel-body-dashboard hmi-root">
 
-          <div class="hmi-layout">
-
-            {/* LEFT */}
-            <div class="hmi-left">
-
-              {/* Contenido dinámico */}
-              <div class="hmi-left-content">
-
-                {activeSection === "files" && (
-                  <div class="hmi-embedded-panel">
-                    <FilesPanel embedded />
-                  </div>
-                )}
-
-                {activeSection === "jog" && (
-                  <div class="hmi-embedded-panel">
-                    <JogPanel embedded />
-                  </div>
-                )}
-
-                {activeSection === "overrides" && (
-                  <div class="hmi-embedded-panel">
-                    <OverridesPanel embedded />
-                  </div>
-                )}
-
-                {!["files", "jog", "overrides"].includes(activeSection) && (
-                  <div class="hmi-zone-label">
-                    {activeSection}
-                  </div>
-                )}
-
-              </div>
-
-
-              {/* Botones */}
-
-            </div>
-
-            {/* TOOLPATH */}
-            <div class="hmi-toolpath">
-              <div class="hmi-embedded-panel">
-                <ToolpathPanel embedded />
-              </div>
-            </div>
-
-
-            {/* FOOTER */}
-            <div class="hmi-footer">
-              <div class="hmi-footer-nav">
-
-                <button
-                  class={`hmi-nav-btn ${activeSection === "jog" ? "is-active" : ""}`}
-                  onClick={() => setActiveSection("jog")}
-                >
-                  J
-                </button>
-
-                <button
-                  class={`hmi-nav-btn ${activeSection === "files" ? "is-active" : ""}`}
-                  onClick={() => setActiveSection("files")}
-                >
-                  F
-                </button>
-
-                <button
-                  class={`hmi-nav-btn ${activeSection === "overrides" ? "is-active" : ""}`}
-                  onClick={() => setActiveSection("overrides")}
-                >
-                  Ov
-                </button>
-
-<button
-  class={
-    "hmi-nav-btn" +
-    (isLatched ? " is-locked" : "") +
-    (resetBusy ? " is-busy" : "")
-  }
-  aria-pressed={isLatched}
-  onClick={(e) => {
-    e.preventDefault()
-    e.stopPropagation()
-    onResetPress()
-  }}
->
-  Rst
-</button>
-
-
-
-                <button
-                  class={`hmi-nav-btn ${activeSection === "outputs" ? "is-active" : ""}`}
-                  onClick={() => setActiveSection("outputs")}
-                >
-                  Ou
-                </button>
-
-                <button
-                  class={`hmi-nav-btn ${activeSection === "terminal" ? "is-active" : ""}`}
-                  onClick={() => setActiveSection("terminal")}
-                >
-                  T
-                </button>
-
-                <button
-                  class={`hmi-nav-btn ${activeSection === "probe" ? "is-active" : ""}`}
-                  onClick={() => setActiveSection("probe")}
-                >
-                  P
-                </button>
-
-              </div>
-            </div>
-
-
-          </div>
+    {/* Overlay Portrait */}
+    <div class="hmi-portrait-warning">
+      <div class="hmi-portrait-warning-content">
+        <div class="hmi-portrait-icon">🔄</div>
+        <div class="hmi-portrait-text">
+          {T("S253")}
         </div>
+      </div>
+    </div>
+
+    <div class="hmi-layout">
+
+
+              {/* LEFT */}
+              <div class="hmi-left">
+
+                {/* Contenido dinámico */}
+                <div class="hmi-left-content">
+
+                  {activeSection === "files" && (
+                    <div class="hmi-embedded-panel">
+                      <FilesPanel embedded />
+                    </div>
+                  )}
+
+                  {activeSection === "jog" && (
+                    <div class="hmi-embedded-panel">
+                      <JogPanel embedded />
+                    </div>
+                  )}
+
+                  {activeSection === "overrides" && (
+                    <div class="hmi-embedded-panel">
+                      <OverridesPanel embedded />
+                    </div>
+                  )}
+
+                  {!["files", "jog", "overrides"].includes(activeSection) && (
+                    <div class="hmi-zone-label">
+                      {activeSection}
+                    </div>
+                  )}
+
+                </div>
+
+
+                {/* Botones */}
+
+              </div>
+
+              {/* TOOLPATH */}
+              <div class="hmi-toolpath">
+                <div class="hmi-embedded-panel">
+                  <ToolpathPanel embedded />
+                </div>
+              </div>
+
+
+              {/* FOOTER */}
+              <div class="hmi-footer">
+                <div class="hmi-footer-nav">
+
+                  <button
+                    class={`hmi-nav-btn ${activeSection === "jog" ? "is-active" : ""}`}
+                    onClick={() => setActiveSection("jog")}
+                  >
+                    J
+                  </button>
+
+                  <button
+                    class={`hmi-nav-btn ${activeSection === "files" ? "is-active" : ""}`}
+                    onClick={() => setActiveSection("files")}
+                  >
+                    F
+                  </button>
+
+                  <button
+                    class={`hmi-nav-btn ${activeSection === "overrides" ? "is-active" : ""}`}
+                    onClick={() => setActiveSection("overrides")}
+                  >
+                    Ov
+                  </button>
+
+                  <button
+                    class={
+                      "hmi-nav-btn" +
+                      (isLatched ? " is-locked" : "") +
+                      (resetBusy ? " is-busy" : "")
+                    }
+                    aria-pressed={isLatched}
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      onResetPress()
+                    }}
+                  >
+                    Rst
+                  </button>
+
+
+
+                  <button
+                    class={`hmi-nav-btn ${activeSection === "outputs" ? "is-active" : ""}`}
+                    onClick={() => setActiveSection("outputs")}
+                  >
+                    Ou
+                  </button>
+
+                  <button
+                    class={`hmi-nav-btn ${activeSection === "terminal" ? "is-active" : ""}`}
+                    onClick={() => setActiveSection("terminal")}
+                  >
+                    T
+                  </button>
+
+                  <button
+                    class={`hmi-nav-btn ${activeSection === "probe" ? "is-active" : ""}`}
+                    onClick={() => setActiveSection("probe")}
+                  >
+                    P
+                  </button>
+
+                </div>
+              </div>
+
+
+            </div>
+          </div>
+        
       )}
+
     </div>
 
   )
