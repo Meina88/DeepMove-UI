@@ -124,6 +124,25 @@
 }
 
 /* =========================================================
+   NAVBAR — LOGO SIZE FIX (WIDE SVG SUPPORT)
+   ========================================================= */
+
+.navbar .navbar-brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 360px;   // ← ajustable según estética
+    overflow: hidden;   // ← evita que empuje los laterales
+}
+
+.navbar .navbar-brand .esp3dlogo {
+    height: 25px;       
+    width: auto;        
+    max-width: 100%;    
+}
+
+
+/* =========================================================
    PANEL — CONTENIDO ESPECIAL
    ========================================================= */
 

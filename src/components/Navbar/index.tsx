@@ -357,7 +357,7 @@ const Navbar = () => {
                 {/* CENTRO */}
                 <section class="navbar-section navbar-center">
                     <div className="navbar-brand logo no-box">
-                        <AppLogo bgcolor="#ffffff" />
+                        <AppLogo />
                     </div>
                 </section>
 

@@ -10,6 +10,8 @@ $rtl: false !default;
 // Core colors — STRAVA DARK inspired (CNC/HMI)
 // =====================================================
 
+
+
 // Acento principal (naranja Strava-like)
 $primary-color: hsl(205, 90%, 52%);
 $primary-color-dark: hsl(210, 90%, 42%);
@@ -24,6 +26,23 @@ $secondary-color-light: hsl(0, 0%, 68%) !default;
 $btn-primary-color: #0c0c0c !default;
 $btn-primary-color-dark: #0c0c0c !default;
 $btn-primary-color-light: #0c0c0c !default;
+
+// =====================================================
+// DeepMove Logo Color (Institutional)
+// =====================================================
+
+// 🔵 Azul institucional
+$logo-color: hsl(0, 0%, 75%);
+
+// 🔵 Azul brand
+// $logo-color: hsl(205, 90%, 52%);
+
+// ⚪ Para usar en dark themes:
+// $logo-color: hsl(0, 0%, 75%);
+
+// ⚫ Para usar en light themes:
+// $logo-color: hsl(0, 0%, 15%);
+
 
 // =====================================================
 // Gray colors (Dark HMI surfaces)
@@ -450,6 +469,11 @@ $zindex-4: 400 !default;
   --neo-svg-shadow: #{$neo-svg-shadow};
   --neo-svg-shadow-pressed: #{$neo-svg-shadow-pressed};
 
+  /* =====================================================
+   LOGO
+   ===================================================== */
+
+  --logo-color: #{$logo-color};
 
 
 }
