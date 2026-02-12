@@ -92,11 +92,13 @@ const MainContainer: FunctionalComponent = () => {
     }, [])
 
     useEffect(() => {
-        const blockContextMenu = (e: Event) => {
-            e.preventDefault()
-        }
+        const isTouchDevice =
+            "ontouchstart" in window ||
+            navigator.maxTouchPoints > 0
 
-        const blockDrag = (e: Event) => {
+        if (!isTouchDevice) return
+
+        const blockContextMenu = (e: Event) => {
             e.preventDefault()
         }
 
@@ -104,10 +106,9 @@ const MainContainer: FunctionalComponent = () => {
 
         return () => {
             document.removeEventListener("contextmenu", blockContextMenu)
-            document.removeEventListener("dragstart", blockDrag)
-            document.removeEventListener("selectstart", blockDrag)
         }
     }, [])
+
 
 
     return (
