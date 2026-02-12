@@ -338,3 +338,9 @@
   transform: scale(0.97);
   box-shadow: var(--neo-shadow-pressed);
 }
+
+//ocultar panel HMI en modo Panles
+
+#hmiPanel:not(.hmi-fullscreen) {
+  display: none !important;
+}
