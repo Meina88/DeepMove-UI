@@ -47,9 +47,12 @@ import {
     Minimize,
     RefreshCw,
     Power,
+    Monitor,
 } from "preact-feather"
 import { useTargetCommands } from "../../hooks"
 import { DashboardIcon } from "../../targets/CNC/FluidNC/icons"
+import { eventBus } from "../../hooks/eventBus"
+
 
 
 
@@ -85,6 +88,20 @@ function isIOS(): boolean {
         (navigator.userAgent.includes("Macintosh") && "ontouchend" in document)
 }
 
+function isTablet(): boolean {
+    const hasTouch = navigator.maxTouchPoints > 0
+
+    // screen.* no cambia con la barra del navegador (clave para landscape sin fullscreen)
+    const shortSide = Math.min(window.screen.width, window.screen.height)
+
+    // 600 es un umbral razonable para tablets (short side en CSS px)
+    return hasTouch && shortSide >= 600
+}
+
+
+
+
+
 const Navbar = () => {
     const lastValidState = useRef<string>("Offline");
     const [isSettingsPage, setIsSettingsPage] = useState(
@@ -108,6 +125,8 @@ const Navbar = () => {
     )
     const [hrefbutton, setHrefButton] = useState<string | undefined>(undefined)
     const [isFullscreen, setIsFullscreen] = useState(false)
+    const [isTabletDevice, setIsTabletDevice] = useState(isTablet())
+
     const reloadPage = () => {
         useUiContextFn.haptic()
         window.location.reload()
@@ -203,21 +222,30 @@ const Navbar = () => {
 
 
 
-const onPowerOff = () => {
-    useUiContextFn.haptic()
-    showConfirmationModal({
-        modals,
-        title: T("S246"),
-        content: T("S247"),
-        button1: {
-            cb: powerOffNow,
-            text: T("S248"),
-        },
-        button2: {
-            text: T("S28"),
-        },
-    })
-}
+    const onPowerOff = () => {
+        useUiContextFn.haptic()
+        showConfirmationModal({
+            modals,
+            title: T("S246"),
+            content: T("S247"),
+            button1: {
+                cb: powerOffNow,
+                text: T("S248"),
+            },
+            button2: {
+                text: T("S28"),
+            },
+        })
+    }
+
+
+    const toggleHMI = () => {
+        useUiContextFn.haptic()
+
+        // Emitimos evento al HMI
+        eventBus.emit("hmi:toggleFullscreen", null)
+
+    }
 
 
     const toggleFullscreen = () => {
@@ -235,7 +263,12 @@ const onPowerOff = () => {
                 })
             }
         }
+
+
     }
+
+
+
 
     const toggleSettingsDashboard = () => {
         useUiContextFn.haptic()
@@ -270,6 +303,19 @@ const onPowerOff = () => {
         }
     }, [])
 
+    useEffect(() => {
+        const updateTabletState = () => {
+            setIsTabletDevice(isTablet())
+        }
+
+        window.addEventListener("resize", updateTabletState)
+        window.addEventListener("orientationchange", updateTabletState)
+
+        return () => {
+            window.removeEventListener("resize", updateTabletState)
+            window.removeEventListener("orientationchange", updateTabletState)
+        }
+    }, [])
 
     if (uisettings.current) {
         return (
@@ -318,6 +364,26 @@ const onPowerOff = () => {
 
                 {/* DERECHA */}
                 <section class="navbar-section navbar-right">
+
+                    {/* Tablet Switch */}
+
+
+                    {/* 🖥 HMI Fullscreen */}
+                    {isTabletDevice && (
+                        <button
+                            class="hmi-launch-btn"
+                            onClick={toggleHMI}
+                            title="Open HMI Console"
+                        >
+                            <Monitor size={16} />
+                            <span>HMI</span>
+                        </button>
+                    )}
+
+
+
+
+
 
                     {/* ⛶ Fullscreen */}
                     {!isIOS() && (
