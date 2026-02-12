@@ -5,7 +5,7 @@
 import type { FunctionalComponent } from "preact"
 import { ContainerHelper, FullScreenButton } from "../Controls"
 import { T } from "../Translations"
-import { Upload } from "preact-feather"
+import { Monitor } from "preact-feather"
 import { useState, useEffect } from "preact/hooks"
 import { FilesPanel } from "./Files"
 import { JogPanel } from "./JogCNC"
@@ -146,7 +146,7 @@ const HMIPanel: FunctionalComponent = () => {
       <header class="navbar">
         <span class="navbar-section">
           <span class="feather-icon-container">
-            <Upload />
+            <Monitor />
           </span>
           <strong class="text-ellipsis" style={{ marginLeft: "0.4rem" }}>
             {T("HMI")}
@@ -314,7 +314,7 @@ const HMIPanelElement = {
   id: "hmiPanel",
   content: <HMIPanel />,
   name: "Hmi",
-  icon: "Upload",
+  icon: "Monitor",
   show: "showhmipanel",
   onstart: "openhmionstart",
   settingid: "hmi",
