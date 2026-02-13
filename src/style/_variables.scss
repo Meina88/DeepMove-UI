@@ -89,7 +89,9 @@ $neo-shadow-soft: -1px -1px 2px $neo-light,
 $neo-shadow-deep: -4px -4px 8px $neo-light,
   4px 4px 10px $neo-dark;
 
-$neo-svg-shadow: drop-shadow(-1px -1px 1px $neo-light) drop-shadow(2px 2px 3px $neo-dark);
+$neo-svg-shadow: 
+drop-shadow(-1px -1px 1px $neo-light) 
+drop-shadow(2px 2px 3px $neo-dark);
 
 $neo-svg-shadow-pressed: drop-shadow(0 1px 2px $neo-dark);
 
@@ -401,13 +403,6 @@ $btn-ghost-text: $text-normal-color;
   --ms-border-light: #{$border-color-light};
 
   /* =====================================================
-   NEUMORPHIC — SVG SHADOWS (Jog / Icons)
-   ===================================================== */
-
-  --neo-svg-shadow:
-    drop-shadow(-1px -1px 1px hsla(0, 0%, 100%, 0.18)) drop-shadow(2px 2px 3px hsla(0, 0%, 0%, 0.45));
-
-  /* =====================================================
      SEMANTIC STATES (CNC SAFE)
      ===================================================== */
   --ms-success: #{$success-color};
@@ -500,8 +495,6 @@ $btn-ghost-text: $text-normal-color;
   --neo-shadow-pressed: #{$neo-shadow-pressed};
   --neo-shadow-soft: #{$neo-shadow-soft};
   --neo-shadow-deep: #{$neo-shadow-deep};
-  --neo-svg-shadow: #{$neo-svg-shadow};
-  --neo-svg-shadow-pressed: #{$neo-svg-shadow-pressed};
 
   /* =====================================================
    LOGO

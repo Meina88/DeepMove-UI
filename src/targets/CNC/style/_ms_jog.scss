@@ -382,7 +382,7 @@ $jog-radial-offset: 5px;
     pointer-events: none;
     z-index: 1;
     will-change: transform, opacity;
-    filter: var(--neo-svg-shadow);
+    filter: $neo-svg-shadow;
 }
 
 .jog-xy-pad .jog-cell svg path {
@@ -392,13 +392,13 @@ $jog-radial-offset: 5px;
 
 /* Hover = igual que botones Z */
 .jog-xy-pad .jog-xy-hit:hover + svg {
-    filter: var(--neo-svg-shadow);
+    filter: $neo-svg-shadow;
 }
 
 /* Active = hundido como botones Z */
 .jog-xy-pad .jog-xy-hit:active + svg {
     transform: scale(0.96);
-    filter: var(--neo-svg-shadow-pressed);
+    filter: $neo-svg-shadow-pressed;
 }
 
 
@@ -491,29 +491,30 @@ $jog-radial-offset: 5px;
     width: 72px;
     height: 72px;
     border-radius: 50%;
-
-    background:
-        radial-gradient(circle at 30% 30%,
-            hsl(0, 0%, 22%),
-            hsl(0, 0%, 14%) 55%,
-            var(--ms-bg-dark) 100%);
-
-    box-shadow:
-        inset 0 2px 4px hsla(0, 0%, 0%, 0.6),
-        inset 0 -1px 2px hsla(0, 0%, 100%, 0.08);
-
+    background: var(--ms-bg-surface);
+    box-shadow: var(--neo-shadow-deep);
     cursor: pointer;
 
     display: flex;
     align-items: center;
     justify-content: center;
+
+    transition:
+        box-shadow 50ms ease,
+        transform 50ms ease,
+        background-color 120ms ease;
+}
+
+.jog-step-knob-rotary:hover {
+    background: var(--ms-bg-hover);
+    box-shadow: var(--neo-shadow-raised);
 }
 
 .jog-step-knob-rotary:active {
-    box-shadow:
-        inset 0 3px 6px hsla(0, 0%, 0%, 0.8),
-        0 2px 4px hsla(0, 0%, 0%, 0.6);
+    transform: scale(0.96);
+    box-shadow: var(--neo-shadow-pressed);
 }
+
 
 /* valor numérico */
 .jog-step-knob-value {
