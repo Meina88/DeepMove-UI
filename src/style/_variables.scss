@@ -7,17 +7,15 @@ $version: "0.5.9";
 $rtl: false !default;
 
 // =====================================================
-// Core colors — STRAVA DARK inspired (CNC/HMI)
+// Core colors 
 // =====================================================
 
-
-
-// Acento principal (naranja Strava-like)
+// Acento principal 
 $primary-color: hsl(205, 90%, 52%);
 $primary-color-dark: hsl(210, 90%, 42%);
 $primary-color-light: hsl(210, 92%, 60%);
 
-// Secundario (gris técnico)
+// Secundario 
 $secondary-color: hsl(0, 0%, 55%) !default;
 $secondary-color-dark: hsl(0, 0%, 42%) !default;
 $secondary-color-light: hsl(0, 0%, 68%) !default;
@@ -42,7 +40,6 @@ $logo-color: hsl(0, 0%, 75%);
 
 // ⚫ Para usar en light themes:
 // $logo-color: hsl(0, 0%, 15%);
-
 
 // =====================================================
 // Gray colors (Dark HMI surfaces)
@@ -96,9 +93,8 @@ $neo-svg-shadow: drop-shadow(-1px -1px 1px $neo-light) drop-shadow(2px 2px 3px $
 
 $neo-svg-shadow-pressed: drop-shadow(0 1px 2px $neo-dark);
 
-
 // =====================================================
-// Backgrounds (Strava-like: negro cálido)
+// Backgrounds
 // =====================================================
 
 $bg-color: hsl(0, 0%, 9%); // fondo principal
@@ -109,15 +105,14 @@ $bg-color-light: hsl(0, 0%, 13%); // superficie / cards
 // Control colors
 // =====================================================
 
-$success-color: hsl(140, 55%, 42%); // verde OK industrial
-$warning-color: hsl(38, 95%, 55%); // warning cercano al acento (Strava-ish)
-$error-color: hsl(0, 78%, 52%); // rojo alarma (mantener semántica)
+$success-color: hsl(140, 55%, 42%);
+$warning-color: hsl(38, 95%, 55%);
+$error-color: hsl(0, 78%, 52%);
 
 // =====================================================
 // Panel headers
 // =====================================================
 
-// En Strava dark, headers “surface” (no barra naranja)
 $panel-header-bg: $bg-color-light;
 $panel-header-text: hsl(0, 0%, 96%);
 $panel-header-hover: hsl(0, 0%, 16%);
@@ -149,10 +144,10 @@ $link-color-dark: darken($link-color, 10%) !default;
 $link-color-light: lighten($link-color, 10%) !default;
 
 // =====================================================
-// Panel Navigator (Mobile Bottom Bar) — Strava Dark
+// Panel Navigator (Mobile Bottom Bar)
 // =====================================================
 
-// Fondo del dock (negro cálido, tipo Strava)
+// Fondo del dock 
 $panelnav-bg-color: $bg-color;
 $panelnav-bg-alpha: 0.92;
 
@@ -188,10 +183,6 @@ $panelnav-reset-busy-brightness: 0.88;
 
 // =====================================================
 // Fonts
-// =====================================================
-
-// =====================================================
-// Fonts (App / HMI / CNC)
 // =====================================================
 
 $base-font-family: "Inter",
@@ -247,7 +238,6 @@ $cjk-jp-font-family: $base-font-family,
 $cjk-ko-font-family: $base-font-family,
   "Malgun Gothic",
   $fallback-font-family !default;
-
 
 // =====================================================
 // Unit sizes
@@ -334,6 +324,32 @@ $zindex-2: 200 !default;
 $zindex-3: 300 !default;
 $zindex-4: 400 !default;
 
+// =====================================================
+// Buttons — surfaces by hierarchy (Base/Primary/Critical/Ghost)
+// =====================================================
+
+// Base (neutro)
+$btn-base-bg: $bg-color-light;
+$btn-base-hover-bg: hsl(0, 0%, 16%);
+$btn-base-active-bg: $bg-color-dark;
+
+// Primary (acción principal)
+$btn-primary-bg: $primary-color;
+$btn-primary-hover-bg: lighten($primary-color, 6%);
+$btn-primary-active-bg: darken($primary-color, 8%);
+
+// Critical (peligroso / stop / reset)
+$btn-critical-bg: $error-color;
+$btn-critical-hover-bg: lighten($error-color, 6%);
+$btn-critical-active-bg: darken($error-color, 10%);
+
+// Ghost (secundario liviano)
+$btn-ghost-bg: transparent;
+$btn-ghost-hover-bg: hsla(0, 0%, 100%, 0.06);
+$btn-ghost-active-bg: hsla(0, 0%, 100%, 0.10);
+$btn-ghost-border: hsla(0, 0%, 100%, 0.14);
+$btn-ghost-text: $text-normal-color;
+
 :root {
   /* =====================================================
      ACCENT / BRANDING
@@ -391,7 +407,6 @@ $zindex-4: 400 !default;
   --neo-svg-shadow:
     drop-shadow(-1px -1px 1px hsla(0, 0%, 100%, 0.18)) drop-shadow(2px 2px 3px hsla(0, 0%, 0%, 0.45));
 
-
   /* =====================================================
      SEMANTIC STATES (CNC SAFE)
      ===================================================== */
@@ -438,9 +453,28 @@ $zindex-4: 400 !default;
   --ms-link: var(--ms-accent);
   --ms-link-hover: var(--ms-accent-light);
 
-  /* Buttons */
-  --ms-btn-hover-bg: var(--ms-bg-hover);
-  --ms-btn-hover-border: var(--ms-accent-dark);
+  /* =====================================================
+     BUTTONS — HIERARCHY SURFACES
+     ===================================================== */
+
+  --ms-btn-base-bg: #{$btn-base-bg};
+  --ms-btn-base-hover-bg: #{$btn-base-hover-bg};
+  --ms-btn-base-active-bg: #{$btn-base-active-bg};
+
+  --ms-btn-primary-bg: #{$btn-primary-bg};
+  --ms-btn-primary-hover-bg: #{$btn-primary-hover-bg};
+  --ms-btn-primary-active-bg: #{$btn-primary-active-bg};
+
+  --ms-btn-critical-bg: #{$btn-critical-bg};
+  --ms-btn-critical-hover-bg: #{$btn-critical-hover-bg};
+  --ms-btn-critical-active-bg: #{$btn-critical-active-bg};
+
+  --ms-btn-ghost-bg: #{$btn-ghost-bg};
+  --ms-btn-ghost-hover-bg: #{$btn-ghost-hover-bg};
+  --ms-btn-ghost-active-bg: #{$btn-ghost-active-bg};
+  --ms-btn-ghost-border: #{$btn-ghost-border};
+  --ms-btn-ghost-text: #{$btn-ghost-text};
+
 
   /* =====================================================
      TOOLPATH (ya existente, lo dejo junto para coherencia)
@@ -474,6 +508,4 @@ $zindex-4: 400 !default;
    ===================================================== */
 
   --logo-color: #{$logo-color};
-
-
 }

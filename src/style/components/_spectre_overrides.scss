@@ -80,40 +80,48 @@
    ===================================================== */
 
 .btn {
-  background-color: var(--ms-bg-surface);
+  background-color: var(--ms-btn-base-bg);
   border-color: var(--ms-border);
   color: var(--ms-text-normal);
 
   &:hover,
   &:focus,
   &:focus-visible {
-    background-color: var(--ms-bg-hover, var(--ms-bg-surface));
-    border-color: var(--ms-accent);
+    background-color: var(--ms-btn-base-hover-bg);
+    border-color: var(--ms-btn-base-hover-bg);
     color: var(--ms-text-strong);
   }
 
   &:active,
   &.active,
   &:active:hover {
-    background-color: var(--ms-accent-dark);
-    border-color: var(--ms-accent-dark);
+    background-color: var(--ms-btn-base-active-bg);
+    border-color: var(--ms-btn-base-active-bg);
     color: var(--ms-text-strong);
   }
 }
 
+
 /* ---------- Primary ---------- */
 .btn.btn-primary {
-  background-color: var(--ms-accent);
-  border-color: var(--ms-accent-dark);
+  background-color: var(--ms-btn-primary-bg);
+  border-color: var(--ms-btn-primary-bg);
   color: var(--ms-accent-contrast);
 
   &:hover,
   &:focus,
   &:focus-visible {
-    background-color: var(--ms-accent-dark);
-    border-color: var(--ms-accent-dark);
+    background-color: var(--ms-btn-primary-hover-bg);
+    border-color: var(--ms-btn-primary-hover-bg);
+  }
+
+  &:active,
+  &.active {
+    background-color: var(--ms-btn-primary-active-bg);
+    border-color: var(--ms-btn-primary-active-bg);
   }
 }
+
 
 /* ---------- Success / Error ---------- */
 .btn.btn-success {
@@ -123,63 +131,48 @@
 }
 
 .btn.btn-error {
-  background-color: var(--ms-error);
-  border-color: var(--ms-error);
+  background-color: var(--ms-btn-critical-bg);
+  border-color: var(--ms-btn-critical-bg);
   color: var(--ms-text-strong);
-}
-
-/* ---------- Link ---------- */
-.btn.btn-link {
-  background: transparent;
-  border-color: transparent;
-  color: var(--ms-accent);
 
   &:hover,
-  &:focus,
-  &:focus-visible {
-    background: transparent;
-    border-color: transparent;
-    color: var(--ms-accent-light);
+  &:focus {
+    background-color: var(--ms-btn-critical-hover-bg);
+    border-color: var(--ms-btn-critical-hover-bg);
+  }
+
+  &:active {
+    background-color: var(--ms-btn-critical-active-bg);
+    border-color: var(--ms-btn-critical-active-bg);
   }
 }
 
-/* ---------- Action (icon buttons) ---------- */
+.btn.btn-link,
+.btn.btn-clear,
 .btn.btn-action {
-  color: var(--ms-text-muted);
+  background-color: var(--ms-btn-ghost-bg);
+  border-color: var(--ms-btn-ghost-border);
+  color: var(--ms-btn-ghost-text);
 
   &:hover,
   &:focus {
-    background-color: var(--ms-bg-hover, var(--ms-bg-surface));
-    color: var(--ms-text-strong);
+    background-color: var(--ms-btn-ghost-hover-bg);
+  }
+
+  &:active {
+    background-color: var(--ms-btn-ghost-active-bg);
   }
 }
 
-/* ---------- Clear ---------- */
-.btn.btn-clear {
-  background: transparent;
-  border: none;
-  color: var(--ms-text-muted);
-
-  &:hover,
-  &:focus {
-    background-color: rgba(255, 255, 255, 0.08);
-    color: var(--ms-text-strong);
-  }
-}
 
 
 /* =====================================================
    Spectre — Buttons (FORCED OVERRIDES)
    ===================================================== */
 
-.btn:hover,
-.btn:focus {
-  background-color: var(--ms-btn-hover-bg) !important;
-  border-color: var(--ms-btn-hover-border) !important;
-  color: var(--ms-text-strong) !important;
-}
 
 /* Link buttons (tabs, navbar, WiFi, etc) */
+
 .btn.btn-link:hover,
 .btn.btn-link:focus,
 .tab .tab-item a:hover,

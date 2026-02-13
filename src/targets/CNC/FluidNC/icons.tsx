@@ -231,7 +231,7 @@ const GearIcon: FunctionalComponent<IconProps> = ({ height = "1.2em" }) => (
         viewBox="0 -960 960 960"
         fill="currentColor"
     >
-        <path d="M440-280h80l12-60q12-5 22.5-10.5T576-364l58 18 40-68-46-40q2-14 2-26t-2-26l46-40-40-68-58 18q-11-8-21.5-13.5T532-620l-12-60h-80l-12 60q-12 5-22.5 10.5T384-596l-58-18-40 68 46 40q-2 14-2 26t2 26l-46 40 40 68 58-18q11 8 21.5 13.5T428-340l12 60Zm-16.5-143.5Q400-447 400-480t23.5-56.5Q447-560 480-560t56.5 23.5Q560-513 560-480t-23.5 56.5Q513-400 480-400t-56.5-23.5ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-560H200v560Zm0-560v560-560Z"/>
+        <path d="M440-280h80l12-60q12-5 22.5-10.5T576-364l58 18 40-68-46-40q2-14 2-26t-2-26l46-40-40-68-58 18q-11-8-21.5-13.5T532-620l-12-60h-80l-12 60q-12 5-22.5 10.5T384-596l-58-18-40 68 46 40q-2 14-2 26t2 26l-46 40 40 68 58-18q11 8 21.5 13.5T428-340l12 60Zm-16.5-143.5Q400-447 400-480t23.5-56.5Q447-560 480-560t56.5 23.5Q560-513 560-480t-23.5 56.5Q513-400 480-400t-56.5-23.5ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-560H200v560Zm0-560v560-560Z" />
     </svg>
 )
 
@@ -243,11 +243,24 @@ const DashboardIcon: FunctionalComponent<IconProps> = ({ height = "1.5em" }) => 
         xmlns="http://www.w3.org/2000/svg"
     >
         <g transform="translate(0 0)">
-            <path d="M520-600v-240h320v240H520ZM120-440v-400h320v400H120Zm400 320v-400h320v400H520Zm-400 0v-240h320v240H120Zm80-400h160v-240H200v240Zm400 320h160v-240H600v240Zm0-480h160v-80H600v80ZM200-200h160v-80H200v80Z"/>
+            <path d="M520-600v-240h320v240H520ZM120-440v-400h320v400H120Zm400 320v-400h320v400H520Zm-400 0v-240h320v240H120Zm80-400h160v-240H200v240Zm400 320h160v-240H600v240Zm0-480h160v-80H600v80ZM200-200h160v-80H200v80Z" />
         </g>
     </svg>
 )
 
+const DeepMoveIcon: FunctionalComponent<IconProps> = ({ height = "1.2em" }) => (
+    <svg
+        height={height}
+        viewBox="0 0 2000 2000"
+        fill="currentColor"
+        xmlns="http://www.w3.org/2000/svg"
+    >
+        <g>
+            <path d="M1369.81 167.07c-0.39,228.91 -1.05,442.74 6.35,672.83 6.84,213.01 -117.91,360.13 -287.47,407.96 -95.57,26.96 -196.16,16.32 -278.01,-23.11 -63.19,-30.44 -148.4,-100.97 -176.07,-157.74l0.5 605.35c104.05,64.78 327.54,82.33 464.87,65.91 402.29,-48.12 761.35,-406.68 760.43,-874.15 -0.38,-188.34 -65.39,-353.21 -151.26,-477.27 -71.91,-103.91 -222.03,-256.71 -339.99,-294.1l0.65 74.32z" />
+            <path d="M564.1 1878.12c6.26,-63.65 1.49,-429.57 1.49,-525.5 -0.02,-164.93 -22.85,-342.34 50.84,-470.08 102.73,-178.1 339.32,-261.52 537.56,-161.24 86.98,44 99.35,76.9 138.14,112.32 0.86,0.79 3.4,4.28 4.05,3.14 0.65,-1.17 2.72,2.18 4.03,3.07l-2.1 -535.8c-56.18,-45.37 -272.87,-67.55 -363.25,-61.92 -128.71,8.01 -232.49,38.94 -333.38,86.17 -403.25,188.78 -603.32,659.94 -431.55,1110.54 63.08,165.51 237.69,372.21 394.17,439.3z" />
+        </g>
+    </svg>
+)
 
 
 
@@ -266,9 +279,10 @@ const iconsTarget = {
     DashGear: <DashGear />,
     FluidIcon: <FluidIcon />,
     GearIcon: <GearIcon />,
-    DashboardIcon: <DashboardIcon />       
-    
+    DashboardIcon: <DashboardIcon />,
+    DeepMoveIcon: <DeepMoveIcon />
+
 } as const
 
-export { Fan, FeedRate, FlowRate, SDCard, Mixer, Outputs, Joystick, Status, Diamond, Flare, iconsTarget, ClearPath, DashGear, FluidIcon, GearIcon, DashboardIcon }
+export { Fan, FeedRate, FlowRate, SDCard, Mixer, Outputs, Joystick, Status, Diamond, Flare, iconsTarget, ClearPath, DashGear, FluidIcon, GearIcon, DashboardIcon, DeepMoveIcon }
 
