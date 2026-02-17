@@ -230,11 +230,6 @@
     }
 }
 
-
-
-
-
-
 /* =========================================
    HMI LAUNCH BUTTON — ENCERRADO
    ========================================= */
@@ -248,12 +243,12 @@
 
     border-radius: 4px;
 
-    background: var(--ms-bg-surface);
+    background: var(--neo-shadow-soft);
     border: 1px solid var(--ms-border);
 
     color: var(--ms-text-normal);
 
-    font-size: 0.75rem;
+    font-size: 1rem;
     letter-spacing: 0.5px;
 
     cursor: pointer;
@@ -286,3 +281,8 @@
     }
 }
 
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; // 👈 separación entre botones
+}

@@ -101,3 +101,72 @@ body {
     display: flex;
     flex-direction: column;
 }
+
+
+/* ========================================
+   SPLASH SCREEN
+======================================== */
+
+.splash-screen {
+    position: fixed;
+    inset: 0;
+    background: var(--ms-bg-main);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000000;
+}
+
+/* SOLO el contenido anima */
+.splash-content {
+    text-align: center;
+    opacity: 0;
+    transition: opacity 1.6s ease;
+}
+
+.splash-content.fadeIn {
+    opacity: 1;
+}
+
+.splash-content.visible {
+    opacity: 1;
+}
+
+.splash-content.fadeOut {
+    opacity: 0;
+}
+
+.splash-logo-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+}
+
+.splash-sub {
+    margin-top: 1.2rem;
+    font-size: 0.9rem;
+    opacity: 1;
+    letter-spacing: 0.5px;
+}
+
+.splash-sub .dot {
+    margin: 0 6px;
+    opacity: 0.8;
+}
+
+/* Mobile layout */
+@media (max-width: 640px) {
+    .splash-logo-row {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .splash-logo-row svg:first-child {
+        height: 90px !important;
+    }
+
+    .splash-logo-row svg:last-child {
+        height: 48px !important;
+    }
+}

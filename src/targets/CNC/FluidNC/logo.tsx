@@ -76,5 +76,30 @@ const AppLogo: FunctionalComponent<LogoProps> = ({
     )
 }
 
-export { AppLogo }
 
+/*
+ *DeepMove IsoLogo
+ * default height is 50px
+ */
+const AppIsoLogo: FunctionalComponent<LogoProps> = ({
+  height = "50px",
+  color = "var(--ms-accent)",
+  bgcolor = "transparent",
+}) => {
+  return (
+    <svg
+      height={height}
+      viewBox="22 56 240 180"
+      fill={bgcolor}
+      stroke={color}
+      class="esp3dlogo"
+    >
+      <path d="m 227,91.9 -97,-0.3 0,100.4 83,0 c 20,0 46,-6 47,-36 l 0,-24 c 1,-20 -13,-40 -33,-40.1 z" />
+      <path fill={color} d="M79.7,200.2h124c-15.5,16.5-37.6,26.7-62,26.7S95.3,216.7,79.7,200.2z" />
+      <path fill={color} d="M203.7,83.2h-124c15.5-16.5,37.6-26.7,62-26.7S188.2,66.8,203.7,83.2z" />
+      <path fill={color} d="M222.1,90.3h-34.9H61.4c-21.5,0-39,17.5-39,39v24.9c0,21.5,17.5,39,39,39h68.4h92.3c21.5,0,39-17.5,39-39v-24.9C261.1,107.8,243.6,90.3,222.1,90.3z" />
+    </svg>
+  )
+}
+
+export { AppIsoLogo, AppLogo }

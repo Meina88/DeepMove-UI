@@ -5,7 +5,12 @@
 import type { FunctionalComponent } from "preact"
 import { ContainerHelper, FullScreenButton } from "../Controls"
 import { T } from "../Translations"
-import { Monitor } from "preact-feather"
+import {
+  Monitor,
+  RotateCw,
+  Octagon,
+  Terminal,
+} from "preact-feather"
 import { useState, useEffect } from "preact/hooks"
 import { FilesPanel } from "./Files"
 import { JogPanel } from "./JogCNC"
@@ -16,6 +21,7 @@ import { useTargetContext } from "../../targets"
 import { useUiContextFn } from "../../contexts"
 import { eventBus } from "../../hooks/eventBus"
 import { DashboardIcon } from "../../targets/CNC/FluidNC/icons"
+import { iconsTarget } from "../../targets"
 
 
 const HMIPanel: FunctionalComponent = () => {
@@ -177,7 +183,10 @@ const HMIPanel: FunctionalComponent = () => {
           {/* Overlay Portrait */}
           <div class="hmi-portrait-warning">
             <div class="hmi-portrait-warning-content">
-              <div class="hmi-portrait-icon">🔄</div>
+              <div class="hmi-portrait-icon">
+                <RotateCw size={60} />
+              </div>
+
               <div class="hmi-portrait-text">
                 {T("S253")}
               </div>
@@ -240,29 +249,33 @@ const HMIPanel: FunctionalComponent = () => {
                   class={`hmi-nav-btn ${activeSection === "jog" ? "is-active" : ""}`}
                   onClick={() => setActiveSection("jog")}
                 >
-                  J
+                  {iconsTarget.Joystick}
+                  <span>Jog</span>
                 </button>
 
                 <button
                   class={`hmi-nav-btn ${activeSection === "files" ? "is-active" : ""}`}
                   onClick={() => setActiveSection("files")}
                 >
-                  F
+                  {iconsTarget.SDCard}
+                  <span>Files</span>
                 </button>
 
                 <button
                   class={`hmi-nav-btn ${activeSection === "overrides" ? "is-active" : ""}`}
                   onClick={() => setActiveSection("overrides")}
                 >
-                  Ov
+                  {iconsTarget.Mixer}
+                  <span>Overrides</span>
                 </button>
 
-                <button
-                  class={
-                    "hmi-nav-btn" +
-                    (isLatched ? " is-locked" : "") +
-                    (resetBusy ? " is-busy" : "")
-                  }
+<button
+  class={
+    "hmi-nav-btn hmi-nav-btn-reset" +
+    (isLatched ? " is-locked" : "") +
+    (resetBusy ? " is-busy" : "")
+  }
+
                   aria-pressed={isLatched}
                   onClick={(e) => {
                     e.preventDefault()
@@ -270,30 +283,32 @@ const HMIPanel: FunctionalComponent = () => {
                     onResetPress()
                   }}
                 >
-                  Rst
+                  <Octagon size={18} />
+                  <span>Reset</span>
                 </button>
-
-
 
                 <button
                   class={`hmi-nav-btn ${activeSection === "outputs" ? "is-active" : ""}`}
                   onClick={() => setActiveSection("outputs")}
                 >
-                  Ou
+                  {iconsTarget.Outputs}
+                  <span>Outputs</span>
                 </button>
 
                 <button
                   class={`hmi-nav-btn ${activeSection === "terminal" ? "is-active" : ""}`}
                   onClick={() => setActiveSection("terminal")}
                 >
-                  T
+                  <Terminal size={18} />
+                  <span>Terminal</span>
                 </button>
 
                 <button
                   class={`hmi-nav-btn ${activeSection === "probe" ? "is-active" : ""}`}
                   onClick={() => setActiveSection("probe")}
                 >
-                  P
+                  {iconsTarget.Diamond}
+                  <span>Probe</span>
                 </button>
 
               </div>

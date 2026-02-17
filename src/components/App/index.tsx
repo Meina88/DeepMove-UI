@@ -32,32 +32,46 @@ import { ContainerHelper } from "../Controls"
 import { ContentContainer } from "../../areas"
 import { ElementsCache } from "../../areas/elementsCache"
 import { ConnectionManager } from "../ConnectionManager"
+import { useState, useEffect } from "preact/hooks"
+import { Splash } from "./Splash"
+
 
 const App = () => {
-    return (
-        <div id="app">
-            <DatasContextProvider>
-                <TargetContextProvider>
-                    <RouterContextProvider>
-                        <UiContextProvider>
-                            <HttpQueueContextProvider>
-                                <SettingsContextProvider>
-                                    <ToastsContextProvider>
-                                        <ModalsContextProvider>
-                                            <ConnectionManager />
-                                            <ContainerHelper id="top_container" active={true} />
-                                            <ElementsCache />
-                                            <ContentContainer />
-                                        </ModalsContextProvider>
-                                    </ToastsContextProvider>
-                                </SettingsContextProvider>
-                            </HttpQueueContextProvider>
-                        </UiContextProvider>
-                    </RouterContextProvider>
-                </TargetContextProvider>
-            </DatasContextProvider>
-        </div>
-    )
-}
+    const [loading, setLoading] = useState(true)
 
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setLoading(false)
+        }, 1500)
+
+        return () => clearTimeout(timer)
+    }, [])
+
+return (
+    <div id="app">
+        <DatasContextProvider>
+            <TargetContextProvider>
+                <RouterContextProvider>
+                    <UiContextProvider>
+                        <HttpQueueContextProvider>
+                            <SettingsContextProvider>
+                                <ToastsContextProvider>
+                                    <ModalsContextProvider>
+                                        {loading && <Splash />}
+
+                                        <ConnectionManager />
+                                        <ContainerHelper id="top_container" active={true} />
+                                        <ElementsCache />
+                                        <ContentContainer />
+                                    </ModalsContextProvider>
+                                </ToastsContextProvider>
+                            </SettingsContextProvider>
+                        </HttpQueueContextProvider>
+                    </UiContextProvider>
+                </RouterContextProvider>
+            </TargetContextProvider>
+        </DatasContextProvider>
+    </div>
+)
+}
 export { App }

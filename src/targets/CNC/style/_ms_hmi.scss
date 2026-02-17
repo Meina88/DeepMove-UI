@@ -97,41 +97,101 @@
 
 
 /* Botones HMI */
+/* =========================================================
+   HMI NAV BUTTONS — NEUMORPHIC ADAPTATION
+   ========================================================= */
+
 .hmi-nav-btn {
-    background: var(--ms-bg-surface);
-    border: 1px solid var(--ms-border-light);
-    color: var(--ms-text-strong);
+    all: unset;
 
-    width: 38px;
-    height: 38px;
-
-    border-radius: 50%;
-
-    font-weight: 600;
-    font-size: 0.75rem;
-    letter-spacing: 0.3px;
+    flex: 1;
+    height: 100%;
 
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: 6px;
+
+    background: var(--ms-panelnav-btn-bg);
+    color: var(--ms-panelnav-btn-icon);
+
+    box-shadow: var(--neo-shadow-raised);
+
+    transition:
+        box-shadow 150ms ease,
+        transform 120ms ease,
+        color 150ms ease,
+        filter 150ms ease;
 
     cursor: pointer;
-    transition: all 0.15s ease;
 }
 
-.hmi-nav-btn:hover {
-    background: var(--ms-bg-hover);
-    border-color: var(--ms-accent-dark);
+/* Icon size */
+.hmi-nav-btn svg {
+    width: 1.8em;
+    height: 1.8em;
+    stroke-width: 2;
 }
 
+/* Label */
+.hmi-nav-btn span {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+}
+
+/* Press */
 .hmi-nav-btn:active {
-    transform: scale(0.96);
+    box-shadow: var(--neo-shadow-pressed);
+    transform: scale(0.94);
 }
 
+/* Active section */
 .hmi-nav-btn.is-active {
-    border-color: var(--ms-accent);
-    box-shadow: 0 0 6px rgba(0, 140, 255, 0.4);
+    box-shadow: var(--neo-shadow-pressed);
+    transform: none;
+    filter: brightness(1.1);
 }
+
+/* =========================================================
+   HMI RESET BUTTON (SPECIAL BEHAVIOR)
+   ========================================================= */
+
+.hmi-nav-btn-reset {
+    background: var(--ms-panelnav-reset-bg);
+    color: var(--ms-light);
+
+    box-shadow: var(--neo-shadow-deep);
+
+    flex: 1; // levemente más ancho visualmente
+}
+
+.hmi-nav-btn-reset svg {
+    width: 1.8em;
+    height: 1.8em;
+    stroke-width: 2.4;
+    color: var(--ms-accent);
+}
+
+.hmi-nav-btn-reset:active {
+    box-shadow: var(--neo-shadow-pressed);
+    transform: scale(0.92);
+}
+
+/* Locked state (Alarm) */
+.hmi-nav-btn-reset.is-locked {
+    transform: translateY(2px);
+    box-shadow: var(--neo-shadow-pressed);
+    filter: brightness(1.1);
+}
+
+/* Busy (debounce protection) */
+.hmi-nav-btn-reset.is-busy {
+    pointer-events: none;
+    filter: brightness(0.85);
+}
+
 
 /* Embedded panel inside HMI */
 
@@ -156,7 +216,7 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    min-height: 0;    
+    min-height: 0;
     height: 100%;
     width: 100%;
     overflow: hidden;
@@ -221,7 +281,8 @@
     display: flex;
     flex-direction: column;
 
-    min-height: 0; /* 🔥 CLAVE */
+    min-height: 0;
+    /* 🔥 CLAVE */
 }
 
 /* 🔥 Wrapper embedded */
@@ -230,23 +291,26 @@
     display: flex;
     flex-direction: column;
 
-    min-height: 0; /* 🔥 CLAVE */
+    min-height: 0;
+    /* 🔥 CLAVE */
 }
 
 /* 🔥 Panel embebido */
-.hmi-toolpath .hmi-embedded-panel > .panel {
+.hmi-toolpath .hmi-embedded-panel>.panel {
     flex: 1;
     display: flex;
     flex-direction: column;
 
-    min-height: 0; /* 🔥 CLAVE */
+    min-height: 0;
+    /* 🔥 CLAVE */
 }
 
 /* 🔥 Body del Toolpath */
 .hmi-toolpath .hmi-embedded-panel .panel-body {
     flex: 1;
     min-height: 0;
-    overflow: hidden; /* importante */
+    overflow: hidden;
+    /* importante */
 }
 
 
@@ -255,45 +319,45 @@
    ========================================================= */
 
 .hmi-portrait-warning {
-  display: none;
+    display: none;
 }
 
 /* Solo cuando está fullscreen Y en portrait */
 @media (orientation: portrait) {
 
-  .hmi-fullscreen .hmi-layout {
-    display: none;
-  }
+    .hmi-fullscreen .hmi-layout {
+        display: none;
+    }
 
-  .hmi-fullscreen .hmi-portrait-warning {
-    display: flex;
+    .hmi-fullscreen .hmi-portrait-warning {
+        display: flex;
 
-    position: absolute;
-    inset: 0;
+        position: absolute;
+        inset: 0;
 
-    background: var(--ms-bg-main);
+        background: var(--ms-bg-main);
 
-    align-items: center;
-    justify-content: center;
+        align-items: center;
+        justify-content: center;
 
-    z-index: 10;
-  }
+        z-index: 10;
+    }
 
-  .hmi-portrait-warning-content {
-    text-align: center;
-    color: var(--ms-text-strong);
-  }
+    .hmi-portrait-warning-content {
+        text-align: center;
+        color: var(--ms-text-strong);
+    }
 
-  .hmi-portrait-icon {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-  }
+    .hmi-portrait-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
 
-  .hmi-portrait-text {
-    font-size: 1.2rem;
-    font-weight: 600;
-    opacity: 0.9;
-  }
+    .hmi-portrait-text {
+        font-size: 1.2rem;
+        font-weight: 600;
+        opacity: 0.9;
+    }
 }
 
 
@@ -305,42 +369,51 @@
    ========================================= */
 
 .hmi-panels-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 
     padding: 2px 8px;
 
     border-radius: 4px;
 
-  background: var(--ms-bg-surface);
-  border: 1px solid var(--ms-border);
+    background: var(--neo-shadow-soft);
+    border: 1px solid var(--ms-border);
 
-  color: var(--ms-text-normal);
+    color: var(--ms-text-normal);
 
-  font-size: 0.75rem;
-  letter-spacing: 0.5px;
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
 
-  cursor: pointer;
-  transition: all 0.2s ease;
+    cursor: pointer;
+    transition: all 0.2s ease;
 
-  margin-right: 8px;
+    margin-right: 8px;
 
-  box-shadow: var(--neo-shadow-soft);
+    box-shadow: var(--neo-shadow-soft);
 }
 
 .hmi-panels-btn:hover {
-  color: var(--ms-accent);
-  box-shadow: var(--neo-shadow-raised);
+    color: var(--ms-accent);
+    box-shadow: var(--neo-shadow-raised);
 }
 
 .hmi-panels-btn:active {
-  transform: scale(0.97);
-  box-shadow: var(--neo-shadow-pressed);
+    transform: scale(0.97);
+    box-shadow: var(--neo-shadow-pressed);
 }
 
 //ocultar panel HMI en modo Panles
 
 #hmiPanel:not(.hmi-fullscreen) {
-  display: none !important;
+    display: none !important;
+}
+
+
+/* Distribución correcta del header HMI */
+
+.panel-hmi .navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; // 👈 separa izquierda y derecha
 }
