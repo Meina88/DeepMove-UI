@@ -23,6 +23,8 @@ import { showConfirmationModal } from "./confirmModal"
 import { showKeepConnected } from "./keepConnectedModal"
 import { showProgressModal } from "./progressModal"
 import { showModal } from "./genericModal"
+import { createPortal } from "preact/compat"
+
 
 /*
  * Local const
@@ -42,16 +44,19 @@ const ModalContainer: FunctionalComponent<ModalContainerProps> = ({ id }) => {
     ) {
         disableUI(true)
     }
-    return (
+
+    const fullscreenElement = document.fullscreenElement as HTMLElement | null
+    const portalTarget = fullscreenElement ?? document.body
+
+    return createPortal(
         <div class="modals-container" id={id}>
             {modals.modalList &&
                 modals.modalList.length > 0 &&
                 modals.modalList.map((modal, index) => {
-
                     return (
                         <SpectreModal
                             class={`active`}
-                            id={`modal-${  modal.id}`}
+                            id={`modal-${modal.id}`}
                             key={index}
                             tabIndex="-1"
                         >
@@ -94,8 +99,10 @@ const ModalContainer: FunctionalComponent<ModalContainerProps> = ({ id }) => {
                         </SpectreModal>
                     )
                 })}
-        </div>
+        </div>,
+        portalTarget
     )
+
 }
 
 export {

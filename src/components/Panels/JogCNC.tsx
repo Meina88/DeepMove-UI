@@ -276,8 +276,8 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
             content: (
                 <div>
                     {axis
-                        ? `${T("S249")} ${axis} axis?`
-                        : `${T("S249")} all axes?`}
+                        ? `${T("S249")} ${axis}?`
+                        : `${T("S249")}?`}
                 </div>
             ),
         })
@@ -300,13 +300,11 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
             },
             content: (
                 <div>
-                    Are you sure you want to home <strong>all axes</strong>?
+                    {T("S249")}?
                 </div>
             ),
         })
     }
-
-
 
 
 
