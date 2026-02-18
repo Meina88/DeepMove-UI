@@ -1,0 +1,17 @@
+{
+  "name": "DeepMove",
+  "short_name": "DeepMove",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0e0e0e",
+  "theme_color": "#0e0e0e",
+  "orientation": "landscape",
+  "icons": [
+    {
+      "src": "/deepmove.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

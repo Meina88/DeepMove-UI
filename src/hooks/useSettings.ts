@@ -70,7 +70,7 @@ const useSettings = (): UseSettingsReturn => {
     const sendCommand = (cmd: string, id: string) => {
         const callbacks = {
             onSuccess: (result: string) => {
-                if ( cmd.startsWith("[ESP") && !result.startsWith("ESP3D says:") ) {
+                if (cmd.startsWith("[ESP") && !result.startsWith("ESP3D says:")) {
                     processData("response", result, result.startsWith("{"))
                 }
             },
@@ -164,7 +164,7 @@ const useSettings = (): UseSettingsReturn => {
                     !jsonResult.data
                 ) {
                     toasts.addToast({ content: T("S194"), type: "error" })
-                     connection.setConnectionState({
+                    connection.setConnectionState({
                         connected: false,
                         page: "error",
                         extraMsg: T("S194"),
@@ -179,14 +179,18 @@ const useSettings = (): UseSettingsReturn => {
                 }
                 processData("core", "ESP800", true)
                 //console.log(connectionSettings.current)
-                document.title = connectionSettings.current.HostName || "ESP3D"
+
+                // Uncomment the following line to restore HostName functionality
+                // document.title = connectionSettings.current.HostName || "ESP3D"
+                document.title = "DeepMove"
+
                 if (
                     !connectionSettings.current.HostPath ||
                     !connectionSettings.current.HostPath.length
                 ) {
                     connectionSettings.current.HostPath = "/"
                 }
-                 if (!connectionSettings.current.HostPath.endsWith("/")) {
+                if (!connectionSettings.current.HostPath.endsWith("/")) {
                     connectionSettings.current.HostPath =
                         connectionSettings.current.HostPath.concat("/")
                 }
@@ -219,7 +223,7 @@ const useSettings = (): UseSettingsReturn => {
                             connectionSettings.current.HostPath
                     }
                 }
-                 if (
+                if (
                     (connectionSettings.current.WiFiMode &&
                         isLimitedEnvironment(
                             connectionSettings.current.WiFiMode
@@ -231,8 +235,7 @@ const useSettings = (): UseSettingsReturn => {
                 ) {
                     // change here to account for FluidNC having to have the 2nd WebSocket port
                     const url =
-                        `http://${ 
-                        connectionSettings.current.WebSocketIP 
+                        `http://${connectionSettings.current.WebSocketIP
                         }${connectionSettings.current.WebSocketPort != "82"
                             ? `:${parseInt(connectionSettings.current.WebSocketPort) - 2}`
                             : ""}`
@@ -246,8 +249,8 @@ const useSettings = (): UseSettingsReturn => {
                         content: h('div', {}, translatedParts[0], ' ', linkElement, ' ', translatedParts[1]),
                         hideclose: false,
                     })
-                 }
-                 if (jsonResult.FWTarget == 0) {
+                }
+                if (jsonResult.FWTarget == 0) {
                     setActiveRoute("/settings")
                     defaultRoute.current = "/settings"
                 } else {
@@ -283,7 +286,10 @@ const useSettings = (): UseSettingsReturn => {
                 connected: true,
                 page: "connecting",
             })
-            document.title = connectionSettings.current.HostName || "ESP3D"
+
+            // Uncomment the following line to restore HostName functionality
+            // document.title = connectionSettings.current.HostName || "ESP3D"
+            document.title = "DeepMove"
             setTimeout(initPolling, 2000)
             console.log("Ui is ready")
             ui.setReady(true)
@@ -305,7 +311,7 @@ const useSettings = (): UseSettingsReturn => {
                 createNewRequest(
                     espHttpURL(
                         useSettingsContextFn.getValue("HostDownloadPath") +
-                            themepack
+                        themepack
                     ),
                     { method: "GET" },
                     {
@@ -328,7 +334,7 @@ const useSettings = (): UseSettingsReturn => {
                             finalizeDisplay()
                             console.log("error")
                             toasts.addToast({
-                                content: `${error  } ${  themepack}`,
+                                content: `${error} ${themepack}`,
                                 type: "error",
                             })
                         },
@@ -346,8 +352,8 @@ const useSettings = (): UseSettingsReturn => {
         }
         createNewRequest(
             espHttpURL(
-                `${useSettingsContextFn.getValue("HostDownloadPath") 
-                    }preferences.json`
+                `${useSettingsContextFn.getValue("HostDownloadPath")
+                }preferences.json`
             ),
             { method: "GET" },
             {
@@ -430,7 +436,7 @@ const useSettings = (): UseSettingsReturn => {
                                     loadTheme(themepack)
                                     console.log("Error")
                                     toasts.addToast({
-                                        content: `${error  } ${  languagepack}`,
+                                        content: `${error} ${languagepack}`,
                                         type: "error",
                                     })
                                 },
@@ -453,7 +459,7 @@ const useSettings = (): UseSettingsReturn => {
                     }
                     if (error != "404 - Not Found")
                         toasts.addToast({
-                            content: `${error  } preferences.json`,
+                            content: `${error} preferences.json`,
                             type: "error",
                         })
                     console.log("No valid preferences.json")

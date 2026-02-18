@@ -32,6 +32,7 @@ import {
 import { T } from "../components/Translations"
 import { espHttpURL } from "../components/Helpers"
 import { restartdelay } from "../targets"
+import { Name } from "../targets"
 
 /*
  * Local const
@@ -82,7 +83,7 @@ const ConnectionContainer: FunctionalComponent = () => {
                     `${connectionSettings.current &&
                     connectionSettings.current.HostName
                         ? connectionSettings.current.HostName
-                        : "ESP3D" 
+                        : Name 
                     }(${ 
                     T("S22") 
                     })`
@@ -107,7 +108,7 @@ const ConnectionContainer: FunctionalComponent = () => {
                     `${connectionSettings.current &&
                     connectionSettings.current.HostName
                         ? connectionSettings.current.HostName
-                        : "ESP3D" 
+                        : Name 
                     }(${ 
                     T("S9") 
                     })`
@@ -127,7 +128,7 @@ const ConnectionContainer: FunctionalComponent = () => {
                     `${connectionSettings.current &&
                     connectionSettings.current.HostName
                         ? connectionSettings.current.HostName
-                        : "ESP3D" 
+                        : Name 
                     }(${ 
                     T("S9") 
                     })`
@@ -145,7 +146,7 @@ const ConnectionContainer: FunctionalComponent = () => {
                     `${connectionSettings.current &&
                     connectionSettings.current.HostName
                         ? connectionSettings.current.HostName
-                        : "ESP3D" 
+                        : Name 
                     }(${ 
                     T("S35") 
                     })`
@@ -177,7 +178,7 @@ const ConnectionContainer: FunctionalComponent = () => {
                         `${connectionSettings.current &&
                         connectionSettings.current.HostName
                             ? connectionSettings.current.HostName
-                            : "ESP3D" 
+                            : Name 
                         }(${ 
                         T("S2") 
                         })`
