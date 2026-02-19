@@ -471,21 +471,27 @@ $btn-ghost-text: $text-normal-color;
   --ms-btn-ghost-text: #{$btn-ghost-text};
 
 
-  /* =====================================================
-     TOOLPATH (ya existente, lo dejo junto para coherencia)
-     ===================================================== */
-  --tp-bg: hsl(0, 0%, 10%);
+/* =====================================================
+   TOOLPATH — DeepMove Blue Identity
+   ===================================================== */
 
-  --tp-rapid: hsl(0, 0%, 55%);
-  --tp-linear: hsl(22, 90%, 52%);
-  --tp-arc: hsl(22, 85%, 45%);
+--tp-bg: var(--ms-bg-surface);
 
-  --tp-feed: hsl(22, 90%, 52%);
+/* Rapids (movimientos rápidos) — gris técnico neutro */
+--tp-rapid: var(--ms-gray);
+/* Corte lineal — azul principal */
+--tp-linear: var(--ms-accent);
+/* Arcos — azul más oscuro */
+--tp-arc: var(--ms-accent-dark);
+/* Feed general */
+--tp-feed: var(--ms-accent);
+/* Trayectoria ya ejecutada */
+--tp-completed: var(--ms-gray-dark);
+/* Tool head */
+--tp-tool: var(--ms-light);
+/* Grid */
+--tp-grid-major: hsla(205, 90%, 52%, 0.08);
 
-  --tp-completed: hsl(0, 0%, 62%);
-  --tp-tool: hsl(195, 90%, 55%);
-
-  --tp-grid-major: hsla(0, 0%, 70%, 0.12);
 
   /* =====================================================
    NEUMORPHIC SHADOWS

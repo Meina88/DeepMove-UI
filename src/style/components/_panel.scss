@@ -362,3 +362,15 @@ header.navbar .btn.btn-link {
     border: none !important;
     background: transparent !important;
 }
+/* =====================================================
+   HIDE PANEL SCREEN AND X BUTTONS (MAXIMIZE and CLOSE)
+   ===================================================== */
+
+.panel .navbar .btn-screen {
+    display: none !important;
+}
+
+.panel .navbar .btn-close,
+.panel .navbar .btn-remove {
+    display: none !important;
+}

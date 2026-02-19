@@ -44,10 +44,10 @@ import {
     ChevronDown,
     Smartphone,
     Maximize,
-    Minimize,
-    RefreshCw,
+    Minimize,    
     Power,
     Monitor,
+    RotateCw,
 } from "preact-feather"
 import { useTargetCommands } from "../../hooks"
 import { DashboardIcon } from "../../targets/CNC/FluidNC/icons"
@@ -338,7 +338,7 @@ const Navbar = () => {
                         className="btn btn-link no-box feather-icon-container"
                         onClick={reloadPage}
                     >
-                        <RefreshCw />
+                        <RotateCw />
                     </span>
 
                     {/* ● Estado CNC (TERCER CASILLERO) */}
