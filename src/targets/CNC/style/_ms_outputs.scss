@@ -4,7 +4,7 @@
   gap: 0;
 }
 
-/* VALUE (igual a .jog-position-value) */
+/* VALUE */
 #SpindlePanel .spindle-speed-value {
   appearance: textfield;
   -moz-appearance: textfield;
@@ -13,12 +13,12 @@
   outline: none;
   box-shadow: none;
 
-  border: $border-width solid $border-color;
+  border: $border-width solid var(--ms-border);
   border-right: 0;
   border-radius: $border-radius 0 0 $border-radius;
 
-  background: $bg-color-light;
-  color: $text-strong-color;
+  background: var(--ms-bg-surface);
+  color: var(--ms-text-strong);
 
   padding: $control-padding-y $control-padding-x;
   width: 110px;
@@ -35,7 +35,9 @@
   margin: 0;
 }
 
-/* SUB-HEADER (igual a .jog-position-sub-header) */
+
+
+/* SUB-HEADER */
 #SpindlePanel .spindle-speed-sub-header {
   margin: 0;
 
@@ -43,12 +45,12 @@
   align-items: center;
   justify-content: center;
 
-  border: $border-width solid $border-color;
+  border: $border-width solid var(--ms-border);
   border-left: 0;
   border-radius: 0 $border-radius $border-radius 0;
 
-  background: $bg-color;
-  color: $text-muted-color;
+  background: var(--ms-bg-main);
+  color: var(--ms-text-muted);
 
   padding: 0 $control-padding-x;
   min-width: 56px;
@@ -57,12 +59,18 @@
   font-weight: 600;
 }
 
+#SpindlePanel .extra-control-header {
+  color: var(--ms-accent);
+}
+
 .spindle-controls {
   display: flex;
   flex-direction: column;
-  align-items: center;   // 🔑 centra TODO
-  gap: $unit-3;          // separación vertical consistente
+  align-items: center;
+  gap: $unit-3;
 }
+
+
 
 .spindle-buttons {
   display: flex;
@@ -71,135 +79,129 @@
 }
 
 .spindle-spacer {
-  height: $unit-4; // una fila clara de aire visual
+  height: $unit-4;
 }
 
 #SpindlePanel .field-group-content {
   display: flex;
   flex-direction: column;
-  align-items: center; // 🔑 ESTO ES LO QUE FALTABA
+  align-items: center;
 }
+
 #SpindlePanel .spindle-top-row {
-  height: $unit-4;        // mismo lenguaje visual del resto
+  height: $unit-4;
 }
 
 /* ================================
-   SPINDLE — BOTONES MACIZOS
+   SPINDLE — BUTTONS: HARD UNIFY (wins over Spectre)
    ================================ */
 
 #SpindlePanel {
 
-  /* Botones normales (M3, M5, M4, D1..D4) */
-  .btn {
-    background: var(--ms-accent);
-    color: $btn-primary-color;
+  /* 1) Reset fuerte para TODOS los botones del panel
+        (incluye icon-button / feather-icon-container) */
+  .btn,
+  .btn.icon-button,
+  .btn.feather-icon-container,
+  .btn.icon-button.feather-icon-container {
+    width: $control-size * 1.5;
+    height: $control-size;
 
-    border: $border-width solid transparent;
-    box-shadow: none;
-
-    transition: background 120ms ease, transform 80ms ease;
-  }
-
-  /* Hover */
-  .btn:hover {
-    background: $primary-color-dark;
-  }
-
-  /* Active / pressed */
-  .btn:active {
-    transform: translateY(1px);
-    background: darken($primary-color, 6%);
-  }
-
-  /* Botón activo (modo actual M3/M4/etc) */
-  .btn-primary {
-    background: var(--ms-accent);
-    color: $btn-primary-color;
-    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.15);
-  }
-}
-
-
-#SpindlePanel {
-
-  .extra-control {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch; // 🔑 header ocupa todo el ancho
-
-    background: $bg-color-light;
-    border: $border-width solid $border-color;
-    border-radius: $border-radius;
-
-    min-width: 88px;
-    overflow: hidden; // 🔑 para que el header respete el radio
-  }
-
-
-
-  
-  /* HEADER tipo chip, integrado */
-  .extra-control-header {
     display: flex;
     align-items: center;
     justify-content: center;
 
-    background: rgba(var(--ms-accent), 0.12);
-    color: var(--ms-accent);
+    padding: 0 !important; // neutraliza padding de Spectre/icon-button
+    border: none !important; // neutraliza bordes globales
+    line-height: 0 !important; // neutraliza baseline (causa animación distinta)
+    box-shadow: var(--neo-shadow-raised) !important;
 
-    font-size: $font-size-sm;
-    font-weight: 600;
+    background-color: var(--ms-bg-surface) !important;
+    color: var(--ms-accent) !important;
 
-    padding: $unit-1 $unit-2;
-
-    border-bottom: $border-width solid $border-color-light;
+    transform: none; // neutraliza translateY global si existe
+    transition:
+      background-color 150ms ease,
+      transform 90ms ease,
+      box-shadow 150ms ease !important;
   }
 
-  /* VALUE protagonista */
-  .extra-control-value {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    padding: $unit-2 $unit-2;
-
-    font-size: $font-size-lg;
-    font-weight: 700;
-    color: $text-strong-color;
-
-    line-height: 1.1;
+  /* 2) Hover igual para todos */
+  .btn:hover,
+  .btn.icon-button:hover,
+  .btn.feather-icon-container:hover,
+  .btn.icon-button.feather-icon-container:hover {
+    background-color: var(--ms-bg-hover) !important;
   }
+
+  /* 3) Active igual para todos (esta es la “animación D1-D4”) */
+  .btn:active,
+  .btn.icon-button:active,
+  .btn.feather-icon-container:active,
+  .btn.icon-button.feather-icon-container:active {
+    transform: scale(0.94) !important;
+    box-shadow: var(--neo-shadow-pressed) !important;
+  }
+
+
+
+  /* 5) SVG unificado (para los que tienen ícono) */
+  .btn svg {
+    display: block;
+    width: 80%;
+    height: 80%;
+    stroke: currentColor;
+  }
+
+
 }
 
-#SpindlePanel .extra-control-header {
-  background: rgba(var(--ms-accent), 0.12);
-  color: var(--ms-accent);
-
-  padding: 4px 10px;
-  font-size: $font-size-sm;
-  line-height: 1.1;
-
-  min-width: 72px;
-  text-align: center;
-
-  
+#SpindlePanel .btn {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
 }
 
-#SpindlePanel .extra-control-value {
-  background: $bg-color-light;
-  color: $text-strong-color;
 
-  padding: 6px 10px;
-  min-width: 72px;
+/* ================================
+   SPINDLE — INPUT PINS
+================================ */
 
-  text-align: center;
-  font-size: $font-size;
+.input-pins-container {
+  display: flex;
+  justify-content: center;
+  gap: 22px;
+  align-items: center;
+  margin-top: $unit-4; 
+}
+
+.input-pin-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.input-pin-led {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #3a3a3a;
+  box-shadow:
+    inset 0 2px 4px rgba(0,0,0,0.6),
+    0 1px 2px rgba(0,0,0,0.3);
+  transition: all 180ms ease;
+}
+
+.input-pin-led.is-active {
+  background: var(--ms-accent);
+  box-shadow:
+    0 0 8px var(--ms-accent),
+    inset 0 0 6px rgba(255,255,255,0.2);
+}
+
+.input-pin-label {
+  font-size: 12px;
   font-weight: 600;
-  line-height: 0.8;
-
-  
-  
+  color: var(--ms-text-muted);
 }
-
-
-

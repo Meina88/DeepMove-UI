@@ -1,25 +1,6 @@
 {
     "settings": {
-        "status": [
-            {
-                "id": "showstatuspanel",
-                "type": "boolean",
-                "label": "S63",
-                "value": true
-            },
-            {
-                "id": "openstatusonstart",
-                "type": "boolean",
-                "label": "S93",
-                "value": true,
-                "depend": [
-                    {
-                        "id": "showstatuspanel",
-                        "value": true
-                    }
-                ]
-            }
-        ],
+
         "probe": [
             {
                 "id": "showprobepanel",

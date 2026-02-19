@@ -39,7 +39,7 @@ const defaultPanelsList = [
     MacrosPanelElement,
     JogPanelElement,
     NotificationsPanelElement,
-    StatusPanelElement,
+    
     ProbePanelElement,
     LaserPanelElement,
     SpindlePanelElement,

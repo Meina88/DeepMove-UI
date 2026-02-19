@@ -20,7 +20,7 @@ import { Fragment, TargetedMouseEvent } from "preact"
 import type { FunctionalComponent, JSX } from "preact"
 import { useState } from "preact/hooks"
 import { T } from "../Translations"
-import { Zap, Wind, CloudDrizzle, RotateCw, RotateCcw, Square, StopCircle } from "preact-feather"
+import { Zap, Wind, CloudDrizzle, RotateCw, RotateCcw, Octagon } from "preact-feather"
 import { Outputs } from "../../targets/CNC/FluidNC/icons"
 import {
     useUiContextFn,
@@ -68,7 +68,7 @@ const SpindleControls: FunctionalComponent = () => {
             depend: [{ id: "showCoolantctrls", value: true }],
         },
     ]
-    
+
     return (
         <Fragment>
             {states &&
@@ -136,7 +136,11 @@ type ButtonsGroup = {
 const SpindlePanel: FunctionalComponent = () => {
     const { toasts } = useToastsContext()
     const { interfaceSettings, connectionSettings } = useSettingsContext()
-    const { status, states } = useTargetContext() as { status: { state?: string }; states: StatesMap }
+    const { status, states, pinsStates } = useTargetContext() as {
+        status: { state?: string }
+        states: StatesMap
+        pinsStates: Record<string, boolean>
+    }
     const { targetCommands } = useTargetCommands()
     const id = "SpindlePanel"
     // Digital outputs (estado UI)
@@ -144,7 +148,7 @@ const SpindlePanel: FunctionalComponent = () => {
     const [d2, setD2] = useState(false)
     const [d3, setD3] = useState(false)
     const [d4, setD4] = useState(false)
-    
+
 
 
     if (typeof spindleSpeedValue.current === "undefined") {
@@ -174,7 +178,7 @@ const SpindlePanel: FunctionalComponent = () => {
                     mode: "spindle_mode",
                 },
                 {
-                    icon: <StopCircle />,
+                    icon: <Octagon />,
                     //label: "M5",
                     tooltip: "CN76",
                     command: "M5",
@@ -240,7 +244,7 @@ const SpindlePanel: FunctionalComponent = () => {
                     depend: [{ states: ["Hold"] }],
                 },
                 {
-                    icon: <CloudDrizzle />,
+                    label: "M7",
                     tooltip: "CN83",
                     command: "#T-MISTCOOLANT#",
                     depend: [
@@ -250,7 +254,7 @@ const SpindlePanel: FunctionalComponent = () => {
                     ],
                 },
                 {
-                    icon: <Wind />,
+                    label: "M8",
                     tooltip: "CN82",
                     tooltipclassic: true,
                     command: "#T-FLOODCOOLANT#",
@@ -287,6 +291,10 @@ const SpindlePanel: FunctionalComponent = () => {
 
         return validation
     }
+
+    const inputPinsOrder = ["P", "X", "Y", "Z", "V"]
+
+
 
     return (
         <div class="panel panel-dashboard" id={id}>
@@ -448,25 +456,25 @@ const SpindlePanel: FunctionalComponent = () => {
                                 )}
 
 
-<div class="spindle-spacer" />
-{control && (
-    
-  <div class="spindle-speed-ctrl">
-    <input
-      type="number"
-      class="spindle-speed-value"
-      value={control.value.current}
-      min={control.min}
-      onInput={(e) => {
-        const v = Number((e.target as HTMLInputElement).value)
-        control.value.current = v
-        setvalidation(generateValidation(v))
-      }}
-    />
-    
-    <div class="spindle-speed-sub-header">RPM</div>
-  </div>
-)}
+                                <div class="spindle-spacer" />
+                                {control && (
+
+                                    <div class="spindle-speed-ctrl">
+                                        <input
+                                            type="number"
+                                            class="spindle-speed-value"
+                                            value={control.value.current}
+                                            min={control.min}
+                                            onInput={(e) => {
+                                                const v = Number((e.target as HTMLInputElement).value)
+                                                control.value.current = v
+                                                setvalidation(generateValidation(v))
+                                            }}
+                                        />
+
+                                        <div class="spindle-speed-sub-header">RPM</div>
+                                    </div>
+                                )}
 
 
 
@@ -476,8 +484,41 @@ const SpindlePanel: FunctionalComponent = () => {
                             </div>
 
                         </fieldset>
+
+
+
                     )
+
                 })}
+                {/* =======================
+    INPUT PINS SECTION
+======================= */}
+<fieldset class="fieldset-top-separator fieldset-bottom-separator field-group">
+    <legend>
+        <label class="m-1 buttons-bar-label">
+            {T("CN92")}
+        </label>
+    </legend>
+
+    <div class="field-group-content maxwidth">
+        <div class="input-pins-container">
+            {inputPinsOrder.map((pin) => {
+                const isActive = !!pinsStates?.[pin]
+
+                return (
+                    <div key={pin} class="input-pin-wrapper">
+                        <div
+                            class={`input-pin-led ${isActive ? "is-active" : ""}`}
+                        />
+                        <div class="input-pin-label">{pin}</div>
+                    </div>
+                )
+            })}
+        </div>
+    </div>
+</fieldset>
+
+
             </div>
         </div>
     )

@@ -39,10 +39,10 @@
                         "id": "HMI",
                         "name": "hmi"
                     },
-                    {
-                        "id": "Status",
-                        "name": "status"
-                    },
+
+
+
+                    
                     {
                         "id": "Toolpath",
                         "name": "toolpath"
