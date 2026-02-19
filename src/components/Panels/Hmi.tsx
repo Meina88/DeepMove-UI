@@ -243,76 +243,76 @@ const HMIPanel: FunctionalComponent = () => {
 
             {/* FOOTER */}
             <div class="hmi-footer">
-              <div class="hmi-footer-nav">
+  <div class="hmi-footer-nav">
 
-                <button
-                  class={`hmi-nav-btn ${activeSection === "jog" ? "is-active" : ""}`}
-                  onClick={() => setActiveSection("jog")}
-                >
-                  {iconsTarget.Joystick}
-                  <span>Jog</span>
-                </button>
+    <button
+      class={`hmi-nav-btn ${activeSection === "jog" ? "is-active" : ""}`}
+      onClick={() => setActiveSection("jog")}
+    >
+      {iconsTarget.Joystick}
+      <span>{T("S66")}</span>
+    </button>
 
-                <button
-                  class={`hmi-nav-btn ${activeSection === "files" ? "is-active" : ""}`}
-                  onClick={() => setActiveSection("files")}
-                >
-                  {iconsTarget.SDCard}
-                  <span>Files</span>
-                </button>
+    <button
+      class={`hmi-nav-btn ${activeSection === "files" ? "is-active" : ""}`}
+      onClick={() => setActiveSection("files")}
+    >
+      {iconsTarget.SDCard}
+      <span>{T("S65")}</span>
+    </button>
 
-                <button
-                  class={`hmi-nav-btn ${activeSection === "overrides" ? "is-active" : ""}`}
-                  onClick={() => setActiveSection("overrides")}
-                >
-                  {iconsTarget.Mixer}
-                  <span>Overrides</span>
-                </button>
+    <button
+      class={`hmi-nav-btn ${activeSection === "overrides" ? "is-active" : ""}`}
+      onClick={() => setActiveSection("overrides")}
+    >
+      {iconsTarget.Mixer}
+      <span>{T("CN65")}</span>
+    </button>
 
-<button
-  class={
-    "hmi-nav-btn hmi-nav-btn-reset" +
-    (isLatched ? " is-locked" : "") +
-    (resetBusy ? " is-busy" : "")
-  }
+    <button
+      class={
+        "hmi-nav-btn hmi-nav-btn-reset" +
+        (isLatched ? " is-locked" : "") +
+        (resetBusy ? " is-busy" : "")
+      }
+      aria-pressed={isLatched}
+      onClick={(e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        onResetPress()
+      }}
+    >
+      <Octagon size={18} />
+      <span>{T("CN23")}</span>
+    </button>
 
-                  aria-pressed={isLatched}
-                  onClick={(e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                    onResetPress()
-                  }}
-                >
-                  <Octagon size={18} />
-                  <span>Reset</span>
-                </button>
+    <button
+      class={`hmi-nav-btn ${activeSection === "outputs" ? "is-active" : ""}`}
+      onClick={() => setActiveSection("outputs")}
+    >
+      {iconsTarget.Outputs}
+      <span>{T("CN36")}</span>
+    </button>
 
-                <button
-                  class={`hmi-nav-btn ${activeSection === "outputs" ? "is-active" : ""}`}
-                  onClick={() => setActiveSection("outputs")}
-                >
-                  {iconsTarget.Outputs}
-                  <span>Outputs</span>
-                </button>
+    <button
+      class={`hmi-nav-btn ${activeSection === "terminal" ? "is-active" : ""}`}
+      onClick={() => setActiveSection("terminal")}
+    >
+      <Terminal size={18} />
+      <span>{T("S75")}</span>
+    </button>
 
-                <button
-                  class={`hmi-nav-btn ${activeSection === "terminal" ? "is-active" : ""}`}
-                  onClick={() => setActiveSection("terminal")}
-                >
-                  <Terminal size={18} />
-                  <span>Terminal</span>
-                </button>
+    <button
+      class={`hmi-nav-btn ${activeSection === "probe" ? "is-active" : ""}`}
+      onClick={() => setActiveSection("probe")}
+    >
+      {iconsTarget.Diamond}
+      <span>{T("CN37")}</span>
+    </button>
 
-                <button
-                  class={`hmi-nav-btn ${activeSection === "probe" ? "is-active" : ""}`}
-                  onClick={() => setActiveSection("probe")}
-                >
-                  {iconsTarget.Diamond}
-                  <span>Probe</span>
-                </button>
+  </div>
+</div>
 
-              </div>
-            </div>
 
 
           </div>
