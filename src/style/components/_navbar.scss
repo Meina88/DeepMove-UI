@@ -278,13 +278,20 @@
 @media (pointer: coarse) and (min-width: 600px) {
     .hmi-launch-btn {
         display: inline-flex;
+
+    }
+
+    .navbar-fullscreen-btn {
+        display: none !important;
     }
 }
 
+
+
 .navbar-right {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem; // 👈 separación entre botones
+    display: flex;
+    align-items: center;
+    gap: 0.5rem; // 👈 separación entre botones
 }
 
 
@@ -293,52 +300,52 @@
    ========================================= */
 
 .tablet-hmi-switch {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
     margin-right: 18px;
-  cursor: pointer;
-  user-select: none;
+    cursor: pointer;
+    user-select: none;
 }
 
 /* Track */
 .tablet-hmi-switch .switch-track {
-  width: 42px;
-  height: 22px;
-  border-radius: 20px;
-  background: var(--ms-bg-surface);
-  box-shadow: var(--neo-shadow-soft);
-  display: flex;
-  align-items: center;
-  padding: 2px;
-  transition: background 0.25s ease;
+    width: 42px;
+    height: 22px;
+    border-radius: 20px;
+    background: var(--ms-bg-surface);
+    box-shadow: var(--neo-shadow-soft);
+    display: flex;
+    align-items: center;
+    padding: 2px;
+    transition: background 0.25s ease;
 }
 
 /* Thumb */
 .tablet-hmi-switch .switch-thumb {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-    background: var(--ms-accent); 
-  box-shadow: var(--neo-shadow-raised);
-  transition: transform 0.25s ease;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--ms-accent);
+    box-shadow: var(--neo-shadow-raised);
+    transition: transform 0.25s ease;
 }
 
 /* Active state */
 .tablet-hmi-switch.active .switch-track {
-  background: var(--ms-accent-soft);
+    background: var(--ms-accent-soft);
 }
 
 .tablet-hmi-switch.active .switch-thumb {
-  transform: translateX(20px);
+    transform: translateX(20px);
 }
 
 /* Monitor icon */
 .switch-monitor-icon {
-  color: var(--ms-text-normal);
-  transition: color 0.2s ease;
+    color: var(--ms-text-normal);
+    transition: color 0.2s ease;
 }
 
 .tablet-hmi-switch.active .switch-monitor-icon {
-  color: var(--ms-accent);
+    color: var(--ms-accent);
 }

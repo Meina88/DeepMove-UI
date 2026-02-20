@@ -44,7 +44,7 @@ import {
     ChevronDown,
     Smartphone,
     Maximize,
-    Minimize,    
+    Minimize,
     Power,
     Monitor,
     RotateCw,
@@ -325,14 +325,13 @@ const Navbar = () => {
                 <section class="navbar-section navbar-left">
 
                     {/* ⏻ Power Off */}
-<span
-  className={`btn btn-link no-box feather-icon-container ${
-    !isIdle ? "disabled opacity-50" : ""
-  }`}
-  onClick={isIdle ? onPowerOff : undefined}
->
-  <Power />
-</span>
+                    <span
+                        className={`btn btn-link no-box feather-icon-container ${!isIdle ? "disabled opacity-50" : ""
+                            }`}
+                        onClick={isIdle ? onPowerOff : undefined}
+                    >
+                        <Power />
+                    </span>
 
                     {/* 🔄 Refresh */}
                     <span
@@ -370,31 +369,26 @@ const Navbar = () => {
 
 
                     {/* 🖥 HMI Fullscreen */}
-{isTabletDevice && (
-  <div
-    class={`tablet-hmi-switch ${isFullscreen ? "active" : ""}`}
-    onClick={toggleHMI}
-    title="Toggle HMI"
-  >
-    <div class="switch-track">
-      <div class="switch-thumb" />
-    </div>
+                    {isTabletDevice && (
+                        <div
+                            class={`tablet-hmi-switch ${isFullscreen ? "active" : ""}`}
+                            onClick={toggleHMI}
+                            title="Toggle HMI"
+                        >
+                            <div class="switch-track">
+                                <div class="switch-thumb" />
+                            </div>
 
-    <Monitor size={20} class="switch-monitor-icon" />
-  </div>
-)}
-
-
-
-
-
+                            <Monitor size={20} class="switch-monitor-icon" />
+                        </div>
+                    )}
 
                     {/* ⛶ Fullscreen */}
                     {!isIOS() && (
-                        <span
-                            className="btn btn-link no-box feather-icon-container"
-                            onClick={toggleFullscreen}
-                        >
+<span
+    className="btn btn-link no-box feather-icon-container navbar-fullscreen-btn"
+    onClick={toggleFullscreen}
+>
                             {isFullscreen ? <Minimize /> : <Maximize />}
                         </span>
                     )}
