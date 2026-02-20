@@ -410,10 +410,74 @@
 }
 
 
-/* Distribución correcta del header HMI */
+
+
+/* =========================================
+   HMI HEADER LAYOUT REFINEMENT
+   ========================================= */
+
+.hmi-header-left {
+  display: flex;
+  align-items: center;
+}
+
+/* Grupo icono + texto */
+.hmi-title-group {
+  display: flex;
+  align-items: center;
+  gap: 6px; // separación pequeña entre icono y texto
+}
+
+/* Grupo botones */
+.hmi-header-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  margin-left: 18px; // 👈 separación visual entre HMI y botones
+}
+
+/* =========================================
+   HMI FULLSCREEN EXIT SWITCH
+   ========================================= */
+
+.hmi-exit-switch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+/* Track */
+.hmi-exit-switch .switch-track {
+  width: 42px;
+  height: 22px;
+  border-radius: 20px;
+  background: var(--ms-bg-surface);
+  box-shadow: var(--neo-shadow-soft);
+  display: flex;
+  align-items: center;
+  padding: 2px;
+}
+
+/* Thumb */
+.hmi-exit-switch .switch-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--ms-accent);
+  box-shadow: var(--neo-shadow-raised);
+  transform: translateX(20px); // siempre activo porque está fullscreen
+}
+
+.switch-monitor-icon svg {
+  transform: translateY(5px);
+}
 
 .panel-hmi .navbar {
     display: flex;
     align-items: center;
-    justify-content: space-between; // 👈 separa izquierda y derecha
+    justify-content: space-between;
+
+    padding: 0 16px;   // 👈 separación lateral
 }

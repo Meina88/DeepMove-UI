@@ -47,7 +47,12 @@ type TerminalLine = TerminalElement & {
     isverboseOnly?: boolean
 }
 
-const TerminalPanel: FunctionalComponent = () => {
+interface TerminalPanelProps {
+    embedded?: boolean
+}
+
+const TerminalPanel: FunctionalComponent<TerminalPanelProps> = ({ embedded = false }) => {
+
     const { panels, uisettings } = useUiContext()
     const { terminal } = useDatasContext()
     const { processData } = useTargetContext()
@@ -102,7 +107,7 @@ const TerminalPanel: FunctionalComponent = () => {
                     className = "error"
                     break
                 case "stream":
-                    if (line.content.startsWith("ALARM:") || line.content.startsWith("Hold:") || line.content.startsWith("Door:") ) {
+                    if (line.content.startsWith("ALARM:") || line.content.startsWith("Hold:") || line.content.startsWith("Door:")) {
                         className = "warning"
                     } else if (line.content.startsWith("error:")) {
                         className = "error"
@@ -121,7 +126,7 @@ const TerminalPanel: FunctionalComponent = () => {
                     }
                     break
                 default:
-                    //do nothing
+                //do nothing
             }
 
             return <pre key={index} class={className}>{line.content}</pre>
@@ -129,7 +134,7 @@ const TerminalPanel: FunctionalComponent = () => {
         return null
     }
     const historyPrev = (): void => {
-        if (terminal.inputHistory.length > 0 && inputHistoryIndex.current > 0) { 
+        if (terminal.inputHistory.length > 0 && inputHistoryIndex.current > 0) {
             inputHistoryIndex.current--
             if (inputRef.current) inputRef.current.value = terminal.inputHistory[inputHistoryIndex.current]
             terminal.input.current = inputRef.current ? inputRef.current.value : ""
@@ -139,7 +144,7 @@ const TerminalPanel: FunctionalComponent = () => {
     const historyNext = (): void => {
         if (
             terminal.inputHistory.length > 0 &&
-            inputHistoryIndex.current < terminal.inputHistory.length-1 
+            inputHistoryIndex.current < terminal.inputHistory.length - 1
         ) {
             inputHistoryIndex.current++
             if (inputRef.current) inputRef.current.value = terminal.inputHistory[inputHistoryIndex.current]
@@ -148,7 +153,7 @@ const TerminalPanel: FunctionalComponent = () => {
             if (inputRef.current) inputRef.current.value = ""
             terminal.input.current = inputRef.current ? inputRef.current.value : ""
             inputHistoryIndex.current = terminal.inputHistory.length
-        } 
+        }
     }
     const onKeyUp = (e: TargetedKeyboardEvent<HTMLInputElement>) => {
         switch (e.key) {
@@ -182,7 +187,7 @@ const TerminalPanel: FunctionalComponent = () => {
             ) {
                 terminal.addInputHistory(cmd)
             }
-            inputHistoryIndex.current = terminal.inputHistory.length 
+            inputHistoryIndex.current = terminal.inputHistory.length
 
             // echo here to prevent verbose mode from filtering out
             // polling commands and whatnot.  If the user sends it
@@ -193,8 +198,8 @@ const TerminalPanel: FunctionalComponent = () => {
             )
             // echo:false because it was echoed above
             targetCommands(cmd, null, { echo: false })
-        } 
-        inputHistoryIndex.current = terminal.inputHistory.length 
+        }
+        inputHistoryIndex.current = terminal.inputHistory.length
         terminal.input.current = ""
         if (inputRef.current) inputRef.current.value = ""
     }
@@ -272,7 +277,8 @@ const TerminalPanel: FunctionalComponent = () => {
 
     return (
         <div class="panel panel-dashboard" id={id}>
-            <ContainerHelper id={id}/>
+            <ContainerHelper id={id} />
+            {!embedded && (
             <div class="navbar">
                 <span class="navbar-section feather-icon-container">
                     <Code />
@@ -291,7 +297,8 @@ const TerminalPanel: FunctionalComponent = () => {
                     </span>
                 </span>
             </div>
-            
+            )}
+
             <div
                 ref={terminalOutput}
                 class="panel-body panel-body-dashboard terminal m-1"
@@ -308,8 +315,8 @@ const TerminalPanel: FunctionalComponent = () => {
                         terminal.isAutoScrollPaused.current &&
                         Math.abs(
                             el.scrollTop +
-                                el.offsetHeight -
-                                el.scrollHeight
+                            el.offsetHeight -
+                            el.scrollHeight
                         ) < 5
                     ) {
                         terminal.isAutoScrollPaused.current = false
@@ -346,40 +353,40 @@ const TerminalPanel: FunctionalComponent = () => {
             </div>
             <div class="terminal-input-bar m-2">
 
-    {/* Flechas verticales a la izquierda */}
-    <div class="terminal-history-vertical">
-        <ButtonImg
-            icon={<ChevronUp />}
-            onClick={historyPrev}
-        />
-        <ButtonImg
-            icon={<ChevronDown />}
-            onClick={historyNext}
-        />
-    </div>
+                {/* Flechas verticales a la izquierda */}
+                <div class="terminal-history-vertical">
+                    <ButtonImg
+                        icon={<ChevronUp />}
+                        onClick={historyPrev}
+                    />
+                    <ButtonImg
+                        icon={<ChevronDown />}
+                        onClick={historyNext}
+                    />
+                </div>
 
-    {/* Input + Send a la derecha */}
-    <div class="terminal-input-main input-group">
-        <input
-            type="text"
-            class="form-input"
-            onInput={onInput}
-            onKeyUp={onKeyUp}
-            ref={inputRef}
-            value={terminal.input.current as unknown as string}
-            placeholder={T("S80")}
-        />
-        <ButtonImg
-            group
-            ltooltip
-            data-tooltip={T("S82")}
-            label={T("S81")}
-            icon={<Send />}
-            onClick={onSend}
-        />
-    </div>
+                {/* Input + Send a la derecha */}
+                <div class="terminal-input-main input-group">
+                    <input
+                        type="text"
+                        class="form-input"
+                        onInput={onInput}
+                        onKeyUp={onKeyUp}
+                        ref={inputRef}
+                        value={terminal.input.current as unknown as string}
+                        placeholder={T("S80")}
+                    />
+                    <ButtonImg
+                        group
+                        ltooltip
+                        data-tooltip={T("S82")}
+                        label={T("S81")}
+                        icon={<Send />}
+                        onClick={onSend}
+                    />
+                </div>
 
-</div>
+            </div>
 
         </div>
     )

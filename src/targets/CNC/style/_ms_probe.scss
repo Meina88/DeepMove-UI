@@ -1,0 +1,307 @@
+/* =========================================================
+   PROBE PANEL — DeepMove Styling
+   ========================================================= */
+
+#ProbePanel {
+
+  /* =========================
+     Status block (PRB)
+     ========================= */
+
+  .status-ctrls {
+    display: flex;
+    justify-content: center;
+    margin-bottom: $unit-4;
+  }
+
+  .extra-control {
+    background: var(--ms-bg-surface);
+    border: $border-width solid var(--ms-border);
+    border-radius: $border-radius;
+    box-shadow: var(--neo-shadow-soft);
+    min-width: 120px;
+  }
+
+  .extra-control-header {
+    background: var(--ms-bg-surface);
+    color: var(--ms-accent);
+    font-size: $font-size-sm;
+    font-weight: 600;
+    padding: $unit-1 $unit-2;
+    border-bottom: $border-width solid var(--ms-border-light);
+  }
+
+  .extra-control-value {
+    padding: $unit-2;
+    font-size: $font-size-lg;
+    font-weight: 700;
+    color: var(--ms-text-strong);
+  }
+
+  /* =========================
+     Field groups
+     ========================= */
+
+  fieldset {
+    border: none;
+  }
+
+  .field-group-content {
+    display: flex;
+    flex-direction: column;
+
+  }
+
+  /* =========================
+     Inputs / Select styling
+     ========================= */
+
+  .form-input,
+  .form-select,
+  input[type="number"],
+  input[type="text"],
+  select {
+
+    background: var(--ms-bg-surface) !important;
+    color: var(--ms-text-strong) !important;
+
+    border: $border-width solid var(--ms-border) !important;
+    border-radius: $border-radius !important;
+
+    box-shadow: none !important;
+    transform: none !important;
+
+    transition: border-color 120ms ease;
+  }
+
+  /* Focus técnico (igual que Jog) */
+  .form-input:focus,
+  .form-select:focus,
+  input:focus,
+  select:focus {
+
+    outline: none;
+    border-color: var(--ms-accent);
+    box-shadow: none;
+  }
+
+  /* Elimina cualquier sombra heredada del wrapper */
+  .input-group,
+  .form-group {
+    box-shadow: none !important;
+  }
+
+
+  /* =========================
+     Append unit (mm / mm/min)
+     ========================= */
+
+  .input-group-addon {
+    background: var(--ms-bg-dark);
+    border: $border-width solid var(--ms-border);
+    color: var(--ms-text-muted);
+  }
+
+  /* =========================
+     Probe button
+     ========================= */
+
+  .btn {
+    background: var(--ms-bg-surface);
+    border: none;
+    box-shadow: var(--neo-shadow-raised);
+    color: var(--ms-accent);
+    transition: transform 90ms ease, box-shadow 150ms ease;
+  }
+
+  .btn:hover {
+    background: var(--ms-bg-hover);
+  }
+
+  .btn:active {
+    transform: scale(0.94);
+    box-shadow: var(--neo-shadow-pressed);
+  }
+
+  /* Primary probe action */
+  .btn-primary {
+    box-shadow: var(--neo-shadow-pressed);
+  }
+
+  /* =========================
+     P input badge
+     ========================= */
+
+  .badge-container {
+    box-shadow: var(--neo-shadow-raised);
+  }
+
+}
+
+
+/* =========================================
+   PROBE PANEL — Uniform field widths
+   ========================================= */
+
+#ProbePanel {
+
+  /* Wrapper del Field */
+  .states-buttons-container {
+    width: 100%;
+  }
+
+  /* Cada grupo inline (label + input) */
+  .form-group.inline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  /* Fuerza ancho fijo del input-group */
+  .form-group.inline .input-group,
+  .form-group.inline .form-input,
+  .form-group.inline .form-select {
+    width: 140px; // ← ajustalo si querés más ancho
+    min-width: 140px;
+  }
+
+}
+
+/* =========================================
+   PROBE — Status LED
+   ========================================= */
+
+#ProbePanel {
+
+  .probe-status-header {
+    position: relative; // referencia para el LED
+    display: flex;
+    align-items: center;
+
+  }
+
+  .probe-status-header .probe-led {
+    position: absolute;
+    right: 10px; // ← distancia fija desde el borde derecho
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .probe-led {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+
+    background: var(--ms-gray-dark);
+    box-shadow: var(--neo-shadow-soft);
+
+    transition: background 150ms ease;
+  }
+
+  .probe-led.is-active {
+    background: var(--ms-accent);
+    box-shadow:
+      0 0 6px var(--ms-accent),
+      var(--neo-shadow-soft);
+  }
+
+}
+
+
+/* =========================================
+   PROBE — Mobile Compact Layout
+   ========================================= */
+
+@media (max-width: 480px) {
+
+  #ProbePanel {
+
+    /* Reduce espacio general */
+    .field-group-content {
+      gap: 0px;
+    }
+
+    /* Compacta cada fila */
+    .form-group {
+      margin-bottom: 0px;
+    }
+
+    /* Labels más pequeños */
+    .form-label {
+      font-size: 0.85rem;
+      margin-bottom: 0px;
+    }
+
+    /* Inputs más bajos */
+    input,
+    select {
+      height: 34px;
+      padding: 0px 8px;
+      font-size: 0.9rem;
+    }
+
+    /* Reduce altura del status */
+    .extra-control {
+      min-width: 100px;
+      padding: 0px;
+    }
+
+    .extra-control-header {
+      padding: 1px;
+      font-size: 0.8rem;
+    }
+
+    .extra-control-value {
+      padding: 0px;
+      font-size: 0.95rem;
+    }
+
+
+
+  }
+}
+
+/* =========================================
+   PROBE — Force Axis & Type same row (mobile safe)
+   ========================================= */
+
+#ProbePanel {
+
+  .probe-top-row {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .probe-top-row .form-group {
+    flex: 1;
+    margin-bottom: 8px;
+  }
+
+}
+
+
+/* =========================================
+   PROBE — Force Axis & Type same row (mobile safe)
+   ========================================= */
+
+#ProbePanel {
+
+  .probe-top-row {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .probe-top-row .form-group {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+}
+
+#ProbePanel .btn svg {
+  position: relative;
+  top: 3px;   // prueba 1px o 2px
+}

@@ -133,7 +133,12 @@ type ButtonsGroup = {
     tooltipclassic?: boolean
 }
 
-const SpindlePanel: FunctionalComponent = () => {
+interface SpindlePanelProps {
+    embedded?: boolean
+}
+
+const SpindlePanel: FunctionalComponent<SpindlePanelProps> = ({ embedded = false }) => {
+
     const { toasts } = useToastsContext()
     const { interfaceSettings, connectionSettings } = useSettingsContext()
     const { status, states, pinsStates } = useTargetContext() as {
@@ -299,25 +304,26 @@ const SpindlePanel: FunctionalComponent = () => {
     return (
         <div class="panel panel-dashboard" id={id}>
             <ContainerHelper id={id} />
-            <div class="navbar">
-                <span class="navbar-section feather-icon-container">
-                    <Outputs />
-                    <strong class="text-ellipsis">{T("CN36")}</strong>
-                </span>
-                <span class="navbar-section">
-                    <span class="full-height">
-                        <FullScreenButton
-                            elementId={id}
-                        />
-                        <CloseButton
-                            elementId={id}
-                            hideOnFullScreen={true}
-                        />
+            {!embedded && (
+                <div class="navbar">
+                    <span class="navbar-section feather-icon-container">
+                        <Outputs />
+                        <strong class="text-ellipsis">{T("CN36")}</strong>
                     </span>
-                </span>
-            </div>
+                    <span class="navbar-section">
+                        <span class="full-height">
+                            <FullScreenButton
+                                elementId={id}
+                            />
+                            <CloseButton
+                                elementId={id}
+                                hideOnFullScreen={true}
+                            />
+                        </span>
+                    </span>
+                </div>
+            )}
             <div class="panel-body panel-body-dashboard">
-                <SpindleControls />
                 {buttons_list.map((item) => {
                     const control = item.control
                     if (item.depend) {
@@ -410,6 +416,11 @@ const SpindlePanel: FunctionalComponent = () => {
                             </legend>
                             <div class="field-group-content maxwidth">
                                 <div class="spindle-top-row" />
+                                {item.label === "CN201" && (
+                                    <div class="spindle-status-block">
+                                        <SpindleControls />
+                                    </div>
+                                )}
 
                                 {item.label === "CN202" && !item.control ? (
 
@@ -493,30 +504,30 @@ const SpindlePanel: FunctionalComponent = () => {
                 {/* =======================
     INPUT PINS SECTION
 ======================= */}
-<fieldset class="fieldset-top-separator fieldset-bottom-separator field-group">
-    <legend>
-        <label class="m-1 buttons-bar-label">
-            {T("CN92")}
-        </label>
-    </legend>
+                <fieldset class="fieldset-top-separator fieldset-bottom-separator field-group">
+                    <legend>
+                        <label class="m-1 buttons-bar-label">
+                            {T("CN92")}
+                        </label>
+                    </legend>
 
-    <div class="field-group-content maxwidth">
-        <div class="input-pins-container">
-            {inputPinsOrder.map((pin) => {
-                const isActive = !!pinsStates?.[pin]
+                    <div class="field-group-content maxwidth">
+                        <div class="input-pins-container">
+                            {inputPinsOrder.map((pin) => {
+                                const isActive = !!pinsStates?.[pin]
 
-                return (
-                    <div key={pin} class="input-pin-wrapper">
-                        <div
-                            class={`input-pin-led ${isActive ? "is-active" : ""}`}
-                        />
-                        <div class="input-pin-label">{pin}</div>
+                                return (
+                                    <div key={pin} class="input-pin-wrapper">
+                                        <div
+                                            class={`input-pin-led ${isActive ? "is-active" : ""}`}
+                                        />
+                                        <div class="input-pin-label">{pin}</div>
+                                    </div>
+                                )
+                            })}
+                        </div>
                     </div>
-                )
-            })}
-        </div>
-    </div>
-</fieldset>
+                </fieldset>
 
 
             </div>

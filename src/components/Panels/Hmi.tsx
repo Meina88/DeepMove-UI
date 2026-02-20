@@ -10,18 +10,27 @@ import {
   RotateCw,
   Octagon,
   Terminal,
+  Power,
 } from "preact-feather"
-import { useState, useEffect } from "preact/hooks"
+import { useState, useEffect, useRef } from "preact/hooks"
 import { FilesPanel } from "./Files"
 import { JogPanel } from "./JogCNC"
 import { OverridesPanel } from "./OverridesCNC"
 import { ToolpathPanel } from "./Toolpath"
+import { TerminalPanel } from "./Terminal"
+import { SpindlePanel } from "./SpindleCNC"
+import { ProbePanel } from "./ProbeCNC"
 import { useTargetCommands } from "../../hooks"
 import { useTargetContext } from "../../targets"
 import { useUiContextFn } from "../../contexts"
 import { eventBus } from "../../hooks/eventBus"
 import { DashboardIcon } from "../../targets/CNC/FluidNC/icons"
 import { iconsTarget } from "../../targets"
+import { useModalsContext } from "../../contexts"
+import { useHttpQueue } from "../../hooks"
+import { useWebSocketService } from "../../hooks/useWebSocketService"
+import { espHttpURL } from "../Helpers"
+import { showConfirmationModal } from "../Modal"
 
 
 const HMIPanel: FunctionalComponent = () => {
@@ -33,11 +42,24 @@ const HMIPanel: FunctionalComponent = () => {
   const { targetCommands } = useTargetCommands()
   const { status } = useTargetContext() as any
   const uiFn = useUiContextFn
+  const { modals } = useModalsContext()
+  const { createNewRequest } = useHttpQueue()
+  const webSocketService = useWebSocketService()
+
+  const lastValidState = useRef<string>("Offline")
 
   const machineState: string = status?.state ?? "Idle"
   const normalizedState = String(machineState).toLowerCase()
   const isAlarm = normalizedState.startsWith("alarm")
   const isIdle = normalizedState === "idle"
+  const rawState = status?.state
+  if (rawState && rawState !== "?") {
+    lastValidState.current = rawState
+  }
+  const effectiveState =
+    !rawState || rawState === "?"
+      ? lastValidState.current
+      : rawState
 
   const [isLatched, setIsLatched] = useState(false)
   const [resetBusy, setResetBusy] = useState(false)
@@ -114,7 +136,40 @@ const HMIPanel: FunctionalComponent = () => {
     }
   }, [])
 
+  const reloadPage = () => {
+    uiFn.haptic()
+    window.location.reload()
+  }
 
+  const powerOffNow = () => {
+    uiFn.haptic()
+    targetCommands("M62 P0")
+  }
+
+  const onPowerOff = () => {
+    uiFn.haptic()
+    showConfirmationModal({
+      modals,
+      title: T("S246"),
+      content: T("S247"),
+      button1: { cb: powerOffNow, text: T("S248") },
+      button2: { text: T("S28") },
+    })
+  }
+
+  // Opcional: si en HMI querés también cortar sesión como en navbar global
+  const disconnectNow = () => {
+    const formData = new FormData()
+    formData.append("DISCONNECT", "YES")
+    createNewRequest(
+      espHttpURL("login"),
+      { method: "POST", id: "login", body: formData },
+      {
+        onSuccess: () => webSocketService.disconnect("sessiontimeout"),
+        onFail: () => webSocketService.disconnect("sessiontimeout"),
+      }
+    )
+  }
 
   const onResetPress = () => {
     if (resetBusy) return
@@ -150,29 +205,61 @@ const HMIPanel: FunctionalComponent = () => {
       <ContainerHelper id={id} />
 
       <header class="navbar">
-        <span class="navbar-section">
-          <span class="feather-icon-container">
-            <Monitor />
+        <span class="navbar-section hmi-header-left">
+
+          {/* Grupo 1: Icono + Texto */}
+          <span class="hmi-title-group">
+            <span class="feather-icon-container">
+              <Monitor />
+            </span>
+
+            <strong class="text-ellipsis">
+              {T("HMI")}
+            </strong>
           </span>
-          <strong class="text-ellipsis" style={{ marginLeft: "0.4rem" }}>
-            {T("HMI")}
-          </strong>
+
+          {/* Grupo 2: Controles */}
+          <span class="hmi-header-status">
+            <span
+              className={`btn btn-link no-box feather-icon-container ${!isIdle ? "disabled opacity-50" : ""
+                }`}
+              onClick={isIdle ? onPowerOff : undefined}
+            >
+              <Power />
+            </span>
+
+            <span
+              className="btn btn-link no-box feather-icon-container"
+              onClick={reloadPage}
+            >
+              <RotateCw />
+            </span>
+
+            <div
+              class={`cnc-status-led ${effectiveState
+                  ? `state-${String(effectiveState).toLowerCase()}`
+                  : "state-offline"
+                }`}
+            />
+          </span>
         </span>
 
+        {/* Derecha */}
         <span class="navbar-section">
-
-          {/* Botón Panels (minimizar) — solo si está fullscreen */}
           {isFullScreen && (
-            <button
-              class="hmi-panels-btn"
+            <div
+              class="hmi-exit-switch active"
               onClick={exitFullscreen}
-              title="Exit HMI Fullscreen"
+              title="Exit HMI"
             >
-              <DashboardIcon height="1em" />
-              <span style={{ marginLeft: "6px" }}>
-                Panels
+              <div class="switch-track">
+                <div class="switch-thumb" />
+              </div>
+
+              <span class="switch-monitor-icon">
+                <  Monitor size={20} />
               </span>
-            </button>
+            </div>
           )}
         </span>
       </header>
@@ -220,11 +307,32 @@ const HMIPanel: FunctionalComponent = () => {
                   </div>
                 )}
 
-                {!["files", "jog", "overrides"].includes(activeSection) && (
-                  <div class="hmi-zone-label">
-                    {activeSection}
+                {activeSection === "terminal" && (
+                  <div class="hmi-embedded-panel">
+                    <TerminalPanel embedded />
                   </div>
                 )}
+
+                {activeSection === "outputs" && (
+                  <div class="hmi-embedded-panel">
+                    <SpindlePanel embedded />
+                  </div>
+                )}
+
+                {activeSection === "probe" && (
+                  <div class="hmi-embedded-panel">
+                    <ProbePanel embedded />
+                  </div>
+                )}
+
+
+
+                {!["files", "jog", "overrides", "terminal", "outputs", "probe"].includes(activeSection)
+                  && (
+                    <div class="hmi-zone-label">
+                      {activeSection}
+                    </div>
+                  )}
 
               </div>
 
@@ -243,85 +351,78 @@ const HMIPanel: FunctionalComponent = () => {
 
             {/* FOOTER */}
             <div class="hmi-footer">
-  <div class="hmi-footer-nav">
+              <div class="hmi-footer-nav">
 
-    <button
-      class={`hmi-nav-btn ${activeSection === "jog" ? "is-active" : ""}`}
-      onClick={() => setActiveSection("jog")}
-    >
-      {iconsTarget.Joystick}
-      <span>{T("S66")}</span>
-    </button>
+                <button
+                  class={`hmi-nav-btn ${activeSection === "jog" ? "is-active" : ""}`}
+                  onClick={() => setActiveSection("jog")}
+                >
+                  {iconsTarget.Joystick}
+                  <span>{T("S66")}</span>
+                </button>
 
-    <button
-      class={`hmi-nav-btn ${activeSection === "files" ? "is-active" : ""}`}
-      onClick={() => setActiveSection("files")}
-    >
-      {iconsTarget.SDCard}
-      <span>{T("S65")}</span>
-    </button>
+                <button
+                  class={`hmi-nav-btn ${activeSection === "files" ? "is-active" : ""}`}
+                  onClick={() => setActiveSection("files")}
+                >
+                  {iconsTarget.SDCard}
+                  <span>{T("S65")}</span>
+                </button>
 
-    <button
-      class={`hmi-nav-btn ${activeSection === "overrides" ? "is-active" : ""}`}
-      onClick={() => setActiveSection("overrides")}
-    >
-      {iconsTarget.Mixer}
-      <span>{T("CN65")}</span>
-    </button>
+                <button
+                  class={`hmi-nav-btn ${activeSection === "overrides" ? "is-active" : ""}`}
+                  onClick={() => setActiveSection("overrides")}
+                >
+                  {iconsTarget.Mixer}
+                  <span>{T("CN65")}</span>
+                </button>
 
-    <button
-      class={
-        "hmi-nav-btn hmi-nav-btn-reset" +
-        (isLatched ? " is-locked" : "") +
-        (resetBusy ? " is-busy" : "")
-      }
-      aria-pressed={isLatched}
-      onClick={(e) => {
-        e.preventDefault()
-        e.stopPropagation()
-        onResetPress()
-      }}
-    >
-      <Octagon size={18} />
-      <span>{T("CN23")}</span>
-    </button>
+                <button
+                  class={
+                    "hmi-nav-btn hmi-nav-btn-reset" +
+                    (isLatched ? " is-locked" : "") +
+                    (resetBusy ? " is-busy" : "")
+                  }
+                  aria-pressed={isLatched}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    onResetPress()
+                  }}
+                >
+                  <Octagon size={18} />
+                  <span>{T("CN23")}</span>
+                </button>
 
-    <button
-      class={`hmi-nav-btn ${activeSection === "outputs" ? "is-active" : ""}`}
-      onClick={() => setActiveSection("outputs")}
-    >
-      {iconsTarget.Outputs}
-      <span>{T("CN36")}</span>
-    </button>
+                <button
+                  class={`hmi-nav-btn ${activeSection === "outputs" ? "is-active" : ""}`}
+                  onClick={() => setActiveSection("outputs")}
+                >
+                  {iconsTarget.Outputs}
+                  <span>{T("CN36")}</span>
+                </button>
 
-    <button
-      class={`hmi-nav-btn ${activeSection === "terminal" ? "is-active" : ""}`}
-      onClick={() => setActiveSection("terminal")}
-    >
-      <Terminal size={18} />
-      <span>{T("S75")}</span>
-    </button>
+                <button
+                  class={`hmi-nav-btn ${activeSection === "terminal" ? "is-active" : ""}`}
+                  onClick={() => setActiveSection("terminal")}
+                >
+                  <Terminal size={18} />
+                  <span>{T("S75")}</span>
+                </button>
 
-    <button
-      class={`hmi-nav-btn ${activeSection === "probe" ? "is-active" : ""}`}
-      onClick={() => setActiveSection("probe")}
-    >
-      {iconsTarget.Diamond}
-      <span>{T("CN37")}</span>
-    </button>
-
-  </div>
-</div>
-
-
-
+                <button
+                  class={`hmi-nav-btn ${activeSection === "probe" ? "is-active" : ""}`}
+                  onClick={() => setActiveSection("probe")}
+                >
+                  {iconsTarget.Diamond}
+                  <span>{T("CN37")}</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
-
       )}
-
     </div>
-
   )
 }
 

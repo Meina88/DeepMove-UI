@@ -16,7 +16,7 @@ ProbeCNC.js - ESP3D WebUI component file
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { Fragment,  TargetedMouseEvent } from "preact"
+import { Fragment, TargetedMouseEvent } from "preact"
 import type { FunctionalComponent } from "preact"
 import { useState } from "preact/hooks"
 import { T } from "../Translations"
@@ -54,38 +54,31 @@ const ProbeControls: FunctionalComponent = () => {
                     class="extra-control mt-1 tooltip tooltip-bottom"
                     data-tooltip={T("CN103")}
                 >
-                    <div class="extra-control-header">{T("CN104")}</div>
+                    <div class="extra-control-header probe-status-header">
+    <span>{T("CN104")}</span>
+
+    <div
+        class={`probe-led ${pinsStates?.P ? "is-active" : ""}`}
+    />
+</div>
+
                     <div class="extra-control-value">
                         {gcodeParameters.PRB
                             ? T(gcodeParameters.PRB.success ? "CN101" : "CN102")
-                            : "?"}
+                            : "Ready"}
                     </div>
-                    {pinsStates && (
-                        <div class="extra-control-value">
-                            <div
-                                class={`badge-container m-1 s-circle ${
-                                    pinsStates.P ? "bg-primary" : "bg-secondary"
-                                }`}
-                            >
-                                <div
-                                    class={`badge-label m-1 s-circle ${
-                                        pinsStates.P
-                                            ? "bg-primary text-white"
-                                            : "bg-secondary text-primary"
-                                    }`}
-                                >
-                                    P
-                                </div>
-                            </div>
-                        </div>
-                    )}
                 </div>
             </div>
         </Fragment>
     )
 }
 
-const ProbePanel: FunctionalComponent = () => {
+interface ProbePanelProps {
+    embedded?: boolean
+}
+
+const ProbePanel: FunctionalComponent<ProbePanelProps> = ({ embedded = false }) => {
+
     const { interfaceSettings, connectionSettings } = useSettingsContext()
     //const { status } = useTargetContext()
     const { targetCommands } = useTargetCommands()
@@ -240,7 +233,7 @@ const ProbePanel: FunctionalComponent = () => {
                         {
                             id: "probe_type",
                             type: "select",
-                            label: "CN98",
+                            label: "type",
                             tooltip: "CN98",
                             options: [
                                 { label: "G38.2", value: "G38.2" },
@@ -340,17 +333,15 @@ const ProbePanel: FunctionalComponent = () => {
                                     () => {
                                         const signe =
                                             probetype.current == "G38.2" ||
-                                            probetype.current == "G38.3"
+                                                probetype.current == "G38.3"
                                                 ? "-"
                                                 : ""
                                         return (
-                                            `${probetype.current 
-                                            } ${ 
-                                            probeaxis.current 
-                                            }${signe 
-                                            }${maxprobe.current 
-                                            } F${ 
-                                            probefeedrate.current}`
+                                            `${probetype.current
+                                            } ${probeaxis.current
+                                            }${signe
+                                            }${maxprobe.current
+                                            } F${probefeedrate.current}`
                                         )
                                     },
                                     "G90",
@@ -373,33 +364,30 @@ const ProbePanel: FunctionalComponent = () => {
     return (
         <div class="panel panel-dashboard" id={id}>
             <ContainerHelper id={id} />
-            <div class="navbar">
-                <span class="navbar-section feather-icon-container">
-                    <Diamond />
-                    <strong class="text-ellipsis">{T("CN37")}</strong>
-                </span>
-                <span class="navbar-section">
-                    <span class="full-height">
-                        <FullScreenButton
-                            elementId={id}
-                        />
-                        <CloseButton
-                            elementId={id}
-                            hideOnFullScreen={true}
-                        />
+            {!embedded && (
+                <div class="navbar">
+                    <span class="navbar-section feather-icon-container">
+                        <Diamond />
+                        <strong class="text-ellipsis">{T("CN37")}</strong>
                     </span>
-                </span>
-            </div>
+                    <span class="navbar-section">
+                        <span class="full-height">
+                            <FullScreenButton elementId={id} />
+                            <CloseButton elementId={id} hideOnFullScreen={true} />
+                        </span>
+                    </span>
+                </div>
+            )}
+
             <div class="panel-body panel-body-dashboard">
                 <ProbeControls />
                 {probe_controls.map((block) => {
                     return (
                         <fieldset key={block.id}
-                            class={`field-group${
-                                block.label.length > 0
+                            class={`field-group${block.label.length > 0
                                     ? " fieldset-top-separator fieldset-bottom-separator"
                                     : ""
-                            }`}
+                                }`}
                         >
                             <legend>
                                 {block.label.length > 0 && (
@@ -412,7 +400,14 @@ const ProbePanel: FunctionalComponent = () => {
                             <div class="field-group-content maxwidth text-dark">
                                 {block.controls.map((control) => {
                                     return (
-                                        <div key={control.id} class="states-buttons-container">
+                                        <div
+  key={control.id}
+  class={
+    "states-buttons-container" +
+    (control.id === "probe_type" ? " probe-top-row" : "")
+  }
+>
+
                                             {control.elements.map((element: any) => {
                                                 if (element.type === "m2") {
                                                     return <div key={element.id} class="m-2" />
@@ -464,17 +459,17 @@ const ProbePanel: FunctionalComponent = () => {
                                                         }
                                                         if (
                                                             element.type ===
-                                                                "select" &&
+                                                            "select" &&
                                                             -1 ==
-                                                                filterOptions(
-                                                                    element.options
-                                                                ).findIndex(
-                                                                    (item: any) =>
-                                                                        item.value ==
-                                                                        element
-                                                                            .value
-                                                                            .current
-                                                                )
+                                                            filterOptions(
+                                                                element.options
+                                                            ).findIndex(
+                                                                (item: any) =>
+                                                                    item.value ==
+                                                                    element
+                                                                        .value
+                                                                        .current
+                                                            )
                                                         ) {
                                                             element.value.current =
                                                                 filterOptions(
@@ -493,12 +488,12 @@ const ProbePanel: FunctionalComponent = () => {
                                                                     element
                                                                         .value
                                                                         .current *
-                                                                        mult
+                                                                    mult
                                                                 )
                                                             const stepMult =
                                                                 Math.round(
                                                                     element.step *
-                                                                        mult
+                                                                    mult
                                                                 )
                                                             // console.log(
                                                             //     "Element:",
@@ -519,7 +514,7 @@ const ProbePanel: FunctionalComponent = () => {
                                                             // )
                                                             if (
                                                                 valueMult %
-                                                                    stepMult !=
+                                                                stepMult !=
                                                                 0
                                                             ) {
                                                                 // console.log(
@@ -530,14 +525,14 @@ const ProbePanel: FunctionalComponent = () => {
                                                         }
                                                         if (
                                                             element.type ===
-                                                                "number" &&
+                                                            "number" &&
                                                             (element.value
                                                                 .current <
                                                                 element.min ||
                                                                 element.value
                                                                     .current
                                                                     .length ===
-                                                                    0)
+                                                                0)
                                                         ) {
                                                             //No error message to keep all control aligned
                                                             //may be have a better way ?

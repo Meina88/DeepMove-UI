@@ -205,3 +205,13 @@
   font-weight: 600;
   color: var(--ms-text-muted);
 }
+
+#SpindlePanel {
+
+  .spindle-status-block {
+    margin-bottom: $unit-4;   // separación real
+    display: flex;
+    justify-content: center;  // mantiene centrado
+  }
+
+}

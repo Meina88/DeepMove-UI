@@ -325,13 +325,14 @@ const Navbar = () => {
                 <section class="navbar-section navbar-left">
 
                     {/* ⏻ Power Off */}
-                    <span
-                        className={`btn btn-link no-box feather-icon-container text-error ${!isIdle ? "disabled opacity-50" : ""
-                            }`}
-                        onClick={isIdle ? onPowerOff : undefined}
-                    >
-                        <Power />
-                    </span>
+<span
+  className={`btn btn-link no-box feather-icon-container ${
+    !isIdle ? "disabled opacity-50" : ""
+  }`}
+  onClick={isIdle ? onPowerOff : undefined}
+>
+  <Power />
+</span>
 
                     {/* 🔄 Refresh */}
                     <span
@@ -369,16 +370,19 @@ const Navbar = () => {
 
 
                     {/* 🖥 HMI Fullscreen */}
-                    {isTabletDevice && (
-                        <button
-                            class="hmi-launch-btn"
-                            onClick={toggleHMI}
-                            title="Open HMI Console"
-                        >
-                            <Monitor size={16} />
-                            <span>HMI</span>
-                        </button>
-                    )}
+{isTabletDevice && (
+  <div
+    class={`tablet-hmi-switch ${isFullscreen ? "active" : ""}`}
+    onClick={toggleHMI}
+    title="Toggle HMI"
+  >
+    <div class="switch-track">
+      <div class="switch-thumb" />
+    </div>
+
+    <Monitor size={20} class="switch-monitor-icon" />
+  </div>
+)}
 
 
 
