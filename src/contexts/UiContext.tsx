@@ -48,7 +48,7 @@ interface SoundNote {
 
 interface AudioContextManager {
     context?: AudioContext | null
-    oscillator?: OscillatorNode | null
+    masterGain?: GainNode | null
     list: SoundNote[]
 }
 
@@ -307,11 +307,13 @@ const UiContextProvider: FunctionalComponent<UiContextProviderProps> = ({ childr
     useUiContextFn.haptic = haptic
 
     useUiContextFn.click = () => {
-    if (!getValue("audiofeedback")) return
-    play([{ f: 1800, d: 25 }])
-}
+        if (!getValue("audiofeedback")) return
+        play([{ f: 1800, d: 25 }])
+    }
 
     const initAudio = () => {
+        if (audio.context) return
+
         if (typeof window.AudioContext !== "undefined") {
             audio.context = new window.AudioContext()
         } else if (typeof window.webkitAudioContext !== "undefined") {
@@ -319,41 +321,51 @@ const UiContextProvider: FunctionalComponent<UiContextProviderProps> = ({ childr
         } else if (typeof window.audioContext !== "undefined") {
             audio.context = new window.audioContext()
         }
+
+        if (audio.context) {
+            audio.masterGain = audio.context.createGain()
+            audio.masterGain.gain.value = 0.5 // volumen global UI
+            audio.masterGain.connect(audio.context.destination)
+        }
     }
 
     const play = (sequence?: SoundNote[]) => {
-        if (sequence && audio.list.length > 0) {
-            return
+        if (!getValue("audio")) return
+        if (!sequence || sequence.length === 0) return
+
+        if (!audio.context) initAudio()
+        if (!audio.context || !audio.masterGain) return
+
+        if (audio.context.state === "suspended") {
+            audio.context.resume()
         }
-        if (getValue("audio")) {
-            if (!audio.context) {
-                initAudio()
-            }
-            if (sequence) {
-                audio.list = [...sequence]
-            }
-            if (audio.list.length > 0 && audio.context) {
-                if (audio.context.state === "suspended") audio.context.resume()
-                if (audio.oscillator) audio.oscillator.stop()
-                audio.oscillator = audio.context.createOscillator()
-                audio.oscillator.type = "square"
-                audio.oscillator.connect(audio.context.destination)
-                const current = audio.list.shift()
-                if (current) {
-                    audio.oscillator.frequency.value = current.f
-                    audio.oscillator.start()
-                    if (current.d) {
-                        setTimeout(() => {
-                            audio.oscillator?.stop()
-                            play()
-                        }, current.d)
-                    } else {
-                        audio.oscillator.stop()
-                        play()
-                    }
-                }
-            }
-        }
+
+        const ctx = audio.context
+        const master = audio.masterGain
+        let t = ctx.currentTime + 0.001
+
+        sequence.forEach(note => {
+            const duration = (note.d ?? 50) / 1000
+
+            const osc = ctx.createOscillator()
+            const gain = ctx.createGain()
+
+            osc.type = "sine" // sonido moderno limpio
+            osc.frequency.setValueAtTime(note.f, t)
+
+            // Envelope moderno
+            gain.gain.setValueAtTime(0.0001, t)
+            gain.gain.linearRampToValueAtTime(0.35, t + 0.003)
+            gain.gain.exponentialRampToValueAtTime(0.0001, t + duration)
+
+            osc.connect(gain)
+            gain.connect(master)
+
+            osc.start(t)
+            osc.stop(t + duration + 0.01)
+
+            t += duration
+        })
     }
 
     //play sequence
@@ -361,17 +373,16 @@ const UiContextProvider: FunctionalComponent<UiContextProviderProps> = ({ childr
     //beep
     useUiContextFn.beep = () => {
         play([
-            { f: 1046, d: 150 },
-            { f: 1318, d: 150 },
-            { f: 1567, d: 150 },
+            { f: 1567, d: 100 },
+            { f: 1318, d: 100 },
+            { f: 1046, d: 100 },
         ])
     }
     //beep error
     useUiContextFn.beepError = () => {
         play([
-            { f: 400, d: 150 },
-            { f: 200, d: 200 },
-            { f: 100, d: 300 },
+            { f: 260, d: 80 },
+            { f: 260, d: 80 },
         ])
     }
     //sequence

@@ -18,7 +18,7 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 import { FunctionalComponent, TargetedMouseEvent } from "preact"
-import { useRef } from "preact/hooks"
+import { useRef, useEffect } from "preact/hooks"
 import { useUiContext, useSettingsContext, useUiContextFn } from "../contexts"
 import { Loading } from "../components/Controls"
 import { AppLogo } from "../targets"
@@ -34,21 +34,52 @@ import { espHttpURL } from "../components/Helpers"
 import { restartdelay } from "../targets"
 import { Name } from "../targets"
 
+
 /*
  * Local const
  *
  */
+
+
+
+
 const ConnectionContainer: FunctionalComponent = () => {
     const { connection } = useUiContext()
     const { connectionSettings } = useSettingsContext()
     const timerCtrl = useRef<HTMLSpanElement>(null)
+
+    const previousPageRef = useRef<string | null>(null)
+
+    useEffect(() => {
+        const currentPage = connection.connectionState.page
+
+        if (previousPageRef.current !== currentPage) {
+
+            switch (currentPage) {
+                case "error":
+                case "connectionlost":
+                case "sessiontimeout":
+                    useUiContextFn.beepError()
+                    break
+
+                case "already connected":
+                    useUiContextFn.beep()
+                    break
+            }
+
+            previousPageRef.current = currentPage
+        }
+
+    }, [connection.connectionState.page])
+
+
     let contentIcon: any
     let contentSubtitle: any
     let contentTitle: string | undefined
     let contentAction: any
     let intervalTimer = 0
 
-    
+
     if (
         !connection.connectionState.connected ||
         connection.connectionState.updating
@@ -72,20 +103,19 @@ const ConnectionContainer: FunctionalComponent = () => {
         switch (connection.connectionState.page) {
             //No connection
             case "error":
-                useUiContextFn.beepError()
+
                 contentTitle = T("S1") //"Connection error"
                 contentIcon = <Frown style={{ width: "50px", height: "50px" }} />
                 contentSubtitle = T("S5") //"Cannot connect with board"
                 if (connection.connectionState.extraMsg)
                     contentSubtitle +=
-                        `: ${  connection.connectionState.extraMsg}`
+                        `: ${connection.connectionState.extraMsg}`
                 document.title =
                     `${connectionSettings.current &&
-                    connectionSettings.current.HostName
+                        connectionSettings.current.HostName
                         ? connectionSettings.current.HostName
-                        : Name 
-                    }(${ 
-                    T("S22") 
+                        : Name
+                    }(${T("S22")
                     })`
                 contentAction = (
                     <button class="btn" onClick={onclick}>
@@ -97,7 +127,7 @@ const ConnectionContainer: FunctionalComponent = () => {
             case "sessiontimeout":
             //Error connection lost
             case "connectionlost":
-                useUiContextFn.beepError()
+
                 contentTitle = T("S1") //"Connection error"
                 contentIcon = <AlertTriangle style={{ width: "50px", height: "50px" }} />
                 contentSubtitle =
@@ -106,11 +136,10 @@ const ConnectionContainer: FunctionalComponent = () => {
                         : T("S173") //"Connection with board is lost"
                 document.title =
                     `${connectionSettings.current &&
-                    connectionSettings.current.HostName
+                        connectionSettings.current.HostName
                         ? connectionSettings.current.HostName
-                        : Name 
-                    }(${ 
-                    T("S9") 
+                        : Name
+                    }(${T("S9")
                     })`
                 contentAction = (
                     <button class="btn" onClick={onclick}>
@@ -126,11 +155,10 @@ const ConnectionContainer: FunctionalComponent = () => {
                 contentSubtitle = T("S3")
                 document.title =
                     `${connectionSettings.current &&
-                    connectionSettings.current.HostName
+                        connectionSettings.current.HostName
                         ? connectionSettings.current.HostName
-                        : Name 
-                    }(${ 
-                    T("S9") 
+                        : Name
+                    }(${T("S9")
                     })`
                 contentAction = (
                     <button class="btn" onClick={onclick}>
@@ -144,11 +172,10 @@ const ConnectionContainer: FunctionalComponent = () => {
                 setTimeout(refreshTimer, 1000)
                 document.title =
                     `${connectionSettings.current &&
-                    connectionSettings.current.HostName
+                        connectionSettings.current.HostName
                         ? connectionSettings.current.HostName
-                        : Name 
-                    }(${ 
-                    T("S35") 
+                        : Name
+                    }(${T("S35")
                     })`
                 contentTitle = T("S35") //"restarting";
                 contentIcon = (
@@ -176,11 +203,10 @@ const ConnectionContainer: FunctionalComponent = () => {
                 } else {
                     document.title =
                         `${connectionSettings.current &&
-                        connectionSettings.current.HostName
+                            connectionSettings.current.HostName
                             ? connectionSettings.current.HostName
-                            : Name 
-                        }(${ 
-                        T("S2") 
+                            : Name
+                        }(${T("S2")
                         })`
                     contentTitle = T("S2") //"Connecting";
                 }
@@ -196,10 +222,10 @@ const ConnectionContainer: FunctionalComponent = () => {
             <div class="empty fullscreen">
                 <div class="centered text-primary">
                     <div class="empty-icon">
-                        <div class="d-flex p-centered empty-content">                           
-                           
-                            {contentIcon}                         
-                           
+                        <div class="d-flex p-centered empty-content">
+
+                            {contentIcon}
+
                         </div>
                     </div>
                     <div class="empty-title h5">{contentTitle}</div>
