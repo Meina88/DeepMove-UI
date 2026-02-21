@@ -33,6 +33,8 @@ import { T } from "../components/Translations"
 import { espHttpURL } from "../components/Helpers"
 import { restartdelay } from "../targets"
 import { Name } from "../targets"
+import { DeepMoveIcon } from "../targets/CNC/FluidNC/icons"
+
 
 
 /*
@@ -151,7 +153,21 @@ const ConnectionContainer: FunctionalComponent = () => {
             case "already connected":
                 useUiContextFn.beep()
                 contentTitle = T("S9")
-                contentIcon = <Slash style={{ width: "50px", height: "50px" }} />
+contentIcon = (
+    <div
+        style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            width: "100%",
+            opacity: 0.95,
+            color: "hsl(205, 90%, 52%)",
+            filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.4))"
+        }}
+    >
+        <DeepMoveIcon height="80px" />
+    </div>
+)
                 contentSubtitle = T("S3")
                 document.title =
                     `${connectionSettings.current &&
