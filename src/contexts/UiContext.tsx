@@ -102,6 +102,7 @@ interface UiContextFn {
     getValue: (id: string, base?: any) => any
     getElement: (id: string, base?: any) => any
     haptic: (pattern?: number | number[]) => void
+    click: () => void
     playSound: (sequence: SoundNote[]) => void
     beep: () => void
     beepError: () => void
@@ -295,22 +296,20 @@ const UiContextProvider: FunctionalComponent<UiContextProviderProps> = ({ childr
     useUiContextFn.getValue = getValue
     useUiContextFn.getElement = getElement
 
-            const haptic = (pattern?: number | number[]) => {
-                if (!window || !window.navigator || !window.navigator.vibrate) return
-                if (!getValue("hapticfeedback")) return
+    const haptic = (pattern?: number | number[]) => {
+        if (!window || !window.navigator || !window.navigator.vibrate) return
+        if (!getValue("hapticfeedback")) return
 
-                // patrón por defecto
-                const vibPattern = pattern ?? 50
-
-                window.navigator.vibrate(vibPattern)
-
-                // sonido opcional, solo si no es patrón largo
-                if (getValue("audiofeedback") && pattern === undefined) {
-                    play([{ f: 1000, d: 50 }])
-                }
-            }
+        const vibPattern = pattern ?? 50
+        window.navigator.vibrate(vibPattern)
+    }
 
     useUiContextFn.haptic = haptic
+
+    useUiContextFn.click = () => {
+    if (!getValue("audiofeedback")) return
+    play([{ f: 1800, d: 25 }])
+}
 
     const initAudio = () => {
         if (typeof window.AudioContext !== "undefined") {

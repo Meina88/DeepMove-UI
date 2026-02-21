@@ -47,27 +47,41 @@ type ClassModifier = Record<string, string>
 
 const createComponent =
     (is: keyof JSX.IntrinsicElements | ComponentType<any>, className: string, classModifier: ClassModifier = {}) =>
-    ({ is: Tag = is, class: c = "", id = "", ...props }: CreateComponentProps) => {
-        const splittedArgs = Object.keys(props).reduce<{ classes: string[]; props: Record<string, any> }>(
-            (acc, curr) => {
-                if (Object.keys(classModifier).includes(curr)) {
-                    return {
-                        classes: [...acc.classes, classModifier[curr]],
-                        props: acc.props,
+        ({ is: Tag = is, class: c = "", id = "", ...props }: CreateComponentProps) => {
+            const splittedArgs = Object.keys(props).reduce<{ classes: string[]; props: Record<string, any> }>(
+                (acc, curr) => {
+                    if (Object.keys(classModifier).includes(curr)) {
+                        return {
+                            classes: [...acc.classes, classModifier[curr]],
+                            props: acc.props,
+                        }
                     }
+                    return {
+                        classes: [...acc.classes],
+                        props: { ...acc.props, [curr]: (props as any)[curr] },
+                    }
+                },
+                { classes: [], props: {} }
+            )
+
+            // 🔊 Interceptar click SOLO si es botón nativo
+            if (Tag === "button" && typeof splittedArgs.props.onClick === "function") {
+                const originalClick = splittedArgs.props.onClick
+
+                splittedArgs.props.onClick = (e: any) => {
+                    if (!splittedArgs.props?.disabled) {
+                        useUiContextFn.click()
+                    }
+                    return originalClick(e)
                 }
-                return {
-                    classes: [...acc.classes],
-                    props: { ...acc.props, [curr]: (props as any)[curr] },
-                }
-            },
-            { classes: [], props: {} }
-        )
-        const classNames = `${className} ${splittedArgs.classes.join(
-            " "
-        )} ${c}`.trim()
-        return <Tag class={classNames} id={id} {...splittedArgs.props} />
-    }
+            }
+
+            const classNames = `${className} ${splittedArgs.classes.join(
+                " "
+            )} ${c}`.trim()
+
+            return <Tag class={classNames} id={id} {...splittedArgs.props} />
+        }
 
 /*
  * Ugly hack to avoid unwished tab stop to reach button not supposed to be accessed
@@ -131,7 +145,7 @@ const connectionDepend = (depend: DependItem[] | undefined, connectionsettings: 
                 if (d.value) {
                     return eval(quote + connectionsettings[d.connection_id] + quote + d.value);
                 } else if (d.contains) {
-                    return eval(`'${  connectionsettings[d.connection_id]  }'` + `.indexOf('${  d.contains  }')!=-1`);
+                    return eval(`'${connectionsettings[d.connection_id]}'` + `.indexOf('${d.contains}')!=-1`);
                 }
             }
             return true;
