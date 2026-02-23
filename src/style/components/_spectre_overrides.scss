@@ -973,3 +973,19 @@ body,
     }
   }
 }
+
+
+/* =====================================
+   DeepMove override — remove blue primary
+   ===================================== */
+
+.btn-primary {
+  background-color: var(--ms-accent) !important;
+  border-color: var(--ms-accent) !important;
+  color: var(--ms-text-inverse) !important;
+}
+
+.btn-primary:hover {
+  background-color: var(--ms-highlight) !important;
+  border-color: var(--ms-accent) !important;
+}

@@ -7,15 +7,15 @@
 
 .btn:focus,
 .btn:hover {
-    background: $primary-color-dark;
-    border-color: $primary-color-dark;
+    background: var(--ms-highlight);
+    border-color: var(--ms-highlight);
     text-decoration: none
 }
 
 .btn:focus,
 .btn:hover {
-    background: $primary-color-dark;
-    border-color: $primary-color-dark;
+    background: var(--ms-highlight);
+    border-color: var(--ms-highlight);
     color: $light-color;          
     text-decoration: none;
 }

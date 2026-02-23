@@ -25,6 +25,7 @@ import { useUiContextFn } from "../../contexts"
 import { useTargetContext } from "../../targets"
 import {
     ButtonImg,
+    Button,
     FullScreenButton,
     CloseButton,
     ContainerHelper,
@@ -419,7 +420,7 @@ const OverridesPanel: FunctionalComponent<OverridesPanelProps> = ({ embedded = f
                     <div class="override-rocker">
 
                         {/* +10% */}
-                        <button
+                        <Button
                             class="rocker-btn rocker-plus"
                             onClick={() => {
                                 useUiContextFn.haptic()
@@ -427,10 +428,10 @@ const OverridesPanel: FunctionalComponent<OverridesPanelProps> = ({ embedded = f
                             }}
                         >
                             <Plus size={18} />
-                        </button>
+                        </Button>
 
                         {/* SPEED = RESET 100% */}
-                        <button
+                        <Button
                             class="rocker-label-btn"
                             onClick={() => {
                                 if (uiSpindleOverride !== 100) {
@@ -444,12 +445,12 @@ const OverridesPanel: FunctionalComponent<OverridesPanelProps> = ({ embedded = f
                             ) : (
                                 <RefreshCw size={16} />
                             )}
-                        </button>
+                        </Button>
 
 
 
                         {/* -10% */}
-                        <button
+                        <Button
                             class="rocker-btn rocker-minus"
                             onClick={() => {
                                 useUiContextFn.haptic()
@@ -457,7 +458,7 @@ const OverridesPanel: FunctionalComponent<OverridesPanelProps> = ({ embedded = f
                             }}
                         >
                             <Minus size={18} />
-                        </button>
+                        </Button>
 
                     </div>
 
@@ -522,18 +523,15 @@ const OverridesPanel: FunctionalComponent<OverridesPanelProps> = ({ embedded = f
                     <div class="override-rocker">
 
                         {/* +10% */}
-                        <button
-                            class="rocker-btn rocker-plus"
-                            onClick={() => {
-                                useUiContextFn.haptic()
-                                sendOverride("feed", "+10")
-                            }}
-                        >
-                            <Plus size={18} />
-                        </button>
+<Button
+    class="rocker-btn rocker-plus"
+    onClick={() => sendOverride("feed", "+10")}
+>
+    <Plus size={18} />
+</Button>
 
                         {/* FEED = RESET 100% */}
-                        <button
+                        <Button
                             class="rocker-label-btn"
                             onClick={() => {
                                 if (uiFeedOverride !== 100) {
@@ -547,12 +545,12 @@ const OverridesPanel: FunctionalComponent<OverridesPanelProps> = ({ embedded = f
                             ) : (
                                 <RefreshCw size={16} />
                             )}
-                        </button>
+                        </Button>
 
 
 
                         {/* -10% */}
-                        <button
+                        <Button
                             class="rocker-btn rocker-minus"
                             onClick={() => {
                                 useUiContextFn.haptic()
@@ -560,7 +558,7 @@ const OverridesPanel: FunctionalComponent<OverridesPanelProps> = ({ embedded = f
                             }}
                         >
                             <Minus size={18} />
-                        </button>
+                        </Button>
 
                     </div>
 

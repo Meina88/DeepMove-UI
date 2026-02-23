@@ -93,9 +93,9 @@
     border-color: var(--ms-highlight);
 }
 
-.panel .navbar .btn:active,
-.panel .navbar .btn.active,
-.panel .navbar .dropdown.active>.dropdown-toggle.btn {
+.panel .navbar > .navbar-section > .btn:active,
+.panel .navbar > .navbar-section > .btn.active,
+.panel .navbar .dropdown.active > .dropdown-toggle.btn {
     background-color: var(--ms-highlight);
     border-color: var(--ms-accent);
 }
@@ -283,7 +283,7 @@
 /* Estado ACTIVO → visible y acento */
 .select-active svg {
     opacity: 1;
-    color: var(--primary-color);
+    color: var(--ms-accent);
 }
 
 /* Quitamos el chrome del botón en ambos casos */

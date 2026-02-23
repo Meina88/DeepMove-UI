@@ -43,7 +43,7 @@
 .extra-control-header {
     border-radius: 5px 5px 0px 0px;
     border-bottom: $border-width solid $border-color;
-    color: $primary-color-dark;
+    color: var(--ms-highlight);
     background-color: $bg-color;
     text-align: center;
     font-weight: bold;
@@ -163,10 +163,10 @@
 }
 
 .jog-distance-selector-header {
-    border: $border-width solid $primary-color;
+    border: $border-width solid var(--ms-accent);
     border-radius: $border-radius $border-radius 0 0;
-    color: var(--ms-accent)-dark;
-    background-color: $bg-color;
+    color: var(--ms-accent-dark);
+    background-color: var(--ms-bg-surface);
 }
 
 #selectAxisList{
@@ -205,7 +205,7 @@
     width: 64px;
     height: 64px;
     border-radius: 50%;
-    border: 2px solid var(--primary-color);
+    border: 2px solid var(--ms-accent);
     display: flex;
     align-items: center;
     justify-content: center;
