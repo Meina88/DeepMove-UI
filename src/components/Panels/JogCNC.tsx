@@ -130,25 +130,21 @@ const PositionsControls = ({
                         {/* ===== MPos ===== */}
                         {isMPos && (
                             <div class="jog-position-row">
-
-
                                 <div class="jog-position-ctrl">
-                                    <div
+
+                                    <Button
                                         class="jog-position-sub-header jog-axis-clickable"
-                                        onClick={() => {
-                                            useUiContextFn.haptic()
-                                            onConfirmHomeAxis(axis)
-                                        }}
+                                        onClick={() => onConfirmHomeAxis(axis)}
                                         title={T("CN10")}
                                     >
                                         {axis}
-                                        {isMPos && <sub class="jog-axis-sub">M</sub>}
-                                    </div>
-
+                                        <sub class="jog-axis-sub">M</sub>
+                                    </Button>
 
                                     <div class="jog-position-value">
                                         {positions[letter]}
                                     </div>
+
                                 </div>
                             </div>
                         )}
@@ -157,30 +153,27 @@ const PositionsControls = ({
                         {isWPos && (
                             <div class="jog-position-row">
                                 <div class="jog-position-ctrl">
-                                    <div
+
+                                    <Button
                                         class="jog-position-sub-header jog-axis-clickable"
-                                        onClick={() => {
-                                            useUiContextFn.haptic()
-                                            onZeroAxis(axis)
-                                        }}
-                                        title={T("CN19")} // Zero axis
+                                        onClick={() => onZeroAxis(axis)}
+                                        title={T("CN19")}
                                     >
                                         {axis}
-                                        {isWPos && <sub class="jog-axis-sub jog-axis-sub-w">W</sub>}
-                                    </div>
+                                        <sub class="jog-axis-sub jog-axis-sub-w">W</sub>
+                                    </Button>
 
                                     <div
                                         class="jog-position-value jog-position-clickable"
                                         onClick={() => {
-                                            useUiContextFn.haptic()
+                                            useUiContextFn.click()
                                             onWPosClick(letter, positions[`w${letter}`])
                                         }}
                                     >
                                         {positions[`w${letter}`]}
                                     </div>
+
                                 </div>
-
-
                             </div>
                         )}
 
@@ -855,7 +848,7 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
                             <div
                                 class="jog-step-knob-rotary"
                                 onClick={() => {
-                                    useUiContextFn.haptic()
+                                    useUiContextFn.click()
                                     setJogStepIndex((prev) => (prev + 1) % jogStepsXYZ.length)
                                 }}
                             >

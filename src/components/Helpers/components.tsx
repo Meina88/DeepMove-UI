@@ -64,17 +64,23 @@ const createComponent =
                 { classes: [], props: {} }
             )
 
-            // 🔊 Interceptar click SOLO si es botón nativo
-            if (Tag === "button" && typeof splittedArgs.props.onClick === "function") {
-                const originalClick = splittedArgs.props.onClick
+// 🔊 Interceptar interacción sin depender del tag
+const wrapFeedback = (fn: Function) => (e: any) => {
+    if (!splittedArgs.props?.disabled) {
+        useUiContextFn.click()
+    }
+    return fn(e)
+}
 
-                splittedArgs.props.onClick = (e: any) => {
-                    if (!splittedArgs.props?.disabled) {
-                        useUiContextFn.click()
-                    }
-                    return originalClick(e)
-                }
-            }
+// Interceptar onClick
+if (typeof splittedArgs.props.onClick === "function") {
+    splittedArgs.props.onClick = wrapFeedback(splittedArgs.props.onClick)
+}
+
+// Interceptar onPointerDown (para Jog)
+if (typeof splittedArgs.props.onPointerDown === "function") {
+    splittedArgs.props.onPointerDown = wrapFeedback(splittedArgs.props.onPointerDown)
+}
 
             const classNames = `${className} ${splittedArgs.classes.join(
                 " "
