@@ -124,7 +124,7 @@ $panel-header-hover: hsl(0, 0%, 16%);
 // =====================================================
 
 $code-color: hsl(195, 85%, 55%) !default; // cian técnico sobre dark
-$highlight-color: hsla(22, 90%, 52%, 0.18) !default; // highlight naranja sutil
+$highlight-color: rgba($primary-color, 0.18) !default;
 $body-bg: $bg-color !default;
 
 // =====================================================
