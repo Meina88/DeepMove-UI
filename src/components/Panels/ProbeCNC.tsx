@@ -26,7 +26,7 @@ import {
     useSettingsContext,
 } from "../../contexts"
 import { useTargetContext, variablesList } from "../../targets"
-import { ButtonImg, Field, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
+import { ButtonImg, Button, Field, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
 import { checkDependencies } from "../Helpers"
 import { useTargetCommands } from "../../hooks"
 
@@ -432,7 +432,7 @@ const ProbePanel: FunctionalComponent<ProbePanelProps> = ({ embedded = false }) 
                                                             useinput={
                                                                 element.useinput
                                                             }
-                                                            onclick={
+                                                            onClick={
                                                                 element.onclick
                                                             }
                                                         />

@@ -3,7 +3,7 @@
 */
 
 import type { FunctionalComponent } from "preact"
-import { ContainerHelper, FullScreenButton } from "../Controls"
+import { ContainerHelper, FullScreenButton, Button } from "../Controls"
 import { T } from "../Translations"
 import {
   Monitor,
@@ -31,6 +31,7 @@ import { useHttpQueue } from "../../hooks"
 import { useWebSocketService } from "../../hooks/useWebSocketService"
 import { espHttpURL } from "../Helpers"
 import { showConfirmationModal } from "../Modal"
+import { TargetedMouseEvent } from "preact"
 
 
 const HMIPanel: FunctionalComponent = () => {
@@ -237,8 +238,8 @@ const HMIPanel: FunctionalComponent = () => {
 
             <div
               class={`cnc-status-led ${effectiveState
-                  ? `state-${String(effectiveState).toLowerCase()}`
-                  : "state-offline"
+                ? `state-${String(effectiveState).toLowerCase()}`
+                : "state-offline"
                 }`}
             />
           </span>
@@ -353,38 +354,38 @@ const HMIPanel: FunctionalComponent = () => {
             <div class="hmi-footer">
               <div class="hmi-footer-nav">
 
-                <button
+                <Button
                   class={`hmi-nav-btn ${activeSection === "jog" ? "is-active" : ""}`}
                   onClick={() => setActiveSection("jog")}
                 >
                   {iconsTarget.Joystick}
                   <span>{T("S66")}</span>
-                </button>
+                </Button>
 
-                <button
+                <Button
                   class={`hmi-nav-btn ${activeSection === "files" ? "is-active" : ""}`}
                   onClick={() => setActiveSection("files")}
                 >
                   {iconsTarget.SDCard}
                   <span>{T("S65")}</span>
-                </button>
+                </Button>
 
-                <button
+                <Button
                   class={`hmi-nav-btn ${activeSection === "overrides" ? "is-active" : ""}`}
                   onClick={() => setActiveSection("overrides")}
                 >
                   {iconsTarget.Mixer}
                   <span>{T("CN65")}</span>
-                </button>
+                </Button>
 
-                <button
+                <Button
                   class={
                     "hmi-nav-btn hmi-nav-btn-reset" +
                     (isLatched ? " is-locked" : "") +
                     (resetBusy ? " is-busy" : "")
                   }
                   aria-pressed={isLatched}
-                  onClick={(e) => {
+                  onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
                     e.preventDefault()
                     e.stopPropagation()
                     onResetPress()
@@ -392,31 +393,31 @@ const HMIPanel: FunctionalComponent = () => {
                 >
                   <Octagon size={18} />
                   <span>{T("CN23")}</span>
-                </button>
+                </Button>
 
-                <button
+                <Button
                   class={`hmi-nav-btn ${activeSection === "outputs" ? "is-active" : ""}`}
                   onClick={() => setActiveSection("outputs")}
                 >
                   {iconsTarget.Outputs}
                   <span>{T("CN36")}</span>
-                </button>
+                </Button>
 
-                <button
+                <Button
                   class={`hmi-nav-btn ${activeSection === "terminal" ? "is-active" : ""}`}
                   onClick={() => setActiveSection("terminal")}
                 >
                   <Terminal size={18} />
                   <span>{T("S75")}</span>
-                </button>
+                </Button>
 
-                <button
+                <Button
                   class={`hmi-nav-btn ${activeSection === "probe" ? "is-active" : ""}`}
                   onClick={() => setActiveSection("probe")}
                 >
                   {iconsTarget.Diamond}
                   <span>{T("CN37")}</span>
-                </button>
+                </Button>
               </div>
             </div>
           </div>
