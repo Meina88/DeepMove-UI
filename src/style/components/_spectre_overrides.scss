@@ -101,6 +101,17 @@
   }
 }
 
+/* =========================================
+   Remove native focus outline (DeepMove)
+   ========================================= */
+
+.btn:focus,
+.btn:focus-visible,
+.dropdown-toggle:focus,
+.dropdown-toggle:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
 
 /* ---------- Primary ---------- */
 .btn.btn-primary {
@@ -452,7 +463,7 @@
 .menu .menu-item>a:hover,
 .menu .menu-item>a:focus,
 .menu .menu-item>a.active {
-  background-color: var(--ms-highlight, rgba(255, 255, 255, 0.06));
+  background-color: var(--ms-highlight);
   color: var(--ms-accent);
 }
 
