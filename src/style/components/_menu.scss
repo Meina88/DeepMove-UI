@@ -57,7 +57,7 @@
 
 .panel .menu-item:active,
 .panel .menu-item.active {
-    background: rgba($primary-color, 0.18);
+    background: var(--ms-highlight);
     color: var(--ms-accent);
     border-radius: 0.2rem;
     font-weight: 600;
