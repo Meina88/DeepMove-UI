@@ -36,45 +36,40 @@
                 "label": "S202",
                 "value": [
                     {
-                        "id": "HMI",
-                        "name": "hmi"
-                    },
-
-
-
-                    
-                    {
-                        "id": "Toolpath",
-                        "name": "toolpath"
-                    },
-                    {
-                        "id": "Terminal",
-                        "name": "terminal"
-                    },
-                    {
                         "id": "Jog",
-                        "name": "jog",
-                        "value": "jog"
-                    },
-                    {
-                        "id": "Probe",
-                        "name": "probe"
+                        "name": "jog"
                     },
                     {
                         "id": "Files",
                         "name": "files"
                     },
                     {
-                        "id": "Laser",
-                        "name": "laser"
+                        "id": "Overrrides",
+                        "name": "overrides"
+                    },
+                    {
+                        "id": "Toolpath",
+                        "name": "toolpath"
                     },
                     {
                         "id": "Spindle",
                         "name": "spindle"
                     },
                     {
-                        "id": "Overrrides",
-                        "name": "overrides"
+                        "id": "Probe",
+                        "name": "probe"
+                    },
+                    {
+                        "id": "HMI",
+                        "name": "hmi"
+                    },
+                    {
+                        "id": "Terminal",
+                        "name": "terminal"
+                    },
+                    {
+                        "id": "Laser",
+                        "name": "laser"
                     },
                     {
                         "id": "Notifications",
@@ -112,9 +107,9 @@
                 "value": [
                     {
                         "id": "samplepolling",
-                        "name": "1.5s",
+                        "name": "100ms",
                         "cmds": "?",
-                        "refreshtime": "1500"
+                        "refreshtime": "100"
                     }
                 ]
             }
@@ -167,7 +162,7 @@
                         "id": "filesPreviewOnPlayMobile",
                         "type": "boolean",
                         "label": "S241",
-                        "value": false
+                        "value": true
                     }
                 ]
             },
@@ -190,7 +185,7 @@
                         "id": "flashfs",
                         "type": "boolean",
                         "label": "S63",
-                        "value": true
+                        "value": false
                     },
                     {
                         "id": "sort_flashfs_files",
@@ -303,26 +298,6 @@
             }
         ],
         "jog": [
-            {
-                "id": "home",
-                "type": "group",
-                "label": "CN17",
-                "value": [
-                    {
-                        "id": "homesingleaxis",
-                        "type": "boolean",
-                        "label": "CN16",
-                        "value": true
-                    },
-                    {
-                        "id": "homecmd",
-                        "type": "text",
-                        "label": "CN10",
-                        "value": "$H#",
-                        "help": "CN11"
-                    }
-                ]
-            },
             {
                 "id": "axis",
                 "type": "group",
@@ -471,7 +446,7 @@
                         "label": "XY",
                         "min": "1",
                         "append": "CN1",
-                        "value": "1000"
+                        "value": "5000"
                     },
                     {
                         "id": "zfeedrate",
@@ -489,7 +464,7 @@
                         "label": "Z",
                         "append": "CN1",
                         "min": "1",
-                        "value": "1000"
+                        "value": "1500"
                     },
                     {
                         "id": "afeedrate",
@@ -600,78 +575,9 @@
                         "value": "1000"
                     }
                 ]
-            },
-            {
-                "id": "jogdistance",
-                "type": "group",
-                "label": "CN18",
-                "value": [
-                    {
-                        "id": "jogdistancedefault",
-                        "type": "select",
-                        "label": "XY",
-                        "value": "100",
-                        "options": [
-                            {
-                                "value": "0.1",
-                                "label": "0.1"
-                            },
-                            {
-                                "value": "1",
-                                "label": "1"
-                            },
-                            {
-                                "value": "10",
-                                "label": "10"
-                            },
-                            {
-                                "value": "50",
-                                "label": "50"
-                            },
-                            {
-                                "value": "100",
-                                "label": "100"
-                            }
-                        ]
-                    },
-                    {
-                        "id": "zjogdistancedefault",
-                        "type": "select",
-                        "label": "Z",
-                        "value": "10",
-                        "depend": [
-                            {
-                                "id": "showz",
-                                "value": true
-                            }
-                        ],
-                        "options": [
-                            {
-                                "value": "0.1",
-                                "label": "0.1"
-                            },
-                            {
-                                "value": "1",
-                                "label": "1"
-                            },
-                            {
-                                "value": "10",
-                                "label": "10"
-                            },
-                            {
-                                "value": "25",
-                                "label": "25"
-                            },
-                            {
-                                "value": "50",
-                                "label": "50"
-                            }
-                        ]
-                    }
-                ]
             }
-            ],
-            "Keymmaping": [
+        ],
+        "Keymmaping": [
             {
                 "id": "keymap",
                 "sorted": false,

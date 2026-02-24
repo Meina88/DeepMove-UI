@@ -91,7 +91,7 @@
                 "id": "showlaserpanel",
                 "type": "boolean",
                 "label": "S63",
-                "value": true
+                "value": false
             },
             {
                 "id": "openlaseronstart",
@@ -258,60 +258,7 @@
                 ]
             }
         ],
-        "jog": [
-            {
-                "id": "home",
-                "type": "group",
-                "label": "CN17",
-                "depend": [
-                    {
-                        "id": "showjogpanel",
-                        "value": true
-                    }
-                ],
-                "value": [
-                    {
-                        "id": "homesingleaxis",
-                        "type": "boolean",
-                        "label": "CN16",
-                        "value": false
-                    },
-                    {
-                        "id": "homecmd",
-                        "type": "text",
-                        "label": "CN10",
-                        "value": "$H#",
-                        "help": "CN11"
-                    }
-                ]
-            },
-            {
-                "id": "zerocmd",
-                "type": "text",
-                "label": "CN19",
-                "value": "G10 L20 P0 #",
-                "help": "CN11",
-                "depend": [
-                    {
-                        "id": "showjogpanel",
-                        "value": true
-                    }
-                ]
-            },
-            {
-                "id": "jogstopcmd",
-                "type": "text",
-                "label": "CN23",
-                "value": "#JOGCANCEL#",
-                "help": "S97",
-                "depend": [
-                    {
-                        "id": "showjogpanel",
-                        "value": true
-                    }
-                ]
-            }
-        ],
+        
         "toolpath": [
             {
                 "id": "showtoolpathpanel",

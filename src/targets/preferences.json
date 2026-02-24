@@ -29,19 +29,19 @@
                 "id": "audio",
                 "type": "boolean",
                 "label": "S170",
-                "value": false
+                "value": true
             },
             {
                 "id": "hapticfeedback",
                 "type": "boolean",
                 "label": "S176",
-                "value": false
+                "value": true
             },
             {
                 "id": "audiofeedback",
                 "type": "boolean",
                 "label": "S200",
-                "value": false,
+                "value": true,
                 "depend": [
                     {
                         "id": "audio",
@@ -56,41 +56,28 @@
                 "value": true
             },
             {
-                "id": "disconnectonotherlogin",
+                "id": "enableshortcuts",
                 "type": "boolean",
-                "label": "Allow multiple WebUI connections",
-                "value": true
+                "label": "S215",
+                "value": false
             },
             {
-                "id": "shortcuts",
-                "type": "group",
-                "label": "S216",
-                "value": [
+                "id": "enableautorepeat",
+                "type": "boolean",
+                "label": "S217",
+                "value": false
+            },
+            {
+                "id": "autorepeatdelay",
+                "type": "number",
+                "label": "S218",
+                "min": "1",
+                "append": "S114",
+                "value": "500",
+                "depend": [
                     {
                         "id": "enableautorepeat",
-                        "type": "boolean",
-                        "label": "S217",
-                        "value": false
-                    },
-                    {
-                        "id": "enableshortcuts",
-                        "type": "boolean",
-                        "label": "S215",
-                        "value": false
-                    },
-                    {
-                        "id": "autorepeatdelay",
-                        "type": "number",
-                        "label": "S218",
-                        "min": "1",
-                        "append": "S114",
-                        "value": "500",
-                        "depend": [
-                            {
-                                "id": "enableautorepeat",
-                                "value": true
-                            }
-                        ]
+                        "value": true
                     }
                 ]
             }
@@ -209,7 +196,7 @@
                 "id": "shownotificationspanel",
                 "type": "boolean",
                 "label": "S63",
-                "value": true
+                "value": false
             },
             {
                 "id": "opennotificationsonstart",
@@ -331,7 +318,7 @@
                 "id": "openhmionstart",
                 "type": "boolean",
                 "label": "S93",
-                "value": false,
+                "value": true,
                 "depend": [
                     {
                         "id": "showhmipanel",
