@@ -18,13 +18,7 @@
                 "type": "boolean",
                 "label": "S64",
                 "value": true
-            },
-            {
-                "id": "mobileview",
-                "type": "boolean",
-                "label": "S122",
-                "value": false
-            },
+            },           
             {
                 "id": "audio",
                 "type": "boolean",

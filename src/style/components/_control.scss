@@ -518,7 +518,7 @@ a label {
 .form-input.is-modified:focus,
 .has-modification .form-select:focus,
 .form-select.is-modified:focus {
-    box-shadow: 0 0 0 0.1rem hsla(22, 90%, 52%, 0.2);
+    box-shadow: 0 0 0 0.1rem rgba($primary-color, 0.18);
 }
 
 .has-modification .form-checkbox .form-icon,
@@ -547,7 +547,7 @@ a label {
 .has-modification .form-switch input:focus+.form-icon,
 .form-switch.is-modified input:focus+.form-icon {
     border-color: var(--ms-warning);
-    box-shadow: 0 0 0 0.1rem hsla(22, 90%, 52%, 0.2);
+    box-shadow: 0 0 0 0.1rem rgba($primary-color, 0.18);
 }
 
 .has-modification .form-checkbox input:indeterminate+.form-icon,
