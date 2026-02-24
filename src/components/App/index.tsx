@@ -35,9 +35,18 @@ import { ConnectionManager } from "../ConnectionManager"
 import { useState, useEffect } from "preact/hooks"
 import { Splash } from "./Splash"
 
+import SafetyDisclaimerModal from "../Modal/SafetyDisclaimerModal"
+import { useStoredState } from "../Helpers/storedState"
+
 
 const App = () => {
     const [loading, setLoading] = useState(true)
+    const DISCLAIMER_VERSION = "1.0.0"
+
+    const [acceptedDisclaimer, setAcceptedDisclaimer] = useStoredState<string | null>(
+        "deepmove_disclaimer_version",
+        null
+    )
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -47,31 +56,38 @@ const App = () => {
         return () => clearTimeout(timer)
     }, [])
 
-return (
-    <div id="app">
-        <DatasContextProvider>
-            <TargetContextProvider>
-                <RouterContextProvider>
-                    <UiContextProvider>
-                        <HttpQueueContextProvider>
-                            <SettingsContextProvider>
-                                <ToastsContextProvider>
-                                    <ModalsContextProvider>
-                                        {loading && <Splash />}
+    const showDisclaimer =
+        !loading && acceptedDisclaimer !== DISCLAIMER_VERSION
 
-                                        <ConnectionManager />
-                                        <ContainerHelper id="top_container" active={true} />
-                                        <ElementsCache />
-                                        <ContentContainer />
-                                    </ModalsContextProvider>
-                                </ToastsContextProvider>
-                            </SettingsContextProvider>
-                        </HttpQueueContextProvider>
-                    </UiContextProvider>
-                </RouterContextProvider>
-            </TargetContextProvider>
-        </DatasContextProvider>
-    </div>
-)
+    return (
+        <div id="app">
+            <DatasContextProvider>
+                <TargetContextProvider>
+                    <RouterContextProvider>
+                        <UiContextProvider>
+                            <HttpQueueContextProvider>
+                                <SettingsContextProvider>
+                                    <ToastsContextProvider>
+                                        <ModalsContextProvider>
+                                            {loading && <Splash />}
+                                            <SafetyDisclaimerModal
+                                                visible={showDisclaimer}
+                                                onAccept={() => setAcceptedDisclaimer(DISCLAIMER_VERSION)}
+                                            />
+
+                                            <ConnectionManager />
+                                            <ContainerHelper id="top_container" active={true} />
+                                            <ElementsCache />
+                                            <ContentContainer />
+                                        </ModalsContextProvider>
+                                    </ToastsContextProvider>
+                                </SettingsContextProvider>
+                            </HttpQueueContextProvider>
+                        </UiContextProvider>
+                    </RouterContextProvider>
+                </TargetContextProvider>
+            </DatasContextProvider>
+        </div>
+    )
 }
 export { App }

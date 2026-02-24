@@ -374,3 +374,25 @@ header.navbar .btn.btn-link {
 .panel .navbar .btn-remove {
     display: none !important;
 }
+
+
+.ms-disclaimer-overlay {
+    backdrop-filter: blur(4px);
+}
+
+/* =========================================
+   Force disclaimer modal to block UI
+   ========================================= */
+
+.modal.active {
+  z-index: 100000 !important;
+}
+
+.modal.active .modal-overlay {
+  pointer-events: all !important;
+}
+
+.modal-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+}
