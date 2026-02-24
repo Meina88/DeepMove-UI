@@ -50,6 +50,10 @@ const selectableAxisLettersList = ["A", "B", "C", "U", "V", "W"]
 const CONTINUOUS_JOG_DELAY = 200
 const CONTINUOUS_DISTANCE = 5000
 
+// === Local command templates (NO preferences) ===
+// '#' will be replaced with axis payload (e.g. "X" or "X0 Y0 Z0")
+const HOME_CMD_TEMPLATE = "$H#"
+const ZERO_CMD_TEMPLATE = "G10 L20 P1 #"
 
 const JogQuarter = ({ rotate = 0 }: { rotate?: number }) => {
     const cx = 75
@@ -331,34 +335,51 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
 
 
     //Send Home command
-    const sendHomeCommand = (axis: string) => {
-        let selected_axis
-        if (axis == "Axis") selected_axis = currentAxis
-        else selected_axis = axis
-        const cmd = useUiContextFn
-            .getValue("homecmd")
-            .replace("#", selected_axis)
-        targetCommands(cmd)
+const sendHomeCommand = (axis: string) => {
+    let selected_axis = axis === "Axis" ? currentAxis : axis
+
+    // Home all
+    if (selected_axis.length === 0) {
+        useUiContextFn.haptic()
+        targetCommands("$H")
+        return
     }
 
+    // Home specific axis (keeps the old behavior)
+    // If your firmware doesn't support $HX, this will show an error in terminal.
+    const cmd = HOME_CMD_TEMPLATE.replace("#", selected_axis)
+    useUiContextFn.haptic()
+    targetCommands(cmd)
+}
+
     //Send Zero command
-    const sendZeroCommand = (axis: string) => {
-        let selected_axis: string
-        if (axis == "Axis") selected_axis = `${currentAxis}0`
-        else selected_axis = `${axis}0`
-        if (axis.length == 0) {
-            selected_axis = ""
-            "xyzabcuvw".split("").reduce((acc, letter) => {
-                if (positions[letter] || positions[`w${letter}`])
-                    acc += selected_axis += ` ${letter.toUpperCase()}0`
-                return acc
-            }, "")
-        }
-        const cmd = useUiContextFn
-            .getValue("zerocmd")
-            .replace("#", selected_axis.trim())
-        targetCommands(cmd)
+const sendZeroCommand = (axis: string) => {
+    let payload = ""
+
+    // Axis selector mode
+    if (axis === "Axis") {
+        payload = `${currentAxis}0`
+    } else if (axis.length > 0) {
+        // Single axis
+        payload = `${axis}0`
+    } else {
+        // All axes that exist in positions OR wpositions
+        const all = ["x", "y", "z", "a", "b", "c", "u", "v", "w"]
+        const present = all.filter((l) => {
+            return (
+                typeof positions[l] !== "undefined" ||
+                typeof positions[`w${l}`] !== "undefined"
+            )
+        })
+
+        payload = present.map((l) => `${l.toUpperCase()}0`).join(" ")
     }
+
+    const cmd = ZERO_CMD_TEMPLATE.replace("#", payload.trim())
+
+    useUiContextFn.haptic()
+    targetCommands(cmd)
+}
 
     const sendMoveToCommand = (axis: string, targetPosition: string) => {
         let upperAxis = axis.toUpperCase()
