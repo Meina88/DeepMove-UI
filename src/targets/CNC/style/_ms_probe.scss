@@ -305,3 +305,34 @@
   position: relative;
   top: 3px;   // prueba 1px o 2px
 }
+
+/* =====================================================
+   Inputs — match Laser styling
+   ===================================================== */
+
+#ProbePanel {
+
+  /* Campo numérico */
+  input[type="number"],
+  .form-input {
+    background: var(--ms-bg-dark) !important;
+    border: $border-width solid var(--ms-border-dark) !important;
+    border-radius: $border-radius !important;
+    color: var(--ms-text-strong) !important;
+    box-shadow: var(--neo-shadow-pressed) !important;
+  }
+
+  input[type="number"]:focus,
+  .form-input:focus {
+    border-color: var(--ms-accent) !important;
+    box-shadow: 0 0 0 1px var(--ms-accent) !important;
+  }
+
+  /* Append (mm / mm/min) */
+  .input-group-addon {
+    background: var(--ms-bg-dark) !important;
+    border: $border-width solid var(--ms-border-dark) !important;
+    color: var(--ms-text-muted) !important;
+  }
+
+}

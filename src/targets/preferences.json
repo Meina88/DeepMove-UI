@@ -285,7 +285,7 @@
             {
                 "id": "showhmipanel",
                 "type": "boolean",
-                "label": "S63",
+                "label": "S63",               
                 "value": true
             },
             {

@@ -659,6 +659,32 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
     }
 
     useEffect(() => {
+        if (currentAxis === "-1") {
+            feedList.forEach((letter) => {
+                if (!currentFeedRate[letter]) {
+                    currentFeedRate[letter] = useUiContextFn.getValue(
+                        `${letter.toLowerCase()}feedrate`
+                    )
+                }
+            })
+
+            feedList.forEach((letter) => {
+                if (letter !== "XY" && letter !== "Z") {
+                    if (
+                        (positions[letter.toLowerCase()] ||
+                            positions[`w${letter.toLowerCase()}`]) &&
+                        useUiContextFn.getValue(`show${letter.toLowerCase()}`)
+                    ) {
+                        currentAxis = letter
+                    }
+                }
+            })
+
+            setCurrentSelectedAxis(currentAxis)
+        }
+    }, [])
+
+    useEffect(() => {
         if (!shortcuts.enabled) return
 
         const activeKeys = new Set<string>()
@@ -726,30 +752,7 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
         window.addEventListener("keydown", handleKeyDown)
         window.addEventListener("keyup", handleKeyUp)
 
-        // 🔹 inicialización feedrates y eje
-        if (currentAxis === "-1") {
-            feedList.forEach((letter) => {
-                if (!currentFeedRate[letter]) {
-                    currentFeedRate[letter] = useUiContextFn.getValue(
-                        `${letter.toLowerCase()}feedrate`
-                    )
-                }
-            })
 
-            feedList.forEach((letter) => {
-                if (letter !== "XY" && letter !== "Z") {
-                    if (
-                        (positions[letter.toLowerCase()] ||
-                            positions[`w${letter.toLowerCase()}`]) &&
-                        useUiContextFn.getValue(`show${letter.toLowerCase()}`)
-                    ) {
-                        currentAxis = letter
-                    }
-                }
-            })
-
-            setCurrentSelectedAxis(currentAxis)
-        }
 
         const onScroll = () => {
             forceCancelJog()

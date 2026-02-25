@@ -349,3 +349,27 @@
 .tablet-hmi-switch.active .switch-monitor-icon {
     color: var(--ms-accent);
 }
+
+.deepmove-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: hsl(205, 90%, 52%);
+}
+
+.deepmove-wordmark svg {
+  display: block;
+}
+
+.deepmove-text {
+    font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: 0.5px;
+}
+
+/* 🔥 Mobile: ocultar texto */
+@media (max-width: 600px) {
+  .deepmove-wordmark {
+    display: none;
+  }
+}

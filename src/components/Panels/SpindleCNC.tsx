@@ -297,9 +297,9 @@ const SpindlePanel: FunctionalComponent<SpindlePanelProps> = ({ embedded = false
         return validation
     }
 
-    const inputPinsOrder = ["P", "X", "Y", "Z", "V"]
+    const inputPinsOrder = ["X", "Y", "Z", "P"]
 
-
+    // Reemplazar por: const inputPinsOrder = ["X", "Y", "Z", "V", "P"] para activar el input de V.
 
     return (
         <div class="panel panel-dashboard" id={id}>

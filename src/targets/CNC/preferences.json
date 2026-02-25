@@ -324,13 +324,13 @@
                 "id": "showhmipanel",
                 "type": "boolean",
                 "label": "S63",
-                "value": true
+                "value": true                
             },
             {
                 "id": "openhmionstart",
                 "type": "boolean",
                 "label": "S93",
-                "value": true,
+                "value": true,               
                 "depend": [
                     {
                         "id": "showhmipanel",

@@ -51,6 +51,7 @@ import {
 } from "preact-feather"
 import { useTargetCommands } from "../../hooks"
 import { DashboardIcon } from "../../targets/CNC/FluidNC/icons"
+import { DeepMoveIcon } from "../../targets/CNC/FluidNC/icons"
 import { eventBus } from "../../hooks/eventBus"
 
 
@@ -98,7 +99,11 @@ function isTablet(): boolean {
     return hasTouch && shortSide >= 600
 }
 
-
+function isMobile(): boolean {
+    const hasTouch = navigator.maxTouchPoints > 0
+    const shortSide = Math.min(window.screen.width, window.screen.height)
+    return hasTouch && shortSide < 600
+}
 
 
 
@@ -126,6 +131,7 @@ const Navbar = () => {
     const [hrefbutton, setHrefButton] = useState<string | undefined>(undefined)
     const [isFullscreen, setIsFullscreen] = useState(false)
     const [isTabletDevice, setIsTabletDevice] = useState(isTablet())
+    const [isMobileDevice, setIsMobileDevice] = useState(isMobile())
 
     const reloadPage = () => {
         useUiContextFn.haptic()
@@ -304,16 +310,17 @@ const Navbar = () => {
     }, [])
 
     useEffect(() => {
-        const updateTabletState = () => {
+        const updateDeviceState = () => {
             setIsTabletDevice(isTablet())
+            setIsMobileDevice(isMobile())
         }
 
-        window.addEventListener("resize", updateTabletState)
-        window.addEventListener("orientationchange", updateTabletState)
+        window.addEventListener("resize", updateDeviceState)
+        window.addEventListener("orientationchange", updateDeviceState)
 
         return () => {
-            window.removeEventListener("resize", updateTabletState)
-            window.removeEventListener("orientationchange", updateTabletState)
+            window.addEventListener("resize", updateDeviceState)
+            window.addEventListener("orientationchange", updateDeviceState)
         }
     }, [])
 
@@ -354,12 +361,16 @@ const Navbar = () => {
 
                 </section>
 
-                {/* CENTRO */}
-                <section class="navbar-section navbar-center">
-                    <div className="navbar-brand logo no-box">
-                        <AppLogo />
-                    </div>
-                </section>
+{/* CENTRO */}
+<section class="navbar-section navbar-center">
+    <div className="navbar-brand logo no-box deepmove-brand">
+        <DeepMoveIcon height="1.4em" />
+
+        <span class="deepmove-wordmark">
+            <AppLogo />
+        </span>
+    </div>
+</section>
 
 
                 {/* DERECHA */}
@@ -385,10 +396,10 @@ const Navbar = () => {
 
                     {/* ⛶ Fullscreen */}
                     {!isIOS() && (
-<span
-    className="btn btn-link no-box feather-icon-container navbar-fullscreen-btn"
-    onClick={toggleFullscreen}
->
+                        <span
+                            className="btn btn-link no-box feather-icon-container navbar-fullscreen-btn"
+                            onClick={toggleFullscreen}
+                        >
                             {isFullscreen ? <Minimize /> : <Maximize />}
                         </span>
                     )}

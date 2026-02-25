@@ -234,11 +234,6 @@ const LaserPanel: FunctionalComponent = () => {
                 {laser_controls.map((block) => {
                     return (
                         <fieldset key={block.id} class="fieldset-top-separator fieldset-bottom-separator field-group">
-                            <legend>
-                                <label class="m-1 buttons-bar-label">
-                                    {T(block.label)}
-                                </label>
-                            </legend>
                             <div class="field-group-content maxwidth">
                                 {block.controls.map((control: any) => {
                                     return (

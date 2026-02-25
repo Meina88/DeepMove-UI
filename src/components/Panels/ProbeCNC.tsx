@@ -325,7 +325,7 @@ const ProbePanel: FunctionalComponent<ProbePanelProps> = ({ embedded = false }) 
                             m2: true,
                             icon: <Diamond />,
                             type: "button",
-                            label: "CN37",
+                            label: "CN203",
                             tooltip: "CN100",
                             onclick: (e: TargetedMouseEvent<HTMLButtonElement>) => {
                                 const commands = [
@@ -379,9 +379,8 @@ const ProbePanel: FunctionalComponent<ProbePanelProps> = ({ embedded = false }) 
                 </div>
             )}
 
-            <div class="panel-body panel-body-dashboard">
-                <ProbeControls />
-                {probe_controls.map((block) => {
+<div class="panel-body panel-body-dashboard">
+    {probe_controls.map((block) => {
                     return (
                         <fieldset key={block.id}
                             class={`field-group${block.label.length > 0
@@ -396,6 +395,9 @@ const ProbePanel: FunctionalComponent<ProbePanelProps> = ({ embedded = false }) 
                                     </label>
                                 )}
                             </legend>
+
+                            {/* STATUS SECTION INSIDE CARD */}
+<ProbeControls />
 
                             <div class="field-group-content maxwidth text-dark">
                                 {block.controls.map((control) => {
