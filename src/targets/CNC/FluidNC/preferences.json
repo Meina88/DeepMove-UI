@@ -6,13 +6,6 @@
                 "type": "pickup",
                 "label": "S181",
                 "value": "default"
-            },
-            {
-                "id": "emergencystop",
-                "type": "text",
-                "label": "P15",
-                "value": "#SAFETYDOOR#",
-                "help": "S97"
             }
         ],
         "panels": [

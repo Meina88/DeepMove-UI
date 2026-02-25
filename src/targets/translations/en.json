@@ -247,7 +247,7 @@
     "S252": "Go",
     "S253": "Rotate device",    
     "S255": "RPM Max",    
-    "S257": "Feedrate Max",  
+    "S257": "Feedrate Max (mm/min)",  
     "btn+X": "X+",
     "btn-X": "X-",
     "btnHX": "Home X",

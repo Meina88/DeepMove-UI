@@ -104,19 +104,8 @@ const keyboardEventHandlerDown = (e: KeyboardEvent): void => {
 
     if (cmdMatch) {
         e.preventDefault()
-        const autorepeat = useUiContextFn.getValue("enableautorepeat")
-        if (keyTracker.keyState == 1 && !autorepeat) {
-            return
-        }
+        if (keyTracker.keyState == 1) return
         keyTracker.keyState = 1
-        const delay = useUiContextFn.getValue("autorepeatdelay")
-        if (delay && autorepeat && keyTracker.lastkey == keyval) {
-            let t = new Date()
-            if (t.getTime() - keyTracker.lastcall.getTime() < delay) {
-                return
-            }
-            keyTracker.lastcall = new Date()
-        }
         keyTracker.lastkey = keyval
 
         const element = document.getElementById(cmdMatch)
@@ -214,7 +203,7 @@ const Dashboard: FunctionalComponent = (): JSX.Element => {
             //console.log("Init Done")
         }
         return () => {
-//console.log("Unmount dashboard")
+            //console.log("Unmount dashboard")
         }
     }, [])
 
@@ -291,7 +280,7 @@ const Dashboard: FunctionalComponent = (): JSX.Element => {
                 }, {})
 
                 if (item.target == "panel") {
-                    acc.push(ExtraPanelElement(item,  curr.id))
+                    acc.push(ExtraPanelElement(item, curr.id))
                 }
                 return acc
             }, [])
@@ -310,7 +299,7 @@ const Dashboard: FunctionalComponent = (): JSX.Element => {
     return (
         <div id="dashboard">
             {
-            
+
 //descomentar lo de abajo para recuperar el dropdown con la lista de paneles y el QuickButton
 
             /* <div class="buttons-bar m-2">
@@ -454,7 +443,7 @@ const Dashboard: FunctionalComponent = (): JSX.Element => {
                     return <Fragment key={panel.id}>{panel.content as any}</Fragment>
                 })}
             </div>
-              <PanelNavigator />
+            <PanelNavigator />
         </div>
     )
 }

@@ -33,10 +33,11 @@ import { useTargetCommands } from "../../hooks"
 import { useUiContextFn, useModalsContext } from "../../contexts"
 import { T } from "../Translations"
 import { Button, ButtonImg, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
-import { useEffect, useState } from "preact/hooks"
+import { useEffect, useState, useRef } from "preact/hooks"
 import { showModal } from "../Modal"
 import { useTargetContext } from "../../targets"
 import { Joystick } from "../../targets/CNC/FluidNC/icons"
+import { useUiContext } from "../../contexts"
 
 let currentFeedRate: Record<string, any> = {}
 let currentAxis: string = "-1"
@@ -201,12 +202,14 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
 
     const [currentSelectedAxis, setCurrentSelectedAxis] = useState(currentAxis)
     const [jogStepIndex, setJogStepIndex] = useState(0) // 100 mm    
-
-    const [jogTimer, setJogTimer] = useState<number | null>(null)
-    const [continuousActive, setContinuousActive] = useState(false)
+    const jogStepRef = useRef(jogStepIndex)
+    const jogTimerRef = useRef<number | null>(null)
+    const continuousRef = useRef(false)
+    const effectiveStepRef = useRef<number>(0)
 
     const id = "jogPanel"
     const haptic = () => { useUiContextFn.haptic() }
+    const { shortcuts } = useUiContext()
 
     const confirmGoHome = () => {
         showModal({
@@ -317,9 +320,16 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
         targetCommands("G0 X0 Y0 Z0")
     }
 
-    // 🔁 rota el stepping: 100 → 10 → 1 → 0.1 → 100
-    const rotateJogStep = () => {
-        setJogStepIndex((prev) => (prev + 1) % jogStepsXYZ.length)
+    // 🔁 rota el stepping (direction = 1 adelante, -1 atrás)
+    const rotateJogStep = (direction: 1 | -1 = 1) => {
+        setJogStepIndex((prev) => {
+            let next = prev + direction
+
+            if (next >= jogStepsXYZ.length) next = 0
+            if (next < 0) next = jogStepsXYZ.length - 1
+
+            return next
+        })
     }
 
 
@@ -335,51 +345,51 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
 
 
     //Send Home command
-const sendHomeCommand = (axis: string) => {
-    let selected_axis = axis === "Axis" ? currentAxis : axis
+    const sendHomeCommand = (axis: string) => {
+        let selected_axis = axis === "Axis" ? currentAxis : axis
 
-    // Home all
-    if (selected_axis.length === 0) {
+        // Home all
+        if (selected_axis.length === 0) {
+            useUiContextFn.haptic()
+            targetCommands("$H")
+            return
+        }
+
+        // Home specific axis (keeps the old behavior)
+        // If your firmware doesn't support $HX, this will show an error in terminal.
+        const cmd = HOME_CMD_TEMPLATE.replace("#", selected_axis)
         useUiContextFn.haptic()
-        targetCommands("$H")
-        return
+        targetCommands(cmd)
     }
-
-    // Home specific axis (keeps the old behavior)
-    // If your firmware doesn't support $HX, this will show an error in terminal.
-    const cmd = HOME_CMD_TEMPLATE.replace("#", selected_axis)
-    useUiContextFn.haptic()
-    targetCommands(cmd)
-}
 
     //Send Zero command
-const sendZeroCommand = (axis: string) => {
-    let payload = ""
+    const sendZeroCommand = (axis: string) => {
+        let payload = ""
 
-    // Axis selector mode
-    if (axis === "Axis") {
-        payload = `${currentAxis}0`
-    } else if (axis.length > 0) {
-        // Single axis
-        payload = `${axis}0`
-    } else {
-        // All axes that exist in positions OR wpositions
-        const all = ["x", "y", "z", "a", "b", "c", "u", "v", "w"]
-        const present = all.filter((l) => {
-            return (
-                typeof positions[l] !== "undefined" ||
-                typeof positions[`w${l}`] !== "undefined"
-            )
-        })
+        // Axis selector mode
+        if (axis === "Axis") {
+            payload = `${currentAxis}0`
+        } else if (axis.length > 0) {
+            // Single axis
+            payload = `${axis}0`
+        } else {
+            // All axes that exist in positions OR wpositions
+            const all = ["x", "y", "z", "a", "b", "c", "u", "v", "w"]
+            const present = all.filter((l) => {
+                return (
+                    typeof positions[l] !== "undefined" ||
+                    typeof positions[`w${l}`] !== "undefined"
+                )
+            })
 
-        payload = present.map((l) => `${l.toUpperCase()}0`).join(" ")
+            payload = present.map((l) => `${l.toUpperCase()}0`).join(" ")
+        }
+
+        const cmd = ZERO_CMD_TEMPLATE.replace("#", payload.trim())
+
+        useUiContextFn.haptic()
+        targetCommands(cmd)
     }
-
-    const cmd = ZERO_CMD_TEMPLATE.replace("#", payload.trim())
-
-    useUiContextFn.haptic()
-    targetCommands(cmd)
-}
 
     const sendMoveToCommand = (axis: string, targetPosition: string) => {
         let upperAxis = axis.toUpperCase()
@@ -485,69 +495,62 @@ const sendZeroCommand = (axis: string) => {
     }
 
     const forceCancelJog = () => {
-        if (jogTimer) {
-            clearTimeout(jogTimer)
-            setJogTimer(null)
+        if (jogTimerRef.current !== null) {
+            clearTimeout(jogTimerRef.current)
+            jogTimerRef.current = null
         }
 
-        if (continuousActive) {
+        if (continuousRef.current) {
             cancelJog()
-            setContinuousActive(false)
+            continuousRef.current = false
         }
 
-        // restaurar scroll si lo bloqueamos
         document.body.style.overflow = ""
     }
 
 
     const jogPressHandlers = (axis: string) => {
-        let effectiveStepIndex = jogStepIndex
-
         return {
             onPointerDown: () => {
                 useUiContextFn.haptic()
                 document.body.style.overflow = "hidden"
 
-                effectiveStepIndex = jogStepIndex
+                // capturamos el step efectivo EN EL DOWN
+                let effectiveStepIndex = jogStepRef.current
 
-                if (
-                    jogStepsXYZ[jogStepIndex] === 100 &&
-                    (axis === "Z+" || axis === "Z-")
-                ) {
+                if (jogStepsXYZ[jogStepRef.current] === 100 && (axis === "Z+" || axis === "Z-")) {
                     effectiveStepIndex = 1
                     setJogStepIndex(1) // solo UI
                 }
 
-                const timer = window.setTimeout(() => {
-                    setContinuousActive(true)
+                effectiveStepRef.current = effectiveStepIndex
+                continuousRef.current = false
 
-                    const feed = getContinuousFeedrateForStep(
-                        axis,
-                        jogStepsXYZ[effectiveStepIndex]
-                    )
+                // armamos el timer en REF (cancelable al instante)
+                jogTimerRef.current = window.setTimeout(() => {
+                    continuousRef.current = true
 
+                    const feed = getContinuousFeedrateForStep(axis, jogStepsXYZ[effectiveStepRef.current])
                     const cmd = `$J=G91 G21 ${axis}${CONTINUOUS_DISTANCE} F${feed}`
                     targetCommands(cmd)
                 }, CONTINUOUS_JOG_DELAY)
-
-                setJogTimer(timer)
             },
 
             onPointerUp: () => {
-                if (jogTimer) {
-                    clearTimeout(jogTimer)
-                    setJogTimer(null)
+                // cancelá SIEMPRE el timer por ref
+                if (jogTimerRef.current !== null) {
+                    clearTimeout(jogTimerRef.current)
+                    jogTimerRef.current = null
                 }
 
-                if (continuousActive) {
+                if (continuousRef.current) {
                     forceCancelJog()
                 } else {
-                    setContinuousActive(false) // 🔹 aseguramos estado limpio
-                    sendJogCommand(axis, effectiveStepIndex)
+                    // tap corto -> step exacto capturado
+                    sendJogCommand(axis, effectiveStepRef.current)
                     document.body.style.overflow = ""
                 }
             },
-
 
             onPointerLeave: forceCancelJog,
             onPointerCancel: forceCancelJog,
@@ -644,10 +647,86 @@ const sendZeroCommand = (axis: string) => {
         }
     }
 
+
+    const startJog = (axis: string) => {
+        const handlers = jogPressHandlers(axis)
+        handlers.onPointerDown()
+    }
+
+    const stopJog = (axis: string) => {
+        const handlers = jogPressHandlers(axis)
+        handlers.onPointerUp()
+    }
+
     useEffect(() => {
+        if (!shortcuts.enabled) return
 
+        const activeKeys = new Set<string>()
 
-        // 🔹 inicialización de feedrates y eje actual
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (activeKeys.has(e.code)) return
+
+            switch (e.code) {
+                case "ArrowRight":
+                    startJog("X+")
+                    activeKeys.add(e.code)
+                    break
+                case "ArrowLeft":
+                    startJog("X-")
+                    activeKeys.add(e.code)
+                    break
+                case "ArrowUp":
+                    startJog("Y+")
+                    activeKeys.add(e.code)
+                    break
+                case "ArrowDown":
+                    startJog("Y-")
+                    activeKeys.add(e.code)
+                    break
+                case "PageUp":
+                    startJog("Z+")
+                    activeKeys.add(e.code)
+                    break
+                case "PageDown":
+                    startJog("Z-")
+                    activeKeys.add(e.code)
+                    break
+            }
+        }
+
+        const handleKeyUp = (e: KeyboardEvent) => {
+            switch (e.code) {
+                case "ArrowRight":
+                    stopJog("X+")
+                    activeKeys.delete(e.code)
+                    break
+                case "ArrowLeft":
+                    stopJog("X-")
+                    activeKeys.delete(e.code)
+                    break
+                case "ArrowUp":
+                    stopJog("Y+")
+                    activeKeys.delete(e.code)
+                    break
+                case "ArrowDown":
+                    stopJog("Y-")
+                    activeKeys.delete(e.code)
+                    break
+                case "PageUp":
+                    stopJog("Z+")
+                    activeKeys.delete(e.code)
+                    break
+                case "PageDown":
+                    stopJog("Z-")
+                    activeKeys.delete(e.code)
+                    break
+            }
+        }
+
+        window.addEventListener("keydown", handleKeyDown)
+        window.addEventListener("keyup", handleKeyUp)
+
+        // 🔹 inicialización feedrates y eje
         if (currentAxis === "-1") {
             feedList.forEach((letter) => {
                 if (!currentFeedRate[letter]) {
@@ -678,14 +757,18 @@ const sendZeroCommand = (axis: string) => {
 
         window.addEventListener("scroll", onScroll, { passive: true })
 
-
         return () => {
+            window.removeEventListener("keydown", handleKeyDown)
+            window.removeEventListener("keyup", handleKeyUp)
             window.removeEventListener("scroll", onScroll)
             forceCancelJog()
         }
 
-    }, [])   // ⬅️ CLAVE ABSOLUTA
+    }, [shortcuts.enabled])
 
+    useEffect(() => {
+        jogStepRef.current = jogStepIndex
+    }, [jogStepIndex])
 
     return (
         <div class="panel panel-dashboard" id={id} >
@@ -870,7 +953,7 @@ const sendZeroCommand = (axis: string) => {
                                 class="jog-step-knob-rotary"
                                 onClick={() => {
                                     useUiContextFn.click()
-                                    setJogStepIndex((prev) => (prev + 1) % jogStepsXYZ.length)
+                                    rotateJogStep(1)
                                 }}
                             >
                                 {/* ◌ Detents vacíos */}
@@ -940,12 +1023,36 @@ const sendZeroCommand = (axis: string) => {
 
                 <div class="d-none">
                     {/* MOVES */}
-                    <button id="btn+X" onClick={() => sendJogCommand("X+")} />
-                    <button id="btn-X" onClick={() => sendJogCommand("X-")} />
-                    <button id="btn+Y" onClick={() => sendJogCommand("Y+")} />
-                    <button id="btn-Y" onClick={() => sendJogCommand("Y-")} />
-                    <button id="btn+Z" onClick={() => sendJogCommand("Z+")} />
-                    <button id="btn-Z" onClick={() => sendJogCommand("Z-")} />
+                    <button
+                        id="btn+X"
+                        onMouseDown={() => startJog("X+")}
+                        onMouseUp={() => stopJog("X+")}
+                    />
+                    <button
+                        id="btn-X"
+                        onMouseDown={() => startJog("X-")}
+                        onMouseUp={() => stopJog("X-")}
+                    />
+                    <button
+                        id="btn+Y"
+                        onMouseDown={() => startJog("Y+")}
+                        onMouseUp={() => stopJog("Y+")}
+                    />
+                    <button
+                        id="btn-Y"
+                        onMouseDown={() => startJog("Y-")}
+                        onMouseUp={() => stopJog("Y-")}
+                    />
+                    <button
+                        id="btn+Z"
+                        onMouseDown={() => startJog("Z+")}
+                        onMouseUp={() => stopJog("Z+")}
+                    />
+                    <button
+                        id="btn-Z"
+                        onMouseDown={() => startJog("Z-")}
+                        onMouseUp={() => stopJog("Z-")}
+                    />
 
 
                     {/* HOME por eje */}
@@ -969,6 +1076,23 @@ const sendZeroCommand = (axis: string) => {
                     {/* STOP */}
                     <button id="btnStop" onClick={cancelJog} />
                     <button id="btnEStop" onClick={cancelJog} />
+
+                    {/* DISTANCE SELECT */}
+                    <button
+                        id="btndistSel+"
+                        onClick={() => {
+                            useUiContextFn.click()
+                            rotateJogStep(-1)
+                        }}
+                    />
+
+                    <button
+                        id="btndistSel-"
+                        onClick={() => {
+                            useUiContextFn.click()
+                            rotateJogStep(1)
+                        }}
+                    />
 
 
                 </div>

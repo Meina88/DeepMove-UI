@@ -54,26 +54,6 @@
                 "type": "boolean",
                 "label": "S215",
                 "value": false
-            },
-            {
-                "id": "enableautorepeat",
-                "type": "boolean",
-                "label": "S217",
-                "value": false
-            },
-            {
-                "id": "autorepeatdelay",
-                "type": "number",
-                "label": "S218",
-                "min": "1",
-                "append": "S114",
-                "value": "500",
-                "depend": [
-                    {
-                        "id": "enableautorepeat",
-                        "value": true
-                    }
-                ]
             }
         ],
         "panels": [],
