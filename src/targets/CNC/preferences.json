@@ -1,6 +1,5 @@
 {
     "settings": {
-
         "probe": [
             {
                 "id": "showprobepanel",
@@ -256,9 +255,34 @@
                         "value": true
                     }
                 ]
+            },
+            {
+                "id": "rpm_max",
+                "type": "number",
+                "label": "S255",
+                "value": 24000,
+                "min": 1,
+                "depend": [
+                    {
+                        "id": "showoverridespanel",
+                        "value": true
+                    }
+                ]
+            },
+            {
+                "id": "feed_max",
+                "type": "number",
+                "label": "S257",
+                "value": 5000,
+                "min": 1,
+                "depend": [
+                    {
+                        "id": "showoverridespanel",
+                        "value": true
+                    }
+                ]
             }
         ],
-        
         "toolpath": [
             {
                 "id": "showtoolpathpanel",
@@ -294,7 +318,7 @@
                 "value": 150000,
                 "min": 1000
             }
-        ],        
+        ],
         "hmi": [
             {
                 "id": "showhmipanel",

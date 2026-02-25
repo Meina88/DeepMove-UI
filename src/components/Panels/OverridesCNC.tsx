@@ -36,6 +36,8 @@ import { useState } from "preact/hooks"
 
 
 
+
+
 type StateValue = { value: string } | Array<{ value: string }>
 type StatesMap = Record<string, StateValue>
 
@@ -98,6 +100,9 @@ const OverridesPanel: FunctionalComponent<OverridesPanelProps> = ({ embedded = f
     const [uiFeedOverride, setUiFeedOverride] = useState(100)
     const { targetCommands } = useTargetCommands()
     const [linked, setLinked] = useState(false)
+
+    const rpmMax = Number(useUiContextFn.getValue("rpm_max")) || 24000
+    const feedMax = Number(useUiContextFn.getValue("feed_max")) || 5000
     const { status, streamStatus, states } = useTargetContext() as {
 
         status?: {
@@ -161,9 +166,13 @@ const OverridesPanel: FunctionalComponent<OverridesPanelProps> = ({ embedded = f
     const spindleRPM = Number(spindleVal) || 0
     const feedMM = Number(feedVal) || 0
 
-    const MAX_SPINDLE_RPM = 24000
-    const MAX_FEED_MM = 5000
 
+    // 🔒 Bloquear si el próximo +10% excede el límite
+    const spindleNextRPM = spindleRPM * 1.1
+    const feedNextMM = feedMM * 1.1
+
+    const spindleAtMax = spindleNextRPM > rpmMax
+    const feedAtMax = feedNextMM > feedMax
 
     const valueToHeight = (value: number, max: number) => {
         if (value <= 0) return 0
@@ -171,8 +180,8 @@ const OverridesPanel: FunctionalComponent<OverridesPanelProps> = ({ embedded = f
         return (clamped / max) * 100
     }
 
-    const spindleBarHeight = valueToHeight(spindleRPM, MAX_SPINDLE_RPM)
-    const feedBarHeight = valueToHeight(feedMM, MAX_FEED_MM)
+    const spindleBarHeight = valueToHeight(spindleRPM, rpmMax)
+    const feedBarHeight = valueToHeight(feedMM, feedMax)
 
 
 
@@ -421,8 +430,10 @@ const OverridesPanel: FunctionalComponent<OverridesPanelProps> = ({ embedded = f
 
                         {/* +10% */}
                         <Button
-                            class="rocker-btn rocker-plus"
+                            class={`rocker-btn rocker-plus ${spindleAtMax ? "is-disabled" : ""}`}
+                            disabled={spindleAtMax}
                             onClick={() => {
+                                if (spindleAtMax) return
                                 useUiContextFn.haptic()
                                 sendOverride("spindle", "+10")
                             }}
@@ -523,12 +534,16 @@ const OverridesPanel: FunctionalComponent<OverridesPanelProps> = ({ embedded = f
                     <div class="override-rocker">
 
                         {/* +10% */}
-<Button
-    class="rocker-btn rocker-plus"
-    onClick={() => sendOverride("feed", "+10")}
->
-    <Plus size={18} />
-</Button>
+                        <Button
+                            class={`rocker-btn rocker-plus ${feedAtMax ? "is-disabled" : ""}`}
+                            disabled={feedAtMax}
+                            onClick={() => {
+                                if (feedAtMax) return
+                                sendOverride("feed", "+10")
+                            }}
+                        >
+                            <Plus size={18} />
+                        </Button>
 
                         {/* FEED = RESET 100% */}
                         <Button
