@@ -65,7 +65,7 @@ const ProbeControls: FunctionalComponent = () => {
                     <div class="extra-control-value">
                         {gcodeParameters.PRB
                             ? T(gcodeParameters.PRB.success ? "CN101" : "CN102")
-                            : "Ready"}
+                            : T("S300")}
                     </div>
                 </div>
             </div>

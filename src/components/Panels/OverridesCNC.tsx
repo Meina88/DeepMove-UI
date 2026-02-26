@@ -81,7 +81,7 @@ const OverridesControls: FunctionalComponent<{
 
 
                 <div class="lock-label">
-                    {T("Chipload")}
+                    {T("S301")}
                 </div>
 
             </div>
@@ -556,7 +556,7 @@ const OverridesPanel: FunctionalComponent<OverridesPanelProps> = ({ embedded = f
                             }}
                         >
                             {uiFeedOverride === 100 ? (
-                                "FEED"
+                                T("S259")
                             ) : (
                                 <RefreshCw size={16} />
                             )}

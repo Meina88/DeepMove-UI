@@ -92,7 +92,7 @@ const FilesPanel: FunctionalComponent<FilesPanelProps> = ({ embedded = false }) 
 
             const menuItems: PanelMenuItem[] = [
                 {
-                    label: T("Storage"),
+                    label: T("S303"),
                     icon: (
                         <span class="feather-icon-container">
                             <SDCard />

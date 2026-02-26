@@ -268,7 +268,7 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
                 text: T("S28"), // Cancel
             },
             button1: {
-                text: T("CN10"), // Home
+                text: T("CN204"), // Home
                 cb: () => {
                     sendHomeCommand(axis)
                 },
@@ -293,7 +293,7 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
                 text: T("S28"), // Cancel
             },
             button1: {
-                text: T("CN10"), // Home
+                text: T("CN204"), // Home
                 cb: () => {
                     sendHomeCommand("")
                 },
@@ -865,7 +865,7 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
                                 confirmGoHome()
                             }}
                         >
-                            Go <Home size={"0.9rem" as any} />
+                            {T("S252")} <Home size={"0.9rem" as any} />
                         </Button>
 
 
@@ -885,7 +885,7 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
                                 confirmHomeAll()
                             }}
                         >
-                            Find <Home size={"0.9rem" as any} />
+                            {T("CN17")} <Home size={"0.9rem" as any} />
                         </Button>
 
                     </div>
@@ -906,7 +906,7 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
                                 confirmGoWork()
                             }}
                         >
-                            Go <Crosshair size={"0.9rem" as any} />
+                            {T("S252")} <Crosshair size={"0.9rem" as any} />
                         </Button>
 
 
@@ -926,7 +926,7 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
                                 sendZeroCommand("")
                             }}
                         >
-                            Set <Crosshair size={"0.9rem" as any} />
+                            {T("S43")} <Crosshair size={"0.9rem" as any} />
                         </Button>
                     </div>
 
@@ -1008,12 +1008,24 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
                         useUiContextFn.getValue("showz") && (
                             <div class="jog-axis-group">
                                 <div class="m-1 jog-buttons-container">
-                                    <Button m2 {...jogPressHandlers("Z+")}>
-                                        <ArrowUp size={20} />
-                                    </Button>
-                                    <Button m2 {...jogPressHandlers("Z-")}>
-                                        <ArrowDown size={20} />
-                                    </Button>
+<Button
+    m2
+    {...jogPressHandlers("Z+")}
+    onPointerUp={(e: any) => {
+        (e.currentTarget as HTMLElement).blur()
+    }}
+>
+    <ArrowUp size={20} />
+</Button>
+<Button
+    m2
+    {...jogPressHandlers("Z-")}
+    onPointerUp={(e: any) => {
+        (e.currentTarget as HTMLElement).blur()
+    }}
+>
+    <ArrowUp size={20} />
+</Button>
                                 </div>
                             </div>
                         )}
