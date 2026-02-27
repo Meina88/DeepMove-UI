@@ -132,6 +132,7 @@ const Navbar = () => {
     const [isFullscreen, setIsFullscreen] = useState(false)
     const [isTabletDevice, setIsTabletDevice] = useState(isTablet())
     const [isMobileDevice, setIsMobileDevice] = useState(isMobile())
+    const [cpuTemp, setCpuTemp] = useState<string | null>(null)
 
     const reloadPage = () => {
         useUiContextFn.haptic()
@@ -142,6 +143,7 @@ const Navbar = () => {
         status: { state?: string }
     }
     const isIdle = status?.state === "Idle"
+    console.log(status)
 
 
 
@@ -286,6 +288,25 @@ const Navbar = () => {
         }
     }
 
+    useEffect(() => {
+        targetCommands("[ESP420]json=yes", undefined, undefined, {
+            onSuccess: (result: any) => {
+                try {
+                    const json = JSON.parse(result)
+                    if (json?.data) {
+                        const cpu = json.data.find((e: any) =>
+                            e.id === "CPU Temperature"
+                        )
+                        if (cpu) {
+                            setCpuTemp(cpu.value)
+                        }
+                    }
+                } catch (e) {
+                    console.log("Error parsing ESP420", e)
+                }
+            }
+        })
+    }, [])
 
     useEffect(() => {
         const handleFullscreenChange = () => {
@@ -361,16 +382,23 @@ const Navbar = () => {
 
                 </section>
 
-{/* CENTRO */}
-<section class="navbar-section navbar-center">
-    <div className="navbar-brand logo no-box deepmove-brand">
-        <DeepMoveIcon height="1.4em" />
+                {/* CENTRO */}
+                <section class="navbar-section navbar-center">
+                    <div className="navbar-brand logo no-box deepmove-brand">
+                        <DeepMoveIcon height="1.4em" />
+                        <span class="deepmove-wordmark">
+                            <AppLogo />
+                        </span>
 
-        <span class="deepmove-wordmark">
-            <AppLogo />
-        </span>
-    </div>
-</section>
+                        {cpuTemp && (
+                            <span class="navbar-cpu-temp">
+                                {cpuTemp}
+                            </span>
+                        )}
+                    </div>
+                </section>
+
+
 
 
                 {/* DERECHA */}

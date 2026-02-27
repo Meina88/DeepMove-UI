@@ -2,7 +2,7 @@
     "lang": "English",
     "S1": "Connection error",
     "S2": "Connecting",
-    "S3": "Looks like you are connected from another place, so this page is now disconnected",
+    "S3": "Looks like you are connected from another device",
     "S4": "Parsing response error, format is incorrect",
     "S5": "Cannot connect with board",
     "S6": "WebSocket connection error",

@@ -600,105 +600,105 @@ const ToolpathPanel: FunctionalComponent<ToolpathPanelProps> = ({ embedded = fal
 
             <ContainerHelper id={id} />
 
-            
-                <div class="navbar">
-                    {/* IZQUIERDA: título + clear */}
-                    <span class="navbar-section">
-                        <span class="feather-icon-container">
-                            <Eye />
-                        </span>
-                        <strong
-                            class="text-ellipsis"
-                            style={{ marginLeft: "0.4rem", cursor: "default" }}
-                        >
-                            Toolpath
-                        </strong>
+
+            <div class="navbar">
+                {/* IZQUIERDA: título + clear */}
+                <span class="navbar-section">
+                    <span class="feather-icon-container">
+                        <Eye />
                     </span>
+                    <strong
+                        class="text-ellipsis"
+                        style={{ marginLeft: "0.4rem", cursor: "default" }}
+                    >
+                        {T("S304")}
+                    </strong>
+                </span>
 
 
-                    <div
+                <div
+                    style={{
+                        position: "relative",
+                        zIndex: 5,
+                        pointerEvents: "auto",
+                        marginRight: "0.5rem",
+                    }}
+                >
+                    <button
+                        class="btn btn-sm btn-error"
+                        title={T("S306")}
+                        onClick={() => eventBus.emit("toolpath:reset", null)}
                         style={{
-                            position: "relative",
-                            zIndex: 5,
-                            pointerEvents: "auto",
-                            marginRight: "0.5rem",
+                            marginRight: "0.2rem",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            transform: "rotate(180deg) scaleX(-1)",
+                            padding: "0.35rem",   // opcional, ajusta el “aire”
                         }}
                     >
-                        <button
-                            class="btn btn-sm btn-error"
-                            title="Clear toolpath"
-                            onClick={() => eventBus.emit("toolpath:reset", null)}
-                            style={{
-                                marginRight: "0.2rem",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                transform: "rotate(180deg) scaleX(-1)",
-                                padding: "0.35rem",   // opcional, ajusta el “aire”
-                            }}
-                        >
-                            <ClearPath height="1.3em" />
-                        </button>
+                        <ClearPath height="1.3em" />
+                    </button>
 
-                    </div>
-
-
-
-                    {/* DERECHA: menú + fullscreen + close */}
-                    <span class="navbar-section">
-                        <span class="full-height">
-                            <PanelMenu
-                                items={[
-                                    {
-                                        label: "Grid",
-                                        displayToggle: () => (
-                                            <span class="feather-icon-container">
-                                                {showGrid ? (
-                                                    <CheckCircle style={{ width: "0.8rem", height: "0.8rem" }} />
-                                                ) : (
-                                                    <Circle style={{ width: "0.8rem", height: "0.8rem" }} />
-                                                )}
-                                            </span>
-                                        ),
-                                        onClick: () => setShowGrid(v => !v),
-                                    },
-
-                                    ...(["top", "oblique", "front", "side"] as ViewId[]).map(id => ({
-                                        label:
-                                            id === "top"
-                                                ? "Top"
-                                                : id === "oblique"
-                                                    ? "Isometric"
-                                                    : id === "front"
-                                                        ? "Front"
-                                                        : "Side",
-
-                                        displayToggle: () => (
-                                            <span class="feather-icon-container">
-                                                {enabledViews.includes(id) ? (
-                                                    <CheckCircle style={{ width: "0.8rem", height: "0.8rem" }} />
-                                                ) : (
-                                                    <Circle style={{ width: "0.8rem", height: "0.8rem" }} />
-                                                )}
-                                            </span>
-                                        ),
-
-                                        onClick: () =>
-                                            setEnabledViews(v =>
-                                                v.includes(id)
-                                                    ? v.filter(x => x !== id)
-                                                    : [...v, id]
-                                            ),
-                                    })),
-                                ]}
-                            />
-
-                            <FullScreenButton elementId={id} />
-                            <CloseButton elementId={id} hideOnFullScreen={true} />
-                        </span>
-                    </span>
                 </div>
-            
+
+
+
+                {/* DERECHA: menú + fullscreen + close */}
+                <span class="navbar-section">
+                    <span class="full-height">
+                        <PanelMenu
+                            items={[
+                                {
+                                    label: T("S305"),
+                                    displayToggle: () => (
+                                        <span class="feather-icon-container">
+                                            {showGrid ? (
+                                                <CheckCircle style={{ width: "0.8rem", height: "0.8rem" }} />
+                                            ) : (
+                                                <Circle style={{ width: "0.8rem", height: "0.8rem" }} />
+                                            )}
+                                        </span>
+                                    ),
+                                    onClick: () => setShowGrid(v => !v),
+                                },
+
+                                ...(["top", "oblique", "front", "side"] as ViewId[]).map(id => ({
+                                    label:
+                                        id === "top"
+                                            ? T("S307")
+                                            : id === "oblique"
+                                                ? T("S310")
+                                                : id === "front"
+                                                    ? T("S308")
+                                                    : T("S309"),
+
+                                    displayToggle: () => (
+                                        <span class="feather-icon-container">
+                                            {enabledViews.includes(id) ? (
+                                                <CheckCircle style={{ width: "0.8rem", height: "0.8rem" }} />
+                                            ) : (
+                                                <Circle style={{ width: "0.8rem", height: "0.8rem" }} />
+                                            )}
+                                        </span>
+                                    ),
+
+                                    onClick: () =>
+                                        setEnabledViews(v =>
+                                            v.includes(id)
+                                                ? v.filter(x => x !== id)
+                                                : [...v, id]
+                                        ),
+                                })),
+                            ]}
+                        />
+
+                        <FullScreenButton elementId={id} />
+                        <CloseButton elementId={id} hideOnFullScreen={true} />
+                    </span>
+                </span>
+            </div>
+
 
 
 
@@ -783,7 +783,7 @@ const ToolpathPanel: FunctionalComponent<ToolpathPanelProps> = ({ embedded = fal
 const ToolpathPanelElement = {
     id: "toolpathPanel",
     content: <ToolpathPanel />,
-    name: "Toolpath",
+    name: "S304",
     icon: "Eye",
     show: "showtoolpathpanel",
     onstart: "opentoolpathonstart",

@@ -1008,24 +1008,39 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
                         useUiContextFn.getValue("showz") && (
                             <div class="jog-axis-group">
                                 <div class="m-1 jog-buttons-container">
-<Button
-    m2
-    {...jogPressHandlers("Z+")}
-    onPointerUp={(e: any) => {
-        (e.currentTarget as HTMLElement).blur()
-    }}
->
-    <ArrowUp size={20} />
-</Button>
-<Button
-    m2
-    {...jogPressHandlers("Z-")}
-    onPointerUp={(e: any) => {
-        (e.currentTarget as HTMLElement).blur()
-    }}
->
-    <ArrowUp size={20} />
-</Button>
+{/* Z+ */}
+{(() => {
+  const h = jogPressHandlers("Z+")
+  return (
+    <Button
+      m2
+      {...h}
+      onPointerUp={(e: PointerEvent) => {
+        h.onPointerUp()
+        ;(e.currentTarget as HTMLElement).blur()
+      }}
+    >
+      <ArrowUp size={20} />
+    </Button>
+  )
+})()}
+
+{/* Z- */}
+{(() => {
+  const h = jogPressHandlers("Z-")
+  return (
+    <Button
+      m2
+      {...h}
+      onPointerUp={(e: PointerEvent) => {
+        h.onPointerUp()
+        ;(e.currentTarget as HTMLElement).blur()
+      }}
+    >
+      <ArrowDown size={20} />
+    </Button>
+  )
+})()}
                                 </div>
                             </div>
                         )}

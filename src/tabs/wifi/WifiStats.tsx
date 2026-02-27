@@ -51,7 +51,7 @@ const WifiStats: FunctionalComponent<WifiStatsProps> = ({ stats, onRefresh }) =>
                                 <div class="columns">
                                     <div class="column col-9 col-sm-9 col-xs-9">
                                         <h4 style={{ margin: 0, lineHeight: "32px" }}>
-                                            WiFi Statistics
+                                            {T("S322")}
                                             <ButtonImg
                                                 tooltip
                                                 className="px-2"
@@ -70,29 +70,38 @@ const WifiStats: FunctionalComponent<WifiStatsProps> = ({ stats, onRefresh }) =>
 
 
                                 <div class="columns">
-                                    <div class="column col-3"> <b>WiFi mode:</b></div>
+                                    <div class="column col-3"><b>{T("S312")}:</b></div>
                                     <div class="column col-9">{stats?.currentWifiMode}</div>
                                 </div>
+
                                 <div class="columns">
-                                    <div class="column col-3"> <b>Signal:</b></div>
+                                    <div class="column col-3"><b>{T("S323")}:</b></div>
                                     <div class="column col-9">{stats?.signal}</div>
                                 </div>
+
                                 <div class="columns">
-                                    <div class="column col-3"> <b>SSID:</b></div>
-                                    <div class="column col-9">{stats?.connectedTo ?? stats?.apSSID ?? "—"}</div>
+                                    <div class="column col-3"><b>{T("S315")}:</b></div>
+                                    <div class="column col-9">
+                                        {stats?.connectedTo ?? stats?.apSSID ?? "—"}
+                                    </div>
                                 </div>
+
                                 <div class="columns">
-                                    <div class="column col-3"> <b>IP:</b></div>
+                                    <div class="column col-3"><b>{T("S319")}:</b></div>
                                     <div class="column col-9">{stats?.ip}</div>
                                 </div>
+
                                 <div class="columns">
-                                    <div class="column col-3"> <b>Netmask:</b></div>
+                                    <div class="column col-3"><b>{T("S324")}:</b></div>
                                     <div class="column col-9">{stats?.netmask}</div>
                                 </div>
+
                                 <div class="columns">
-                                    <div class="column col-3"> <b>Gateway:</b></div>
+                                    <div class="column col-3"><b>{T("S325")}:</b></div>
                                     <div class="column col-9">{stats?.gateway}</div>
                                 </div>
+
+
                             </div>
                             <div class="column col-2"></div>
                         </div>
