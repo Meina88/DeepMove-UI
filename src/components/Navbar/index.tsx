@@ -143,7 +143,6 @@ const Navbar = () => {
         status: { state?: string }
     }
     const isIdle = status?.state === "Idle"
-    console.log(status)
 
 
 
@@ -389,12 +388,6 @@ const Navbar = () => {
                         <span class="deepmove-wordmark">
                             <AppLogo />
                         </span>
-
-                        {cpuTemp && (
-                            <span class="navbar-cpu-temp">
-                                {cpuTemp}
-                            </span>
-                        )}
                     </div>
                 </section>
 
