@@ -108,6 +108,7 @@ function isMobile(): boolean {
 
 
 const Navbar = () => {
+    const [currentTool, setCurrentTool] = useState<number | null>(null)
     const lastValidState = useRef<string>("Offline");
     const [isSettingsPage, setIsSettingsPage] = useState(
         window.location.hash.startsWith("#/settings")
@@ -116,6 +117,10 @@ const Navbar = () => {
     const { connectionSettings } = useSettingsContext()
     const { uisettings } = useUiContext()
     const { toolNumbers, setToolNumbers } = useUiContext()
+
+    const { parserstate } = useTargetContext() as any
+    const activeTool = parserstate?.tool
+
     const { modals } = useModalsContext()
     const { createNewRequest } = useHttpQueue()
     const { targetCommands } = useTargetCommands()
@@ -288,6 +293,21 @@ const Navbar = () => {
         }
     }
 
+const toggleToolMode = () => {
+    useUiContextFn.haptic()
+
+    if (toolNumbers.vfd == null || toolNumbers.laser == null) return
+    if (currentTool == null) return
+
+    const nextTool =
+        currentTool === toolNumbers.vfd
+            ? toolNumbers.laser
+            : toolNumbers.vfd
+
+    setCurrentTool(nextTool)
+    targetCommands(`M6 T${nextTool}`)
+}
+
     useEffect(() => {
         targetCommands("[ESP420]json=yes", undefined, undefined, {
             onSuccess: (result: any) => {
@@ -308,39 +328,52 @@ const Navbar = () => {
         })
     }, [])
 
+useEffect(() => {
+    if (toolNumbers.vfd != null && currentTool == null) {
+        setCurrentTool(toolNumbers.vfd)
+    }
+}, [toolNumbers.vfd])
+
+
+useEffect(() => {
+    if (parserstate?.tool != null) {
+        setCurrentTool(parserstate.tool)
+    }
+}, [parserstate?.tool])
+
     useEffect(() => {
-    targetCommands("[ESP400]json=yes", undefined, { echo: false }, {
-        onSuccess: (result: string) => {
-            try {
-                const json = JSON.parse(result)
-                if (!json?.data) return
+        targetCommands("[ESP400]json=yes", undefined, { echo: false }, {
+            onSuccess: (result: string) => {
+                try {
+                    const json = JSON.parse(result)
+                    if (!json?.data) return
 
-                let vfdTool: number | null = null
-                let laserTool: number | null = null
+                    let vfdTool: number | null = null
+                    let laserTool: number | null = null
 
-                json.data.forEach((item: any) => {
-                    if (item.P === "/ModbusVFD/tool_num") {
-                        vfdTool = parseInt(item.V)
-                    }
-                    if (item.P === "/Laser/tool_num") {
-                        laserTool = parseInt(item.V)
-                    }
-                })
+                    json.data.forEach((item: any) => {
+                        if (item.P === "/ModbusVFD/tool_num") {
+                            vfdTool = parseInt(item.V)
+                        }
+                        if (item.P === "/Laser/tool_num") {
+                            laserTool = parseInt(item.V)
+                        }
+                    })
 
-                setToolNumbers({
-                    vfd: vfdTool,
-                    laser: laserTool,
-                })
+                    setToolNumbers({
+                        vfd: vfdTool,
+                        laser: laserTool,
+                    })
 
-            } catch (e) {
-                console.log("ESP400 parse error", e)
+                } catch (e) {
+                    console.log("ESP400 parse error", e)
+                }
+            },
+            onFail: (err: string) => {
+                console.log("ESP400 failed", err)
             }
-        },
-        onFail: (err: string) => {
-            console.log("ESP400 failed", err)
-        }
-    })
-}, [])
+        })
+    }, [])
 
     useEffect(() => {
         const handleFullscreenChange = () => {
@@ -417,33 +450,42 @@ const Navbar = () => {
                 </section>
 
                 {/* CENTRO */}
-<section class="navbar-section navbar-center">
-    <div className="navbar-brand logo no-box deepmove-brand">
-        <DeepMoveIcon height="1.4em" />
+                <section class="navbar-section navbar-center">
+                    <div className="navbar-brand logo no-box deepmove-brand">
+                        <DeepMoveIcon height="1.4em" />
 
-        <span class="deepmove-wordmark">
-            <AppLogo />
-        </span>
+                        <span class="deepmove-wordmark">
+                            <AppLogo />
+                        </span>
 
-        {/* 🧪 Tool Numbers Debug */}
-        <span
-            style={{
-                marginLeft: "12px",
-                fontSize: "0.75rem",
-                opacity: 0.65,
-                letterSpacing: "0.5px"
-            }}
-        >
-            VFD T{toolNumbers.vfd ?? "-"} | LASER T{toolNumbers.laser ?? "-"}
-        </span>
-    </div>
-</section>
+                        {/* 🧪 Tool Numbers Debug */}
+                        <span
+                            style={{
+                                marginLeft: "12px",
+                                fontSize: "0.75rem",
+                                opacity: 0.65,
+                                letterSpacing: "0.5px"
+                            }}
+                        >
+                            VFD T{toolNumbers.vfd ?? "-"} | LASER T{toolNumbers.laser ?? "-"}
+                        </span>
+                    </div>
+                </section>
 
 
 
 
                 {/* DERECHA */}
                 <section class="navbar-section navbar-right">
+
+<span
+    className="btn btn-link no-box"
+    onClick={toggleToolMode}
+    title="Toggle CNC / Laser"
+>
+    {currentTool === toolNumbers.laser ? "Laser" : "CNC"}
+</span>
+
 
                     {/* Tablet Switch */}
 
