@@ -115,6 +115,7 @@ const Navbar = () => {
 
     const { connectionSettings } = useSettingsContext()
     const { uisettings } = useUiContext()
+    const { toolNumbers, setToolNumbers } = useUiContext()
     const { modals } = useModalsContext()
     const { createNewRequest } = useHttpQueue()
     const { targetCommands } = useTargetCommands()
@@ -308,6 +309,40 @@ const Navbar = () => {
     }, [])
 
     useEffect(() => {
+    targetCommands("[ESP400]json=yes", undefined, { echo: false }, {
+        onSuccess: (result: string) => {
+            try {
+                const json = JSON.parse(result)
+                if (!json?.data) return
+
+                let vfdTool: number | null = null
+                let laserTool: number | null = null
+
+                json.data.forEach((item: any) => {
+                    if (item.P === "/ModbusVFD/tool_num") {
+                        vfdTool = parseInt(item.V)
+                    }
+                    if (item.P === "/Laser/tool_num") {
+                        laserTool = parseInt(item.V)
+                    }
+                })
+
+                setToolNumbers({
+                    vfd: vfdTool,
+                    laser: laserTool,
+                })
+
+            } catch (e) {
+                console.log("ESP400 parse error", e)
+            }
+        },
+        onFail: (err: string) => {
+            console.log("ESP400 failed", err)
+        }
+    })
+}, [])
+
+    useEffect(() => {
         const handleFullscreenChange = () => {
             setIsFullscreen(!!document.fullscreenElement)
         }
@@ -382,14 +417,27 @@ const Navbar = () => {
                 </section>
 
                 {/* CENTRO */}
-                <section class="navbar-section navbar-center">
-                    <div className="navbar-brand logo no-box deepmove-brand">
-                        <DeepMoveIcon height="1.4em" />
-                        <span class="deepmove-wordmark">
-                            <AppLogo />
-                        </span>
-                    </div>
-                </section>
+<section class="navbar-section navbar-center">
+    <div className="navbar-brand logo no-box deepmove-brand">
+        <DeepMoveIcon height="1.4em" />
+
+        <span class="deepmove-wordmark">
+            <AppLogo />
+        </span>
+
+        {/* 🧪 Tool Numbers Debug */}
+        <span
+            style={{
+                marginLeft: "12px",
+                fontSize: "0.75rem",
+                opacity: 0.65,
+                letterSpacing: "0.5px"
+            }}
+        >
+            VFD T{toolNumbers.vfd ?? "-"} | LASER T{toolNumbers.laser ?? "-"}
+        </span>
+    </div>
+</section>
 
 
 

@@ -96,6 +96,11 @@ interface UiContextValue {
         ready: boolean
         setReady: (ready: boolean) => void
     }
+    toolNumbers: {
+        vfd: number | null
+        laser: number | null
+    }
+    setToolNumbers: (tools: { vfd: number | null; laser: number | null }) => void
 }
 
 interface UiContextFn {
@@ -149,6 +154,13 @@ const UiContextProvider: FunctionalComponent<UiContextProviderProps> = ({ childr
         page: "connecting",
     })
     const [uiSetup, setUiSetup] = useState<boolean>(false)
+    const [toolNumbers, setToolNumbers] = useState<{
+        vfd: number | null
+        laser: number | null
+    }>({
+        vfd: null,
+        laser: null,
+    })
 
     const removeFromVisibles = useCallback((id: string) => {
         visiblePanelsListRef.current = visiblePanelsListRef.current.filter(
@@ -443,6 +455,9 @@ const UiContextProvider: FunctionalComponent<UiContextProviderProps> = ({ childr
             ready: uiSetup,
             setReady: setUiSetup,
         },
+        toolNumbers,
+        setToolNumbers,
+
     }), [
         panelsList,
         setVisibles,
@@ -458,6 +473,7 @@ const UiContextProvider: FunctionalComponent<UiContextProviderProps> = ({ childr
         connectionState,
         showKeepConnected,
         uiSetup,
+        toolNumbers,
     ])
 
     return <UiContext.Provider value={store}>{children}</UiContext.Provider>
