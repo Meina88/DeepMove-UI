@@ -139,6 +139,8 @@ const Navbar = () => {
     const [isTabletDevice, setIsTabletDevice] = useState(isTablet())
     const [isMobileDevice, setIsMobileDevice] = useState(isMobile())
     const [cpuTemp, setCpuTemp] = useState<string | null>(null)
+    const [pendingTool, setPendingTool] = useState<number | null>(null)
+    const toolChangeTimer = useRef<number | null>(null)
 
     const reloadPage = () => {
         useUiContextFn.haptic()
@@ -293,20 +295,85 @@ const Navbar = () => {
         }
     }
 
-const toggleToolMode = () => {
-    useUiContextFn.haptic()
+    const toggleToolMode = () => {
+        useUiContextFn.haptic()
 
-    if (toolNumbers.vfd == null || toolNumbers.laser == null) return
-    if (currentTool == null) return
+        if (!isIdle) return
+        if (toolNumbers.vfd == null) return
 
-    const nextTool =
-        currentTool === toolNumbers.vfd
-            ? toolNumbers.laser
-            : toolNumbers.vfd
+        // Si el usuario intenta cambiar a Laser pero no está configurado
+        if (toolNumbers.laser == null) {
+            showConfirmationModal({
+                modals,
+                title: T("S338"),
+                content: T("S339"),
+                button1: { text: "OK" },
+            })
+            return
+        }
 
-    setCurrentTool(nextTool)
-    targetCommands(`M6 T${nextTool}`)
-}
+        if (currentTool == null) return
+        if (pendingTool != null) return // evita doble click
+
+        const nextTool =
+            currentTool === toolNumbers.vfd
+                ? toolNumbers.laser
+                : toolNumbers.vfd
+
+        setPendingTool(nextTool)
+
+        const cleanup = (success: boolean) => {
+            eventBus.off("fw:toolchange", onToolChange as any)
+            eventBus.off("fw:gc", onGC as any)
+
+            if (toolChangeTimer.current) {
+                clearTimeout(toolChangeTimer.current)
+                toolChangeTimer.current = null
+            }
+
+            if (success) {
+                setCurrentTool(nextTool)
+            } else {
+                showConfirmationModal({
+                    modals,
+                    title: T("S340"),
+                    content: T("S341"),
+                    button1: { text: "OK" },
+                })
+            }
+
+            setPendingTool(null)
+        }
+
+        const onToolChange = (_line: string) => {
+            cleanup(true)
+        }
+
+        const onGC = (line: string) => {
+            const match = line.match(/\bT(\d+)\b/)
+            if (!match) return
+            const tool = parseInt(match[1], 10)
+            if (tool === nextTool) {
+                cleanup(true)
+            }
+        }
+
+        eventBus.on("fw:toolchange", onToolChange as any)
+        eventBus.on("fw:gc", onGC as any)
+
+        // enviar comando de cambio
+        targetCommands(`M6 T${nextTool}`)
+
+        // fallback: pedir estado
+        setTimeout(() => {
+            targetCommands("$G")
+        }, 200)
+
+        // timeout de seguridad
+        toolChangeTimer.current = window.setTimeout(() => {
+            cleanup(false)
+        }, 3000)
+    }
 
     useEffect(() => {
         targetCommands("[ESP420]json=yes", undefined, undefined, {
@@ -328,18 +395,18 @@ const toggleToolMode = () => {
         })
     }, [])
 
-useEffect(() => {
-    if (toolNumbers.vfd != null && currentTool == null) {
-        setCurrentTool(toolNumbers.vfd)
-    }
-}, [toolNumbers.vfd])
+    useEffect(() => {
+        if (toolNumbers.vfd != null && currentTool == null) {
+            setCurrentTool(toolNumbers.vfd)
+        }
+    }, [toolNumbers.vfd])
 
 
-useEffect(() => {
-    if (parserstate?.tool != null) {
-        setCurrentTool(parserstate.tool)
-    }
-}, [parserstate?.tool])
+    useEffect(() => {
+        if (parserstate?.tool != null) {
+            setCurrentTool(parserstate.tool)
+        }
+    }, [parserstate?.tool])
 
     useEffect(() => {
         targetCommands("[ESP400]json=yes", undefined, { echo: false }, {
@@ -478,13 +545,13 @@ useEffect(() => {
                 {/* DERECHA */}
                 <section class="navbar-section navbar-right">
 
-<span
-    className="btn btn-link no-box"
-    onClick={toggleToolMode}
-    title="Toggle CNC / Laser"
->
-    {currentTool === toolNumbers.laser ? "Laser" : "CNC"}
-</span>
+                    <span
+                        className={`btn btn-link no-box ${pendingTool != null ? "disabled opacity-50" : ""}`}
+                        onClick={pendingTool == null ? toggleToolMode : undefined}
+                        title="Toggle CNC / Laser"
+                    >
+                        {currentTool === toolNumbers.laser ? "Laser" : "CNC"}
+                    </span>
 
 
                     {/* Tablet Switch */}

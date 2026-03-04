@@ -19,6 +19,7 @@
 */
 import { CMD } from "./CMD-source"
 import { disableUI } from "../../../components/Helpers"
+import { eventBus } from "../../../hooks/eventBus"
 
 type FeedbackFn = (payload: {
   status: string
@@ -91,6 +92,17 @@ const responseSteps = {
 }
 
 const processStream = (type: string = "stream", data: string = ""): void => {
+
+  // Detect GC state lines from $G
+  if (type === "stream" && data.startsWith("[GC:")) {
+    eventBus.emit("fw:gc", data)
+  }
+
+  // Detect tool change confirmation from FluidNC
+  if (type === "stream" && data.startsWith("[MSG:INFO: Changed to spindle")) {
+    eventBus.emit("fw:toolchange", data)
+  }
+
   if (
     onGoingQuery.source != "" &&
     onGoingQuery.command != "" &&
