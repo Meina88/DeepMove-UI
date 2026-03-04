@@ -1003,47 +1003,44 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
 
                     </div>
                     {/* Z */}
-                    {(typeof positions.z !== "undefined" ||
-                        typeof positions.wz !== "undefined") &&
-                        useUiContextFn.getValue("showz") && (
-                            <div class="jog-axis-group">
-                                <div class="m-1 jog-buttons-container">
-{/* Z+ */}
-{(() => {
-  const h = jogPressHandlers("Z+")
-  return (
-    <Button
-      m2
-      {...h}
-      onPointerUp={(e: PointerEvent) => {
-        h.onPointerUp()
-        ;(e.currentTarget as HTMLElement).blur()
-      }}
-    >
-      <ArrowUp size={20} />
-    </Button>
-  )
-})()}
 
-{/* Z- */}
-{(() => {
-  const h = jogPressHandlers("Z-")
-  return (
-    <Button
-      m2
-      {...h}
-      onPointerUp={(e: PointerEvent) => {
-        h.onPointerUp()
-        ;(e.currentTarget as HTMLElement).blur()
-      }}
-    >
-      <ArrowDown size={20} />
-    </Button>
-  )
-})()}
-                                </div>
-                            </div>
-                        )}
+                    <div class="jog-axis-group">
+                        <div class="m-1 jog-buttons-container">
+                            {/* Z+ */}
+                            {(() => {
+                                const h = jogPressHandlers("Z+")
+                                return (
+                                    <Button
+                                        m2
+                                        {...h}
+                                        onPointerUp={(e: PointerEvent) => {
+                                            h.onPointerUp()
+                                                ; (e.currentTarget as HTMLElement).blur()
+                                        }}
+                                    >
+                                        <ArrowUp size={20} />
+                                    </Button>
+                                )
+                            })()}
+
+                            {/* Z- */}
+                            {(() => {
+                                const h = jogPressHandlers("Z-")
+                                return (
+                                    <Button
+                                        m2
+                                        {...h}
+                                        onPointerUp={(e: PointerEvent) => {
+                                            h.onPointerUp()
+                                                ; (e.currentTarget as HTMLElement).blur()
+                                        }}
+                                    >
+                                        <ArrowDown size={20} />
+                                    </Button>
+                                )
+                            })()}
+                        </div>
+                    </div>
                 </div>
 
                 { /* =====================================================
