@@ -18,7 +18,7 @@
                 "type": "boolean",
                 "label": "S64",
                 "value": true
-            },           
+            },
             {
                 "id": "audio",
                 "type": "boolean",
@@ -42,6 +42,12 @@
                         "value": true
                     }
                 ]
+            },
+            {
+                "id": "lasermode",
+                "type": "boolean",
+                "label": "Laser mode",
+                "value": true
             },
             {
                 "id": "showmachinesettings",
@@ -285,7 +291,7 @@
             {
                 "id": "showhmipanel",
                 "type": "boolean",
-                "label": "S63",               
+                "label": "S63",
                 "value": true
             },
             {

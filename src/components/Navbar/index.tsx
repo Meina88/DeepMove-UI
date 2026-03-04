@@ -53,6 +53,8 @@ import { useTargetCommands } from "../../hooks"
 import { DashboardIcon } from "../../targets/CNC/FluidNC/icons"
 import { DeepMoveIcon } from "../../targets/CNC/FluidNC/icons"
 import { eventBus } from "../../hooks/eventBus"
+import { Cyclone, Flare } from "../../targets/CNC/FluidNC/icons"
+
 
 
 
@@ -115,8 +117,10 @@ const Navbar = () => {
     )
 
     const { connectionSettings } = useSettingsContext()
-    const { uisettings } = useUiContext()
+    const { uisettings } = useUiContext()    
     const { toolNumbers, setToolNumbers } = useUiContext()
+
+const laserModeEnabled = uisettings?.getValue?.("lasermode") ?? true
 
     const { parserstate } = useTargetContext() as any
     const activeTool = parserstate?.tool
@@ -296,7 +300,8 @@ const Navbar = () => {
     }
 
     const toggleToolMode = () => {
-        useUiContextFn.haptic()
+        useUiContextFn.haptic(30)
+        useUiContextFn.click()
 
         if (!isIdle) return
         if (toolNumbers.vfd == null) return
@@ -545,13 +550,24 @@ const Navbar = () => {
                 {/* DERECHA */}
                 <section class="navbar-section navbar-right">
 
-                    <span
-                        className={`btn btn-link no-box ${pendingTool != null ? "disabled opacity-50" : ""}`}
-                        onClick={pendingTool == null ? toggleToolMode : undefined}
-                        title="Toggle CNC / Laser"
-                    >
-                        {currentTool === toolNumbers.laser ? "Laser" : "CNC"}
-                    </span>
+{laserModeEnabled && (
+    <div
+        class={`toolmode-toggle ${currentTool === toolNumbers.laser ? "laser" : "cnc"} ${pendingTool != null ? "disabled" : ""}`}
+        onClick={pendingTool == null ? toggleToolMode : undefined}
+    >
+        <span class="mode-icon cnc">
+            <Cyclone height="1.1em" />
+        </span>
+
+        <div class="track">
+            <div class="dot"></div>
+        </div>
+
+        <span class="mode-icon laser">
+            <Flare height="1.1em" />
+        </span>
+    </div>
+)}
 
 
                     {/* Tablet Switch */}

@@ -374,3 +374,43 @@
   }
 }
 
+/* track */
+
+.toolmode-toggle .track {
+  position: relative;
+  width: 36px;
+  height: 10px;
+  background: var(--ms-border);
+  border-radius: 999px;
+}
+
+/* dot */
+
+.toolmode-toggle .dot {
+  position: absolute;
+  top: -3px;
+  left: -1px;
+  width: 16px;
+  height: 16px;
+  background: var(--ms-accent);
+  border-radius: 50%;
+  transition: transform 0.25s ease;
+}
+
+/* laser position */
+
+.toolmode-toggle.laser .dot {
+  transform: translateX(20px);
+}
+.toolmode-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  cursor: pointer;
+}
+
+.toolmode-toggle .mode-icon svg {
+  transform: translateY(2px);
+}
