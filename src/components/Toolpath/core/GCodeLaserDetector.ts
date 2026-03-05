@@ -1,59 +1,48 @@
-export function isLaserProgram(lines: string[]): boolean {
-    const MAX_LINES = 30
-    const slice = lines.slice(0, MAX_LINES)
+export type GCodeType = "CNC" | "LASER" | "UNKNOWN"
 
-    let hasM4 = false
-    let g1WithSPowerCount = 0
-    let sValues: number[] = []
-    let hasCncStrongSignal = false
+export function detectGCodeType(text: string): GCodeType {
 
-    for (let rawLine of slice) {
-        const line = rawLine.trim().toUpperCase()
+    const lines = text
+        .split("\n")
+        .slice(0, 80)
+        .map(l => l.trim().toUpperCase())
 
-        if (!line || line.startsWith(";") || line.startsWith("(")) continue
+    let laserScore = 0
+    let cncScore = 0
 
-        // 🔴 CNC señales fuertes (descartar láser inmediatamente)
-        if (
-            line.includes("G43") ||
-            line.match(/\bT\d+\b/) ||
-            line.includes("M6") ||
-            line.includes("G81") ||
-            line.includes("G83") ||
-            line.includes("G41") ||
-            line.includes("G42")
-        ) {
-            hasCncStrongSignal = true
-        }
+    for (const line of lines) {
 
-        // 🔥 M4 → Láser inmediato
-        if (line.includes("M4")) {
-            hasM4 = true
-        }
+        // =====================
+        // LASER patterns
+        // =====================
 
-        // Detectar S values
-        const sMatch = line.match(/\bS(\d+(\.\d+)?)\b/)
-        if (sMatch) {
-            const sValue = parseFloat(sMatch[1])
-            sValues.push(sValue)
+        if (line.includes("M4")) laserScore += 4
 
-            // Contar líneas con S > 0 (potencia real)
-            if (sValue > 0) {
-                g1WithSPowerCount++
-            }
-        }
+        if (line.match(/G[01].*S\d+/)) laserScore += 3
+
+        if (line.match(/^X.*S\d+/)) laserScore += 2
+
+        if (line.match(/G0.*S0/)) laserScore += 2
+
+
+        // =====================
+        // CNC patterns
+        // =====================
+
+        if (line.match(/G1.*Z-/)) cncScore += 5
+
+        if (line.includes("G2") || line.includes("G3")) cncScore += 3
+
+        if (line.includes("M7") || line.includes("M8")) cncScore += 3
+
+        if (line.match(/T\d+/)) cncScore += 2
+
+        if (line.match(/S\d+\s*M3/)) cncScore += 2
     }
 
-    // Si hay señal fuerte de CNC → no es láser
-    if (hasCncStrongSignal) return false
+    if (laserScore >= 4 && laserScore > cncScore) return "LASER"
 
-    // Regla 1: M4 presente
-    if (hasM4) return true
+    if (cncScore >= 4 && cncScore > laserScore) return "CNC"
 
-    // Regla 2: ≥3 líneas con potencia S activa
-    if (g1WithSPowerCount >= 3) {
-        const maxS = Math.max(...sValues)
-        if (maxS <= 1000) return true
-    }
-
-    return false
+    return "UNKNOWN"
 }

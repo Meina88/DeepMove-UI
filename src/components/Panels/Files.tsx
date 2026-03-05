@@ -24,7 +24,7 @@ import { useFilesManager, fileSizeString, getCurrentPath, setFileRef } from "../
 import type { FileEntry, PanelMenuItem } from "../../types/files.types"
 import { Loading, ButtonImg, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
 import { useUiContextFn, useModalsContext } from "../../contexts"
-import { showConfirmationModal } from "../Modal"
+import { showConfirmationModal, showModal } from "../Modal"
 import { Upload, RefreshCcw, FolderPlus, CornerRightUp, XCircle, Plus } from "preact-feather"
 import { SDCard } from "../../targets/CNC/FluidNC/icons"
 
@@ -33,6 +33,9 @@ import { Folder, File, Trash2, Play, Eye } from "preact-feather"
 import { Menu as PanelMenu } from "./"
 import { eventBus } from "../../hooks/eventBus"
 import { espHttpURL } from "../Helpers/http"
+import { useTargetContext } from "../../targets"
+import { useUiContext } from "../../contexts"
+import { detectGCodeType } from "../Toolpath/core/GCodeLaserDetector"
 
 
 interface FilesPanelProps {
@@ -49,6 +52,17 @@ const FilesPanel: FunctionalComponent<FilesPanelProps> = ({ embedded = false }) 
 
     const dropRef = useRef<HTMLDivElement | null>(null)
     const { modals } = useModalsContext()
+
+    const { toolNumbers } = useUiContext()
+    const { states } = useTargetContext() as any
+
+    const currentTool = states?.active_tool?.value
+
+    const isLaserMode =
+        toolNumbers?.laser != null &&
+        currentTool != null &&
+        Number(currentTool) === Number(toolNumbers.laser)
+
     const [isFullScreen, setIsFullScreen] = useState<boolean>(false)
     const [selectedFile, setSelectedFile] = useState<string | null>(null)
     const [fabOpen, setFabOpen] = useState(false)
@@ -179,6 +193,54 @@ const FilesPanel: FunctionalComponent<FilesPanelProps> = ({ embedded = false }) 
 
 
     // Render compact panel view
+
+    const checkFileModeAndRun = async (
+        url: string,
+        filename: string,
+        runCmd: string
+    ) => {
+
+        try {
+
+            const response = await fetch(url)
+            const text = await response.text()
+
+            const type = detectGCodeType(text)
+
+            const mismatch =
+                (type === "LASER" && !isLaserMode) ||
+                (type === "CNC" && isLaserMode)
+
+            if (mismatch) {
+
+                showModal({
+                    modals,
+                    id: "wrongModeModal",
+                    title: T("Warning"),
+                    content: (
+                        <div>
+                            {type === "LASER"
+                                ? "This file was generated for LASER machining. Switch to LASER mode to execute it."
+                                : "This file was generated for CNC machining. Switch to CNC mode to execute it."
+                            }
+                        </div>
+                    ),
+                    button2: { text: T("S28") }
+                })
+
+                return
+            }
+
+            actions.sendSerialCmd(runCmd)
+
+        } catch (e) {
+
+            console.warn("GCode detection failed", e)
+
+            actions.sendSerialCmd(runCmd)
+        }
+    }
+
     const renderCompactView = () => {
         const currentPath = getCurrentPath()
 
@@ -463,30 +525,46 @@ const FilesPanel: FunctionalComponent<FilesPanelProps> = ({ embedded = false }) 
                                                                             line.name
                                                                         )
 
+
+
+
+
+
                                                                         if (previewOnPlay) {
-                                                                            const dl = files.command(
-                                                                                state.fileSystem,
-                                                                                "download",
-                                                                                currentPath[state.fileSystem],
-                                                                                line.name
-                                                                            )
 
-                                                                            const url = espHttpURL(dl.url, dl.args)
+    const dl = files.command(
+        state.fileSystem,
+        "download",
+        currentPath[state.fileSystem],
+        line.name
+    )
 
-                                                                            // 🔍 Preview limpio
-                                                                            eventBus.emit("toolpath:preview", {
-                                                                                url,
-                                                                                filename: line.name,
-                                                                            })
+    const url = espHttpURL(dl.url, dl.args)
 
-                                                                            // ⏱ Delay corto por estabilidad/memoria
-                                                                            setTimeout(() => {
-                                                                                actions.sendSerialCmd(cmd.cmd)
-                                                                            }, 150)
-                                                                        } else {
-                                                                            actions.sendSerialCmd(cmd.cmd)
-                                                                        }
-                                                                    }}
+    // 🔍 Preview limpio
+    eventBus.emit("toolpath:preview", {
+        url,
+        filename: line.name,
+    })
+
+    // ⏱ Delay corto por estabilidad/memoria
+    setTimeout(() => {
+        checkFileModeAndRun(url, line.name, cmd.cmd)
+    }, 150)
+
+} else {
+
+    const dl = files.command(
+        state.fileSystem,
+        "download",
+        currentPath[state.fileSystem],
+        line.name
+    )
+
+    const url = espHttpURL(dl.url, dl.args)
+
+    checkFileModeAndRun(url, line.name, cmd.cmd)}
+}}
                                                                 />
 
                                                             </>
