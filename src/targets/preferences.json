@@ -46,8 +46,23 @@
             {
                 "id": "lasermode",
                 "type": "boolean",
-                "label": "Laser mode",
+                "label": "S343",
                 "value": true
+            },
+            {
+                "id": "laserfocuspower",
+                "type": "number",
+                "label": "S342",
+                "value": 2,
+                "min": 1,
+                "max": 10,
+                "append": "S",
+                "depend": [
+                    {
+                        "id": "lasermode",
+                        "value": true
+                    }
+                ]
             },
             {
                 "id": "showmachinesettings",

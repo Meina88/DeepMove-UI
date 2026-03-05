@@ -616,4 +616,62 @@ $jog-radial-offset: 5px;
   position: relative;
   top: 8px;  
 }
+.jog-buttons-container {
+  --zslot: 50px;              /* lado del cuadrado */
+  display: grid;
+  grid-template-columns: var(--zslot);
+  grid-template-rows: repeat(3, var(--zslot));
+  gap: 12px;
 
+  width: var(--zslot);        /* clave: ancho fijo = lado */
+  flex: 0 0 auto;             /* clave: que NO se estire en flex */
+  justify-items: center;
+  align-items: center;
+}
+
+/* Asegura que los botones sean cuadrados perfectos */
+.jog-buttons-container .btn {
+  width: var(--zslot);
+  height: var(--zslot);
+  border-radius: 999px;       /* o tu radio neumórfico */
+}
+
+/* El “slot vacío” del medio mantiene el cuadrado */
+.jog-zslot-spacer {
+  width: var(--zslot);
+  height: var(--zslot);
+}
+
+.laser-focus-header-btn {
+    cursor: pointer;
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 34px;
+    height: 34px;
+
+    margin-left: 8px;
+
+    border-radius: 8px;
+
+    background: var(--ms-bg-surface);
+    border: 1px solid var(--ms-border);
+
+    transition: all 0.15s ease;
+}
+
+.laser-focus-header-btn:hover {
+    transform: scale(1.05);
+}
+.panel .navbar .laser-focus-header-btn {
+    pointer-events: auto;
+    cursor: pointer;
+}
+.navbar-center {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

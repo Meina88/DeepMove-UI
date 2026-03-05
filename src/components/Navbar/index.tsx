@@ -117,10 +117,10 @@ const Navbar = () => {
     )
 
     const { connectionSettings } = useSettingsContext()
-    const { uisettings } = useUiContext()    
+    const { uisettings } = useUiContext()
     const { toolNumbers, setToolNumbers } = useUiContext()
 
-const laserModeEnabled = uisettings?.getValue?.("lasermode") ?? true
+    const laserModeEnabled = uisettings?.getValue?.("lasermode") ?? true
 
     const { parserstate } = useTargetContext() as any
     const activeTool = parserstate?.tool
@@ -367,7 +367,14 @@ const laserModeEnabled = uisettings?.getValue?.("lasermode") ?? true
         eventBus.on("fw:gc", onGC as any)
 
         // enviar comando de cambio
-        targetCommands(`M6 T${nextTool}`)
+        // aseguramos que spindle/laser esté apagado antes del cambio
+        targetCommands("M5")
+        targetCommands("S0")
+
+        // enviar comando de cambio
+        setTimeout(() => {
+            targetCommands(`M6 T${nextTool}`)
+        }, 50)
 
         // fallback: pedir estado
         setTimeout(() => {
@@ -550,24 +557,24 @@ const laserModeEnabled = uisettings?.getValue?.("lasermode") ?? true
                 {/* DERECHA */}
                 <section class="navbar-section navbar-right">
 
-{laserModeEnabled && (
-    <div
-        class={`toolmode-toggle ${currentTool === toolNumbers.laser ? "laser" : "cnc"} ${pendingTool != null ? "disabled" : ""}`}
-        onClick={pendingTool == null ? toggleToolMode : undefined}
-    >
-        <span class="mode-icon cnc">
-            <Cyclone height="1.1em" />
-        </span>
+                    {laserModeEnabled && (
+                        <div
+                            class={`toolmode-toggle ${currentTool === toolNumbers.laser ? "laser" : "cnc"} ${pendingTool != null ? "disabled" : ""}`}
+                            onClick={pendingTool == null ? toggleToolMode : undefined}
+                        >
+                            <span class="mode-icon cnc">
+                                <Cyclone height="1.1em" />
+                            </span>
 
-        <div class="track">
-            <div class="dot"></div>
-        </div>
+                            <div class="track">
+                                <div class="dot"></div>
+                            </div>
 
-        <span class="mode-icon laser">
-            <Flare height="1.1em" />
-        </span>
-    </div>
-)}
+                            <span class="mode-icon laser">
+                                <Flare height="1.1em" />
+                            </span>
+                        </div>
+                    )}
 
 
                     {/* Tablet Switch */}

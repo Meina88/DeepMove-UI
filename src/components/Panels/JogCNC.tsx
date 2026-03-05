@@ -38,6 +38,7 @@ import { showModal } from "../Modal"
 import { useTargetContext } from "../../targets"
 import { Joystick } from "../../targets/CNC/FluidNC/icons"
 import { useUiContext } from "../../contexts"
+import { Zap, ZapOff } from "preact-feather"
 
 let currentFeedRate: Record<string, any> = {}
 let currentAxis: string = "-1"
@@ -201,7 +202,8 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
     const { modals } = useModalsContext()
 
     const [currentSelectedAxis, setCurrentSelectedAxis] = useState(currentAxis)
-    const [jogStepIndex, setJogStepIndex] = useState(0) // 100 mm    
+    const [jogStepIndex, setJogStepIndex] = useState(0) // 100 mm  
+    const [laserFocus, setLaserFocus] = useState(false)
     const jogStepRef = useRef(jogStepIndex)
     const jogTimerRef = useRef<number | null>(null)
     const continuousRef = useRef(false)
@@ -209,7 +211,18 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
 
     const id = "jogPanel"
     const haptic = () => { useUiContextFn.haptic() }
-    const { shortcuts } = useUiContext()
+    const { shortcuts, toolNumbers } = useUiContext()
+    const { states } = useTargetContext() as any
+
+    const { status } = useTargetContext() as any
+    const isIdle = status?.state === "Idle"
+
+    const currentTool = states?.active_tool?.value
+
+    const isLaserMode =
+        toolNumbers?.laser != null &&
+        currentTool != null &&
+        Number(currentTool) === Number(toolNumbers.laser)
 
     const confirmGoHome = () => {
         showModal({
@@ -323,10 +336,14 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
     // 🔁 rota el stepping (direction = 1 adelante, -1 atrás)
     const rotateJogStep = (direction: 1 | -1 = 1) => {
         setJogStepIndex((prev) => {
+
+            const minIndex = isLaserMode ? 2 : 0
+            const maxIndex = jogStepsXYZ.length - 1
+
             let next = prev + direction
 
-            if (next >= jogStepsXYZ.length) next = 0
-            if (next < 0) next = jogStepsXYZ.length - 1
+            if (next > maxIndex) next = minIndex
+            if (next < minIndex) next = maxIndex
 
             return next
         })
@@ -455,7 +472,11 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
                 ? stepIndexOverride
                 : jogStepIndex
 
-        const distance = jogStepsXYZ[effectiveIndex]
+        let distance = jogStepsXYZ[effectiveIndex]
+
+        if (isLaserMode && distance > 1) {
+            distance = 1
+        }
 
         const feedrate = getContinuousFeedrateForStep(
             axis,
@@ -773,77 +794,71 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
         jogStepRef.current = jogStepIndex
     }, [jogStepIndex])
 
+    useEffect(() => {
+        if (isLaserMode && jogStepIndex < 2) {
+            setJogStepIndex(2) // fuerza step = 1
+        }
+    }, [isLaserMode])
+
+    useEffect(() => {
+        if (!isLaserMode && laserFocus) {
+            setLaserFocus(false)
+        }
+    }, [isLaserMode])
+
     return (
         <div class="panel panel-dashboard" id={id} >
             <ContainerHelper id={id} />
             {!embedded && (
                 <div class="navbar">
+
+                    {/* IZQUIERDA */}
                     <span class="navbar-section feather-icon-container">
                         <Joystick />
                         <strong class="text-ellipsis">{T("S66")}</strong>
                     </span>
-                    <span class="navbar-section">
-                        <span class="H-100">
-                            <div class="dropdown dropdown-right">
-                                <span
-                                    class="dropdown-toggle btn btn-xs btn-header m-1"
-                                    tabIndex={0}
-                                >
-                                    <ChevronDown size={"0.8rem" as any} />
-                                </span>
 
-                                <ul class="menu">
-                                    {feedList.map((letter) => {
-                                        let help
-                                        let condition = false
-                                        if (letter.length == 2) {
-                                            help = T("CN2")
-                                            condition =
-                                                (useUiContextFn.getValue("showx") &&
-                                                    (positions.x ||
-                                                        positions.wx)) ||
-                                                (useUiContextFn.getValue("showy") &&
-                                                    (positions.y || positions.wy))
-                                        } else {
-                                            help = T("CN3").replace("$", letter)
-                                            condition =
-                                                (typeof positions[letter.toLowerCase()] !== "undefined" ||
-                                                    typeof positions[`w${letter.toLowerCase()}`] !== "undefined") &&
-                                                useUiContextFn.getValue(
-                                                    `show${letter.toLowerCase()}`
-                                                )
-                                        }
-                                        if (condition)
-                                            return (
-                                                <li key={letter} class="menu-item">
-                                                    <div
-                                                        class="menu-entry"
-                                                        onClick={(_e: any) => {
+                    {/* CENTRO */}
+                    <span class="navbar-section navbar-center">
 
-                                                            useUiContextFn.haptic()
-                                                            setFeedrate(letter)
-                                                        }}
-                                                    >
-                                                        <div class="menu-panel-item">
-                                                            <span class="text-menu-item">
-                                                                {help}
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                </li>
-                                            )
-                                    })}
-                                </ul>
-                            </div>
-                            <FullScreenButton
-                                elementId={id}
-                            />
-                            <CloseButton
-                                elementId={id}
-                                hideOnFullScreen={true}
-                            />
-                        </span>
+                        {isLaserMode && (
+                            <Button
+                                class={`laser-focus-header-btn ${laserFocus ? "active" : ""}`}
+                                disabled={!isIdle}
+                                onClick={(e: MouseEvent) => {
+
+                                    if (!isIdle) return
+
+                                    const next = !laserFocus
+                                    setLaserFocus(next)
+
+                                    const focusPower = Number(useUiContextFn.getValue("laserfocuspower") ?? 5)
+
+                                    if (next) {
+                                        targetCommands(`M3 S${focusPower}`)
+                                        targetCommands("G1 F1000")
+                                    } else {
+                                        targetCommands("M5 S0")
+                                        targetCommands("G0")
+                                    }
+
+                                    ; (e.currentTarget as HTMLElement).blur()
+                                }}
+                            >
+                                {laserFocus
+                                    ? <ZapOff size={20} />
+                                    : <Zap size={20} />}
+                            </Button>
+                        )}
+
                     </span>
+
+                    {/* DERECHA */}
+                    <span class="navbar-section">
+                        <FullScreenButton elementId={id} />
+                        <CloseButton elementId={id} hideOnFullScreen={true} />
+                    </span>
+
                 </div>
             )}
             <div class="m-1 jog-container">
@@ -1006,6 +1021,7 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
 
                     <div class="jog-axis-group">
                         <div class="m-1 jog-buttons-container">
+
                             {/* Z+ */}
                             {(() => {
                                 const h = jogPressHandlers("Z+")
@@ -1039,6 +1055,9 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
                                     </Button>
                                 )
                             })()}
+
+
+
                         </div>
                     </div>
                 </div>
