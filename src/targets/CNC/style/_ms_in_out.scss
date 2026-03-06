@@ -238,3 +238,24 @@
     box-shadow: 0 0 0 1px var(--ms-accent);
 
 }
+
+/* ================================
+   ACTIVE BUTTON STATE
+================================ */
+
+#SpindlePanel {
+
+  .btn.btn-primary,
+  .btn.icon-button.btn-primary,
+  .btn.feather-icon-container.btn-primary {
+
+    background-color: var(--ms-accent) !important;
+    color: #111 !important;
+
+    box-shadow:
+      inset 0 2px 4px rgba(0,0,0,0.4),
+      0 0 8px var(--ms-accent) !important;
+
+  }
+
+}

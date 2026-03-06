@@ -57,12 +57,12 @@ const useTargetCommands = () => {
     // Prior to sending each individual command, its string is processed with
     // "replaceVariables" to modify the command in a target-dependent manner
 
-    const targetCommands = (commands: (string | (()=> string[]) | (string | (() => string))[]), delimiter?: (string | null | undefined | number), methodID?: { id?: string, max?: number, echo?: boolean}, callbacks?: { onSuccess?: (result: string) => void, onFail?: (error: string) => void})=> {
+    const targetCommands = (commands: (string | (() => string[]) | (string | (() => string))[]), delimiter?: (string | null | undefined | number), methodID?: { id?: string, max?: number, echo?: boolean }, callbacks?: { onSuccess?: (result: string) => void, onFail?: (error: string) => void }) => {
         if (typeof commands === "function") {
             commands = commands();
         }
 
-        let cmdarr: (string| (() => string))[]
+        let cmdarr: (string | (() => string))[]
         if (typeof commands === "string") {
             if (typeof delimiter === "string") {
                 cmdarr = commands.split(delimiter);
@@ -80,7 +80,7 @@ const useTargetCommands = () => {
         // Additional fields can be added to the method object
         if (methodID?.id != null) {
             Object.assign(method, { id: methodID.id });
-        }       
+        }
 
         if (methodID?.max != null) {
             Object.assign(method, { max: methodID.max });
@@ -89,7 +89,7 @@ const useTargetCommands = () => {
         if (!callbacks) {
             callbacks = {
                 // The default success action is to do nothing
-                onSuccess: (result) => {},
+                onSuccess: (result) => { },
                 // The default failure action is to create a toast with the error message
                 onFail: (error) => {
                     toasts.addToast({ content: error, type: "error" })
@@ -98,7 +98,7 @@ const useTargetCommands = () => {
             }
         }
 
-        let sessionId:string | undefined = "";
+        let sessionId: string | undefined = "";
         const ws = getWebSocketService()
         if (ws) {
             sessionId = ws.getSessionId();
@@ -108,11 +108,28 @@ const useTargetCommands = () => {
         cmdarr.forEach((command: string | (() => string)) => {
             let cmd: string
             if (typeof command === "string") {
-               cmd = command
+                cmd = command
             } else {
-               cmd = command()
+                cmd = command()
             }
             let replaced = replaceVariables(variablesList.commands, cmd)
+
+
+            // ===============================
+            // Interceptar salidas digitales M62 / M63
+            // ===============================
+            const outputMatch = replaced.match(/M6([23])\s*P\s*(\d+)/i)
+
+            if (outputMatch) {
+                const state = outputMatch[1] === "2"
+                const pin = parseInt(outputMatch[2], 10)
+
+                window.dispatchEvent(
+                    new CustomEvent("cnc-output", {
+                        detail: { pin, state }
+                    })
+                )
+            }
 
             let args = {
                 cmd: replaced,
@@ -121,11 +138,11 @@ const useTargetCommands = () => {
                 Object.assign(args, { PAGEID: sessionId });
             }
 
-        if (methodID?.echo == undefined || methodID.echo === true) { 
-            Object.assign(method, { echo: replaceVariables(variablesList.commands, cmd, true) });
-         }
+            if (methodID?.echo == undefined || methodID.echo === true) {
+                Object.assign(method, { echo: replaceVariables(variablesList.commands, cmd, true) });
+            }
 
-            console.log(`cmd ${  replaced}`)
+            console.log(`cmd ${replaced}`)
             createNewRequest(
                 espHttpURL("command", args),
                 method,

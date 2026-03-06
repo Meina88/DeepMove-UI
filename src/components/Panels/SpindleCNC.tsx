@@ -18,7 +18,7 @@ SpindleCNC.js - ESP3D WebUI component file
 
 import { Fragment, TargetedMouseEvent } from "preact"
 import type { FunctionalComponent, JSX } from "preact"
-import { useState } from "preact/hooks"
+import { useState, useEffect } from "preact/hooks"
 import { T } from "../Translations"
 import { Zap, Wind, CloudDrizzle, RotateCw, RotateCcw, Octagon } from "preact-feather"
 import { Outputs } from "../../targets/CNC/FluidNC/icons"
@@ -31,6 +31,7 @@ import { useTargetContext, eventsList } from "../../targets"
 import { ButtonImg, Field, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
 import { checkDependencies } from "../Helpers"
 import { useTargetCommands } from "../../hooks"
+
 
 /*
  * Local const
@@ -154,19 +155,40 @@ const SpindlePanel: FunctionalComponent<SpindlePanelProps> = ({ embedded = false
     const [d3, setD3] = useState(false)
     const [d4, setD4] = useState(false)
 
+    useEffect(() => {
+        const handler = (event: Event) => {
+            const customEvent = event as CustomEvent<{ pin: number; state: boolean }>
+            const { pin, state } = customEvent.detail
 
+            switch (pin) {
+                case 1:
+                    setD1(state)
+                    break
+                case 2:
+                    setD2(state)
+                    break
+                case 3:
+                    setD3(state)
+                    break
+                case 4:
+                    setD4(state)
+                    break
+            }
+        }
+
+        window.addEventListener("cnc-output", handler as EventListener)
+
+        return () => {
+            window.removeEventListener("cnc-output", handler as EventListener)
+        }
+    }, [])
 
     if (typeof spindleSpeedValue.current === "undefined") {
         spindleSpeedValue.current = useUiContextFn.getValue("spindlespeed")
     }
 
-    const toggleOutput = (
-        pin: number,
-        state: boolean,
-        setState: (v: boolean) => void
-    ) => {
+    const toggleOutput = (pin: number, state: boolean) => {
         targetCommands(state ? `M63 P${pin}` : `M62 P${pin}`)
-        setState(!state)
     }
 
 
@@ -198,13 +220,6 @@ const SpindlePanel: FunctionalComponent<SpindlePanelProps> = ({ embedded = false
                     mode: "spindle_mode",
                     depend: [{ id: "showM4ctrls", value: true }],
                 },
-
-                // {
-                //     label: "M6",
-                //     tooltip: "CN109",
-                //     command: "M6",
-                //     mode: "spindle_mode",
-                // },
             ],
             control: {
                 id: "spindlespeedInput",
@@ -214,31 +229,6 @@ const SpindlePanel: FunctionalComponent<SpindlePanelProps> = ({ embedded = false
                 min: 0,
             },
         },
-        // {
-        //     label: "CN56",
-        //     depend: [{ id: "showCoolantctrls", value: true }],
-        //     buttons: [
-        //         {
-        //             label: "M7",
-        //             tooltip: "CN77",
-        //             command: "M7",
-        //             depend: [{ id: "showM7ctrls", value: true }],
-        //             mode: "coolant_mode",
-        //         },
-        //         {
-        //             label: "M8",
-        //             tooltip: "CN78",
-        //             command: "M8",
-        //             mode: "coolant_mode",
-        //         },
-        //         {
-        //             label: "M9",
-        //             tooltip: "CN79",
-        //             command: "M9",
-        //             mode: "coolant_mode",
-        //         },
-        //     ],
-        // },
         {
             label: "CN202",
             buttons: [
@@ -252,21 +242,12 @@ const SpindlePanel: FunctionalComponent<SpindlePanelProps> = ({ embedded = false
                     label: "M7",
                     tooltip: "CN83",
                     command: "#T-MISTCOOLANT#",
-                    depend: [
-                        { states: ["Idle", "Run", "Hold"] },
-                        { id: "showCoolantctrls", value: true },
-                        { id: "showMistctrls", value: true },
-                    ],
                 },
                 {
                     label: "M8",
                     tooltip: "CN82",
                     tooltipclassic: true,
                     command: "#T-FLOODCOOLANT#",
-                    depend: [
-                        { states: ["Idle", "Run", "Hold"] },
-                        { id: "showCoolantctrls", value: true },
-                    ],
                 },
 
             ],
@@ -404,7 +385,10 @@ const SpindlePanel: FunctionalComponent<SpindlePanelProps> = ({ embedded = false
                         )
                     })
 
-                    if (!(content.filter((item) => item != null).length != 0))
+                    if (
+                        item.label !== "CN202" &&
+                        !(content.filter((item) => item != null).length != 0)
+                    )
                         return null
 
                     return (
@@ -434,32 +418,32 @@ const SpindlePanel: FunctionalComponent<SpindlePanelProps> = ({ embedded = false
                                         }}
                                     >
                                         {/* Botones existentes de CN80 (Wind / CloudDrizzle / etc) */}
-                                        {content}
+                                        {content.filter(Boolean)}
 
                                         {/* Tus toggles D1..D4 (van a ocupar col3 fila1 y fila2 completa) */}
                                         <ButtonImg
                                             label="D1"
-                                            className="tooltip"
+                                            className={`tooltip ${d1 ? "btn-primary" : ""}`}
                                             data-tooltip="D1"
-                                            onClick={() => toggleOutput(1, d1, setD1)}
+                                            onClick={() => toggleOutput(1, d1)}
                                         />
                                         <ButtonImg
                                             label="D2"
-                                            className="tooltip"
+                                            className={`tooltip ${d2 ? "btn-primary" : ""}`}
                                             data-tooltip="D2"
-                                            onClick={() => toggleOutput(2, d2, setD2)}
+                                            onClick={() => toggleOutput(2, d2)}
                                         />
                                         <ButtonImg
                                             label="D3"
-                                            className="tooltip"
+                                            className={`tooltip ${d3 ? "btn-primary" : ""}`}
                                             data-tooltip="D3"
-                                            onClick={() => toggleOutput(3, d3, setD3)}
+                                            onClick={() => toggleOutput(3, d3)}
                                         />
                                         <ButtonImg
                                             label="D4"
-                                            className="tooltip"
+                                            className={`tooltip ${d4 ? "btn-primary" : ""}`}
                                             data-tooltip="D4"
-                                            onClick={() => toggleOutput(4, d4, setD4)}
+                                            onClick={() => toggleOutput(4, d4)}
                                         />
                                     </div>
                                 ) : (
