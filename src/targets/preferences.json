@@ -50,17 +50,36 @@
                 "value": true
             },
             {
-                "id": "laserfocuspower",
-                "type": "number",
-                "label": "S342",
-                "value": 2,
-                "min": 1,
-                "max": 10,
-                "append": "S",
+                "id": "lasermodesettings",
+                "type": "group",
+                "label": "",
                 "depend": [
                     {
                         "id": "lasermode",
                         "value": true
+                    }
+                ],
+                "value": [
+                    {
+                        "id": "laser_m7_on_enable",
+                        "type": "boolean",
+                        "label": "S344",
+                        "value": false
+                    },
+                    {
+                        "id": "laser_m8_on_enable",
+                        "type": "boolean",
+                        "label": "S345",
+                        "value": false
+                    },
+                    {
+                        "id": "laserfocuspower",
+                        "type": "number",
+                        "label": "S342",
+                        "value": 2,
+                        "min": 1,
+                        "max": 10,
+                        "append": "S"
                     }
                 ]
             },

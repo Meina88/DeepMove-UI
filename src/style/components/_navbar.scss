@@ -414,3 +414,66 @@
 .toolmode-toggle .mode-icon svg {
   transform: translateY(2px);
 }
+
+
+/* ======================================
+Navbar Dropdown
+====================================== */
+
+.navbar-menu-wrapper {
+  position: relative;
+}
+
+.navbar-dropdown {
+  position: absolute;
+  top: 42px;
+  left: 0;
+  background: var(--ms-bg-surface);
+  border: 1px solid var(--ms-border);
+  border-radius: 8px;
+  padding: 6px 0;
+  width: 180px;
+  box-shadow: var(--neo-shadow-soft);
+  z-index: 1000;
+}
+
+.navbar-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.navbar-dropdown-item:hover {
+  background: var(--ms-bg-hover);
+}
+
+.navbar-dropdown-item.disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.navbar-dropdown-separator {
+  height: 1px;
+  background: var(--ms-border);
+  margin: 6px 0;
+}
+
+/* ======================================
+Machine status
+====================================== */
+
+.cnc-status-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 8px;
+}
+
+.cnc-status-text {
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  opacity: 0.8;
+}

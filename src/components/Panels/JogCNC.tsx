@@ -334,20 +334,20 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
     }
 
     // 🔁 rota el stepping (direction = 1 adelante, -1 atrás)
-    const rotateJogStep = (direction: 1 | -1 = 1) => {
-        setJogStepIndex((prev) => {
+const rotateJogStep = (direction: 1 | -1 = 1) => {
+    setJogStepIndex((prev) => {
 
-            const minIndex = isLaserMode ? 2 : 0
-            const maxIndex = jogStepsXYZ.length - 1
+        const minIndex = 0
+        const maxIndex = jogStepsXYZ.length - 1
 
-            let next = prev + direction
+        let next = prev + direction
 
-            if (next > maxIndex) next = minIndex
-            if (next < minIndex) next = maxIndex
+        if (next > maxIndex) next = minIndex
+        if (next < minIndex) next = maxIndex
 
-            return next
-        })
-    }
+        return next
+    })
+}
 
 
 
@@ -539,10 +539,22 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
                 // capturamos el step efectivo EN EL DOWN
                 let effectiveStepIndex = jogStepRef.current
 
-                if (jogStepsXYZ[jogStepRef.current] === 100 && (axis === "Z+" || axis === "Z-")) {
-                    effectiveStepIndex = 1
-                    setJogStepIndex(1) // solo UI
-                }
+if (axis === "Z+" || axis === "Z-") {
+
+    const currentStep = jogStepsXYZ[jogStepRef.current]
+
+    if (!isLaserMode && currentStep === 100) {
+        // CNC → 100 → 10
+        effectiveStepIndex = 1
+        setJogStepIndex(1)
+    }
+
+    if (isLaserMode && (currentStep === 100 || currentStep === 10)) {
+        // Laser → 100 / 10 → 1
+        effectiveStepIndex = 2
+        setJogStepIndex(2)
+    }
+}
 
                 effectiveStepRef.current = effectiveStepIndex
                 continuousRef.current = false
@@ -793,12 +805,6 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
     useEffect(() => {
         jogStepRef.current = jogStepIndex
     }, [jogStepIndex])
-
-    useEffect(() => {
-        if (isLaserMode && jogStepIndex < 2) {
-            setJogStepIndex(2) // fuerza step = 1
-        }
-    }, [isLaserMode])
 
     useEffect(() => {
         if (!isLaserMode && laserFocus) {

@@ -48,6 +48,7 @@ import {
     Power,
     Monitor,
     RotateCw,
+    Menu,
 } from "preact-feather"
 import { useTargetCommands } from "../../hooks"
 import { DashboardIcon } from "../../targets/CNC/FluidNC/icons"
@@ -140,6 +141,7 @@ const Navbar = () => {
     )
     const [hrefbutton, setHrefButton] = useState<string | undefined>(undefined)
     const [isFullscreen, setIsFullscreen] = useState(false)
+    const [menuOpen, setMenuOpen] = useState(false)
     const [isTabletDevice, setIsTabletDevice] = useState(isTablet())
     const [isMobileDevice, setIsMobileDevice] = useState(isMobile())
     const [cpuTemp, setCpuTemp] = useState<string | null>(null)
@@ -149,6 +151,11 @@ const Navbar = () => {
     const reloadPage = () => {
         useUiContextFn.haptic()
         window.location.reload()
+    }
+
+    const toggleMenu = () => {
+        useUiContextFn.haptic()
+        setMenuOpen(!menuOpen)
     }
 
     const { status } = useTargetContext() as unknown as {
@@ -191,9 +198,9 @@ const Navbar = () => {
     }
 
     const effectiveState =
-        !rawState || rawState === "?"
+        (!rawState || rawState === "?"
             ? lastValidState.current
-            : rawState;
+            : rawState)?.toUpperCase();
 
     if (uisettings.current) {
         if (uisettings.getValue("showextracontents")) {
@@ -327,7 +334,13 @@ const Navbar = () => {
 
         setPendingTool(nextTool)
 
+        let cleanupDone = false
+
         const cleanup = (success: boolean) => {
+
+            if (cleanupDone) return
+            cleanupDone = true
+
             eventBus.off("fw:toolchange", onToolChange as any)
             eventBus.off("fw:gc", onGC as any)
 
@@ -338,7 +351,28 @@ const Navbar = () => {
 
             if (success) {
                 setCurrentTool(nextTool)
-            } else {
+
+                // Si cambiamos a Laser
+                if (nextTool === toolNumbers.laser) {
+                    const enableM7 = uisettings?.getValue?.("laser_m7_on_enable")
+                    const enableM8 = uisettings?.getValue?.("laser_m8_on_enable")
+
+                    if (enableM7) {
+                        targetCommands("M7")
+                    }
+
+                    if (enableM8) {
+                        targetCommands("M8")
+                    }
+                }
+
+                // Si cambiamos a CNC apagar refrigerantes / air assist
+                if (nextTool === toolNumbers.vfd) {
+                    targetCommands("M9")
+                }
+            }
+
+            else {
                 showConfirmationModal({
                     modals,
                     title: T("S340"),
@@ -349,6 +383,8 @@ const Navbar = () => {
 
             setPendingTool(null)
         }
+
+
 
         const onToolChange = (_line: string) => {
             cleanup(true)
@@ -498,33 +534,76 @@ const Navbar = () => {
                 {/* IZQUIERDA */}
                 <section class="navbar-section navbar-left">
 
-                    {/* ⏻ Power Off */}
-                    <span
-                        className={`btn btn-link no-box feather-icon-container ${!isIdle ? "disabled opacity-50" : ""
-                            }`}
-                        onClick={isIdle ? onPowerOff : undefined}
-                    >
-                        <Power />
-                    </span>
+                    {/* ☰ Menu */}
+                    <div class="navbar-menu-wrapper">
 
-                    {/* 🔄 Refresh */}
-                    <span
-                        className="btn btn-link no-box feather-icon-container"
-                        onClick={reloadPage}
-                    >
-                        <RotateCw />
-                    </span>
+                        <span
+                            class="btn btn-link no-box feather-icon-container"
+                            onClick={toggleMenu}
+                        >
+                            <Menu />
+                        </span>
 
-                    {/* ● Estado CNC (TERCER CASILLERO) */}
-                    <div
-                        class={`cnc-status-led ${effectiveState
-                            ? `state-${effectiveState.toLowerCase()}`
-                            : "state-offline"
-                            }`}
-                        title={effectiveState || "Offline"}
+                        {menuOpen && (
+                            <div class="navbar-dropdown">
 
-                    />
+                                <div
+                                    class="navbar-dropdown-item"
+                                    onClick={() => {
+                                        reloadPage()
+                                        setMenuOpen(false)
+                                    }}
+                                >
+                                    <RotateCw size={16} />
+                                    <span>Refresh</span>
+                                </div>
 
+                                <div
+                                    class="navbar-dropdown-item"
+                                    onClick={() => {
+                                        toggleSettingsDashboard()
+                                        setMenuOpen(false)
+                                    }}
+                                >
+                                    {isSettingsPage ? <DashboardIcon height="16px" /> : <Settings size={16} />}
+
+                                    <span>
+                                        {isSettingsPage ? "Dashboard" : "Settings"}
+                                    </span>
+                                </div>
+
+                                <div class="navbar-dropdown-separator" />
+
+                                <div
+                                    class={`navbar-dropdown-item ${!isIdle ? "disabled" : ""}`}
+                                    onClick={() => {
+                                        if (isIdle) onPowerOff()
+                                        setMenuOpen(false)
+                                    }}
+                                >
+                                    <Power size={16} />
+                                    <span>Power Off</span>
+                                </div>
+
+                            </div>
+                        )}
+                    </div>
+
+                    {/* ● Estado CNC */}
+                    <div class="cnc-status-wrapper">
+
+                        <div
+                            class={`cnc-status-led ${effectiveState
+                                ? `state-${effectiveState.toLowerCase()}`
+                                : "state-offline"
+                                }`}
+                        />
+
+                        <span class="cnc-status-text">
+                            {effectiveState || "OFFLINE"}
+                        </span>
+
+                    </div>
 
                 </section>
 
@@ -538,7 +617,9 @@ const Navbar = () => {
                         </span>
 
                         {/* 🧪 Tool Numbers Debug */}
-                        <span
+
+
+                        {/* <span (descomentar para visualizar los tool_num)
                             style={{
                                 marginLeft: "12px",
                                 fontSize: "0.75rem",
@@ -547,7 +628,8 @@ const Navbar = () => {
                             }}
                         >
                             VFD T{toolNumbers.vfd ?? "-"} | LASER T{toolNumbers.laser ?? "-"}
-                        </span>
+                        </span> */}
+
                     </div>
                 </section>
 
@@ -605,14 +687,6 @@ const Navbar = () => {
                         </span>
                     )}
 
-                    {/* ⚙ Settings */}
-                    <span
-                        className="btn btn-link no-box feather-icon-container"
-                        onClick={toggleSettingsDashboard}
-                        title={isSettingsPage ? "Volver al Dashboard" : "Settings"}
-                    >
-                        {isSettingsPage ? <DashboardIcon /> : <Settings />}
-                    </span>
 
 
                 </section>

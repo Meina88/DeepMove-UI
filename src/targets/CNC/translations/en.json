@@ -176,6 +176,8 @@
     "S341": "Could not switch to Laser mode",
     "S342": "Laser focal power (1-10)",
     "S343": "Laser mode",
+    "S344": "Activate M7",
+    "S345": "Activate M8", 
     "Hold:0": "Hold complete. Ready to resume.",
     "Hold:1": "Hold in-progress. Reset will throw an alarm.",
     "Door:0": "Door closed. Ready to resume.",
