@@ -114,6 +114,12 @@ const useTargetCommands = () => {
             }
             let replaced = replaceVariables(variablesList.commands, cmd)
 
+            // ===============================
+// Interceptar Soft Reset (Ctrl-X)
+// ===============================
+if (replaced === "\x18" || cmd === "#SOFTRESET#") {
+    window.dispatchEvent(new CustomEvent("cnc-soft-reset"))
+}
 
             // ===============================
             // Interceptar salidas digitales M62 / M63

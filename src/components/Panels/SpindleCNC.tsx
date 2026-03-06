@@ -57,7 +57,10 @@ const SpindleControls: FunctionalComponent = () => {
     console.log(states)
     const { interfaceSettings, connectionSettings } = useSettingsContext()
     //Add callback to reset event
+    useEffect(() => {
     eventsList.on("reset", onReset)
+    return () => eventsList.off("reset", onReset)
+}, [])
     if (!useUiContextFn.getValue("showspindlepanel")) return null
     const states_array = [
         //{ id: "feed_rate", label: "CN9" },
@@ -186,6 +189,25 @@ const SpindlePanel: FunctionalComponent<SpindlePanelProps> = ({ embedded = false
             window.removeEventListener("cnc-output", handler as EventListener)
         }
     }, [])
+
+    useEffect(() => {
+    const resetLocalUI = () => {
+        setM7Active(false)
+        setM8Active(false)
+
+        setD1(false)
+        setD2(false)
+        setD3(false)
+        setD4(false)
+    }
+
+    window.addEventListener("cnc-soft-reset", resetLocalUI as EventListener)
+
+    return () => {
+        window.removeEventListener("cnc-soft-reset", resetLocalUI as EventListener)
+    }
+}, [])
+
 
     if (typeof spindleSpeedValue.current === "undefined") {
         spindleSpeedValue.current = useUiContextFn.getValue("spindlespeed")
