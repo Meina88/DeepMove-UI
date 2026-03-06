@@ -291,7 +291,7 @@
 .navbar-right {
     display: flex;
     align-items: center;
-    gap: 0.5rem; // 👈 separación entre botones
+    gap: 1.5rem; // 👈 separación entre botones
 }
 
 
@@ -355,6 +355,7 @@
     align-items: center;
     gap: 8px;
     color: hsl(205, 90%, 52%);
+    padding-top: 0;
 }
 
 .deepmove-wordmark svg {
@@ -422,6 +423,7 @@ Navbar Dropdown
 
 .navbar-menu-wrapper {
   position: relative;
+  transform: translateY(2px);
 }
 
 .navbar-dropdown {
