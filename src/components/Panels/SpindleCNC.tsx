@@ -154,6 +154,10 @@ const SpindlePanel: FunctionalComponent<SpindlePanelProps> = ({ embedded = false
     const [d2, setD2] = useState(false)
     const [d3, setD3] = useState(false)
     const [d4, setD4] = useState(false)
+    const [m7Active, setM7Active] = useState(false)
+    const [m8Active, setM8Active] = useState(false)
+
+
 
     useEffect(() => {
         const handler = (event: Event) => {
@@ -340,6 +344,14 @@ const SpindlePanel: FunctionalComponent<SpindlePanelProps> = ({ embedded = false
                             }
                         }
                         let classname = "tooltip"
+                        // Estado visual local M7/M8
+                        if (button.label === "M7" && m7Active) {
+                            classname += " btn-primary"
+                        }
+
+                        if (button.label === "M8" && m8Active) {
+                            classname += " btn-primary"
+                        }
                         if (!item.tooltipclassic) {
                             if (item.buttons.length / 2 > index) {
                                 classname += " tooltip-right"
@@ -372,6 +384,7 @@ const SpindlePanel: FunctionalComponent<SpindlePanelProps> = ({ embedded = false
                                 onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
                                     useUiContextFn.haptic()
                                     e.currentTarget.blur()
+
                                     if (button.useinput) {
                                         targetCommands(
                                             button.command.replace(
@@ -379,7 +392,22 @@ const SpindlePanel: FunctionalComponent<SpindlePanelProps> = ({ embedded = false
                                                 `S${spindleSpeedValue.current}`
                                             )
                                         )
-                                    } else targetCommands(button.command)
+                                        return
+                                    }
+
+                                    if (button.label === "M7") {
+                                        setM7Active(prev => !prev)
+                                        targetCommands(button.command)
+                                        return
+                                    }
+
+                                    if (button.label === "M8") {
+                                        setM8Active(prev => !prev)
+                                        targetCommands(button.command)
+                                        return
+                                    }
+
+                                    targetCommands(button.command)
                                 }}
                             />
                         )
