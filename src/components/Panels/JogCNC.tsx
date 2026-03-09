@@ -334,20 +334,20 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
     }
 
     // 🔁 rota el stepping (direction = 1 adelante, -1 atrás)
-const rotateJogStep = (direction: 1 | -1 = 1) => {
-    setJogStepIndex((prev) => {
+    const rotateJogStep = (direction: 1 | -1 = 1) => {
+        setJogStepIndex((prev) => {
 
-        const minIndex = 0
-        const maxIndex = jogStepsXYZ.length - 1
+            const minIndex = 0
+            const maxIndex = jogStepsXYZ.length - 1
 
-        let next = prev + direction
+            let next = prev + direction
 
-        if (next > maxIndex) next = minIndex
-        if (next < minIndex) next = maxIndex
+            if (next > maxIndex) next = minIndex
+            if (next < minIndex) next = maxIndex
 
-        return next
-    })
-}
+            return next
+        })
+    }
 
 
 
@@ -539,22 +539,22 @@ const rotateJogStep = (direction: 1 | -1 = 1) => {
                 // capturamos el step efectivo EN EL DOWN
                 let effectiveStepIndex = jogStepRef.current
 
-if (axis === "Z+" || axis === "Z-") {
+                if (axis === "Z+" || axis === "Z-") {
 
-    const currentStep = jogStepsXYZ[jogStepRef.current]
+                    const currentStep = jogStepsXYZ[jogStepRef.current]
 
-    if (!isLaserMode && currentStep === 100) {
-        // CNC → 100 → 10
-        effectiveStepIndex = 1
-        setJogStepIndex(1)
-    }
+                    if (!isLaserMode && currentStep === 100) {
+                        // CNC → 100 → 10
+                        effectiveStepIndex = 1
+                        setJogStepIndex(1)
+                    }
 
-    if (isLaserMode && (currentStep === 100 || currentStep === 10)) {
-        // Laser → 100 / 10 → 1
-        effectiveStepIndex = 2
-        setJogStepIndex(2)
-    }
-}
+                    if (isLaserMode && (currentStep === 100 || currentStep === 10)) {
+                        // Laser → 100 / 10 → 1
+                        effectiveStepIndex = 2
+                        setJogStepIndex(2)
+                    }
+                }
 
                 effectiveStepRef.current = effectiveStepIndex
                 continuousRef.current = false
@@ -838,12 +838,17 @@ if (axis === "Z+" || axis === "Z-") {
                                     const next = !laserFocus
                                     setLaserFocus(next)
 
-                                    const focusPower = Number(useUiContextFn.getValue("laserfocuspower") ?? 5)
+                                    const focusPercent = Number(useUiContextFn.getValue("laserfocuspower") ?? 5)
+                                    const maxS = Number(useUiContextFn.getValue("laser_max_power") ?? 1000)
+
+                                    const focusS = Math.round(maxS * focusPercent / 100)
 
                                     if (next) {
-                                        targetCommands(`M3 S${focusPower}`)
+                                        targetCommands(`M3 S${focusS}`)
                                         targetCommands("G1 F1000")
-                                    } else {
+                                    }
+
+                                    else {
                                         targetCommands("M5 S0")
                                         targetCommands("G0")
                                     }

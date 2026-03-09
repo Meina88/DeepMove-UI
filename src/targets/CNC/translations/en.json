@@ -174,7 +174,7 @@
     "S339": "The laser has not been configured",
     "S340": "Laser mode switch failed",
     "S341": "Could not switch to Laser mode",
-    "S342": "Laser focal power (1-10)",
+    "S342": "Laser focal power",
     "S343": "Laser mode",
     "S344": "Activate M7",
     "S345": "Activate M8", 

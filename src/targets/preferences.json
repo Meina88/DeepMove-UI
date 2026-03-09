@@ -73,13 +73,22 @@
                         "value": false
                     },
                     {
+                        "id": "laser_max_power",
+                        "type": "number",
+                        "label": "Laser max S value",
+                        "value": 255,
+                        "min": 1,
+                        "max": 10000,
+                        "append": "S"
+                    },
+                    {
                         "id": "laserfocuspower",
                         "type": "number",
                         "label": "S342",
-                        "value": 2,
+                        "value": 1,
                         "min": 1,
                         "max": 10,
-                        "append": "S"
+                        "append": "%"
                     }
                 ]
             },
