@@ -139,21 +139,21 @@ const getStatus = (str: string): StatusResponse => {
         }, {} as Record<string, boolean>)
     }
     //extract status and optional message code
-if ((result = status_pattern.exec(str)) !== null) {
-    const state = result.groups!.state
-    const code = result.groups!.code
+    if ((result = status_pattern.exec(str)) !== null) {
+        const state = result.groups!.state
+        const code = result.groups!.code
 
-    res.status.state = state
-    res.status.code = code
+        res.status.state = state
+        res.status.code = code
 
-    // ⬇️ NUEVO: subestado para FluidNC moderno (Door:0, Hold:1, etc.)
-    if ((state === "Door" || state === "Hold") && code !== "") {
-        const sub = Number(code)
-        if (!isNaN(sub)) {
-            res.status.substate = sub
+        // ⬇️ NUEVO: subestado para FluidNC moderno (Door:0, Hold:1, etc.)
+        if ((state === "Door" || state === "Hold") && code !== "") {
+            const sub = Number(code)
+            if (!isNaN(sub)) {
+                res.status.substate = sub
+            }
         }
     }
-}
 
     //extract override values
     if ((result = ov_patern.exec(str)) !== null) {
@@ -272,7 +272,27 @@ const getStates = (str: string): Record<string, any> => {
                 gcode_parser_modes.forEach((mode) => {
                     const el = cur.split(":")[0]
                     if ('values' in mode && mode.values && mode.values.includes(el)) {
-                        acc[mode.id] = { value: cur }
+
+                        // reset coolant when M9
+                        if (mode.id === "coolant_mode" && el === "M9") {
+                            acc[mode.id] = { value: "M9" }
+                            return acc
+                        }
+
+                        if (!acc[mode.id]) {
+                            acc[mode.id] = { value: cur }
+                        } else {
+                            const existing = acc[mode.id]
+
+                            if (Array.isArray(existing)) {
+                                existing.push({ value: cur })
+                            } else {
+                                acc[mode.id] = [
+                                    existing,
+                                    { value: cur }
+                                ]
+                            }
+                        }
                     }
                 })
             }

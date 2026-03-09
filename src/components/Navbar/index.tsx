@@ -364,11 +364,15 @@ const Navbar = () => {
                     if (enableM8) {
                         targetCommands("M8")
                     }
+
+                    // 🔄 actualizar estado modal
+                    targetCommands("$G")
                 }
 
                 // Si cambiamos a CNC apagar refrigerantes / air assist
                 if (nextTool === toolNumbers.vfd) {
                     targetCommands("M9")
+                    targetCommands("$G")
                 }
             }
 
@@ -526,6 +530,26 @@ const Navbar = () => {
             window.addEventListener("orientationchange", updateDeviceState)
         }
     }, [])
+
+    useEffect(() => {
+
+        const handler = () => {
+
+            // forzar sincronización del tool
+            targetCommands("$G")
+
+            // opcional: asumir spindle como estado seguro
+            if (toolNumbers.vfd != null) {
+                setCurrentTool(toolNumbers.vfd)
+            }
+
+        }
+
+        const sub = eventBus.on("fw:reset", handler)
+
+        return () => eventBus.off("fw:reset", sub)
+
+    }, [toolNumbers.vfd])
 
     if (uisettings.current) {
         return (

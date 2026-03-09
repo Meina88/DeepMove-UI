@@ -198,6 +198,11 @@ const TerminalPanel: FunctionalComponent<TerminalPanelProps> = ({ embedded = fal
             )
             // echo:false because it was echoed above
             targetCommands(cmd, null, { echo: false })
+
+            // refrescar estado modal si el usuario tocó coolant
+            if (/^(M7|M8|M9)\s*$/i.test(cmd.trim())) {
+                setTimeout(() => targetCommands("$G"), 50)
+            }
         }
         inputHistoryIndex.current = terminal.inputHistory.length
         terminal.input.current = ""
@@ -279,24 +284,24 @@ const TerminalPanel: FunctionalComponent<TerminalPanelProps> = ({ embedded = fal
         <div class="panel panel-dashboard" id={id}>
             <ContainerHelper id={id} />
             {!embedded && (
-            <div class="navbar">
-                <span class="navbar-section feather-icon-container">
-                    <Code />
-                    <strong class="text-ellipsis">{T("Terminal")}</strong>
-                </span>
-                <span class="navbar-section">
-                    <span class="full-height">
-                        <PanelMenu items={menu} />
-                        <FullScreenButton
-                            elementId={id}
-                        />
-                        <CloseButton
-                            elementId={id}
-                            hideOnFullScreen={true}
-                        />
+                <div class="navbar">
+                    <span class="navbar-section feather-icon-container">
+                        <Code />
+                        <strong class="text-ellipsis">{T("Terminal")}</strong>
                     </span>
-                </span>
-            </div>
+                    <span class="navbar-section">
+                        <span class="full-height">
+                            <PanelMenu items={menu} />
+                            <FullScreenButton
+                                elementId={id}
+                            />
+                            <CloseButton
+                                elementId={id}
+                                hideOnFullScreen={true}
+                            />
+                        </span>
+                    </span>
+                </div>
             )}
 
             <div

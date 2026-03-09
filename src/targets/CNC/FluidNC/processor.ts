@@ -93,6 +93,11 @@ const responseSteps = {
 
 const processStream = (type: string = "stream", data: string = ""): void => {
 
+  // Detect firmware reset / reconnect
+  if (type === "stream" && data.startsWith("Grbl")) {
+    eventBus.emit("fw:reset", null)
+  }
+
   // Detect GC state lines from $G
   if (type === "stream" && data.startsWith("[GC:")) {
     eventBus.emit("fw:gc", data)

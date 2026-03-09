@@ -18,7 +18,7 @@ SpindleCNC.js - ESP3D WebUI component file
 
 import { Fragment, TargetedMouseEvent } from "preact"
 import type { FunctionalComponent, JSX } from "preact"
-import { useState, useEffect } from "preact/hooks"
+import { useState, useEffect, useRef } from "preact/hooks"
 import { T } from "../Translations"
 import { Zap, Wind, CloudDrizzle, RotateCw, RotateCcw, Octagon } from "preact-feather"
 import { Outputs } from "../../targets/CNC/FluidNC/icons"
@@ -31,6 +31,7 @@ import { useTargetContext, eventsList } from "../../targets"
 import { ButtonImg, Field, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
 import { checkDependencies } from "../Helpers"
 import { useTargetCommands } from "../../hooks"
+import { eventBus } from "../../hooks/eventBus"
 
 
 /*
@@ -41,13 +42,6 @@ import { useTargetCommands } from "../../hooks"
 type NumberValue = { current: number }
 const spindleSpeedValue = {} as Partial<NumberValue>
 
-/*
- * Callback function when reset is detected
- *
- */ const onReset = (data: any) => {
-    console.log("reset Happend:", data)
-    //Todo: TBD
-}
 
 type StateValue = { value: string } | Array<{ value: string }>
 type StatesMap = Record<string, StateValue>
@@ -56,11 +50,7 @@ const SpindleControls: FunctionalComponent = () => {
     const { states } = useTargetContext() as { states: StatesMap }
     console.log(states)
     const { interfaceSettings, connectionSettings } = useSettingsContext()
-    //Add callback to reset event
-    useEffect(() => {
-    eventsList.on("reset", onReset)
-    return () => eventsList.off("reset", onReset)
-}, [])
+
     if (!useUiContextFn.getValue("showspindlepanel")) return null
     const states_array = [
         //{ id: "feed_rate", label: "CN9" },
@@ -152,13 +142,14 @@ const SpindlePanel: FunctionalComponent<SpindlePanelProps> = ({ embedded = false
     }
     const { targetCommands } = useTargetCommands()
     const id = "SpindlePanel"
+
+    const previousStateRef = useRef<string | undefined>(undefined)
     // Digital outputs (estado UI)
     const [d1, setD1] = useState(false)
     const [d2, setD2] = useState(false)
     const [d3, setD3] = useState(false)
     const [d4, setD4] = useState(false)
-    const [m7Active, setM7Active] = useState(false)
-    const [m8Active, setM8Active] = useState(false)
+
 
 
 
@@ -191,23 +182,54 @@ const SpindlePanel: FunctionalComponent<SpindlePanelProps> = ({ embedded = false
     }, [])
 
     useEffect(() => {
-    const resetLocalUI = () => {
-        setM7Active(false)
-        setM8Active(false)
+        const prev = previousStateRef.current
+        const current = status?.state
 
-        setD1(false)
-        setD2(false)
-        setD3(false)
-        setD4(false)
-    }
+        if (current === "Idle" && prev !== "Idle") {
+            setTimeout(() => {
+                targetCommands("$G")
+            }, 80)
+        }
 
-    window.addEventListener("cnc-soft-reset", resetLocalUI as EventListener)
+        previousStateRef.current = current
+    }, [status?.state])
 
-    return () => {
-        window.removeEventListener("cnc-soft-reset", resetLocalUI as EventListener)
-    }
-}, [])
+    useEffect(() => {
 
+        const handler = () => {
+            setTimeout(() => {
+                targetCommands("$G")
+            }, 150)
+        }
+
+        const subId = eventBus.on("fw:reset", handler)
+
+        return () => {
+            eventBus.off("fw:reset", subId)
+        }
+
+    }, [])
+
+    useEffect(() => {
+
+        const handler = () => {
+
+            // refrescar modals
+            targetCommands("$G")
+
+            // apagar UI localmente (estado seguro)
+            setD1(false)
+            setD2(false)
+            setD3(false)
+            setD4(false)
+
+        }
+
+        const sub = eventBus.on("fw:reset", handler)
+
+        return () => eventBus.off("fw:reset", sub)
+
+    }, [])
 
     if (typeof spindleSpeedValue.current === "undefined") {
         spindleSpeedValue.current = useUiContextFn.getValue("spindlespeed")
@@ -268,12 +290,14 @@ const SpindlePanel: FunctionalComponent<SpindlePanelProps> = ({ embedded = false
                     label: "M7",
                     tooltip: "CN83",
                     command: "#T-MISTCOOLANT#",
+                    mode: "coolant_mode",
                 },
                 {
                     label: "M8",
                     tooltip: "CN82",
                     tooltipclassic: true,
                     command: "#T-FLOODCOOLANT#",
+                    mode: "coolant_mode",
                 },
 
             ],
@@ -333,6 +357,10 @@ const SpindlePanel: FunctionalComponent<SpindlePanelProps> = ({ embedded = false
             <div class="panel-body panel-body-dashboard">
                 {buttons_list.map((item) => {
                     const control = item.control
+                    // Ocultar Digital Outputs si la máquina no está Idle
+                    if (item.label === "CN202" && status.state !== "Idle") {
+                        return null
+                    }
                     if (item.depend) {
                         if (
                             !checkDependencies(
@@ -366,14 +394,7 @@ const SpindlePanel: FunctionalComponent<SpindlePanelProps> = ({ embedded = false
                             }
                         }
                         let classname = "tooltip"
-                        // Estado visual local M7/M8
-                        if (button.label === "M7" && m7Active) {
-                            classname += " btn-primary"
-                        }
 
-                        if (button.label === "M8" && m8Active) {
-                            classname += " btn-primary"
-                        }
                         if (!item.tooltipclassic) {
                             if (item.buttons.length / 2 > index) {
                                 classname += " tooltip-right"
@@ -417,19 +438,11 @@ const SpindlePanel: FunctionalComponent<SpindlePanelProps> = ({ embedded = false
                                         return
                                     }
 
-                                    if (button.label === "M7") {
-                                        setM7Active(prev => !prev)
-                                        targetCommands(button.command)
-                                        return
-                                    }
-
-                                    if (button.label === "M8") {
-                                        setM8Active(prev => !prev)
-                                        targetCommands(button.command)
-                                        return
-                                    }
-
                                     targetCommands(button.command)
+
+                                    if (button.label === "M7" || button.label === "M8") {
+                                        targetCommands("$G")
+                                    }
                                 }}
                             />
                         )
@@ -475,25 +488,44 @@ const SpindlePanel: FunctionalComponent<SpindlePanelProps> = ({ embedded = false
                                             label="D1"
                                             className={`tooltip ${d1 ? "btn-primary" : ""}`}
                                             data-tooltip="D1"
-                                            onClick={() => toggleOutput(1, d1)}
+                                            onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
+                                                useUiContextFn.haptic()
+                                                e.currentTarget.blur()
+                                                toggleOutput(1, d1)
+                                            }}
                                         />
+
                                         <ButtonImg
                                             label="D2"
                                             className={`tooltip ${d2 ? "btn-primary" : ""}`}
                                             data-tooltip="D2"
-                                            onClick={() => toggleOutput(2, d2)}
+                                            onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
+                                                useUiContextFn.haptic()
+                                                e.currentTarget.blur()
+                                                toggleOutput(2, d2)
+                                            }}
                                         />
+
                                         <ButtonImg
                                             label="D3"
                                             className={`tooltip ${d3 ? "btn-primary" : ""}`}
                                             data-tooltip="D3"
-                                            onClick={() => toggleOutput(3, d3)}
+                                            onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
+                                                useUiContextFn.haptic()
+                                                e.currentTarget.blur()
+                                                toggleOutput(3, d3)
+                                            }}
                                         />
+
                                         <ButtonImg
                                             label="D4"
                                             className={`tooltip ${d4 ? "btn-primary" : ""}`}
                                             data-tooltip="D4"
-                                            onClick={() => toggleOutput(4, d4)}
+                                            onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
+                                                useUiContextFn.haptic()
+                                                e.currentTarget.blur()
+                                                toggleOutput(4, d4)
+                                            }}
                                         />
                                     </div>
                                 ) : (
