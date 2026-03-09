@@ -379,6 +379,7 @@
     bottom: 14px;
     transform: translateX(-50%);
     z-index: 20;
+    pointer-events: none;
 
     display: flex;
     flex-direction: column;
@@ -413,6 +414,7 @@
     width: 54px;
     height: 54px;
     border-radius: 999px;
+    pointer-events: auto;
 
     border: none;
     cursor: pointer;
