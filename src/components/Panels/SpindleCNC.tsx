@@ -52,16 +52,9 @@ const SpindleControls: FunctionalComponent = () => {
     const { interfaceSettings, connectionSettings } = useSettingsContext()
 
     if (!useUiContextFn.getValue("showspindlepanel")) return null
-    const states_array = [
-        //{ id: "feed_rate", label: "CN9" },
-        { id: "spindle_speed", label: "CN64" },
-        { id: "spindle_mode", label: "CN91" },
-        {
-            id: "coolant_mode",
-            label: "CN38",
-            depend: [{ id: "showCoolantctrls", value: true }],
-        },
-    ]
+const states_array: { id: string; label: string; depend?: any }[] = [
+    { id: "spindle_speed", label: "CN64" },
+]
 
     return (
         <Fragment>
