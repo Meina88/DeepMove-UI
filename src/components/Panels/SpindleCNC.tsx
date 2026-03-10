@@ -20,9 +20,10 @@ import { Fragment, TargetedMouseEvent } from "preact"
 import type { FunctionalComponent, JSX } from "preact"
 import { useState, useEffect, useRef } from "preact/hooks"
 import { T } from "../Translations"
-import { Zap, Wind, CloudDrizzle, RotateCw, RotateCcw, Octagon } from "preact-feather"
+import { Zap, Wind, CloudDrizzle, RotateCw, RotateCcw, Octagon, Sun } from "preact-feather"
 import { Outputs } from "../../targets/CNC/FluidNC/icons"
 import {
+    useUiContext,
     useUiContextFn,
     useSettingsContext,
     useToastsContext,
@@ -46,15 +47,16 @@ const spindleSpeedValue = {} as Partial<NumberValue>
 type StateValue = { value: string } | Array<{ value: string }>
 type StatesMap = Record<string, StateValue>
 
-const SpindleControls: FunctionalComponent = () => {
+const SpindleControls: FunctionalComponent<{ isLaserMode: boolean }> = ({ isLaserMode }) => {
     const { states } = useTargetContext() as { states: StatesMap }
+
     console.log(states)
     const { interfaceSettings, connectionSettings } = useSettingsContext()
 
     if (!useUiContextFn.getValue("showspindlepanel")) return null
-const states_array: { id: string; label: string; depend?: any }[] = [
-    { id: "spindle_speed", label: "CN64" },
-]
+    const states_array: { id: string; label: string; depend?: any }[] = [
+        { id: "spindle_speed", label: isLaserMode ? "Power" : "CN64" },
+    ]
 
     return (
         <Fragment>
@@ -76,9 +78,25 @@ const states_array: { id: string; label: string; depend?: any }[] = [
                                         return null
                                 }
                                 const sv = states[element.id] as StateValue
-                                const displayVal = Array.isArray(sv)
-                                    ? sv.map((i) => i.value).join(" ")
-                                    : sv.value
+                                let displayVal = ""
+
+                                if (Array.isArray(sv)) {
+                                    displayVal = sv.map((i) => i.value).join(" ")
+                                } else {
+                                    displayVal = sv.value
+                                }
+
+                                if (isLaserMode && element.id === "spindle_speed") {
+
+                                    const sValue = Number(displayVal)
+
+                                    const laserMax =
+                                        interfaceSettings.current.settings?.laser_max_power ?? 255
+
+                                    const percent = Math.round((sValue / laserMax) * 100)
+
+                                    displayVal = `${percent}%`
+                                }
                                 return (
                                     <div key={element.id}
                                         class="extra-control mt-1 tooltip tooltip-bottom"
@@ -133,6 +151,55 @@ const SpindlePanel: FunctionalComponent<SpindlePanelProps> = ({ embedded = false
         states: StatesMap
         pinsStates: Record<string, boolean>
     }
+
+    const { toolNumbers } = useUiContext()
+
+    let currentTool: number | null = null
+
+    if (states?.active_tool) {
+        const toolState = states.active_tool
+
+        if (Array.isArray(toolState)) {
+            currentTool = Number(toolState[0]?.value)
+        } else {
+            currentTool = Number(toolState.value)
+        }
+    }
+
+    const isLaserMode =
+        toolNumbers?.laser != null &&
+        currentTool != null &&
+        currentTool === toolNumbers.laser
+    useEffect(() => {
+
+        if (isLaserMode) {
+            spindleSpeedValue.current = 0
+        }
+
+    }, [isLaserMode])
+    const laserMaxPower =
+        interfaceSettings.current.settings?.laser_max_power ?? 255
+
+    const laserFocusPercent =
+        interfaceSettings.current.settings?.laserfocuspower ?? 1
+
+    const getLaserPowerValue = () => {
+
+        const percent = spindleSpeedValue.current ?? 0
+
+        return Math.round((percent / 100) * laserMaxPower)
+    }
+
+    const fireLaserTest = () => {
+
+        const power = getLaserPowerValue()
+        const duration = laserTestDuration
+
+        targetCommands(`M3 S${power}`)
+        targetCommands(`G4 P${duration}`)
+        targetCommands("M5")
+    }
+
     const { targetCommands } = useTargetCommands()
     const id = "SpindlePanel"
 
@@ -142,6 +209,9 @@ const SpindlePanel: FunctionalComponent<SpindlePanelProps> = ({ embedded = false
     const [d2, setD2] = useState(false)
     const [d3, setD3] = useState(false)
     const [d4, setD4] = useState(false)
+
+    const [laserTestDuration, setLaserTestDuration] = useState(0.5)
+
 
 
 
@@ -365,6 +435,9 @@ const SpindlePanel: FunctionalComponent<SpindlePanelProps> = ({ embedded = false
                             return null
                     }
                     const content = item.buttons.map((button, index) => {
+
+
+
                         if (button.depend) {
                             if (
                                 !checkDependencies(
@@ -451,14 +524,57 @@ const SpindlePanel: FunctionalComponent<SpindlePanelProps> = ({ embedded = false
                         <fieldset key={item.label} class="fieldset-top-separator fieldset-bottom-separator field-group">
                             <legend>
                                 <label class="m-1 buttons-bar-label">
-                                    {T(item.label)}
+                                    {isLaserMode && item.label === "CN201"
+                                        ? "Laser"
+                                        : T(item.label)}
                                 </label>
                             </legend>
                             <div class="field-group-content maxwidth">
                                 <div class="spindle-top-row" />
                                 {item.label === "CN201" && (
                                     <div class="spindle-status-block">
-                                        <SpindleControls />
+                                        <SpindleControls isLaserMode={isLaserMode} />
+                                    </div>
+                                )}
+
+                                {isLaserMode && item.label === "CN201" && (
+                                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: "12px" }}>
+
+                                        <ButtonImg
+                                            icon={<Sun />}
+                                            className="tooltip"
+                                            data-tooltip="Laser Test Fire"
+                                            onClick={() => {
+                                                fireLaserTest()
+                                            }}
+                                        />
+
+                                        <div style={{
+                                            display: "flex",
+                                            flexDirection: "column",
+                                            alignItems: "center",
+                                            marginTop: "10px",
+                                            width: "160px"
+                                        }}>
+
+                                            <input
+                                                type="range"
+                                                class="laser-test-slider"
+                                                min="0"
+                                                max="5"
+                                                step="0.1"
+                                                value={laserTestDuration}
+                                                onInput={(e) =>
+                                                    setLaserTestDuration(Number((e.target as HTMLInputElement).value))
+                                                }
+                                            />
+
+                                            <div style={{ fontSize: "12px", marginTop: "4px" }}>
+                                                {laserTestDuration.toFixed(1)} s
+                                            </div>
+
+                                        </div>
+
                                     </div>
                                 )}
 
@@ -522,7 +638,9 @@ const SpindlePanel: FunctionalComponent<SpindlePanelProps> = ({ embedded = false
                                         />
                                     </div>
                                 ) : (
-                                    <div class="states-buttons-container">{content}</div>
+                                    !(isLaserMode && item.label === "CN201") && (
+                                        <div class="states-buttons-container">{content}</div>
+                                    )
                                 )}
 
 
@@ -542,7 +660,9 @@ const SpindlePanel: FunctionalComponent<SpindlePanelProps> = ({ embedded = false
                                             }}
                                         />
 
-                                        <div class="spindle-speed-sub-header">RPM</div>
+                                        <div class="spindle-speed-sub-header">
+                                            {isLaserMode ? "%" : "RPM"}
+                                        </div>
                                     </div>
                                 )}
 
