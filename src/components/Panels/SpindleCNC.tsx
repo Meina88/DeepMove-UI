@@ -196,8 +196,10 @@ const SpindlePanel: FunctionalComponent<SpindlePanelProps> = ({ embedded = false
         const duration = laserTestDuration
 
         targetCommands(`M3 S${power}`)
+        targetCommands("G1 F1000")
         targetCommands(`G4 P${duration}`)
-        targetCommands("M5")
+        targetCommands("M5 S0")
+        targetCommands("G0")
     }
 
     const { targetCommands } = useTargetCommands()
