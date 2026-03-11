@@ -131,7 +131,7 @@ const Navbar = () => {
     const { targetCommands } = useTargetCommands()
     const webSocketService = useWebSocketService();
     const buttonExtraPage = useRef<HTMLAnchorElement | null>(null)
-    const menuExtraPage = useRef<HTMLUListElement | null>(null)
+    const menuRef = useRef<HTMLDivElement | null>(null)
     const iconsList: Record<string, any> = { ...iconsTarget, ...iconsFeather }
     const [textbutton, setTextButton] = useState<ComponentChildren>(
         <Fragment>
@@ -155,24 +155,13 @@ const Navbar = () => {
 
     const toggleMenu = () => {
         useUiContextFn.haptic()
-        setMenuOpen(!menuOpen)
+        setMenuOpen((prev) => !prev)
     }
 
     const { status } = useTargetContext() as unknown as {
         status: { state?: string }
     }
     const isIdle = status?.state === "Idle"
-
-
-
-    /*
-    auto-scroll textarea into view if mobile keyboard is blocking textarea to prevent
-    page resize and navbar from snapping out of viewport due to using fixed heights
-    */
-    window.visualViewport?.addEventListener("resize", () => {
-        window.scrollTo(0, 0);
-    });
-
 
     const disconnectNow = () => {
         const formData = new FormData()
@@ -526,8 +515,8 @@ const Navbar = () => {
         window.addEventListener("orientationchange", updateDeviceState)
 
         return () => {
-            window.addEventListener("resize", updateDeviceState)
-            window.addEventListener("orientationchange", updateDeviceState)
+            window.removeEventListener("resize", updateDeviceState)
+            window.removeEventListener("orientationchange", updateDeviceState)
         }
     }, [])
 
@@ -551,6 +540,36 @@ const Navbar = () => {
 
     }, [toolNumbers.vfd])
 
+    useEffect(() => {
+        if (!menuOpen) return
+
+        const handlePointerOutside = (event: PointerEvent) => {
+            const target = event.target as Node
+
+            if (menuRef.current && !menuRef.current.contains(target)) {
+                setMenuOpen(false)
+            }
+        }
+
+        document.addEventListener("pointerdown", handlePointerOutside)
+
+        return () => {
+            document.removeEventListener("pointerdown", handlePointerOutside)
+        }
+    }, [menuOpen])
+
+    useEffect(() => {
+        const handleViewportResize = () => {
+            window.scrollTo(0, 0)
+        }
+
+        window.visualViewport?.addEventListener("resize", handleViewportResize)
+
+        return () => {
+            window.visualViewport?.removeEventListener("resize", handleViewportResize)
+        }
+    }, [])
+
     if (uisettings.current) {
         return (
             <header class="navbar navbar-centered">
@@ -559,11 +578,15 @@ const Navbar = () => {
                 <section class="navbar-section navbar-left">
 
                     {/* ☰ Menu */}
-                    <div class="navbar-menu-wrapper">
+                    <div class="navbar-menu-wrapper" ref={menuRef}>
 
                         <span
                             class="btn btn-link no-box feather-icon-container"
-                            onClick={toggleMenu}
+                            onPointerDown={(e: any) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                toggleMenu()
+                            }}
                         >
                             <Menu />
                         </span>
