@@ -474,10 +474,6 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
 
         let distance = jogStepsXYZ[effectiveIndex]
 
-        if (isLaserMode && distance > 1) {
-            distance = 1
-        }
-
         const feedrate = getContinuousFeedrateForStep(
             axis,
             distance
@@ -543,16 +539,10 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
 
                     const currentStep = jogStepsXYZ[jogStepRef.current]
 
-                    if (!isLaserMode && currentStep === 100) {
-                        // CNC → 100 → 10
+                    if (currentStep === 100) {
+                        // Z safe → 100 → 10
                         effectiveStepIndex = 1
                         setJogStepIndex(1)
-                    }
-
-                    if (isLaserMode && (currentStep === 100 || currentStep === 10)) {
-                        // Laser → 100 / 10 → 1
-                        effectiveStepIndex = 2
-                        setJogStepIndex(2)
                     }
                 }
 
