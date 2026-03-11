@@ -6,13 +6,15 @@ import { useTargetContext } from "../../targets"
 import { iconsFeather } from "../Images"
 import { iconsTarget } from "../../targets"
 import { T } from "../Translations"
-import { Octagon } from "preact-feather"
+import { Octagon, Code } from "preact-feather"
 
 
 const iconsList: Record<string, any> = {
   ...iconsTarget,
   ...iconsFeather,
 }
+
+iconsList["Code"] = <Code />
 
 const TOTAL_SLOTS = 5
 const RESET_INDEX = 2
