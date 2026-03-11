@@ -61,10 +61,6 @@
                         "name": "terminal"
                     },
                     {
-                        "id": "Laser",
-                        "name": "laser"
-                    },
-                    {
                         "id": "Notifications",
                         "name": "notification"
                     },

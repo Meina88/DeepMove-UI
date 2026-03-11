@@ -84,70 +84,7 @@
                     }
                 ]
             }
-        ],
-        "laser": [
-            {
-                "id": "showlaserpanel",
-                "type": "boolean",
-                "label": "S63",
-                "value": false
-            },
-            {
-                "id": "openlaseronstart",
-                "type": "boolean",
-                "label": "S93",
-                "value": true,
-                "depend": [
-                    {
-                        "id": "showlaserpanel",
-                        "value": true
-                    }
-                ]
-            },
-            {
-                "id": "laser",
-                "type": "group",
-                "label": "CN90",
-                "depend": [
-                    {
-                        "id": "showlaserpanel",
-                        "value": true
-                    }
-                ],
-                "value": [
-                    {
-                        "id": "lasertest",
-                        "type": "number",
-                        "label": "CN85",
-                        "value": 10,
-                        "append": "S114",
-                        "min": 1
-                    },
-                    {
-                        "id": "lasertestprecent",
-                        "type": "number",
-                        "label": "CN89",
-                        "value": 20,
-                        "append": "%",
-                        "min": 0,
-                        "max": 100
-                    }
-                ]
-            },
-            {
-                "id": "lasermax",
-                "type": "number",
-                "label": "CN84",
-                "value": 1000,
-                "min": 1,
-                "depend": [
-                    {
-                        "id": "showlaserpanel",
-                        "value": true
-                    }
-                ]
-            }
-        ],
+        ],        
         "spindle": [
             {
                 "id": "showspindlepanel",
