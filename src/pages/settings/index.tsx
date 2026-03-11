@@ -34,21 +34,21 @@ const routes: RoutesMap = {
         component: <InterfaceTab />,
         path: "/settings/interface",
     },
-    WIFI: {
-        component: <WifiTab />,
-        path: "/settings/wifi",
-    },
     FEATURES: {
         component: <FeaturesTab />,
         path: "/settings/features",
     },
-    MACHINE: {
-        component: <MachineTab />,
-        path: "/settings/machine",
+    WIFI: {
+        component: <WifiTab />,
+        path: "/settings/wifi",
     },
     ABOUT: {
         component: <AboutTab />,
         path: "/settings/about",
+    },
+    MACHINE: {
+        component: <MachineTab />,
+        path: "/settings/machine",
     },
 }
 

@@ -144,10 +144,10 @@ const ContentContainer: FunctionalComponent = () => {
                                     },
                                     eventMsg.data.id
                                 )
-                         },
+                        },
                     }
 
-                    if (eventMsg.data.url=="command" && !eventMsg.data.arg) {
+                    if (eventMsg.data.url == "command" && !eventMsg.data.arg) {
                         console.log("Command")
                         console.log(eventMsg.data)
                         targetCommands(eventMsg.data.args.cmd, undefined, undefined, queryCallbacks)
@@ -214,7 +214,7 @@ const ContentContainer: FunctionalComponent = () => {
                     //TODO add support for additional POST arguments if needed
                     formData.append("path", eventMsg.data.path)
                     formData.append(
-                        `${eventMsg.data.filename  }S`,
+                        `${eventMsg.data.filename}S`,
                         eventMsg.data.size
                     )
                     formData.append("myfiles", file, eventMsg.data.filename)
@@ -394,9 +394,9 @@ const ContentContainer: FunctionalComponent = () => {
                                     inputData:
                                         content.validation == "bt2"
                                             ? exportPreferences(
-                                                  exportResult(),
-                                                  false
-                                              )
+                                                exportResult(),
+                                                false
+                                            )
                                             : "",
                                     initiator: eventMsg.data,
                                 },
@@ -431,7 +431,7 @@ const ContentContainer: FunctionalComponent = () => {
 
                         //This function is a replacement of the hook feature which is not available in this context
                         const checkValidation = (fieldData: any) => {
-                            const id_group = `group-${  fieldData.id}`
+                            const id_group = `group-${fieldData.id}`
                             if (typeof fieldData.initial == "undefined") {
                                 fieldData.initial = fieldData.value
                             }
@@ -551,7 +551,7 @@ const ContentContainer: FunctionalComponent = () => {
                                             type={type}
                                             inline={
                                                 type == "boolean" ||
-                                                type == "icon"
+                                                    type == "icon"
                                                     ? true
                                                     : false
                                             }
@@ -580,29 +580,29 @@ const ContentContainer: FunctionalComponent = () => {
                         modals,
                         title: T(content.title),
                         button2: content.bt2Txt
-                             ? {
-                                  cb: cb2,
-                                  text: T(content.bt2Txt),
-                                  id: "bt2",
-                                  noclose:
-                                      content.validation == "bt2"
-                                          ? true
-                                          : false,
-                              }
+                            ? {
+                                cb: cb2,
+                                text: T(content.bt2Txt),
+                                id: "bt2",
+                                noclose:
+                                    content.validation == "bt2"
+                                        ? true
+                                        : false,
+                            }
                             : undefined,
                         button1: content.bt1Txt
-                             ? {
-                                  cb: cb1,
-                                  text: T(content.bt1Txt),
-                                  id: "bt1",
-                                  noclose:
-                                      content.validation == "bt1"
-                                          ? true
-                                          : false,
-                              }
+                            ? {
+                                cb: cb1,
+                                text: T(content.bt1Txt),
+                                id: "bt1",
+                                noclose:
+                                    content.validation == "bt1"
+                                        ? true
+                                        : false,
+                            }
                             : undefined,
                         icon:
-                        content.icon ? iconsFeather[content.icon as keyof typeof iconsFeather] : content.style == "question" ? (
+                            content.icon ? iconsFeather[content.icon as keyof typeof iconsFeather] : content.style == "question" ? (
                                 <HelpCircle />
                             ) : (
                                 <Layout />
@@ -719,7 +719,7 @@ const ContentContainer: FunctionalComponent = () => {
                     })
                     //Create a file
                     const preferencesFileName =
-                        `${useSettingsContextFn.getValue("HostUploadPath") 
+                        `${useSettingsContextFn.getValue("HostUploadPath")
                         }preferences.json`
                     const formDataExtensions = new FormData()
                     const file_to_save = new File([blob], preferencesFileName)
@@ -729,7 +729,7 @@ const ContentContainer: FunctionalComponent = () => {
                     )
                     formDataExtensions.append("creatPath", "true")
                     formDataExtensions.append(
-                        `${preferencesFileName  }S`,
+                        `${preferencesFileName}S`,
                         preferencestosave.length.toString()
                     )
                     formDataExtensions.append(
@@ -798,7 +798,7 @@ const ContentContainer: FunctionalComponent = () => {
                             if (interfaceSettings.current.extensions) {
                                 if (
                                     interfaceSettings.current.extensions[
-                                        eventMsg.data.name
+                                    eventMsg.data.name
                                     ]
                                 ) {
                                     response = JSON.parse(

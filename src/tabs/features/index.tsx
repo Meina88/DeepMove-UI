@@ -489,8 +489,7 @@ const FeaturesTab = () => {
                     class="d-none"
                     accept=".json"
                     onChange={fileSelected}
-                />
-                <h4 class="show-low title">{T("S36")}</h4>
+                />                
                 <div class="m-2" />
                 {isLoading && <Loading large />}
 

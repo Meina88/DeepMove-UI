@@ -38,30 +38,29 @@ interface NavItem {
 
 const defaultLinks: NavItem[] = [
     {
+        label: "S244", // preferences
+        icon: <DashGear height="28px" />,
+        href: "/settings/interface",
+    },
+    {
+        label: "S243", // system
+        icon: <GearIcon height="28px" />,
+        href: "/settings/features",
+    },
+    {
         label: "Wifi",
         icon: <Wifi height="24px" />,
         href: "/settings/wifi",
     },
     {
-        label: "S243", // System
-        icon: <GearIcon height="28px" />,
-        href: "/settings/features",
-    },
-    {
-        label: "S244", //preferences
-        icon: <DashGear height="28px"/>,
-        href: "/settings/interface",
-    },
-    {
-        label: "Machine", 
-        icon: <Tool height="24px" />, 
-        href: "/settings/machine",
-
-    },
-    {
         label: "About",
         icon: <Info height="24px" />,
         href: "/settings/about",
+    },
+    {
+        label: "Machine",
+        icon: <Tool height="24px" />,
+        href: "/settings/machine",
     },
 ]
 
