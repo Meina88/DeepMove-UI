@@ -91,7 +91,7 @@ const SpindleControls: FunctionalComponent<{ isLaserMode: boolean }> = ({ isLase
                                     const sValue = Number(displayVal)
 
                                     const laserMax =
-                                        interfaceSettings.current.settings?.laser_max_power ?? 255
+                                        Number(useUiContextFn.getValue("laser_max_power")) || 255
 
                                     const percent = Math.round((sValue / laserMax) * 100)
 
@@ -178,7 +178,7 @@ const SpindlePanel: FunctionalComponent<SpindlePanelProps> = ({ embedded = false
 
     }, [isLaserMode])
     const laserMaxPower =
-        interfaceSettings.current.settings?.laser_max_power ?? 255
+        Number(useUiContextFn.getValue("laser_max_power")) || 255
 
     const laserFocusPercent =
         interfaceSettings.current.settings?.laserfocuspower ?? 1
@@ -654,10 +654,16 @@ const SpindlePanel: FunctionalComponent<SpindlePanelProps> = ({ embedded = false
                                             type="number"
                                             class="spindle-speed-value"
                                             value={control.value.current}
-                                            min={control.min}
+                                            min={0}
+                                            max={isLaserMode ? 100 : undefined}
                                             onInput={(e) => {
-                                                const v = Number((e.target as HTMLInputElement).value)
+                                                const raw = Number((e.target as HTMLInputElement).value)
+                                                const v = isLaserMode
+                                                    ? Math.max(0, Math.min(100, raw))
+                                                    : raw
+
                                                 control.value.current = v
+                                                    ; (e.target as HTMLInputElement).value = String(v)
                                                 setvalidation(generateValidation(v))
                                             }}
                                         />

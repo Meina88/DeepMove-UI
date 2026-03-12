@@ -108,6 +108,8 @@ const OverridesPanel: FunctionalComponent<OverridesPanelProps> = ({ embedded = f
 
     const rpmMax = Number(useUiContextFn.getValue("rpm_max")) || 24000
     const feedMax = Number(useUiContextFn.getValue("feed_max")) || 5000
+    const laserMaxPower = Number(useUiContextFn.getValue("laser_max_power")) || 255
+    
     const { status, streamStatus, states } = useTargetContext() as {
 
         status?: {
@@ -140,6 +142,7 @@ const OverridesPanel: FunctionalComponent<OverridesPanelProps> = ({ embedded = f
         toolNumbers?.laser != null &&
         currentTool != null &&
         Number(currentTool) === Number(toolNumbers.laser)
+        const spindleMax = isLaserMode ? laserMaxPower : rpmMax
 
     const canResumeFromDoor =
         status?.state === "Door" && status?.substate === 0
@@ -192,7 +195,7 @@ const OverridesPanel: FunctionalComponent<OverridesPanelProps> = ({ embedded = f
     const spindleNextRPM = spindleRPM * 1.1
     const feedNextMM = feedMM * 1.1
 
-    const spindleAtMax = spindleNextRPM > rpmMax
+const spindleAtMax = spindleNextRPM > spindleMax
     const feedAtMax = feedNextMM > feedMax
 
     const valueToHeight = (value: number, max: number) => {
@@ -201,7 +204,7 @@ const OverridesPanel: FunctionalComponent<OverridesPanelProps> = ({ embedded = f
         return (clamped / max) * 100
     }
 
-    const spindleBarHeight = valueToHeight(spindleRPM, rpmMax)
+    const spindleBarHeight = valueToHeight(spindleRPM, spindleMax)
     const feedBarHeight = valueToHeight(feedMM, feedMax)
 
 
