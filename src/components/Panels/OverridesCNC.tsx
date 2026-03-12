@@ -21,7 +21,7 @@ import type { FunctionalComponent } from "preact"
 import { T } from "../Translations"
 import { Play, Pause, Plus, Minus, RefreshCw } from "preact-feather"
 import { Mixer } from "../../targets/CNC/FluidNC/icons"
-import { useUiContextFn } from "../../contexts"
+import { useUiContextFn, useUiContext } from "../../contexts"
 import { useTargetContext } from "../../targets"
 import {
     ButtonImg,
@@ -44,7 +44,8 @@ type StatesMap = Record<string, StateValue>
 const OverridesControls: FunctionalComponent<{
     linked: boolean
     setLinked: (v: boolean) => void
-}> = ({ linked, setLinked }) => {
+    isLaserMode: boolean
+}> = ({ linked, setLinked, isLaserMode }) => {
 
     if (!useUiContextFn.getValue("showoverridespanel")) return null
 
@@ -81,7 +82,11 @@ const OverridesControls: FunctionalComponent<{
 
 
                 <div class="lock-label">
-                    {T("S301")}
+                    {isLaserMode ? (
+                        T("S346")
+                    ) : (
+                        T("S301")
+                    )}
                 </div>
 
             </div>
@@ -119,6 +124,22 @@ const OverridesPanel: FunctionalComponent<OverridesPanelProps> = ({ embedded = f
         }
         states?: StatesMap
     }
+
+    const { toolNumbers } = useUiContext()
+
+    const activeToolState = states?.active_tool
+
+    const currentTool =
+        activeToolState
+            ? Array.isArray(activeToolState)
+                ? activeToolState.map(i => i.value).join(" ")
+                : activeToolState.value
+            : null
+
+    const isLaserMode =
+        toolNumbers?.laser != null &&
+        currentTool != null &&
+        Number(currentTool) === Number(toolNumbers.laser)
 
     const canResumeFromDoor =
         status?.state === "Door" && status?.substate === 0
@@ -300,7 +321,11 @@ const OverridesPanel: FunctionalComponent<OverridesPanelProps> = ({ embedded = f
 
 
             <div class="panel-body panel-body-dashboard">
-                <OverridesControls linked={linked} setLinked={setLinked} />
+                <OverridesControls
+                    linked={linked}
+                    setLinked={setLinked}
+                    isLaserMode={isLaserMode}
+                />
 
                 <div class="overrides-top-placeholder">
 
@@ -320,31 +345,36 @@ const OverridesPanel: FunctionalComponent<OverridesPanelProps> = ({ embedded = f
                             </div>
                             <div class="graph-value">
                                 <div class="graph-value-number">{spindleVal || "--"}</div>
-                                <div class="graph-value-unit">rpm</div>
+                                <div class="graph-value-unit">
+                                    {isLaserMode ? "PWR" : "RPM"}
+                                </div>
                             </div>
 
                         </div>
 
                         {/* 🔋 POWER GAUGE */}
+
+
                         <div class="graph-center-gauge">
 
-                            {hasRunProgress && (
-                                <div class="gauge-progress">
-                                    <div class="gauge-progress-label">Progress</div>
-                                    <div class="gauge-progress-value">{progressPct}%</div>
+                            <div class="gauge-progress">
+                                <div class="gauge-progress-label">{T("Progress")}:</div>
+                                <div class="gauge-progress-value">
+                                    {hasRunProgress ? `${progressPct}%` : "- %"}
                                 </div>
-
-                            )}
+                            </div>
 
 
                             <svg viewBox="0 0 200 120" class="power-gauge">
 
                                 {/*       TRACK BASE (común) */}
-                                <path
-                                    d="M20 100 A80 80 0 0 1 180 100"
-                                    class="gauge-track"
-                                    fill="none"
-                                />
+                                {!isLaserMode && (
+                                    <path
+                                        d="M20 100 A80 80 0 0 1 180 100"
+                                        class="gauge-track"
+                                        fill="none"
+                                    />
+                                )}
 
                                 {/*       PROGRESO (INTERNO)      Se vacía con el avance     =*/}
                                 {hasRunProgress && (
@@ -362,25 +392,29 @@ const OverridesPanel: FunctionalComponent<OverridesPanelProps> = ({ embedded = f
                                 )}
 
                                 {/*       POTENCIA (EXTERNO)      */}
-                                <path
-                                    d="M20 100 A80 80 0 0 1 180 100"
-                                    class={`gauge-fill power-${powerLevel}`}
-                                    fill="none"
-                                    style={{
-                                        strokeDasharray: 252,
-                                        strokeDashoffset: 252 - powerPct * 2.52
-                                    }}
-                                />
+                                {!isLaserMode && (
+                                    <path
+                                        d="M20 100 A80 80 0 0 1 180 100"
+                                        class={`gauge-fill power-${powerLevel}`}
+                                        fill="none"
+                                        style={{
+                                            strokeDasharray: 252,
+                                            strokeDashoffset: 252 - powerPct * 2.52
+                                        }}
+                                    />
+                                )}
 
 
                             </svg>
 
-                            <div class={`power-value power-${powerLevel}`}>
-                                {powerW} <span>W</span>
-                            </div>
 
-
+                            {!isLaserMode && (
+                                <div class={`power-value power-${powerLevel}`}>
+                                    {powerW} <span>W</span>
+                                </div>
+                            )}
                         </div>
+
 
 
 
@@ -452,7 +486,7 @@ const OverridesPanel: FunctionalComponent<OverridesPanelProps> = ({ embedded = f
                             }}
                         >
                             {uiSpindleOverride === 100 ? (
-                                "RPM"
+                                isLaserMode ? "PWR" : "RPM"
                             ) : (
                                 <RefreshCw size={16} />
                             )}
