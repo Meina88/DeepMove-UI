@@ -621,25 +621,25 @@ const Navbar = () => {
 
                                 <div class="navbar-dropdown-separator" />
 
-{laserModeEnabled && (
-    <div
-        class={`navbar-dropdown-item laser-mode-item ${!isIdle ? "disabled" : ""}`}
-        onClick={() => {
-            if (isIdle && pendingTool == null) {
-                toggleToolMode()
-            }
-        }}
-    >
-        <span class="laser-mode-label">
-            <Flare height="16px" />
-            <span>Laser</span>
-        </span>
+                                {laserModeEnabled && (
+                                    <div
+                                        class={`navbar-dropdown-item laser-mode-item ${!isIdle ? "disabled" : ""}`}
+                                        onClick={() => {
+                                            if (isIdle && pendingTool == null) {
+                                                toggleToolMode()
+                                            }
+                                        }}
+                                    >
+                                        <span class="laser-mode-label">
+                                            <Flare height="16px" />
+                                            <span>Laser</span>
+                                        </span>
 
-        <div class={`laser-mode-switch ${currentTool === toolNumbers.laser ? "active" : ""}`}>
-            <div class="laser-mode-thumb"></div>
-        </div>
-    </div>
-)}
+                                        <div class={`laser-mode-switch ${currentTool === toolNumbers.laser ? "active" : ""}`}>
+                                            <div class="laser-mode-thumb"></div>
+                                        </div>
+                                    </div>
+                                )}
 
                                 <div
                                     class={`navbar-dropdown-item ${!isIdle ? "disabled" : ""}`}
@@ -680,7 +680,6 @@ const Navbar = () => {
                         </span>
 
                         {/* 🧪 Tool Numbers Debug */}
-
 
                         {/* <span (descomentar para visualizar los tool_num)
                             style={{
