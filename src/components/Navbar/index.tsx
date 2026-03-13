@@ -187,9 +187,9 @@ const Navbar = () => {
     }
 
     const effectiveState =
-        (!rawState || rawState === "?"
+        (!rawState || rawState === "?")
             ? lastValidState.current
-            : rawState)?.toUpperCase();
+            : rawState;
 
     if (uisettings.current) {
         if (uisettings.getValue("showextracontents")) {
@@ -638,20 +638,16 @@ const Navbar = () => {
 
                     {/* ● Estado CNC */}
                     <div class="cnc-status-wrapper">
-
                         <div
                             class={`cnc-status-led ${effectiveState
                                 ? `state-${effectiveState.toLowerCase()}`
                                 : "state-offline"
                                 }`}
                         />
-
                         <span class="cnc-status-text">
-                            {effectiveState || "OFFLINE"}
+                            {effectiveState ? T(effectiveState) : "OFFLINE"}
                         </span>
-
                     </div>
-
                 </section>
 
                 {/* CENTRO */}
