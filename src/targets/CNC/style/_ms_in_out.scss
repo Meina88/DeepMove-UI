@@ -260,10 +260,101 @@
 
 }
 
-/* Laser test slider */
+/* =====================================================
+   LASER CONTROLS
+   ===================================================== */
+
+/* Laser sliders */
 
 .laser-test-slider,
 .laser-power-slider {
   width: 160px;
   accent-color: var(--ms-accent);
+}
+
+
+/* =====================================================
+   Laser mode dropdown item
+   ===================================================== */
+
+.laser-mode-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.laser-mode-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+
+/* =====================================================
+   Laser mode switch
+   ===================================================== */
+
+.laser-mode-switch {
+
+  width: 36px;
+  height: 18px;
+
+  border-radius: 10px;
+
+  background: var(--ms-bg-dark);
+
+  border: 1px solid var(--ms-border);
+
+  position: relative;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+
+  box-shadow: var(--neo-shadow-soft);
+}
+
+
+/* ON state */
+
+.laser-mode-switch.active {
+
+  background: var(--ms-accent);
+
+  border-color: var(--ms-accent);
+}
+
+
+/* =====================================================
+   Switch thumb
+   ===================================================== */
+
+.laser-mode-thumb {
+
+  width: 14px;
+  height: 14px;
+
+  border-radius: 50%;
+
+  background: var(--ms-light);
+
+  position: absolute;
+
+  top: 50%;
+  left: 2px;
+
+  transform: translateY(-50%);
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease;
+
+  box-shadow: var(--neo-shadow-raised);
+}
+
+
+/* Thumb position when active */
+
+.laser-mode-switch.active .laser-mode-thumb {
+  transform: translate(18px, -50%);
 }

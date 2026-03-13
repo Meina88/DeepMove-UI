@@ -621,6 +621,26 @@ const Navbar = () => {
 
                                 <div class="navbar-dropdown-separator" />
 
+{laserModeEnabled && (
+    <div
+        class={`navbar-dropdown-item laser-mode-item ${!isIdle ? "disabled" : ""}`}
+        onClick={() => {
+            if (isIdle && pendingTool == null) {
+                toggleToolMode()
+            }
+        }}
+    >
+        <span class="laser-mode-label">
+            <Flare height="16px" />
+            <span>Laser</span>
+        </span>
+
+        <div class={`laser-mode-switch ${currentTool === toolNumbers.laser ? "active" : ""}`}>
+            <div class="laser-mode-thumb"></div>
+        </div>
+    </div>
+)}
+
                                 <div
                                     class={`navbar-dropdown-item ${!isIdle ? "disabled" : ""}`}
                                     onClick={() => {
@@ -681,30 +701,7 @@ const Navbar = () => {
 
                 {/* DERECHA */}
                 <section class="navbar-section navbar-right">
-
-                    {laserModeEnabled && (
-                        <div
-                            class={`toolmode-toggle ${currentTool === toolNumbers.laser ? "laser" : "cnc"} ${pendingTool != null ? "disabled" : ""}`}
-                            onClick={pendingTool == null ? toggleToolMode : undefined}
-                        >
-                            <span class="mode-icon cnc">
-                                <Cyclone height="1.1em" />
-                            </span>
-
-                            <div class="track">
-                                <div class="dot"></div>
-                            </div>
-
-                            <span class="mode-icon laser">
-                                <Flare height="1.1em" />
-                            </span>
-                        </div>
-                    )}
-
-
                     {/* Tablet Switch */}
-
-
                     {/* 🖥 HMI Fullscreen */}
                     {isTabletDevice && (
                         <div
