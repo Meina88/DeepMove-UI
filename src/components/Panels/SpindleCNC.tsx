@@ -21,7 +21,7 @@ import type { FunctionalComponent, JSX } from "preact"
 import { useState, useEffect, useRef } from "preact/hooks"
 import { T } from "../Translations"
 import { Zap, Wind, CloudDrizzle, RotateCw, RotateCcw, Octagon, Sun } from "preact-feather"
-import { Outputs } from "../../targets/CNC/FluidNC/icons"
+import { Outputs, Flare } from "../../targets/CNC/FluidNC/icons"
 import {
     useUiContext,
     useUiContextFn,
@@ -543,7 +543,7 @@ const SpindlePanel: FunctionalComponent<SpindlePanelProps> = ({ embedded = false
                                     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: "12px" }}>
 
                                         <ButtonImg
-                                            icon={<Sun />}
+                                            icon={<Flare height="1.2em" />}
                                             className="tooltip"
                                             data-tooltip="Laser Test Fire"
                                             onClick={() => {
@@ -553,10 +553,9 @@ const SpindlePanel: FunctionalComponent<SpindlePanelProps> = ({ embedded = false
 
                                         <div style={{
                                             display: "flex",
-                                            flexDirection: "column",
                                             alignItems: "center",
-                                            marginTop: "10px",
-                                            width: "160px"
+                                            gap: "10px",
+                                            marginTop: "10px"
                                         }}>
 
                                             <input
@@ -571,7 +570,7 @@ const SpindlePanel: FunctionalComponent<SpindlePanelProps> = ({ embedded = false
                                                 }
                                             />
 
-                                            <div style={{ fontSize: "12px", marginTop: "4px" }}>
+                                            <div style={{ fontSize: "12px", minWidth: "40px" }}>
                                                 {laserTestDuration.toFixed(1)} s
                                             </div>
 
@@ -648,36 +647,84 @@ const SpindlePanel: FunctionalComponent<SpindlePanelProps> = ({ embedded = false
 
                                 <div class="spindle-spacer" />
                                 {control && (
+                                    isLaserMode ? (
 
-                                    <div class="spindle-speed-ctrl">
-                                        <input
-                                            type="number"
-                                            class="spindle-speed-value"
-                                            value={control.value.current}
-                                            min={0}
-                                            max={isLaserMode ? 100 : undefined}
-                                            onInput={(e) => {
-                                                const raw = Number((e.target as HTMLInputElement).value)
-                                                const v = isLaserMode
-                                                    ? Math.max(0, Math.min(100, raw))
-                                                    : raw
+                                        <div style={{
+                                            display: "flex",
+                                            justifyContent: "center",
+                                            marginTop: "10px"
+                                        }}>
 
-                                                control.value.current = v
-                                                    ; (e.target as HTMLInputElement).value = String(v)
-                                                setvalidation(generateValidation(v))
-                                            }}
-                                        />
+                                            <div style={{
+                                                display: "flex",
+                                                justifyContent: "center",
+                                                marginTop: "10px"
+                                            }}>
+                                                <div style={{
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    gap: "10px",
+                                                    width: "200px"
+                                                }}>
 
-                                        <div class="spindle-speed-sub-header">
-                                            {isLaserMode ? "%" : "RPM"}
+                                                    <input
+                                                        type="range"
+                                                        class="laser-power-slider"
+                                                        min="0"
+                                                        max="100"
+                                                        step="1"
+                                                        value={control.value.current}
+                                                        onInput={(e) => {
+
+                                                            const v = Number((e.target as HTMLInputElement).value)
+
+                                                            control.value.current = v
+
+                                                            setvalidation(generateValidation(v))
+
+                                                        }}
+                                                    />
+
+                                                    <div style={{
+                                                        fontSize: "12px",
+                                                        minWidth: "36px",
+                                                        textAlign: "right"
+                                                    }}>
+                                                        {control.value.current} %
+                                                    </div>
+
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
+
+                                    ) : (
+
+                                        <div class="spindle-speed-ctrl">
+
+                                            <input
+                                                type="number"
+                                                class="spindle-speed-value"
+                                                value={control.value.current}
+                                                min={0}
+                                                onInput={(e) => {
+
+                                                    const v = Number((e.target as HTMLInputElement).value)
+
+                                                    control.value.current = v
+
+                                                    setvalidation(generateValidation(v))
+
+                                                }}
+                                            />
+
+                                            <div class="spindle-speed-sub-header">
+                                                RPM
+                                            </div>
+
+                                        </div>
+
+                                    )
                                 )}
-
-
-
-
-
 
                             </div>
 

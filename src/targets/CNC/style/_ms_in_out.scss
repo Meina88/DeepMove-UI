@@ -172,7 +172,7 @@
   justify-content: center;
   gap: 22px;
   align-items: center;
-  margin-top: $unit-4; 
+  margin-top: $unit-4;
 }
 
 .input-pin-wrapper {
@@ -188,8 +188,8 @@
   border-radius: 50%;
   background: #3a3a3a;
   box-shadow:
-    inset 0 2px 4px rgba(0,0,0,0.6),
-    0 1px 2px rgba(0,0,0,0.3);
+    inset 0 2px 4px rgba(0, 0, 0, 0.6),
+    0 1px 2px rgba(0, 0, 0, 0.3);
   transition: all 180ms ease;
 }
 
@@ -197,7 +197,7 @@
   background: var(--ms-accent);
   box-shadow:
     0 0 8px var(--ms-accent),
-    inset 0 0 6px rgba(255,255,255,0.2);
+    inset 0 0 6px rgba(255, 255, 255, 0.2);
 }
 
 .input-pin-label {
@@ -209,9 +209,9 @@
 #SpindlePanel {
 
   .spindle-status-block {
-    margin-bottom: $unit-4;   // separación real
+    margin-bottom: $unit-4; // separación real
     display: flex;
-    justify-content: center;  // mantiene centrado
+    justify-content: center; // mantiene centrado
   }
 
 }
@@ -219,23 +219,23 @@
 #SpindlePanel input[type="number"],
 #SpindlePanel .spindle-speed-value {
 
-    background: var(--ms-bg-dark);
-    border: $border-width solid var(--ms-border-dark);
-    border-radius: $border-radius;
+  background: var(--ms-bg-dark);
+  border: $border-width solid var(--ms-border-dark);
+  border-radius: $border-radius;
 
-    color: var(--ms-text-strong);
+  color: var(--ms-text-strong);
 
-    box-shadow: var(--neo-shadow-pressed);
+  box-shadow: var(--neo-shadow-pressed);
 
-    padding: $unit-2 $unit-3;
+  padding: $unit-2 $unit-3;
 
 }
 
 #SpindlePanel input[type="number"]:focus,
 #SpindlePanel .spindle-speed-value:focus {
 
-    border-color: var(--ms-accent);
-    box-shadow: 0 0 0 1px var(--ms-accent);
+  border-color: var(--ms-accent);
+  box-shadow: 0 0 0 1px var(--ms-accent);
 
 }
 
@@ -253,7 +253,7 @@
     color: #111 !important;
 
     box-shadow:
-      inset 0 2px 4px rgba(0,0,0,0.4),
+      inset 0 2px 4px rgba(0, 0, 0, 0.4),
       0 0 8px var(--ms-accent) !important;
 
   }
@@ -262,7 +262,8 @@
 
 /* Laser test slider */
 
-.laser-test-slider {
-  width: 100%;
+.laser-test-slider,
+.laser-power-slider {
+  width: 160px;
   accent-color: var(--ms-accent);
 }
