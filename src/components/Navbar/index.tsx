@@ -484,6 +484,20 @@ const Navbar = () => {
     }, [])
 
     useEffect(() => {
+        const syncToolFromGC = (line: string) => {
+            const match = line.match(/\bT(\d+)\b/)
+            if (!match) return
+
+            const tool = parseInt(match[1], 10)
+            setCurrentTool(tool)
+        }
+
+        const sub = eventBus.on("fw:gc", syncToolFromGC)
+
+        return () => eventBus.off("fw:gc", sub)
+    }, [])
+
+    useEffect(() => {
         const handleFullscreenChange = () => {
             setIsFullscreen(!!document.fullscreenElement)
         }
@@ -522,23 +536,19 @@ const Navbar = () => {
 
     useEffect(() => {
 
-        const handler = () => {
-
-            // forzar sincronización del tool
+        const requestToolState = () => {
             targetCommands("$G")
-
-            // opcional: asumir spindle como estado seguro
-            if (toolNumbers.vfd != null) {
-                setCurrentTool(toolNumbers.vfd)
-            }
-
         }
 
-        const sub = eventBus.on("fw:reset", handler)
+        // pedir estado al abrir la UI
+        requestToolState()
+
+        // pedir estado si el firmware reinicia
+        const sub = eventBus.on("fw:reset", requestToolState)
 
         return () => eventBus.off("fw:reset", sub)
 
-    }, [toolNumbers.vfd])
+    }, [])
 
     useEffect(() => {
         if (!menuOpen) return
