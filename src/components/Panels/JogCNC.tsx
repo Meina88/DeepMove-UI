@@ -27,7 +27,8 @@ import {
     ArrowUp,
     ArrowDown,
     ArrowLeft,
-    ArrowRight
+    ArrowRight,
+    Sun
 } from "preact-feather"
 import { useTargetCommands } from "../../hooks"
 import { useUiContextFn, useModalsContext } from "../../contexts"
@@ -38,7 +39,6 @@ import { showModal } from "../Modal"
 import { useTargetContext } from "../../targets"
 import { Joystick } from "../../targets/CNC/FluidNC/icons"
 import { useUiContext } from "../../contexts"
-import { Zap, ZapOff } from "preact-feather"
 
 let currentFeedRate: Record<string, any> = {}
 let currentAxis: string = "-1"
@@ -817,41 +817,6 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
                     {/* CENTRO */}
                     <span class="navbar-section navbar-center">
 
-                        {isLaserMode && (
-                            <Button
-                                class={`laser-focus-header-btn ${laserFocus ? "active" : ""}`}
-                                disabled={!isIdle}
-                                onClick={(e: MouseEvent) => {
-
-                                    if (!isIdle) return
-
-                                    const next = !laserFocus
-                                    setLaserFocus(next)
-
-                                    const focusPercent = Number(useUiContextFn.getValue("laserfocuspower") ?? 5)
-                                    const maxS = Number(useUiContextFn.getValue("laser_max_power") ?? 1000)
-
-                                    const focusS = Math.round(maxS * focusPercent / 100)
-
-                                    if (next) {
-                                        targetCommands(`M3 S${focusS}`)
-                                        targetCommands("G1 F1000")
-                                    }
-
-                                    else {
-                                        targetCommands("M5 S0")
-                                        targetCommands("G0")
-                                    }
-
-                                    ; (e.currentTarget as HTMLElement).blur()
-                                }}
-                            >
-                                {laserFocus
-                                    ? <ZapOff size={20} />
-                                    : <Zap size={20} />}
-                            </Button>
-                        )}
-
                     </span>
 
                     {/* DERECHA */}
@@ -952,7 +917,44 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
                 <div class="jog-buttons-main-container">
 
                     {/* XY */}
-                    <div class="jog-axis-group">
+                    <div class="jog-axis-group jog-xy-group">
+
+                        {isLaserMode && (
+                            <Button
+                                m2
+                                class={`jog-floating-side-btn ${laserFocus ? "active" : ""}`}
+                                disabled={!isIdle}
+                                onClick={(e: MouseEvent) => {
+
+                                    if (!isIdle) return
+
+                                    useUiContextFn.haptic()
+
+                                    const next = !laserFocus
+                                    setLaserFocus(next)
+
+                                    const focusPercent = Number(useUiContextFn.getValue("laserfocuspower") ?? 5)
+                                    const maxS = Number(useUiContextFn.getValue("laser_max_power") ?? 1000)
+
+                                    const focusS = Math.round(maxS * focusPercent / 100)
+
+                                    if (next) {
+                                        targetCommands(`M3 S${focusS}`)
+                                        targetCommands("G1 F1000")
+                                    }
+                                    else {
+                                        targetCommands("M5 S0")
+                                        targetCommands("G0")
+                                    }
+
+                                    ; (e.currentTarget as HTMLElement).blur()
+                                }}
+                                title="Laser Focus"
+                            >
+                                <Sun size={18} />
+                            </Button>
+                        )}
+
                         <div class="jog-xy-pad">
                             {/* +Y */}
                             <div class="jog-cell jog-arc-up">

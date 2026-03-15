@@ -1000,3 +1000,24 @@ body,
   background-color: var(--ms-highlight) !important;
   border-color: var(--ms-accent) !important;
 }
+/* =========================================
+   Disable sticky hover on touch devices
+   ========================================= */
+
+@media (hover: none) and (pointer: coarse) {
+
+  .btn:hover,
+  .panel .navbar .btn:hover,
+  .panel .navbar .btn.btn-link:hover,
+  .btn.icon-button:hover,
+  .btn.feather-icon-container:hover,
+  .btn.icon-button.feather-icon-container:hover {
+
+    background: inherit !important;
+    background-color: inherit !important;
+    border-color: inherit !important;
+    color: inherit !important;
+
+  }
+
+}

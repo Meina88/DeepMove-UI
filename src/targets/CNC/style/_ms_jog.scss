@@ -60,7 +60,7 @@ $jog-surface-text: var(--ms-text-normal);
     flex-direction: column;
     align-items: stretch;
     box-sizing: border-box;
-     padding-bottom: 20px;
+    padding-bottom: 20px;
 }
 
 /* =========================
@@ -153,7 +153,7 @@ $jog-surface-text: var(--ms-text-normal);
    ========================= */
 
 .jog-axis-group .jog-buttons-container {
-    
+
     height: 175px;
     gap: 30px;
     display: flex;
@@ -175,28 +175,33 @@ $jog-surface-text: var(--ms-text-normal);
     border: none;
     border-radius: 50%;
 
-box-shadow: var(--neo-shadow-raised);
+    box-shadow: var(--neo-shadow-raised);
 
     transition:
         background-color 120ms ease,
         transform 90ms ease,
         box-shadow 120ms ease;
 
-    &:hover {
-        background-color: var(--ms-bg-hover);
-    }
-
     &:active {
         transform: scale(0.94);
-box-shadow: var(--neo-shadow-pressed);
+        box-shadow: var(--neo-shadow-pressed);
     }
 
     &:focus,
     &:focus-visible {
         outline: none;
-box-shadow: var(--neo-shadow-raised);
-
+        box-shadow: var(--neo-shadow-raised);
     }
+}
+
+/* Hover SOLO en dispositivos con mouse */
+
+@media (hover: hover) and (pointer: fine) {
+
+    .jog-axis-group .jog-buttons-container button:hover {
+        background-color: var(--ms-bg-hover);
+    }
+
 }
 
 
@@ -218,7 +223,7 @@ box-shadow: var(--neo-shadow-raised);
 }
 
 .jog-position-ctrl {
-    width: 120px;    
+    width: 120px;
     margin: 0 auto;
     display: flex;
     align-items: center;
@@ -272,7 +277,7 @@ box-shadow: var(--neo-shadow-raised);
 .jog-buttons-main-container {
     display: flex;
     align-items: center;
-    margin-top: 20px; 
+    margin-top: 20px;
     gap: 20px;
 }
 
@@ -391,12 +396,12 @@ $jog-radial-offset: 5px;
 }
 
 /* Hover = igual que botones Z */
-.jog-xy-pad .jog-xy-hit:hover + svg {
+.jog-xy-pad .jog-xy-hit:hover+svg {
     filter: $neo-svg-shadow;
 }
 
 /* Active = hundido como botones Z */
-.jog-xy-pad .jog-xy-hit:active + svg {
+.jog-xy-pad .jog-xy-hit:active+svg {
     transform: scale(0.96);
     filter: $neo-svg-shadow-pressed;
 }
@@ -555,17 +560,17 @@ $jog-radial-offset: 5px;
 
 /* DEBUG — fondo de flecha */
 .jog-arrow-bg {
-  fill: var(--ms-accent);
+    fill: var(--ms-accent);
 }
 
 
 /* XY hover = pétalo gris (igual que fondo del botón ±Z) */
-.jog-xy-pad .jog-xy-hit:hover + svg path {
+.jog-xy-pad .jog-xy-hit:hover+svg path {
     fill: var(--ms-bg-hover);
 }
 
 /* XY active = mismo gris + hundido */
-.jog-xy-pad .jog-xy-hit:active + svg path {
+.jog-xy-pad .jog-xy-hit:active+svg path {
     fill: var(--ms-bg-hover);
 }
 
@@ -574,72 +579,77 @@ $jog-radial-offset: 5px;
    ========================================= */
 
 .jog-axis-clickable {
-  min-width: 32px;
-  height: 32px;
+    min-width: 32px;
+    height: 32px;
 
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 
-  border-radius: 0px;
+    border-radius: 0px;
 
-  font-weight: 600;
-  font-size: 0.85rem;
+    font-weight: 600;
+    font-size: 0.85rem;
 
-  cursor: pointer;
-  user-select: none;
+    cursor: pointer;
+    user-select: none;
 
-  color: var(--ms-accent);
-  background: var(--ms-bg-surface);
+    color: var(--ms-accent);
+    background: var(--ms-bg-surface);
 
-  box-shadow: var(--neo-shadow-soft);
+    box-shadow: var(--neo-shadow-soft);
 
-  transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.12s ease;
+    transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.12s ease;
 }
 
 .jog-axis-clickable:hover {
-  background: var(--ms-bg-hover);
-  box-shadow: var(--neo-shadow-raised);
+    background: var(--ms-bg-hover);
+    box-shadow: var(--neo-shadow-raised);
 }
 
 .jog-axis-clickable:active {
-  transform: scale(0.96);
-  box-shadow: var(--neo-shadow-pressed);
+    transform: scale(0.96);
+    box-shadow: var(--neo-shadow-pressed);
 }
 
 
 /* Subíndice M (Machine) */
 
 .jog-axis-sub {
-  font-size: 0.35rem;
-  margin-left: 0px;
-  position: relative;
-  top: 8px;  
+    font-size: 0.35rem;
+    margin-left: 0px;
+    position: relative;
+    top: 8px;
 }
-.jog-buttons-container {
-  --zslot: 50px;              /* lado del cuadrado */
-  display: grid;
-  grid-template-columns: var(--zslot);
-  grid-template-rows: repeat(3, var(--zslot));
-  gap: 12px;
 
-  width: var(--zslot);        /* clave: ancho fijo = lado */
-  flex: 0 0 auto;             /* clave: que NO se estire en flex */
-  justify-items: center;
-  align-items: center;
+.jog-buttons-container {
+    --zslot: 50px;
+    /* lado del cuadrado */
+    display: grid;
+    grid-template-columns: var(--zslot);
+    grid-template-rows: repeat(3, var(--zslot));
+    gap: 12px;
+
+    width: var(--zslot);
+    /* clave: ancho fijo = lado */
+    flex: 0 0 auto;
+    /* clave: que NO se estire en flex */
+    justify-items: center;
+    align-items: center;
 }
 
 /* Asegura que los botones sean cuadrados perfectos */
 .jog-buttons-container .btn {
-  width: var(--zslot);
-  height: var(--zslot);
-  border-radius: 999px;       /* o tu radio neumórfico */
+    width: var(--zslot);
+    height: var(--zslot);
+    border-radius: 999px;
+    /* o tu radio neumórfico */
 }
 
 /* El “slot vacío” del medio mantiene el cuadrado */
 .jog-zslot-spacer {
-  width: var(--zslot);
-  height: var(--zslot);
+    width: var(--zslot);
+    height: var(--zslot);
 }
 
 .laser-focus-header-btn {
@@ -665,13 +675,97 @@ $jog-radial-offset: 5px;
 .laser-focus-header-btn:hover {
     transform: scale(1.05);
 }
+
 .panel .navbar .laser-focus-header-btn {
     pointer-events: auto;
     cursor: pointer;
 }
+
 .navbar-center {
     flex: 1;
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+
+.jog-xy-group {
+    position: relative;
+    padding-left: 46px;
+    /* espacio reservado para el botón */
+}
+
+.jog-floating-side-btn {
+    position: absolute;
+
+    left: -10px;
+    /* más a la izquierda */
+    top: -20px;
+    /* más arriba */
+
+    z-index: 10;
+
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    padding: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+/* =========================================
+   LASER FOCUS BUTTON (JOG PAD)
+   ========================================= */
+
+.jog-floating-side-btn {
+    background: var(--ms-bg-surface);
+    color: var(--ms-accent);
+
+    border-radius: 50%;
+    border: none;
+
+    box-shadow: var(--neo-shadow-raised);
+
+    transition:
+        box-shadow 140ms ease,
+        transform 80ms ease,
+        color 140ms ease,
+        background-color 140ms ease;
+}
+
+/* hover coherente con HMI */
+
+@media (hover: hover) and (pointer: fine) {
+    .jog-floating-side-btn:hover {
+        background: var(--ms-bg-hover);
+    }
+}
+
+/* pressed */
+
+.jog-floating-side-btn:active {
+    transform: scale(0.94);
+    box-shadow: var(--neo-shadow-pressed);
+}
+
+/* =========================================
+   LASER FOCUS ACTIVE (LIGHT HALO)
+   ========================================= */
+
+.jog-floating-side-btn.active {
+
+    color: var(--ms-accent);
+
+    background: var(--ms-bg-surface);
+
+    box-shadow:
+        var(--neo-shadow-raised),
+        0 0 8px var(--ms-accent),
+        0 0 18px color-mix(in srgb, var(--ms-accent) 65%, transparent);
+
 }
