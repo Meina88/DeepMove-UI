@@ -156,14 +156,13 @@ const WifiTab = () => {
                     setWifiMode(settings.wifiMode || "");
                     setHostname(settings.hostname || "");
                     setStationSSID(settings.stationSSID || "");
-                    setStationIpMode(settings.stationIpMode || "");
-                    setStationPassword(settings.stationPassword || "");
-                    setStationMinSecurity(settings.stationMinSecurity || "");
+                    setStationIpMode(settings.stationIpMode || "");                    
+                    setStationPassword("")
+                    setApPassword("")
                     setStationIP(settings.stationIP || "");
                     setStationGateway(settings.stationGateway || "");
                     setStationNetmask(settings.stationNetmask || "");
-                    setApSSID(settings.apSSID || "");
-                    setApPassword(settings.apPassword || "");
+                    setApSSID(settings.apSSID || "");                    
                     setApChannel(settings.apChannel || "");
                     setApIP(settings.apIP || "");
                     setApCountry(settings.apCountry || "");
@@ -237,14 +236,14 @@ const WifiTab = () => {
             hostname !== originalSettings.hostname ||
             wifiMode !== originalSettings.wifiMode ||
             stationSSID !== originalSettings.stationSSID ||
-            stationPassword !== originalSettings.stationPassword ||
+            stationPassword !== ""||
             stationMinSecurity !== originalSettings.stationMinSecurity ||
             stationIpMode !== originalSettings.stationIpMode ||
             stationIP !== originalSettings.stationIP ||
             stationGateway !== originalSettings.stationGateway ||
             stationNetmask !== originalSettings.stationNetmask ||
             apSSID !== originalSettings.apSSID ||
-            apPassword !== originalSettings.apPassword ||
+            apPassword !== ""||
             apChannel !== originalSettings.apChannel ||
             apIP !== originalSettings.apIP ||
             apCountry !== originalSettings.apCountry
@@ -296,7 +295,7 @@ const WifiTab = () => {
                 );
             }
 
-            if (stationPassword !== originalSettings?.stationPassword) {
+            if (stationPassword && stationPassword !== "********") {
                 await controllerService?.send(
                     new Command(
                         `$Sta/Password=${encodePassword(stationPassword ?? "")}`
@@ -334,7 +333,7 @@ const WifiTab = () => {
                 );
             }
 
-            if (apPassword !== originalSettings?.apPassword) {
+            if (apPassword && apPassword !== "********") {
                 await controllerService?.send(
                     new Command(
                         `$AP/Password=${encodePassword(apPassword ?? "")}`
