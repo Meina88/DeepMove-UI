@@ -30,6 +30,10 @@ import { getWebSocketService } from "../../hooks/useWebSocketService"
 import { GetSettingsCommand, Settings } from "../../Services/Commands/GetSettingsCommand"
 import { Command } from "../../Services/Commands/Command"
 import { useTargetCommands } from "../../hooks"
+import { useModalsContext } from "../../contexts"
+import { showModal } from "../../components/Modal"
+import { showConfirmationModal } from "../../components/Modal"
+
 
 
 export type SystemStats = {
@@ -54,6 +58,18 @@ const encodePassword = (password: string): string => {
     return password.replace("%", "%25").replace("!", "%21").replace("?", "%3F").replace("~", "%75")
 }
 
+const normalizeMode = (mode?: string) => (mode || "").trim().toUpperCase()
+
+const getRuntimeMode = (mode?: string) => {
+    const value = normalizeMode(mode)
+
+    if (value.startsWith("AP")) return "AP"
+    if (value.startsWith("STA")) return "STA"
+    if (value === "OFF" || value === "NONE") return "OFF"
+
+    return ""
+}
+
 const WifiTab = () => {
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const [isSaving, setIsSaving] = useState<boolean>(false)
@@ -61,6 +77,7 @@ const WifiTab = () => {
     const { targetCommands } = useTargetCommands()
     const controllerService = getWebSocketService();
     const { toasts } = useToastsContext()
+    const { modals } = useModalsContext()
     // Settings state
     const [originalSettings, setOriginalSettings] = useState<Settings>({})
 
@@ -82,6 +99,8 @@ const WifiTab = () => {
     const [apChannel, setApChannel] = useState<string>("")
     const [apIP, setApIP] = useState<string>("")
     const [apCountry, setApCountry] = useState<string>("")
+    const [apPasswordError, setApPasswordError] = useState<string>("")
+    const [staPasswordError, setStaPasswordError] = useState<string>("")
 
     // Wrapper functions to convert callbacks to match Input/Select signatures
     const handleHostnameChange = (value: string | number | null) => {
@@ -156,13 +175,13 @@ const WifiTab = () => {
                     setWifiMode(settings.wifiMode || "");
                     setHostname(settings.hostname || "");
                     setStationSSID(settings.stationSSID || "");
-                    setStationIpMode(settings.stationIpMode || "");                    
+                    setStationIpMode(settings.stationIpMode || "");
                     setStationPassword("")
                     setApPassword("")
                     setStationIP(settings.stationIP || "");
                     setStationGateway(settings.stationGateway || "");
                     setStationNetmask(settings.stationNetmask || "");
-                    setApSSID(settings.apSSID || "");                    
+                    setApSSID(settings.apSSID || "");
                     setApChannel(settings.apChannel || "");
                     setApIP(settings.apIP || "");
                     setApCountry(settings.apCountry || "");
@@ -236,14 +255,14 @@ const WifiTab = () => {
             hostname !== originalSettings.hostname ||
             wifiMode !== originalSettings.wifiMode ||
             stationSSID !== originalSettings.stationSSID ||
-            stationPassword !== ""||
+            stationPassword !== "" ||
             stationMinSecurity !== originalSettings.stationMinSecurity ||
             stationIpMode !== originalSettings.stationIpMode ||
             stationIP !== originalSettings.stationIP ||
             stationGateway !== originalSettings.stationGateway ||
             stationNetmask !== originalSettings.stationNetmask ||
             apSSID !== originalSettings.apSSID ||
-            apPassword !== ""||
+            apPassword !== "" ||
             apChannel !== originalSettings.apChannel ||
             apIP !== originalSettings.apIP ||
             apCountry !== originalSettings.apCountry
@@ -266,6 +285,98 @@ const WifiTab = () => {
         apCountry,
         originalSettings,
     ])
+
+    useEffect(() => {
+        // AP validation
+        if ((wifiMode === "AP" || wifiMode === "STA>AP") && apPassword) {
+            if (apPassword.length < 8) {
+                setApPasswordError("Debe tener al menos 8 caracteres")
+            } else {
+                setApPasswordError("")
+            }
+        } else {
+            setApPasswordError("")
+        }
+
+        // STA validation
+        if ((wifiMode === "STA" || wifiMode === "STA>AP") && stationPassword) {
+            if (stationPassword.length < 8) {
+                setStaPasswordError("Debe tener al menos 8 caracteres")
+            } else {
+                setStaPasswordError("")
+            }
+        } else {
+            setStaPasswordError("")
+        }
+
+    }, [apPassword, stationPassword, wifiMode])
+
+    const handleSaveWithConfirmation = () => {
+
+        const prevMode = getRuntimeMode(wifiStats.currentWifiMode || wifiStats.wifiMode)
+        const newMode = normalizeMode(wifiMode)
+
+        // Detectar cambio relevante
+        const isAPtoSTA = (prevMode === "AP") && (newMode === "STA>AP" || newMode === "STA")
+        const isSTAtoAP = (prevMode === "STA") && (newMode === "AP")
+
+        if (!isAPtoSTA && !isSTAtoAP) {
+            saveSettings()
+            return
+        }
+
+        const host = hostname || "fluidnc"
+        const url = `http://${host}.local/`
+
+        let content = null
+
+        if (isAPtoSTA) {
+            content = (
+                <div>
+                    <p><b>Se perderá la conexión al cambiar a modo STA.</b></p>
+                    <p>Siga estos pasos después de guardar:</p>
+                    <p>
+                        A. Reinicie el controlador de su máquina.<br />
+                        B. Vuelva a conectarse a su red WiFi.<br />
+                        C. Abra DeepMove desde:<br />
+                        <a href={url} target="_blank" rel="noopener noreferrer">
+                            {url}
+                        </a>
+                    </p>
+                </div>
+            )
+        }
+
+        if (isSTAtoAP) {
+            content = (
+                <div>
+                    <p><b>Se perderá la conexión al cambiar a modo AP.</b></p>
+                    <p>Después de guardar siga estos pasos:</p>
+                    <p>
+                        A. Reinicie el controlador de su máquina.<br />
+                        B. Conéctese a la red WiFi generada por su máquina.<br />
+                        C. Abra DeepMove desde:<br />
+                        <a href={url} target="_blank" rel="noopener noreferrer">
+                            {url}
+                        </a>
+                    </p>
+                </div>
+            )
+        }
+
+        showConfirmationModal({
+            modals,
+            title: "Cambio de modo WiFi",
+            content,
+            button1: {
+                text: "Cancelar",
+            },
+            button2: {
+                text: "Guardar",
+                cb: () => saveSettings(),
+            },
+        })
+    }
 
     // Save settings
     const saveSettings = async () => {
@@ -402,8 +513,12 @@ const WifiTab = () => {
                                     </div>
 
                                     <div className="columns">
-                                        <div className="column col-3 col-lg-3 col-md-4 col-sm-4 my-2">{T("S312")}</div>
-                                        <div className="column col-9 col-lg-9 col-md-8 col-sm-8">
+                                        <div className="column col-3 col-lg-3 col-md-4 col-sm-4 my-2">
+                                            {T("S312")}
+                                        </div>
+
+                                        <div className="column col-9 col-lg-9 col-md-8 col-sm-8" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+
                                             <Select
                                                 id="wifiMode"
                                                 value={wifiMode}
@@ -411,23 +526,74 @@ const WifiTab = () => {
                                                 disabled={isSaving}
                                                 options={[
                                                     {
-                                                        label: T("S326"),
+                                                        label: "OFF",
                                                         value: "Off",
                                                     },
                                                     {
-                                                        label: T("S327"),
+                                                        label: "STA > AP",
                                                         value: "STA>AP",
                                                     },
+
+                                                    // 🔒 OCULTO PERO DISPONIBLE
+                                                    // {
+                                                    //     label: "STA",
+                                                    //     value: "STA",
+                                                    // },
+
                                                     {
-                                                        label: T("S328"),
-                                                        value: "STA",
-                                                    },
-                                                    {
-                                                        label: T("S329"),
+                                                        label: "AP",
                                                         value: "AP",
                                                     },
                                                 ]}
                                             />
+
+                                            {/* 🔵 Botón INFO */}
+                                            <button
+                                                style={{
+                                                    width: "28px",
+                                                    height: "28px",
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    justifyContent: "center",
+                                                    borderRadius: "6px",
+                                                    background: "var(--ms-btn-base-bg)",
+                                                    color: "var(--ms-text-normal)",
+                                                    border: "1px solid var(--ms-border)",
+                                                    boxShadow: "var(--neo-shadow-soft)",
+                                                    cursor: "pointer",
+                                                }}
+                                                onClick={() => {
+
+                                                    showModal({
+                                                        modals,
+                                                        id: "wifi_mode_info",
+                                                        title: "WiFi Modes",
+                                                        content: (
+                                                            <div>
+                                                                <p>
+                                                                    <b>Access Point mode (AP):</b><br />
+                                                                    Su dispositivo se comunica directamente con su máquina.<br />
+                                                                    Utilice este modo solo para la configuración inicial.<br />
+                                                                    <b>No es recomendado para uso normal.</b>
+                                                                </p>
+
+                                                                <p>
+                                                                    <b>Client station mode (STA &gt; AP):</b><br />
+                                                                    Su dispositivo se conecta a la máquina a través de su red WiFi.<br />
+                                                                    Es el modo principal de operación y el más estable.<br />
+
+                                                                    <b>Fallback automático:</b><br />
+                                                                    Si la conexión falla, el dispositivo volverá automáticamente a modo AP.
+                                                                </p>
+                                                            </div>
+                                                        ),
+                                                        button1: { text: "OK" },
+                                                    })
+                                                }}
+                                            >
+                                                ℹ️
+                                            </button>
+
                                         </div>
                                     </div>
 
@@ -443,18 +609,66 @@ const WifiTab = () => {
                                     {(wifiMode === "STA>AP" || wifiMode === "STA") && (
                                         <Fragment>
                                             <h4 style={{ marginTop: "24px" }}>{T("S313")}</h4>
-                                            {/* SSID and Password */}
+                                            {/* 🔹 Texto explicativo */}
+                                            <div style={{ marginBottom: "8px", fontSize: "12px", opacity: 0.8 }}>
+                                                Escriba manualmente el nombre de la red WiFi a la que quiere conectar su máquina
+                                            </div>
+
+                                            {/* SSID */}
                                             <div className="columns">
-                                                <div className="column col-3 col-lg-3 col-md-4 col-sm-4 my-2">{T("S315")}:</div>
-                                                <div className="column col-9 col-lg-9 col-md-8 col-sm-8">
+                                                <div className="column col-3 col-lg-3 col-md-4 col-sm-4 my-2">
+                                                    {T("S315")}:
+                                                </div>
+
+                                                <div className="column col-9 col-lg-9 col-md-8 col-sm-8" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+
                                                     <Input
                                                         id="ssid_sta"
                                                         type="text"
                                                         value={stationSSID}
                                                         setValue={handleStationSSIDChange}
                                                         disabled={isSaving}
-                                                        extra="scan"
+                                                    // ❌ eliminado: extra="scan"
                                                     />
+
+                                                    {/* 🔵 INFO */}
+                                                    <button
+                                                        style={{
+                                                            width: "28px",
+                                                            height: "28px",
+                                                            display: "flex",
+                                                            alignItems: "center",
+                                                            justifyContent: "center",
+                                                            borderRadius: "6px",
+                                                            background: "var(--ms-btn-base-bg)",
+                                                            color: "var(--ms-text-normal)",
+                                                            border: "1px solid var(--ms-border)",
+                                                            boxShadow: "var(--neo-shadow-soft)",
+                                                            cursor: "pointer",
+                                                        }}
+                                                        onClick={() => {
+
+                                                            showModal({
+                                                                modals,
+                                                                id: "ssid_info",
+                                                                title: "WiFi networks",
+                                                                content: (
+                                                                    <div>
+                                                                        <b>Configuración manual:</b>
+                                                                        <br />
+                                                                        <br />
+                                                                        <p>
+                                                                            En modo AP no es posible escanear redes WiFi. Ingrese el nombre (SSID) y el password de su red WiFi para configurar el modo STA.
+                                                                        </p>
+                                                                    </div>
+                                                                ),
+                                                                button1: { text: "OK" },
+                                                            })
+                                                        }}
+                                                    >
+                                                        ℹ️
+                                                    </button>
+
                                                 </div>
                                             </div>
 
@@ -467,7 +681,15 @@ const WifiTab = () => {
                                                         value={stationPassword}
                                                         setValue={handleStationPasswordChange}
                                                         disabled={isSaving}
+                                                        style={{
+                                                            border: staPasswordError ? "1px solid var(--ms-error)" : undefined
+                                                        }}
                                                     />
+                                                    {staPasswordError && (
+                                                        <div style={{ color: "var(--ms-error)", fontSize: "12px", marginTop: "4px" }}>
+                                                            {staPasswordError}
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
 
@@ -615,7 +837,29 @@ const WifiTab = () => {
                                                         value={apPassword}
                                                         setValue={handleApPasswordChange}
                                                         disabled={isSaving}
+                                                        style={{
+                                                            border: apPasswordError ? "1px solid var(--ms-error)" : undefined
+                                                        }}
                                                     />
+                                                    {apPasswordError && (
+                                                        <div style={{ color: "var(--ms-error)", fontSize: "12px", marginTop: "4px" }}>
+                                                            {apPasswordError}
+                                                        </div>
+                                                    )}
+                                                    {!apPassword && (wifiMode === "AP" || wifiMode === "STA>AP") && (
+                                                        <div
+                                                            style={{
+                                                                color: "var(--ms-warning)",
+                                                                fontSize: "12px",
+                                                                marginTop: "4px",
+                                                                opacity: 0.9,
+                                                                borderLeft: "2px solid var(--ms-warning)",
+                                                                paddingLeft: "6px",
+                                                            }}
+                                                        >
+                                                            Si deja este campo vacío, se mantendrá la contraseña anterior
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
 
@@ -861,11 +1105,11 @@ const WifiTab = () => {
                         data-tooltip={T("S62")}
                         label={T("S61")}
                         icon={<Save />}
-                        disabled={isSaving}
+                        disabled={isSaving || !!apPasswordError || !!staPasswordError}
                         onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
                             useUiContextFn.haptic()
                             e.currentTarget.blur()
-                            saveSettings()
+                            handleSaveWithConfirmation()
                         }}
                     />
                 )}
