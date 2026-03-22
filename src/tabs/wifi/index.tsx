@@ -23,7 +23,7 @@ import { useToastsContext, useUiContextFn } from "../../contexts"
 import { ButtonImg, Loading } from "../../components/Controls"
 import Input from "../../components/Controls/Fields/Input"
 import Select from "../../components/Controls/Fields/Select"
-import { Save } from "preact-feather"
+import { Save, Info } from "preact-feather"
 import { T } from "../../components/Translations"
 import WifiStats from "./WifiStats"
 import { getWebSocketService } from "../../hooks/useWebSocketService"
@@ -89,7 +89,7 @@ const WifiTab = () => {
     const [wifiMode, setWifiMode] = useState<string>("")
     const [stationSSID, setStationSSID] = useState<string>("")
     const [stationPassword, setStationPassword] = useState<string>("")
-    const [stationMinSecurity, setStationMinSecurity] = useState<string>("")
+    const [stationMinSecurity, setStationMinSecurity] = useState<string>("WPA2-PSK")
     const [stationIpMode, setStationIpMode] = useState<string>("")
     const [stationIP, setStationIP] = useState<string>("")
     const [stationGateway, setStationGateway] = useState<string>("")
@@ -101,8 +101,17 @@ const WifiTab = () => {
     const [apCountry, setApCountry] = useState<string>("")
     const [apPasswordError, setApPasswordError] = useState<string>("")
     const [staPasswordError, setStaPasswordError] = useState<string>("")
+    const [showAdvancedSTA, setShowAdvancedSTA] = useState(false)
+    const [showAdvancedAP, setShowAdvancedAP] = useState(false)
 
     // Wrapper functions to convert callbacks to match Input/Select signatures
+    const normalizeHostname = (name: string) => {
+        return name
+            .toLowerCase()
+            .replace(/\s+/g, "-")        // espacios → guiones
+            .replace(/[^a-z0-9-]/g, "")  // solo caracteres válidos
+    }
+
     const handleHostnameChange = (value: string | number | null) => {
         if (value !== null) setHostname(String(value))
     }
@@ -176,6 +185,7 @@ const WifiTab = () => {
                     setHostname(settings.hostname || "");
                     setStationSSID(settings.stationSSID || "");
                     setStationIpMode(settings.stationIpMode || "");
+                    setStationMinSecurity(settings.stationMinSecurity || "WPA2-PSK");
                     setStationPassword("")
                     setApPassword("")
                     setStationIP(settings.stationIP || "");
@@ -290,7 +300,7 @@ const WifiTab = () => {
         // AP validation
         if ((wifiMode === "AP" || wifiMode === "STA>AP") && apPassword) {
             if (apPassword.length < 8) {
-                setApPasswordError("Debe tener al menos 8 caracteres")
+                setApPasswordError(T("S371"))
             } else {
                 setApPasswordError("")
             }
@@ -301,7 +311,7 @@ const WifiTab = () => {
         // STA validation
         if ((wifiMode === "STA" || wifiMode === "STA>AP") && stationPassword) {
             if (stationPassword.length < 8) {
-                setStaPasswordError("Debe tener al menos 8 caracteres")
+                setStaPasswordError(T("S371"))
             } else {
                 setStaPasswordError("")
             }
@@ -333,12 +343,12 @@ const WifiTab = () => {
         if (isAPtoSTA) {
             content = (
                 <div>
-                    <p><b>Se perderá la conexión al cambiar a modo STA.</b></p>
-                    <p>Siga estos pasos después de guardar:</p>
+                    <p><b>{T("S347")}</b></p>
+                    <p>{T("S348")}</p>
                     <p>
-                        A. Reinicie el controlador de su máquina.<br />
-                        B. Vuelva a conectarse a su red WiFi.<br />
-                        C. Abra DeepMove desde:<br />
+                        {T("S349")}<br />
+                        {T("S350")}<br />
+                        {T("S351")}<br />
                         <a href={url} target="_blank" rel="noopener noreferrer">
                             {url}
                         </a>
@@ -350,12 +360,12 @@ const WifiTab = () => {
         if (isSTAtoAP) {
             content = (
                 <div>
-                    <p><b>Se perderá la conexión al cambiar a modo AP.</b></p>
-                    <p>Después de guardar siga estos pasos:</p>
+                    <p><b>{T("S352")}</b></p>
+                    <p>{T("S348")}</p>
                     <p>
-                        A. Reinicie el controlador de su máquina.<br />
-                        B. Conéctese a la red WiFi generada por su máquina.<br />
-                        C. Abra DeepMove desde:<br />
+                        {T("S349")}<br />
+                        {T("S353")}<br />
+                        {T("S354")}<br />
                         <a href={url} target="_blank" rel="noopener noreferrer">
                             {url}
                         </a>
@@ -366,13 +376,13 @@ const WifiTab = () => {
 
         showConfirmationModal({
             modals,
-            title: "Cambio de modo WiFi",
+            title: T("S366"),
             content,
             button1: {
-                text: "Cancelar",
+                text: T("S28"),
             },
             button2: {
-                text: "Guardar",
+                text: T("S61"),
                 cb: () => saveSettings(),
             },
         })
@@ -382,9 +392,11 @@ const WifiTab = () => {
     const saveSettings = async () => {
         setIsSaving(true)
         try {
-            if (hostname !== originalSettings?.hostname) {
+            const cleanHostname = normalizeHostname(hostname)
+
+            if (cleanHostname !== originalSettings?.hostname) {
                 await controllerService?.send(
-                    new Command(`$Hostname=${hostname}`)
+                    new Command(`$Hostname=${cleanHostname}`)
                 );
             }
 
@@ -414,7 +426,7 @@ const WifiTab = () => {
                 );
             }
 
-            if (stationMinSecurity !== originalSettings?.stationMinSecurity) {
+            if (stationMinSecurity && stationMinSecurity !== originalSettings?.stationMinSecurity) {
                 await controllerService?.send(
                     new Command(`$Sta/MinSecurity=${stationMinSecurity}`)
                 );
@@ -497,7 +509,17 @@ const WifiTab = () => {
                             <div class="columns">
                                 <div class="column col-2 col-lg-2 col-md-1 col-sm-0 col-xs-0"></div>
                                 <div class="column col-8 col-lg-8 col-md-10 col-sm-12 col-xs-12">
+                                    {/* WiFi Stats Box - TOP */}
+                                    <div class="columns" style="margin-bottom: 16px">
+                                        <div class="column col-4 col-lg-4 col-md-2 col-sm-0 col-xs-0"></div>
+                                        <div class="column col-8 col-lg-8 col-md-10 col-sm-12 col-xs-12">
+                                            <WifiStats stats={wifiStats} onRefresh={refreshWifiStats} />
+                                        </div>
+                                    </div>
                                     {/* Main Settings - Label and Input on same row */}
+                                    <h4 style={{ marginTop: "16px", opacity: 0.8 }}>
+                                        Network Settings
+                                    </h4>
 
                                     <div className="columns">
                                         <div className="column col-3 col-lg-3 col-md-4 col-sm-4 my-2">{T("S332")}</div>
@@ -508,8 +530,21 @@ const WifiTab = () => {
                                                 value={hostname}
                                                 setValue={handleHostnameChange}
                                                 disabled={isSaving}
+                                                onBlur={() => setHostname(normalizeHostname(hostname))}
                                             />
+                                            <div
+                                                style={{
+                                                    marginTop: "4px",
+                                                    fontSize: "12px",
+                                                    color: "var(--ms-warning)",
+                                                }}
+                                            >
+                                                {T("S355")}
+                                            </div>
+
                                         </div>
+
+
                                     </div>
 
                                     <div className="columns">
@@ -517,37 +552,26 @@ const WifiTab = () => {
                                             {T("S312")}
                                         </div>
 
-                                        <div className="column col-9 col-lg-9 col-md-8 col-sm-8" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                        <div
+                                            className="column col-9 col-lg-9 col-md-8 col-sm-8"
+                                            style={{ display: "flex", alignItems: "center", gap: "8px" }}
+                                        >
+                                            {/* 🔧 WRAPPER CLAVE */}
+                                            <div style={{ flex: 1, minWidth: 0 }}>
+                                                <Select
+                                                    id="wifiMode"
+                                                    value={wifiMode}
+                                                    setValue={handleWifiModeChange}
+                                                    disabled={isSaving}
+                                                    options={[
+                                                        { label: "OFF", value: "Off" },
+                                                        { label: "STA > AP", value: "STA>AP" },
+                                                        { label: "AP", value: "AP" },
+                                                    ]}
+                                                />
+                                            </div>
 
-                                            <Select
-                                                id="wifiMode"
-                                                value={wifiMode}
-                                                setValue={handleWifiModeChange}
-                                                disabled={isSaving}
-                                                options={[
-                                                    {
-                                                        label: "OFF",
-                                                        value: "Off",
-                                                    },
-                                                    {
-                                                        label: "STA > AP",
-                                                        value: "STA>AP",
-                                                    },
-
-                                                    // 🔒 OCULTO PERO DISPONIBLE
-                                                    // {
-                                                    //     label: "STA",
-                                                    //     value: "STA",
-                                                    // },
-
-                                                    {
-                                                        label: "AP",
-                                                        value: "AP",
-                                                    },
-                                                ]}
-                                            />
-
-                                            {/* 🔵 Botón INFO */}
+                                            {/* Botón INFO */}
                                             <button
                                                 style={{
                                                     width: "28px",
@@ -555,35 +579,34 @@ const WifiTab = () => {
                                                     display: "flex",
                                                     alignItems: "center",
                                                     justifyContent: "center",
-                                                    borderRadius: "6px",
-                                                    background: "var(--ms-btn-base-bg)",
+                                                    borderRadius: "50%",
+                                                    background: "transparent",
+                                                    border: "none",
+                                                    boxShadow: "none",
                                                     color: "var(--ms-text-normal)",
-                                                    border: "1px solid var(--ms-border)",
-                                                    boxShadow: "var(--neo-shadow-soft)",
                                                     cursor: "pointer",
+                                                    flexShrink: 0,
+                                                    padding: 0,
                                                 }}
                                                 onClick={() => {
-
                                                     showModal({
                                                         modals,
                                                         id: "wifi_mode_info",
-                                                        title: "WiFi Modes",
+                                                        title: T("S367"),
                                                         content: (
                                                             <div>
                                                                 <p>
-                                                                    <b>Access Point mode (AP):</b><br />
-                                                                    Su dispositivo se comunica directamente con su máquina.<br />
-                                                                    Utilice este modo solo para la configuración inicial.<br />
-                                                                    <b>No es recomendado para uso normal.</b>
+                                                                    <b>{T("S329")} (AP):</b><br />
+                                                                    {T("S356")}<br />
+                                                                    <b>{T("S357")}</b>
                                                                 </p>
 
                                                                 <p>
-                                                                    <b>Client station mode (STA &gt; AP):</b><br />
-                                                                    Su dispositivo se conecta a la máquina a través de su red WiFi.<br />
-                                                                    Es el modo principal de operación y el más estable.<br />
+                                                                    <b>{T("S358")} (STA &gt; AP):</b><br />
+                                                                    {T("S359")}<br />
 
-                                                                    <b>Fallback automático:</b><br />
-                                                                    Si la conexión falla, el dispositivo volverá automáticamente a modo AP.
+                                                                    <b>{T("S360")}</b><br />
+                                                                    {T("S361")}
                                                                 </p>
                                                             </div>
                                                         ),
@@ -591,28 +614,17 @@ const WifiTab = () => {
                                                     })
                                                 }}
                                             >
-                                                ℹ️
+                                                <Info size={18} />
                                             </button>
-
                                         </div>
                                     </div>
 
-                                    {/* WiFi Stats Box */}
-                                    <div class="columns" style="margin-top: 10px">
-                                        <div class="column col-4 col-lg-4 col-md-2 col-sm-0 col-xs-0"></div>
-                                        <div class="column col-8 col-lg-8 col-md-10 col-sm-12 col-xs-12">
-                                            <WifiStats stats={wifiStats} onRefresh={refreshWifiStats} />{" "}
-                                        </div>
-                                    </div>
 
                                     {/* Client Station Settings */}
                                     {(wifiMode === "STA>AP" || wifiMode === "STA") && (
                                         <Fragment>
                                             <h4 style={{ marginTop: "24px" }}>{T("S313")}</h4>
-                                            {/* 🔹 Texto explicativo */}
-                                            <div style={{ marginBottom: "8px", fontSize: "12px", opacity: 0.8 }}>
-                                                Escriba manualmente el nombre de la red WiFi a la que quiere conectar su máquina
-                                            </div>
+
 
                                             {/* SSID */}
                                             <div className="columns">
@@ -620,18 +632,22 @@ const WifiTab = () => {
                                                     {T("S315")}:
                                                 </div>
 
-                                                <div className="column col-9 col-lg-9 col-md-8 col-sm-8" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                                <div
+                                                    className="column col-9 col-lg-9 col-md-8 col-sm-8"
+                                                    style={{ display: "flex", alignItems: "center", gap: "8px" }}
+                                                >
+                                                    {/* 🔧 WRAPPER CLAVE */}
+                                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                                        <Input
+                                                            id="ssid_sta"
+                                                            type="text"
+                                                            value={stationSSID}
+                                                            setValue={handleStationSSIDChange}
+                                                            disabled={isSaving}
+                                                        />
+                                                    </div>
 
-                                                    <Input
-                                                        id="ssid_sta"
-                                                        type="text"
-                                                        value={stationSSID}
-                                                        setValue={handleStationSSIDChange}
-                                                        disabled={isSaving}
-                                                    // ❌ eliminado: extra="scan"
-                                                    />
-
-                                                    {/* 🔵 INFO */}
+                                                    {/* 🔵 BOTÓN INFO */}
                                                     <button
                                                         style={{
                                                             width: "28px",
@@ -639,26 +655,26 @@ const WifiTab = () => {
                                                             display: "flex",
                                                             alignItems: "center",
                                                             justifyContent: "center",
-                                                            borderRadius: "6px",
-                                                            background: "var(--ms-btn-base-bg)",
+                                                            borderRadius: "50%",
+                                                            background: "transparent", // 🔥 sin fondo
+                                                            border: "none",             // 🔥 sin borde
+                                                            boxShadow: "none",          // 🔥 sin relieve
                                                             color: "var(--ms-text-normal)",
-                                                            border: "1px solid var(--ms-border)",
-                                                            boxShadow: "var(--neo-shadow-soft)",
                                                             cursor: "pointer",
+                                                            flexShrink: 0,
+                                                            padding: 0,                 // 🔥 importante
                                                         }}
                                                         onClick={() => {
-
                                                             showModal({
                                                                 modals,
                                                                 id: "ssid_info",
-                                                                title: "WiFi networks",
+                                                                title: T("S368"),
                                                                 content: (
                                                                     <div>
-                                                                        <b>Configuración manual:</b>
-                                                                        <br />
-                                                                        <br />
+                                                                        <b>{T("S362")}</b>
+                                                                        <br /><br />
                                                                         <p>
-                                                                            En modo AP no es posible escanear redes WiFi. Ingrese el nombre (SSID) y el password de su red WiFi para configurar el modo STA.
+                                                                            {T("S363")}
                                                                         </p>
                                                                     </div>
                                                                 ),
@@ -666,9 +682,8 @@ const WifiTab = () => {
                                                             })
                                                         }}
                                                     >
-                                                        ℹ️
+                                                        <Info size={18} />
                                                     </button>
-
                                                 </div>
                                             </div>
 
@@ -690,147 +705,177 @@ const WifiTab = () => {
                                                             {staPasswordError}
                                                         </div>
                                                     )}
+                                                    <div style={{ marginTop: "8px" }}>
+                                                        <button
+                                                            class="btn btn-sm"
+                                                            onClick={() => setShowAdvancedSTA(prev => !prev)}
+                                                        >
+                                                            {showAdvancedSTA ? `${T("S369")} ▲` : `${T("S370")} ▼`}
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             </div>
 
-                                            {/* Min Security and IP Mode */}
-                                            <div className="columns">
-                                                <div className="column col-3 col-lg-3 col-md-4 col-sm-4 my-2">{T("S320")}:</div>
-                                                <div className="column col-9 col-lg-9 col-md-8 col-sm-8">
-                                                    <Select
-                                                        id="minSecurity_sta"
-                                                        value={stationMinSecurity}
-                                                        setValue={handleStationMinSecurityChange}
-                                                        disabled={isSaving}
-                                                        options={[
-                                                            {
-                                                                label: "OPEN",
-                                                                value: "OPEN",
-                                                            },
-                                                            {
-                                                                label: "WEP",
-                                                                value: "WEP",
-                                                            },
-                                                            {
-                                                                label: "WPA-PSK",
-                                                                value: "WPA-PSK",
-                                                            },
-                                                            {
-                                                                label: "WPA-WPA2-PSK",
-                                                                value: "WPA-WPA2-PSK",
-                                                            },
-                                                            {
-                                                                label: "WPA2-ENTERPRISE",
-                                                                value: "WPA2-ENTERPRISE",
-                                                            },
-                                                            {
-                                                                label: "WPA2-PSK",
-                                                                value: "WPA2-PSK",
-                                                            },
-                                                        ]}
-                                                    />
-                                                </div>
-                                            </div>
-
-                                            <div className="columns">
-                                                <div className="column col-3 col-lg-3 col-md-4 col-sm-4 my-2">{T("S321")}:</div>
-                                                <div className="column col-9 col-lg-9 col-md-8 col-sm-8">
-                                                    <Select
-                                                        id="ipMode_sta"
-                                                        value={stationIpMode}
-                                                        setValue={handleStationIpModeChange}
-                                                        disabled={isSaving}
-                                                        options={[
-                                                            { label: T("S330"), value: "DHCP" },
-                                                            { label: T("S331"), value: "Static" },
-                                                        ]}
-                                                    />
-                                                </div>
-                                            </div>
-
-                                            {/* Static IP Settings */}
-                                            {stationIpMode === "Static" && (
-                                                <div className="form-group">
-                                                    <div
-                                                        style={{
-                                                            display: "flex",
-                                                            flexWrap: "wrap",
-                                                            gap: "1rem",
-                                                            alignItems: "flex-start",
-                                                        }}>
-                                                        <div
-                                                            style={{
-                                                                flex: "1 1 auto",
-                                                                minWidth: "200px",
-                                                            }}>
-                                                            <label class="form-label">{T("S319")}</label>
-                                                            <Input
-                                                                id="ip_sta"
-                                                                type="text"
-                                                                value={stationIP}
-                                                                setValue={handleStationIPChange}
-                                                                disabled={isSaving}
-                                                            />
+                                            {showAdvancedSTA && (
+                                                <Fragment>
+                                                    {/* Min Security */}
+                                                    <div className="columns">
+                                                        <div className="column col-3 col-lg-3 col-md-4 col-sm-4 my-2">
+                                                            {T("S320")}:
                                                         </div>
-
-                                                        <div
-                                                            style={{
-                                                                flex: "1 1 auto",
-                                                                minWidth: "200px",
-                                                            }}>
-                                                            <label class="form-label">{T("S325")}</label>
-                                                            <Input
-                                                                id="gateway_sta"
-                                                                type="text"
-                                                                value={stationGateway}
-                                                                setValue={handleStationGatewayChange}
+                                                        <div className="column col-9 col-lg-9 col-md-8 col-sm-8">
+                                                            <Select
+                                                                id="minSecurity_sta"
+                                                                value={stationMinSecurity}
+                                                                setValue={handleStationMinSecurityChange}
                                                                 disabled={isSaving}
-                                                            />
-                                                        </div>
-
-                                                        <div
-                                                            style={{
-                                                                flex: "1 1 100%",
-                                                                minWidth: "200px",
-                                                            }}>
-                                                            <label class="form-label"><b>{T("S324")}
-                                                            </b></label>
-                                                            <Input
-                                                                id="netmask_sta"
-                                                                type="text"
-                                                                value={stationNetmask}
-                                                                setValue={handleStationNetmaskChange}
-                                                                disabled={isSaving}
+                                                                options={[
+                                                                    { label: "OPEN", value: "OPEN" },
+                                                                    { label: "WEP", value: "WEP" },
+                                                                    { label: "WPA-PSK", value: "WPA-PSK" },
+                                                                    { label: "WPA-WPA2-PSK", value: "WPA-WPA2-PSK" },
+                                                                    { label: "WPA2-ENTERPRISE", value: "WPA2-ENTERPRISE" },
+                                                                    { label: "WPA2-PSK", value: "WPA2-PSK" },
+                                                                ]}
                                                             />
                                                         </div>
                                                     </div>
-                                                </div>
+
+                                                    {/* IP Mode */}
+                                                    <div className="columns">
+                                                        <div className="column col-3 col-lg-3 col-md-4 col-sm-4 my-2">
+                                                            {T("S321")}:
+                                                        </div>
+                                                        <div className="column col-9 col-lg-9 col-md-8 col-sm-8">
+                                                            <Select
+                                                                id="ipMode_sta"
+                                                                value={stationIpMode}
+                                                                setValue={handleStationIpModeChange}
+                                                                disabled={isSaving}
+                                                                options={[
+                                                                    { label: T("S330"), value: "DHCP" },
+                                                                    { label: T("S331"), value: "Static" },
+                                                                ]}
+                                                            />
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Static IP */}
+                                                    {stationIpMode === "Static" && (
+                                                        <div className="form-group">
+                                                            <div
+                                                                style={{
+                                                                    display: "flex",
+                                                                    flexWrap: "wrap",
+                                                                    gap: "1rem",
+                                                                    alignItems: "flex-start",
+                                                                }}
+                                                            >
+                                                                <div style={{ flex: "1 1 auto", minWidth: "200px" }}>
+                                                                    <label class="form-label">{T("S319")}</label>
+                                                                    <Input
+                                                                        id="ip_sta"
+                                                                        type="text"
+                                                                        value={stationIP}
+                                                                        setValue={handleStationIPChange}
+                                                                        disabled={isSaving}
+                                                                    />
+                                                                </div>
+
+                                                                <div style={{ flex: "1 1 auto", minWidth: "200px" }}>
+                                                                    <label class="form-label">{T("S325")}</label>
+                                                                    <Input
+                                                                        id="gateway_sta"
+                                                                        type="text"
+                                                                        value={stationGateway}
+                                                                        setValue={handleStationGatewayChange}
+                                                                        disabled={isSaving}
+                                                                    />
+                                                                </div>
+
+                                                                <div style={{ flex: "1 1 100%", minWidth: "200px" }}>
+                                                                    <label class="form-label">
+                                                                        <b>{T("S324")}</b>
+                                                                    </label>
+                                                                    <Input
+                                                                        id="netmask_sta"
+                                                                        type="text"
+                                                                        value={stationNetmask}
+                                                                        setValue={handleStationNetmaskChange}
+                                                                        disabled={isSaving}
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </Fragment>
                                             )}
                                         </Fragment>
                                     )}
 
+
                                     {/* Access Point Settings */}
-                                    {(wifiMode === "STA>AP" || wifiMode === "AP") && (
+                                    {wifiMode === "AP" && (
                                         <Fragment>
                                             <h4 style={{ marginTop: "24px" }}>{T("S314")}</h4>
 
                                             {/* AP SSID and Password */}
                                             <div className="columns">
-                                                <div className="column col-3 col-lg-3 col-md-4 col-sm-4 my-2">{T("S315")}:</div>
-                                                <div className="column col-9 col-lg-9 col-md-8 col-sm-8">
-                                                    <Input
-                                                        id="ssid_ap"
-                                                        type="text"
-                                                        value={apSSID}
-                                                        setValue={handleApSSIDChange}
-                                                        disabled={isSaving}
-                                                    />
+                                                <div className="column col-3 col-lg-3 col-md-4 col-sm-4 my-2">
+                                                    SSID:
+                                                </div>
+
+                                                <div
+                                                    className="column col-9 col-lg-9 col-md-8 col-sm-8"
+                                                    style={{
+                                                        display: "flex",
+                                                        alignItems: "center",
+                                                        gap: "8px",
+                                                    }}
+                                                >
+                                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                                        <Input
+                                                            id="ssid_ap"
+                                                            type="text"
+                                                            value={apSSID}
+                                                            setValue={handleApSSIDChange}
+                                                            disabled={isSaving}
+                                                        />
+                                                    </div>
+
+                                                    <button
+                                                        style={{
+                                                            background: "transparent",
+                                                            border: "none",
+                                                            color: "var(--ms-text-normal)",
+                                                            cursor: "pointer",
+                                                            padding: 0,
+                                                            display: "flex",
+                                                            alignItems: "center",
+                                                        }}
+                                                        onClick={() => {
+                                                            showModal({
+                                                                modals,
+                                                                id: "ssid_ap_info",
+                                                                title: "SSID",
+                                                                content: (
+                                                                    <div>
+                                                                        {T("S364")}
+                                                                    </div>
+                                                                ),
+                                                                button1: { text: "OK" },
+                                                            })
+                                                        }}
+                                                    >
+                                                        <Info size={20} />
+                                                    </button>
                                                 </div>
                                             </div>
 
                                             <div className="columns">
                                                 <div className="column col-3 col-lg-3 col-md-4 col-sm-4 my-2">{T("S316")}:</div>
                                                 <div className="column col-9 col-lg-9 col-md-8 col-sm-8">
+
                                                     <Input
                                                         id="password_ap"
                                                         type="password"
@@ -841,11 +886,6 @@ const WifiTab = () => {
                                                             border: apPasswordError ? "1px solid var(--ms-error)" : undefined
                                                         }}
                                                     />
-                                                    {apPasswordError && (
-                                                        <div style={{ color: "var(--ms-error)", fontSize: "12px", marginTop: "4px" }}>
-                                                            {apPasswordError}
-                                                        </div>
-                                                    )}
                                                     {!apPassword && (wifiMode === "AP" || wifiMode === "STA>AP") && (
                                                         <div
                                                             style={{
@@ -853,237 +893,127 @@ const WifiTab = () => {
                                                                 fontSize: "12px",
                                                                 marginTop: "4px",
                                                                 opacity: 0.9,
-                                                                borderLeft: "2px solid var(--ms-warning)",
                                                                 paddingLeft: "6px",
                                                             }}
                                                         >
-                                                            Si deja este campo vacío, se mantendrá la contraseña anterior
+                                                            {T("S365")}
                                                         </div>
                                                     )}
+                                                    <div style={{ marginTop: "8px" }}>
+                                                        <button
+                                                            class="btn btn-sm"
+                                                            onClick={() => setShowAdvancedAP(prev => !prev)}
+                                                        >
+                                                            {showAdvancedAP ? `${T("S369")} ▲` : `${T("S370")} ▼`}
+                                                        </button>
+                                                    </div>
+
+                                                    {apPasswordError && (
+                                                        <div style={{ color: "var(--ms-error)", fontSize: "12px", marginTop: "4px" }}>
+                                                            {apPasswordError}
+                                                        </div>
+                                                    )}
+
                                                 </div>
                                             </div>
 
-                                            {/* AP Country and Channel */}
-                                            <div className="columns">
-                                                <div className="column col-3 col-lg-3 col-md-4 col-sm-4 my-2">{T("S317")}:</div>
-                                                <div className="column col-9 col-lg-9 col-md-8 col-sm-8">
-                                                    <Select
-                                                        id="country_ap"
-                                                        value={apCountry}
-                                                        setValue={handleApCountryChange}
-                                                        disabled={isSaving}
-                                                        options={[
-                                                            {
-                                                                label: "01",
-                                                                value: "01",
-                                                            },
-                                                            {
-                                                                label: "AT",
-                                                                value: "AT",
-                                                            },
-                                                            {
-                                                                label: "AU",
-                                                                value: "AU",
-                                                            },
-                                                            {
-                                                                label: "BE",
-                                                                value: "BE",
-                                                            },
-                                                            {
-                                                                label: "BG",
-                                                                value: "BG",
-                                                            },
-                                                            {
-                                                                label: "BR",
-                                                                value: "BR",
-                                                            },
-                                                            {
-                                                                label: "CA",
-                                                                value: "CA",
-                                                            },
-                                                            {
-                                                                label: "CH",
-                                                                value: "CH",
-                                                            },
-                                                            {
-                                                                label: "CN",
-                                                                value: "CN",
-                                                            },
-                                                            {
-                                                                label: "CY",
-                                                                value: "CY",
-                                                            },
-                                                            {
-                                                                label: "CZ",
-                                                                value: "CZ",
-                                                            },
-                                                            {
-                                                                label: "DE",
-                                                                value: "DE",
-                                                            },
-                                                            {
-                                                                label: "DK",
-                                                                value: "DK",
-                                                            },
-                                                            {
-                                                                label: "EE",
-                                                                value: "EE",
-                                                            },
-                                                            {
-                                                                label: "ES",
-                                                                value: "ES",
-                                                            },
-                                                            {
-                                                                label: "FI",
-                                                                value: "FI",
-                                                            },
-                                                            {
-                                                                label: "FR",
-                                                                value: "FR",
-                                                            },
-                                                            {
-                                                                label: "GB",
-                                                                value: "GB",
-                                                            },
-                                                            {
-                                                                label: "GR",
-                                                                value: "GR",
-                                                            },
-                                                            {
-                                                                label: "HK",
-                                                                value: "HK",
-                                                            },
-                                                            {
-                                                                label: "HR",
-                                                                value: "HR",
-                                                            },
-                                                            {
-                                                                label: "HU",
-                                                                value: "HU",
-                                                            },
-                                                            {
-                                                                label: "IE",
-                                                                value: "IE",
-                                                            },
-                                                            {
-                                                                label: "IN",
-                                                                value: "IN",
-                                                            },
-                                                            {
-                                                                label: "IS",
-                                                                value: "IS",
-                                                            },
-                                                            {
-                                                                label: "IT",
-                                                                value: "IT",
-                                                            },
-                                                            {
-                                                                label: "JP",
-                                                                value: "JP",
-                                                            },
-                                                            {
-                                                                label: "KR",
-                                                                value: "KR",
-                                                            },
-                                                            {
-                                                                label: "LI",
-                                                                value: "LI",
-                                                            },
-                                                            {
-                                                                label: "LT",
-                                                                value: "LT",
-                                                            },
-                                                            {
-                                                                label: "LU",
-                                                                value: "LU",
-                                                            },
-                                                            {
-                                                                label: "LV",
-                                                                value: "LV",
-                                                            },
-                                                            {
-                                                                label: "MT",
-                                                                value: "MT",
-                                                            },
-                                                            {
-                                                                label: "MX",
-                                                                value: "MX",
-                                                            },
-                                                            {
-                                                                label: "NL",
-                                                                value: "NL",
-                                                            },
-                                                            {
-                                                                label: "NO",
-                                                                value: "NO",
-                                                            },
-                                                            {
-                                                                label: "NZ",
-                                                                value: "NZ",
-                                                            },
-                                                            {
-                                                                label: "PL",
-                                                                value: "PL",
-                                                            },
-                                                            {
-                                                                label: "PT",
-                                                                value: "PT",
-                                                            },
-                                                            {
-                                                                label: "RO",
-                                                                value: "RO",
-                                                            },
-                                                            {
-                                                                label: "SE",
-                                                                value: "SE",
-                                                            },
-                                                            {
-                                                                label: "SI",
-                                                                value: "SI",
-                                                            },
-                                                            {
-                                                                label: "SK",
-                                                                value: "SK",
-                                                            },
-                                                            {
-                                                                label: "TW",
-                                                                value: "TW",
-                                                            },
-                                                            {
-                                                                label: "US",
-                                                                value: "US",
-                                                            },
-                                                        ]}
-                                                    />
-                                                </div>
-                                            </div>
+                                            {showAdvancedAP && (
+                                                <Fragment>
+                                                    {/* AP Country */}
+                                                    <div className="columns">
+                                                        <div className="column col-3 col-lg-3 col-md-4 col-sm-4 my-2">
+                                                            {T("S317")}:
+                                                        </div>
+                                                        <div className="column col-9 col-lg-9 col-md-8 col-sm-8">
+                                                            <Select
+                                                                id="country_ap"
+                                                                value={apCountry}
+                                                                setValue={handleApCountryChange}
+                                                                disabled={isSaving}
+                                                                options={[
+                                                                    { label: "01", value: "01" },
+                                                                    { label: "AT", value: "AT" },
+                                                                    { label: "AU", value: "AU" },
+                                                                    { label: "BE", value: "BE" },
+                                                                    { label: "BG", value: "BG" },
+                                                                    { label: "BR", value: "BR" },
+                                                                    { label: "CA", value: "CA" },
+                                                                    { label: "CH", value: "CH" },
+                                                                    { label: "CN", value: "CN" },
+                                                                    { label: "CY", value: "CY" },
+                                                                    { label: "CZ", value: "CZ" },
+                                                                    { label: "DE", value: "DE" },
+                                                                    { label: "DK", value: "DK" },
+                                                                    { label: "EE", value: "EE" },
+                                                                    { label: "ES", value: "ES" },
+                                                                    { label: "FI", value: "FI" },
+                                                                    { label: "FR", value: "FR" },
+                                                                    { label: "GB", value: "GB" },
+                                                                    { label: "GR", value: "GR" },
+                                                                    { label: "HK", value: "HK" },
+                                                                    { label: "HR", value: "HR" },
+                                                                    { label: "HU", value: "HU" },
+                                                                    { label: "IE", value: "IE" },
+                                                                    { label: "IN", value: "IN" },
+                                                                    { label: "IS", value: "IS" },
+                                                                    { label: "IT", value: "IT" },
+                                                                    { label: "JP", value: "JP" },
+                                                                    { label: "KR", value: "KR" },
+                                                                    { label: "LI", value: "LI" },
+                                                                    { label: "LT", value: "LT" },
+                                                                    { label: "LU", value: "LU" },
+                                                                    { label: "LV", value: "LV" },
+                                                                    { label: "MT", value: "MT" },
+                                                                    { label: "MX", value: "MX" },
+                                                                    { label: "NL", value: "NL" },
+                                                                    { label: "NO", value: "NO" },
+                                                                    { label: "NZ", value: "NZ" },
+                                                                    { label: "PL", value: "PL" },
+                                                                    { label: "PT", value: "PT" },
+                                                                    { label: "RO", value: "RO" },
+                                                                    { label: "SE", value: "SE" },
+                                                                    { label: "SI", value: "SI" },
+                                                                    { label: "SK", value: "SK" },
+                                                                    { label: "TW", value: "TW" },
+                                                                    { label: "US", value: "US" },
+                                                                ]}
+                                                            />
+                                                        </div>
+                                                    </div>
 
-                                            <div className="columns">
-                                                <div className="column col-3 col-lg-3 col-md-4 col-sm-4 my-2">{T("S318")}:</div>
-                                                <div className="column col-9 col-lg-9 col-md-8 col-sm-8">
-                                                    <Input
-                                                        id="channel_ap"
-                                                        type="text"
-                                                        value={apChannel}
-                                                        setValue={handleApChannelChange}
-                                                        disabled={isSaving}
-                                                    />
-                                                </div>
-                                            </div>
+                                                    {/* Channel */}
+                                                    <div className="columns">
+                                                        <div className="column col-3 col-lg-3 col-md-4 col-sm-4 my-2">
+                                                            {T("S318")}:
+                                                        </div>
+                                                        <div className="column col-9 col-lg-9 col-md-8 col-sm-8">
+                                                            <Input
+                                                                id="channel_ap"
+                                                                type="text"
+                                                                value={apChannel}
+                                                                setValue={handleApChannelChange}
+                                                                disabled={isSaving}
+                                                            />
+                                                        </div>
+                                                    </div>
 
-                                            {/* AP IP */}
-                                            <div className="columns">
-                                                <div className="column col-3 col-lg-3 col-md-4 col-sm-4 my-2">{T("S319")}:</div>
-                                                <div className="column col-9 col-lg-9 col-md-8 col-sm-8">
-                                                    <Input
-                                                        id="ip_ap"
-                                                        type="text"
-                                                        value={apIP}
-                                                        setValue={handleApIPChange}
-                                                        disabled={isSaving}
-                                                    />
-                                                </div>
-                                            </div>
+                                                    {/* AP IP */}
+                                                    <div className="columns">
+                                                        <div className="column col-3 col-lg-3 col-md-4 col-sm-4 my-2">
+                                                            {T("S319")}:
+                                                        </div>
+                                                        <div className="column col-9 col-lg-9 col-md-8 col-sm-8">
+                                                            <Input
+                                                                id="ip_ap"
+                                                                type="text"
+                                                                value={apIP}
+                                                                setValue={handleApIPChange}
+                                                                disabled={isSaving}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </Fragment>
+                                            )}
                                         </Fragment>
                                     )}
 
