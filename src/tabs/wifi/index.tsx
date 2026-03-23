@@ -108,8 +108,8 @@ const WifiTab = () => {
     const normalizeHostname = (name: string) => {
         return name
             .toLowerCase()
-            .replace(/\s+/g, "-")        // espacios → guiones
-            .replace(/[^a-z0-9-]/g, "")  // solo caracteres válidos
+            .replace(/\s+/g, "-")
+            .replace(/[^a-z0-9-]/g, "")
     }
 
     const handleHostnameChange = (value: string | number | null) => {
@@ -325,8 +325,40 @@ const WifiTab = () => {
 
         const prevMode = getRuntimeMode(wifiStats.currentWifiMode || wifiStats.wifiMode)
         const newMode = normalizeMode(wifiMode)
+        const isDisable = newMode === "OFF"
 
-        // Detectar cambio relevante
+        if (isDisable) {
+            showConfirmationModal({
+                modals,
+                title: T("S373"),
+                content: (
+                    <div style={{ fontWeight: 500 }}>
+                        <p style={{ color: "var(--ms-error)", marginBottom: "8px" }}>
+                            ⚠️ {T("S374")}
+                        </p>
+                        <p>
+                            {T("S375")}
+                        </p>
+                        <p style={{ fontFamily: "monospace", marginTop: "8px" }}>
+                            $WiFi/Mode=AP<br />
+                            $WiFi/Mode=STA
+                        </p>
+                        <p style={{ marginTop: "12px" }}>
+                            {T("S376")}
+                        </p>
+                    </div>
+                ),
+                button1: {
+                    text: T("S28"),
+                },
+                button2: {
+                    text: T("S61"),
+                    cb: () => saveSettings(),
+                },
+            })
+            return
+        }
+
         const isAPtoSTA = (prevMode === "AP") && (newMode === "STA>AP" || newMode === "STA")
         const isSTAtoAP = (prevMode === "STA") && (newMode === "AP")
 
@@ -518,7 +550,7 @@ const WifiTab = () => {
                                     </div>
                                     {/* Main Settings - Label and Input on same row */}
                                     <h4 style={{ marginTop: "16px", opacity: 0.8 }}>
-                                        Network Settings
+                                        {T("S372")}
                                     </h4>
 
                                     <div className="columns">
@@ -571,7 +603,7 @@ const WifiTab = () => {
                                                 />
                                             </div>
 
-                                            {/* Botón INFO */}
+                                            {/*INFO */}
                                             <button
                                                 style={{
                                                     width: "28px",
@@ -647,7 +679,7 @@ const WifiTab = () => {
                                                         />
                                                     </div>
 
-                                                    {/* 🔵 BOTÓN INFO */}
+                                                    {/* INFO */}
                                                     <button
                                                         style={{
                                                             width: "28px",
