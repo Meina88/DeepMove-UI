@@ -9,7 +9,27 @@ import { useHttpQueue } from "../../hooks"
 import { useSettingsContextFn, useToastsContext } from "../../contexts"
 import { espHttpURL } from "../Helpers"
 import { exportPreferences, InterfaceSettingsData, ExportPreferences } from "../../tabs/interface/exportHelper"
+import { Globe } from "preact-feather"
 
+const LANGUAGE_OPTIONS: Record<string, string> = {
+    de: "Deutsch",
+    en: "English",
+    es: "Español",
+    fr: "Français",
+    hu: "Magyar",
+    id: "Bahasa Indonesia",
+    it: "Italiano",
+    ja: "日本語",
+    ko: "한국어",
+    pl: "Polski",
+    ptbr: "Português (Brasil)",
+    ru: "Русский",
+    tr: "Türkçe",
+    th: "ภาษาไทย",
+    uk: "Українська",
+    zhcn: "简体中文",
+    zhtw: "繁體中文"
+}
 
 interface Props {
     visible: boolean
@@ -27,86 +47,86 @@ const SafetyDisclaimerModal: FunctionalComponent<Props> = ({
     const [langVersion, setLangVersion] = useState(0)
     const { interfaceSettings } = useSettingsContext()
     const { createNewRequest } = useHttpQueue()
-const { toasts } = useToastsContext()
+    const { toasts } = useToastsContext()
 
     // 👉 cargar idioma guardado (opcional pero PRO)
-useEffect(() => {
-    const settings = interfaceSettings.current.settings
+    useEffect(() => {
+        const settings = interfaceSettings.current.settings
 
-    if (!settings) return
+        if (!settings) return
 
-    let found = false
+        let found = false
 
-    for (const section in settings) {
-        for (const sub in settings[section]) {
-            const item = settings[section][sub]
+        for (const section in settings) {
+            for (const sub in settings[section]) {
+                const item = settings[section][sub]
 
-            if (item.id === "language") {
-                found = true
+                if (item.id === "language") {
+                    found = true
 
-                if (item.value === "default") {
-                    setLanguage("en")
-                } else {
-                    setLanguage(
-                        item.value.replace("lang-", "").replace(".json", "")
-                    )
+                    if (item.value === "default") {
+                        setLanguage("en")
+                    } else {
+                        setLanguage(
+                            item.value.replace("lang-", "").replace(".json", "")
+                        )
+                    }
                 }
             }
         }
-    }
 
-    // 👉 solo si encontró language
-    if (!found) return
+        // 👉 solo si encontró language
+        if (!found) return
 
-}, [interfaceSettings.current.settings])
+    }, [interfaceSettings.current.settings])
 
     const saveLanguagePreference = (lang: string) => {
-    const settings = interfaceSettings.current.settings
+        const settings = interfaceSettings.current.settings
 
-    for (const section in settings) {
-        for (const sub in settings[section]) {
-            const item = settings[section][sub]
-            if (item.id === "language") {
-                item.value = lang === "en" ? "default" : `lang-${lang}.json`
+        for (const section in settings) {
+            for (const sub in settings[section]) {
+                const item = settings[section][sub]
+                if (item.id === "language") {
+                    item.value = lang === "en" ? "default" : `lang-${lang}.json`
+                }
             }
         }
+
+        const settingsToSave: ExportPreferences = exportPreferences(
+            interfaceSettings.current as InterfaceSettingsData,
+            false
+        )
+
+        const preferencesToSave = JSON.stringify(settingsToSave, null, " ")
+        const blob = new Blob([preferencesToSave], {
+            type: "application/json",
+        })
+
+        const preferencesFileName =
+            `${useSettingsContextFn.getValue("HostUploadPath")}preferences.json`
+
+        const formData = new FormData()
+        const file = new File([blob], preferencesFileName)
+
+        formData.append("path", useSettingsContextFn.getValue("HostUploadPath"))
+        formData.append("creatPath", "true")
+        formData.append("myfiles", file, preferencesFileName)
+        formData.append(`${preferencesFileName}S`, String(preferencesToSave.length))
+
+        createNewRequest(
+            espHttpURL(useSettingsContextFn.getValue("HostTarget")),
+            { method: "POST", id: "preferences", body: formData },
+            {
+                onSuccess: () => {
+                    console.log("Language persisted")
+                },
+                onFail: (error: string) => {
+                    console.log("Error saving language", error)
+                    toasts.addToast({ content: error, type: "error" })
+                },
+            }
+        )
     }
-
-    const settingsToSave: ExportPreferences = exportPreferences(
-        interfaceSettings.current as InterfaceSettingsData,
-        false
-    )
-
-    const preferencesToSave = JSON.stringify(settingsToSave, null, " ")
-    const blob = new Blob([preferencesToSave], {
-        type: "application/json",
-    })
-
-    const preferencesFileName =
-        `${useSettingsContextFn.getValue("HostUploadPath")}preferences.json`
-
-    const formData = new FormData()
-    const file = new File([blob], preferencesFileName)
-
-    formData.append("path", useSettingsContextFn.getValue("HostUploadPath"))
-    formData.append("creatPath", "true")
-    formData.append("myfiles", file, preferencesFileName)
-    formData.append(`${preferencesFileName}S`, String(preferencesToSave.length))
-
-    createNewRequest(
-        espHttpURL(useSettingsContextFn.getValue("HostTarget")),
-        { method: "POST", id: "preferences", body: formData },
-        {
-            onSuccess: () => {
-                console.log("Language persisted")
-            },
-            onFail: (error: string) => {
-                console.log("Error saving language", error)
-                toasts.addToast({ content: error, type: "error" })
-            },
-        }
-    )
-}
 
     const slides = [
         {
@@ -143,38 +163,61 @@ useEffect(() => {
                     {/* 👉 selector idioma SOLO en primer slide */}
                     {step === 0 && (
                         <div style={{ marginBottom: "16px" }}>
+
+                            <div
+                                style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "6px",
+                                    marginBottom: "8px" // 👈 mover acá
+                                }}
+                            >
+                                <Globe size={14} />
+
+                                <div
+                                    style={{
+                                        fontSize: "11px",
+                                        color: "var(--ms-text-secondary)",
+                                        opacity: 0.7
+                                    }}
+                                >
+                                    {T("S68")}
+                                </div>
+                            </div>
                             <select
                                 value={language}
-onChange={async (e) => {
-    const lang = (e.target as HTMLSelectElement).value
-    setLanguage(lang)
+                                onChange={async (e) => {
+                                    const lang = (e.target as HTMLSelectElement).value
+                                    setLanguage(lang)
 
-    try {
-        if (lang === "en") {
-            const { baseLangRessource } = await import("../Translations")
-            setCurrentLanguage(baseLangRessource)
-        } else {
-            const response = await fetch(`/lang-${lang}.json`)
-            const langJson = await response.json()
-            setCurrentLanguage(langJson)
-        }
+                                    try {
+                                        if (lang === "en") {
+                                            const { baseLangRessource } = await import("../Translations")
+                                            setCurrentLanguage(baseLangRessource)
+                                        } else {
+                                            const response = await fetch(`/lang-${lang}.json`)
+                                            const langJson = await response.json()
+                                            setCurrentLanguage(langJson)
+                                        }
 
-        setLangVersion(prev => prev + 1)
+                                        setLangVersion(prev => prev + 1)
 
-    } catch (err) {
-        console.log("Error loading language", err)
-    }
-}}
+                                    } catch (err) {
+                                        console.log("Error loading language", err)
+                                    }
+                                }}
                                 style={{
                                     padding: "6px",
                                     borderRadius: "6px",
-                                    background: "var(--ms-bg-secondary)",
+                                    background: "var(--ms-bg-surface)",
                                     color: "var(--ms-text-primary)"
                                 }}
                             >
-                                <option value="en">English</option>
-                                <option value="es">Español</option>
-                                <option value="fr">Français</option>
+                                {Object.entries(LANGUAGE_OPTIONS).map(([key, label]) => (
+                                    <option key={key} value={key}>
+                                        {label}
+                                    </option>
+                                ))}
                             </select>
                         </div>
                     )}
@@ -211,7 +254,7 @@ onChange={async (e) => {
                                 class="btn btn-secondary"
                                 onClick={() => setStep(prev => prev - 1)}
                             >
-                                Back
+                                {T("S164")}
                             </Button>
                         )}
                     </div>
@@ -222,16 +265,16 @@ onChange={async (e) => {
                                 class="btn btn-primary btn-no-active"
                                 onClick={() => setStep(prev => prev + 1)}
                             >
-                                Next
+                                {T("S163")}
                             </Button>
                         ) : (
                             <Button
                                 class="btn btn-next"
                                 disabled={!confirmed}
                                 onClick={() => {
-    saveLanguagePreference(language)
-    onAccept()
-}}
+                                    saveLanguagePreference(language)
+                                    onAccept()
+                                }}
                             >
                                 {T("DM_DISCLAIMER_ACCEPT")}
                             </Button>
