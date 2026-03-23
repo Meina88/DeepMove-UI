@@ -612,7 +612,7 @@ const Navbar = () => {
                                     }}
                                 >
                                     <RotateCw size={16} />
-                                    <span>Refresh</span>
+                                    <span>{T("S50")}</span>
                                 </div>
 
                                 <div
@@ -625,7 +625,7 @@ const Navbar = () => {
                                     {isSettingsPage ? <DashboardIcon height="16px" /> : <Settings size={16} />}
 
                                     <span>
-                                        {isSettingsPage ? "Dashboard" : "Settings"}
+                                        {isSettingsPage ? T("S13") : T("S14")}
                                     </span>
                                 </div>
 
@@ -642,7 +642,7 @@ const Navbar = () => {
                                     >
                                         <span class="laser-mode-label">
                                             <Flare height="16px" />
-                                            <span>Laser</span>
+                                            <span>{T("CN35")}</span>
                                         </span>
 
                                         <div class={`laser-mode-switch ${currentTool === toolNumbers.laser ? "active" : ""}`}>
@@ -659,7 +659,7 @@ const Navbar = () => {
                                     }}
                                 >
                                     <Power size={16} />
-                                    <span>Power Off</span>
+                                    <span>{T("S377")}</span>
                                 </div>
 
                             </div>

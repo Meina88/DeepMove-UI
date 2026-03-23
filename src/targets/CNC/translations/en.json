@@ -210,6 +210,7 @@
     "S374": "If you disable WiFi, you will completely lose remote access to your machine.",
     "S375": "You can only re-enable it via a USB connection by sending one of the following commands:",
     "S376": "Do you want to continue?",
+    "S377": "Power Off",
     "Progress": "Progress",
     "Hold:0": "Hold complete. Ready to resume.",
     "Hold:1": "Hold in-progress. Reset will throw an alarm.",
