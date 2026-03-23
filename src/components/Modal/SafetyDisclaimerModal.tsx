@@ -1,8 +1,15 @@
 import { FunctionalComponent } from "preact"
 import Modal from "../Controls/Modal"
 import Button from "../Controls/Button"
-import { useState } from "preact/hooks"
+import { useState, useEffect } from "preact/hooks"
 import { T } from "../Translations"
+import { setCurrentLanguage } from "../Translations"
+import { useSettingsContext } from "../../contexts"
+import { useHttpQueue } from "../../hooks"
+import { useSettingsContextFn, useToastsContext } from "../../contexts"
+import { espHttpURL } from "../Helpers"
+import { exportPreferences, InterfaceSettingsData, ExportPreferences } from "../../tabs/interface/exportHelper"
+
 
 interface Props {
     visible: boolean
@@ -16,6 +23,90 @@ const SafetyDisclaimerModal: FunctionalComponent<Props> = ({
 
     const [confirmed, setConfirmed] = useState(false)
     const [step, setStep] = useState(0)
+    const [language, setLanguage] = useState("en")
+    const [langVersion, setLangVersion] = useState(0)
+    const { interfaceSettings } = useSettingsContext()
+    const { createNewRequest } = useHttpQueue()
+const { toasts } = useToastsContext()
+
+    // 👉 cargar idioma guardado (opcional pero PRO)
+useEffect(() => {
+    const settings = interfaceSettings.current.settings
+
+    if (!settings) return
+
+    let found = false
+
+    for (const section in settings) {
+        for (const sub in settings[section]) {
+            const item = settings[section][sub]
+
+            if (item.id === "language") {
+                found = true
+
+                if (item.value === "default") {
+                    setLanguage("en")
+                } else {
+                    setLanguage(
+                        item.value.replace("lang-", "").replace(".json", "")
+                    )
+                }
+            }
+        }
+    }
+
+    // 👉 solo si encontró language
+    if (!found) return
+
+}, [interfaceSettings.current.settings])
+
+    const saveLanguagePreference = (lang: string) => {
+    const settings = interfaceSettings.current.settings
+
+    for (const section in settings) {
+        for (const sub in settings[section]) {
+            const item = settings[section][sub]
+            if (item.id === "language") {
+                item.value = lang === "en" ? "default" : `lang-${lang}.json`
+            }
+        }
+    }
+
+    const settingsToSave: ExportPreferences = exportPreferences(
+        interfaceSettings.current as InterfaceSettingsData,
+        false
+    )
+
+    const preferencesToSave = JSON.stringify(settingsToSave, null, " ")
+    const blob = new Blob([preferencesToSave], {
+        type: "application/json",
+    })
+
+    const preferencesFileName =
+        `${useSettingsContextFn.getValue("HostUploadPath")}preferences.json`
+
+    const formData = new FormData()
+    const file = new File([blob], preferencesFileName)
+
+    formData.append("path", useSettingsContextFn.getValue("HostUploadPath"))
+    formData.append("creatPath", "true")
+    formData.append("myfiles", file, preferencesFileName)
+    formData.append(`${preferencesFileName}S`, String(preferencesToSave.length))
+
+    createNewRequest(
+        espHttpURL(useSettingsContextFn.getValue("HostTarget")),
+        { method: "POST", id: "preferences", body: formData },
+        {
+            onSuccess: () => {
+                console.log("Language persisted")
+            },
+            onFail: (error: string) => {
+                console.log("Error saving language", error)
+                toasts.addToast({ content: error, type: "error" })
+            },
+        }
+    )
+}
 
     const slides = [
         {
@@ -49,6 +140,45 @@ const SafetyDisclaimerModal: FunctionalComponent<Props> = ({
 
                 <Modal.Body>
 
+                    {/* 👉 selector idioma SOLO en primer slide */}
+                    {step === 0 && (
+                        <div style={{ marginBottom: "16px" }}>
+                            <select
+                                value={language}
+onChange={async (e) => {
+    const lang = (e.target as HTMLSelectElement).value
+    setLanguage(lang)
+
+    try {
+        if (lang === "en") {
+            const { baseLangRessource } = await import("../Translations")
+            setCurrentLanguage(baseLangRessource)
+        } else {
+            const response = await fetch(`/lang-${lang}.json`)
+            const langJson = await response.json()
+            setCurrentLanguage(langJson)
+        }
+
+        setLangVersion(prev => prev + 1)
+
+    } catch (err) {
+        console.log("Error loading language", err)
+    }
+}}
+                                style={{
+                                    padding: "6px",
+                                    borderRadius: "6px",
+                                    background: "var(--ms-bg-secondary)",
+                                    color: "var(--ms-text-primary)"
+                                }}
+                            >
+                                <option value="en">English</option>
+                                <option value="es">Español</option>
+                                <option value="fr">Français</option>
+                            </select>
+                        </div>
+                    )}
+
                     <p><b>{slides[step].title}</b></p>
                     <p>{slides[step].body}</p>
 
@@ -72,13 +202,14 @@ const SafetyDisclaimerModal: FunctionalComponent<Props> = ({
                     )}
 
                 </Modal.Body>
+
                 <Modal.Footer style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
 
                     <div>
                         {step > 0 && (
                             <Button
                                 class="btn btn-secondary"
-                                onClick={() => setStep(step - 1)}
+                                onClick={() => setStep(prev => prev - 1)}
                             >
                                 Back
                             </Button>
@@ -89,7 +220,7 @@ const SafetyDisclaimerModal: FunctionalComponent<Props> = ({
                         {step < slides.length - 1 ? (
                             <Button
                                 class="btn btn-primary btn-no-active"
-                                onClick={() => setStep(step + 1)}
+                                onClick={() => setStep(prev => prev + 1)}
                             >
                                 Next
                             </Button>
@@ -97,7 +228,10 @@ const SafetyDisclaimerModal: FunctionalComponent<Props> = ({
                             <Button
                                 class="btn btn-next"
                                 disabled={!confirmed}
-                                onClick={onAccept}
+                                onClick={() => {
+    saveLanguagePreference(language)
+    onAccept()
+}}
                             >
                                 {T("DM_DISCLAIMER_ACCEPT")}
                             </Button>

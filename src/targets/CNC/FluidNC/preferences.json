@@ -566,14 +566,13 @@
                 ]
             }
         ],
-        "Keymmaping": [
+        "S212": [
             {
                 "id": "keymap",
                 "sorted": false,
                 "fixed": true,
                 "nodelete": true,
                 "editable": true,
-                "label": "S212",
                 "type": "list",
                 "value": [
                     {
