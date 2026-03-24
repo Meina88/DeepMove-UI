@@ -102,3 +102,81 @@
 #toolpathPanel .navbar button {
     display: inline-flex !important;
 }
+
+/* =========================
+   TOOLPATH — START/HOLD (DEEP MOVE STYLE)
+   ========================= */
+
+#toolpathPanel .toolpath-starthold-container {
+    position: absolute;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 5;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 🔥 BOTÓN REAL (NO hackeado) */
+#toolpathPanel .override-hold-btn {
+
+    /* Resetear .btn */
+    all: unset;
+
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+
+    /* 🎯 MATERIAL REAL */
+    background-color: var(--ms-bg-surface);
+    box-shadow: var(--neo-shadow-raised);
+
+    color: var(--ms-accent);
+
+    transition:
+        transform 90ms ease,
+        box-shadow 150ms ease,
+        background-color 150ms ease;
+}
+
+/* Hover coherente con tu sistema */
+#toolpathPanel .override-hold-btn:hover {
+    background-color: var(--ms-bg-hover);
+}
+
+/* Press neumórfico real */
+#toolpathPanel .override-hold-btn:active {
+    transform: scale(0.94);
+    box-shadow: var(--neo-shadow-pressed);
+}
+
+/* SVG */
+#toolpathPanel .override-hold-btn svg {
+    width: 26px;
+    height: 26px;
+    stroke: currentColor;
+}
+
+/* Ajustes ópticos */
+#toolpathPanel .override-hold-btn.is-hold svg {
+    transform: translateY(2px);
+}
+
+#toolpathPanel .override-hold-btn.is-play svg {
+    transform: translateY(2px);       
+}
+
+/* Disabled */
+#toolpathPanel .override-hold-btn.is-disabled {
+    opacity: 0.35;
+    pointer-events: none;
+    filter: grayscale(1);
+}

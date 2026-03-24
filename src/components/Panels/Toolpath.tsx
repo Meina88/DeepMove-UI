@@ -22,6 +22,10 @@ import { httpAdapter } from "../../adapters/httpAdapter"
 import { eventBus } from "../../hooks/eventBus"
 import { ClearPath } from "../../targets/CNC/FluidNC/icons"
 
+import { Play, Pause } from "preact-feather"
+import { ButtonImg } from "../Controls"
+import { useTargetCommands } from "../../hooks"
+
 
 interface ToolpathPanelProps {
     embedded?: boolean
@@ -745,6 +749,59 @@ const ToolpathPanel: FunctionalComponent<ToolpathPanelProps> = ({ embedded = fal
                         resetCamera()
                     }}
                 />
+                {/* ▶ START / HOLD (overlay inferior centrado) */}
+<div class="toolpath-starthold-container">
+
+    {(() => {
+        const { status } = useTargetContext()
+        const { targetCommands } = useTargetCommands()
+
+        const canResumeFromDoor =
+            status?.state === "Door" && status?.substate === 0
+
+        const isRun = status?.state === "Run"
+        const isHold = status?.state === "Hold"
+
+        const canPause = isRun
+        const canPlay = isHold || canResumeFromDoor
+
+        return (
+            <>
+                {canPause && (
+                    <ButtonImg
+                        class={`override-hold-btn is-hold ${isRun ? "is-active" : ""}`}
+                        icon={<Pause size={22} />}
+                        tooltip
+                        data-tooltip={T("Hold")}
+                        onClick={() => {
+                            useUiContextFn.haptic()
+                            targetCommands("#FEEDHOLD#")
+                        }}
+                    />
+                )}
+
+                {!canPause && (
+                    <ButtonImg
+                        class={`override-hold-btn is-play ${isHold ? "is-active" : ""} ${!canPlay ? "is-disabled" : ""}`}
+                        icon={<Play size={22} />}
+                        tooltip
+                        data-tooltip={
+                            canPlay
+                                ? T("CN61")
+                                : T("Action not available")
+                        }
+                        onClick={() => {
+                            if (!canPlay) return
+                            useUiContextFn.haptic()
+                            targetCommands("#CYCLESTART#")
+                        }}
+                    />
+                )}
+            </>
+        )
+    })()}
+
+</div>
 
 
                 {isRendering && (
