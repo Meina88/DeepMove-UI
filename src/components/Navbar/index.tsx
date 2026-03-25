@@ -536,19 +536,30 @@ const Navbar = () => {
 
     useEffect(() => {
 
-        const requestToolState = () => {
-            targetCommands("$G")
+        const handleReset = () => {
+
+            // 🔥 limpiar todo estado previo
+            targetCommands("M5")
+            targetCommands("S0")
+
+            // 🔥 forzar CNC como tool activo
+            if (toolNumbers?.vfd != null) {
+
+                setTimeout(() => {
+                    targetCommands(`M6 T${toolNumbers.vfd}`)
+                }, 50)
+
+                setTimeout(() => {
+                    targetCommands("$G")
+                }, 200)
+            }
         }
 
-        // pedir estado al abrir la UI
-        requestToolState()
-
-        // pedir estado si el firmware reinicia
-        const sub = eventBus.on("fw:reset", requestToolState)
+        const sub = eventBus.on("fw:reset", handleReset)
 
         return () => eventBus.off("fw:reset", sub)
 
-    }, [])
+    }, [toolNumbers])
 
     useEffect(() => {
         if (!menuOpen) return

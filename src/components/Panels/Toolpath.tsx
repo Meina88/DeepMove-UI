@@ -25,17 +25,38 @@ import { ClearPath } from "../../targets/CNC/FluidNC/icons"
 import { Play, Pause } from "preact-feather"
 import { ButtonImg } from "../Controls"
 import { useTargetCommands } from "../../hooks"
+import { files } from "../../targets"
+import { espHttpURL } from "../Helpers/http"
+
+import { detectGCodeType } from "../Toolpath/core/GCodeLaserDetector"
+import { showModal } from "../Modal"
+import { useModalsContext } from "../../contexts"
+import { useUiContext } from "../../contexts"
 
 
 interface ToolpathPanelProps {
     embedded?: boolean
 }
 
+
 const ToolpathPanel: FunctionalComponent<ToolpathPanelProps> = ({ embedded = false }) => {
 
     const id = "toolpathPanel"
     const showPanel = useUiContextFn.getValue("showtoolpathpanel")
     const { positions } = useTargetContext()
+    const { modals } = useModalsContext()
+    const { toolNumbers } = useUiContext()
+    const { states } = useTargetContext() as any
+
+    const currentTool = states?.active_tool?.value
+
+    const isLaserMode =
+        toolNumbers?.laser != null &&
+        currentTool != null &&
+        Number(currentTool) === Number(toolNumbers.laser)
+    const { targetCommands } = useTargetCommands()
+
+    const [selectedFile, setSelectedFile] = useState<any>(null)
 
     // NO retornar acá (así se montan los hooks y el listener)
 
@@ -69,6 +90,18 @@ const ToolpathPanel: FunctionalComponent<ToolpathPanelProps> = ({ embedded = fal
             return DEFAULT_VIEWS
         }
     })
+
+    useEffect(() => {
+        const id = eventBus.on(
+            "toolpath:selectedFile",
+            (data) => {
+                setSelectedFile(data)
+            },
+            "toolpath-selected"
+        )
+
+        return () => eventBus.off("toolpath:selectedFile", id)
+    }, [])
 
     useEffect(() => {
         localStorage.setItem(
@@ -164,7 +197,8 @@ const ToolpathPanel: FunctionalComponent<ToolpathPanelProps> = ({ embedded = fal
             toolPos ?? undefined,
             showGrid
         )
-    }, [viewIndex, toolPos, showGrid])
+    }
+        , [viewIndex, toolPos, showGrid])
 
 
     // 📐 Resize
@@ -322,6 +356,8 @@ const ToolpathPanel: FunctionalComponent<ToolpathPanelProps> = ({ embedded = fal
             const dy = t1.clientY - t2.clientY
             return Math.hypot(dx, dy)
         }
+
+
 
         const onTouchStart = (e: TouchEvent) => {
             // 👆 Doble tap (touch) para centrar
@@ -562,6 +598,7 @@ const ToolpathPanel: FunctionalComponent<ToolpathPanelProps> = ({ embedded = fal
                         showGrid
                     )
                 }
+                setSelectedFile(null)
             },
             "toolpath-reset"
         )
@@ -572,7 +609,47 @@ const ToolpathPanel: FunctionalComponent<ToolpathPanelProps> = ({ embedded = fal
     }, [viewIndex, showGrid])
 
 
+    const checkFileModeAndRun = async (
+        url: string,
+        filename: string,
+        runCmd: string
+    ) => {
+        try {
+            const response = await fetch(url)
+            const text = await response.text()
 
+            const type = detectGCodeType(text)
+
+            const mismatch =
+                (type === "LASER" && !isLaserMode) ||
+                (type === "CNC" && isLaserMode)
+
+            if (mismatch) {
+                showModal({
+                    modals,
+                    id: "wrongModeModal",
+                    title: T("Warning"),
+                    content: (
+                        <div>
+                            {type === "LASER"
+                                ? "This file was generated for LASER machining. Switch to LASER mode to execute it."
+                                : "This file was generated for CNC machining. Switch to CNC mode to execute it."
+                            }
+                        </div>
+                    ),
+                    button2: { text: T("S28") }
+                })
+
+                return
+            }
+
+            targetCommands(runCmd)
+
+        } catch (e) {
+            console.warn("GCode detection failed", e)
+            targetCommands(runCmd)
+        }
+    }
 
 
 
@@ -750,58 +827,118 @@ const ToolpathPanel: FunctionalComponent<ToolpathPanelProps> = ({ embedded = fal
                     }}
                 />
                 {/* ▶ START / HOLD (overlay inferior centrado) */}
-<div class="toolpath-starthold-container">
+                <div class="toolpath-starthold-container">
 
-    {(() => {
-        const { status } = useTargetContext()
-        const { targetCommands } = useTargetCommands()
+                    {(() => {
+                        const { status } = useTargetContext()
 
-        const canResumeFromDoor =
-            status?.state === "Door" && status?.substate === 0
+                        const canResumeFromDoor =
+                            status?.state === "Door" && status?.substate === 0
 
-        const isRun = status?.state === "Run"
-        const isHold = status?.state === "Hold"
+                        const isRun = status?.state === "Run"
+                        const isHold = status?.state === "Hold"
+                        const isIdle = status?.state === "Idle"
 
-        const canPause = isRun
-        const canPlay = isHold || canResumeFromDoor
+                        const canPause = isRun
+                        const canResume = isHold || canResumeFromDoor
+                        const canRunFile = isIdle && !!selectedFile
 
-        return (
-            <>
-                {canPause && (
-                    <ButtonImg
-                        class={`override-hold-btn is-hold ${isRun ? "is-active" : ""}`}
-                        icon={<Pause size={22} />}
-                        tooltip
-                        data-tooltip={T("Hold")}
-                        onClick={() => {
-                            useUiContextFn.haptic()
-                            targetCommands("#FEEDHOLD#")
-                        }}
-                    />
-                )}
+                        const canPlay = canResume || canRunFile
 
-                {!canPause && (
-                    <ButtonImg
-                        class={`override-hold-btn is-play ${isHold ? "is-active" : ""} ${!canPlay ? "is-disabled" : ""}`}
-                        icon={<Play size={22} />}
-                        tooltip
-                        data-tooltip={
-                            canPlay
-                                ? T("CN61")
-                                : T("Action not available")
-                        }
-                        onClick={() => {
-                            if (!canPlay) return
-                            useUiContextFn.haptic()
-                            targetCommands("#CYCLESTART#")
-                        }}
-                    />
-                )}
-            </>
-        )
-    })()}
+                        return (
+                            <>
+                                {canPause && (
+                                    <ButtonImg
+                                        class={`override-hold-btn is-hold ${isRun ? "is-active" : ""}`}
+                                        icon={<Pause size={22} />}
+                                        tooltip
 
-</div>
+                                        onClick={() => {
+                                            useUiContextFn.haptic()
+                                            targetCommands("#FEEDHOLD#")
+                                        }}
+                                    />
+
+                                )}
+
+                                {!canPause && (
+                                    <ButtonImg
+                                        class={`override-hold-btn is-play ${isHold ? "is-active" : ""} ${!canPlay ? "is-disabled" : ""}`}
+                                        icon={<Play size={22} />}
+                                        tooltip
+
+                                        onClick={() => {
+
+                                            if (!canPlay) return
+
+                                            useUiContextFn.haptic()
+
+                                            // 🔴 CASO 1: RESUME
+                                            if (canResume) {
+                                                targetCommands("#CYCLESTART#")
+                                                return
+                                            }
+
+                                            // 🔵 CASO 2: RUN FILE
+                                            if (canRunFile) {
+
+                                                eventBus.emit("hmi:play", null)
+
+                                                const isMobile = window.innerWidth <= 768
+
+                                                if (isMobile) {
+                                                    document
+                                                        .getElementById("OverridesPanel")
+                                                        ?.scrollIntoView({ behavior: "smooth", block: "start" })
+                                                }
+
+                                                const previewOnRun = isMobile
+                                                    ? useUiContextFn.getValue("filesPreviewOnPlayMobile")
+                                                    : useUiContextFn.getValue("filesPreviewOnPlayDesktop")
+
+                                                const cmd = files.command(
+                                                    selectedFile.fs,
+                                                    "play",
+                                                    selectedFile.path,
+                                                    selectedFile.filename
+                                                )
+
+                                                const dl = files.command(
+                                                    selectedFile.fs,
+                                                    "download",
+                                                    selectedFile.path,
+                                                    selectedFile.filename
+                                                )
+
+                                                const url = espHttpURL(dl.url, dl.args)
+
+                                                eventBus.emit("toolpath:reset", null)
+
+                                                if (previewOnRun) {
+
+                                                    eventBus.emit("toolpath:preview", {
+                                                        url,
+                                                        filename: selectedFile.filename,
+                                                    })
+
+                                                    setTimeout(() => {
+                                                        checkFileModeAndRun(url, selectedFile.filename, cmd.cmd)
+                                                    }, 150)
+
+                                                } else {
+
+                                                    checkFileModeAndRun(url, selectedFile.filename, cmd.cmd)
+                                                }
+                                            }
+                                        }}
+                                    />
+                                )}
+                            </>
+                        )
+                    })()}
+
+                </div>
+                {/* ▶ RUN FILE (nuevo botón separado) */}
 
 
                 {isRendering && (

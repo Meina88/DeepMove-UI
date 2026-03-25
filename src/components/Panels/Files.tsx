@@ -29,13 +29,13 @@ import { Upload, RefreshCcw, FolderPlus, CornerRightUp, XCircle, Plus } from "pr
 import { SDCard } from "../../targets/CNC/FluidNC/icons"
 
 import { files } from "../../targets"
-import { Folder, File, Trash2, Play, Eye } from "preact-feather"
+import { Folder, File, Trash2, Eye } from "preact-feather"
 import { Menu as PanelMenu } from "./"
 import { eventBus } from "../../hooks/eventBus"
 import { espHttpURL } from "../Helpers/http"
 import { useTargetContext } from "../../targets"
 import { useUiContext } from "../../contexts"
-import { detectGCodeType } from "../Toolpath/core/GCodeLaserDetector"
+
 
 
 interface FilesPanelProps {
@@ -53,15 +53,7 @@ const FilesPanel: FunctionalComponent<FilesPanelProps> = ({ embedded = false }) 
     const dropRef = useRef<HTMLDivElement | null>(null)
     const { modals } = useModalsContext()
 
-    const { toolNumbers } = useUiContext()
-    const { states } = useTargetContext() as any
 
-    const currentTool = states?.active_tool?.value
-
-    const isLaserMode =
-        toolNumbers?.laser != null &&
-        currentTool != null &&
-        Number(currentTool) === Number(toolNumbers.laser)
 
     const [isFullScreen, setIsFullScreen] = useState<boolean>(false)
     const [selectedFile, setSelectedFile] = useState<string | null>(null)
@@ -192,54 +184,7 @@ const FilesPanel: FunctionalComponent<FilesPanelProps> = ({ embedded = false }) 
 
 
 
-    // Render compact panel view
 
-    const checkFileModeAndRun = async (
-        url: string,
-        filename: string,
-        runCmd: string
-    ) => {
-
-        try {
-
-            const response = await fetch(url)
-            const text = await response.text()
-
-            const type = detectGCodeType(text)
-
-            const mismatch =
-                (type === "LASER" && !isLaserMode) ||
-                (type === "CNC" && isLaserMode)
-
-            if (mismatch) {
-
-                showModal({
-                    modals,
-                    id: "wrongModeModal",
-                    title: T("Warning"),
-                    content: (
-                        <div>
-                            {type === "LASER"
-                                ? "This file was generated for LASER machining. Switch to LASER mode to execute it."
-                                : "This file was generated for CNC machining. Switch to CNC mode to execute it."
-                            }
-                        </div>
-                    ),
-                    button2: { text: T("S28") }
-                })
-
-                return
-            }
-
-            actions.sendSerialCmd(runCmd)
-
-        } catch (e) {
-
-            console.warn("GCode detection failed", e)
-
-            actions.sendSerialCmd(runCmd)
-        }
-    }
 
     const renderCompactView = () => {
         const currentPath = getCurrentPath()
@@ -484,89 +429,14 @@ const FilesPanel: FunctionalComponent<FilesPanelProps> = ({ embedded = false }) 
                                                                             url,
                                                                             filename: line.name,
                                                                         })
+                                                                        eventBus.emit("toolpath:selectedFile", {
+                                                                            url,
+                                                                            filename: line.name,
+                                                                            path: currentPath[state.fileSystem],
+                                                                            fs: state.fileSystem
+                                                                        })
                                                                     }}
                                                                 />
-
-
-                                                                {/* ▶ Ejecutar G-code */}
-                                                                <ButtonImg
-                                                                    m1
-                                                                    ltooltip
-                                                                    data-tooltip={T("S74")}
-                                                                    icon={<Play />}
-                                                                    class="file-play-btn"
-                                                                    onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
-                                                                        e.currentTarget.blur()
-                                                                        useUiContextFn.haptic()
-                                                                        eventBus.emit("hmi:play", null)
-
-
-                                                                        const isMobile = window.innerWidth <= 768
-
-                                                                        if (isMobile) {
-                                                                            document
-                                                                                .getElementById("OverridesPanel")
-                                                                                ?.scrollIntoView({ behavior: "smooth", block: "start" })
-                                                                        }
-
-                                                                        const previewOnPlay = isMobile
-                                                                            ? useUiContextFn.getValue("filesPreviewOnPlayMobile")
-                                                                            : useUiContextFn.getValue("filesPreviewOnPlayDesktop")
-
-                                                                        // 🔄 Resetear SIEMPRE el toolpath
-                                                                        eventBus.emit("toolpath:reset", null)
-
-
-                                                                        // ▶ Ejecutar G-code (SIEMPRE)
-                                                                        const cmd = files.command(
-                                                                            state.fileSystem,
-                                                                            "play",
-                                                                            currentPath[state.fileSystem],
-                                                                            line.name
-                                                                        )
-
-
-
-
-
-
-                                                                        if (previewOnPlay) {
-
-    const dl = files.command(
-        state.fileSystem,
-        "download",
-        currentPath[state.fileSystem],
-        line.name
-    )
-
-    const url = espHttpURL(dl.url, dl.args)
-
-    // 🔍 Preview limpio
-    eventBus.emit("toolpath:preview", {
-        url,
-        filename: line.name,
-    })
-
-    // ⏱ Delay corto por estabilidad/memoria
-    setTimeout(() => {
-        checkFileModeAndRun(url, line.name, cmd.cmd)
-    }, 150)
-
-} else {
-
-    const dl = files.command(
-        state.fileSystem,
-        "download",
-        currentPath[state.fileSystem],
-        line.name
-    )
-
-    const url = espHttpURL(dl.url, dl.args)
-
-    checkFileModeAndRun(url, line.name, cmd.cmd)}
-}}
-                                                                />
-
                                                             </>
                                                         )}
                                                     </div>

@@ -84,7 +84,7 @@
                     }
                 ]
             }
-        ],        
+        ],
         "spindle": [
             {
                 "id": "showspindlepanel",
@@ -240,6 +240,25 @@
                 ]
             },
             {
+                "id": "filesplaypcgroup",
+                "type": "group",
+                "label": "S240",
+                "depend": [
+                    {
+                        "id": "showfilespanel",
+                        "value": true
+                    }
+                ],
+                "value": [
+                    {
+                        "id": "filesPreviewOnPlayDesktop",
+                        "type": "boolean",
+                        "label": "S241",
+                        "value": true
+                    }
+                ]
+            },
+            {
                 "id": "toolpathMaxSegmentsDesktop",
                 "type": "number",
                 "label": "S226",
@@ -248,26 +267,48 @@
                 "min": 1000
             },
             {
+                "id": "filesplaymobilegroup",
+                "type": "group",
+                "label": "S242",
+                "depend": [
+                    {
+                        "id": "showfilespanel",
+                        "value": true
+                    }
+                ],
+                "value": [
+                    {
+                        "id": "filesPreviewOnPlayMobile",
+                        "type": "boolean",
+                        "label": "S241",
+                        "value": true
+                    }
+                ]
+            },
+            {
                 "id": "toolpathMaxSegmentsMobile",
                 "type": "number",
-                "label": "S228",
+                "label": "S226",
                 "help": "S229",
                 "value": 150000,
                 "min": 1000
             }
         ],
+
+
+        
         "hmi": [
             {
                 "id": "showhmipanel",
                 "type": "boolean",
                 "label": "S63",
-                "value": true                
+                "value": true
             },
             {
                 "id": "openhmionstart",
                 "type": "boolean",
                 "label": "S93",
-                "value": true,               
+                "value": true,
                 "depend": [
                     {
                         "id": "showhmipanel",

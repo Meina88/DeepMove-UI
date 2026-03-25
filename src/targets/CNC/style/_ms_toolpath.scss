@@ -180,3 +180,51 @@
     pointer-events: none;
     filter: grayscale(1);
 }
+
+
+
+
+
+
+/* =========================
+   TOOLPATH — RUN FILE BUTTON
+   ========================= */
+
+#toolpathPanel .toolpath-runfile-container {
+    position: absolute;
+
+    bottom: 24px;
+    right: 24px;
+
+    z-index: 5;
+}
+
+#toolpathPanel .toolpath-runfile-btn {
+
+    all: unset;
+
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+
+    background-color: var(--ms-bg-surface);
+    box-shadow: var(--neo-shadow-raised);
+
+    color: var(--ms-accent);
+}
+
+#toolpathPanel .toolpath-runfile-btn:active {
+    box-shadow: var(--neo-shadow-pressed);
+    transform: scale(0.94);
+}
+
+#toolpathPanel .toolpath-runfile-btn.is-disabled {
+    opacity: 0.3;
+    pointer-events: none;
+}

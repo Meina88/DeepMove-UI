@@ -54,7 +54,7 @@
                     },
                     {
                         "id": "HMI",
-                        "name": "hmi"                        
+                        "name": "hmi"
                     },
                     {
                         "id": "Terminal",
@@ -113,44 +113,6 @@
                 "depend": [
                     {
                         "id": "showfilespanel",
-                        "value": true
-                    }
-                ]
-            },
-            {
-                "id": "filesplaypcgroup",
-                "type": "group",
-                "label": "S240",
-                "depend": [
-                    {
-                        "id": "showfilespanel",
-                        "value": true
-                    }
-                ],
-                "value": [
-                    {
-                        "id": "filesPreviewOnPlayDesktop",
-                        "type": "boolean",
-                        "label": "S241",
-                        "value": true
-                    }
-                ]
-            },
-            {
-                "id": "filesplaymobilegroup",
-                "type": "group",
-                "label": "S242",
-                "depend": [
-                    {
-                        "id": "showfilespanel",
-                        "value": true
-                    }
-                ],
-                "value": [
-                    {
-                        "id": "filesPreviewOnPlayMobile",
-                        "type": "boolean",
-                        "label": "S241",
                         "value": true
                     }
                 ]
