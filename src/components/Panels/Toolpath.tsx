@@ -20,7 +20,7 @@ import { ModalInterpreter } from "../Toolpath/core/ModalInterpreter"
 
 import { httpAdapter } from "../../adapters/httpAdapter"
 import { eventBus } from "../../hooks/eventBus"
-import { ClearPath } from "../../targets/CNC/FluidNC/icons"
+import { ClearPath, Frame } from "../../targets/CNC/FluidNC/icons"
 
 import { Play, Pause } from "preact-feather"
 import { ButtonImg } from "../Controls"
@@ -28,7 +28,7 @@ import { useTargetCommands } from "../../hooks"
 import { files } from "../../targets"
 import { espHttpURL } from "../Helpers/http"
 
-import { detectGCodeType } from "../Toolpath/core/GCodeLaserDetector"
+import { detectGCodeType, computeBoundingBox, GCodeBounds } from "../Toolpath/core/GCodeLaserDetector"
 import { showModal } from "../Modal"
 import { useModalsContext } from "../../contexts"
 import { useUiContext } from "../../contexts"
@@ -57,6 +57,7 @@ const ToolpathPanel: FunctionalComponent<ToolpathPanelProps> = ({ embedded = fal
     const { targetCommands } = useTargetCommands()
 
     const [selectedFile, setSelectedFile] = useState<any>(null)
+    const [bounds, setBounds] = useState<GCodeBounds | null>(null)    
 
     // NO retornar acá (así se montan los hooks y el listener)
 
@@ -499,6 +500,15 @@ const ToolpathPanel: FunctionalComponent<ToolpathPanelProps> = ({ embedded = fal
                         typeof result === "string"
                             ? result
                             : await result.text()
+                    // 🔍 Detectar tipo + bounds
+                    const type = detectGCodeType(gcodeText)
+
+                    if (type === "LASER") {
+                        const b = computeBoundingBox(gcodeText)
+                        setBounds(b)
+                    } else {
+                        setBounds(null)
+                    }
 
                     // ─────────────────────────────
                     // 🔽 PARSE DEL TOOLPATH
@@ -938,6 +948,41 @@ const ToolpathPanel: FunctionalComponent<ToolpathPanelProps> = ({ embedded = fal
                     })()}
 
                 </div>
+                {/* 🔲 FRAME BUTTON (Laser only) */}
+                {isLaserMode && bounds && (
+                    <div class="toolpath-frame-container">
+                        <ButtonImg
+                            icon={<Frame height="1.1em" />}
+                            label=""
+                            className="override-hold-btn frame-btn"
+                            onClick={() => {
+
+                                const { xmin, xmax, ymin, ymax } = bounds
+
+                                useUiContextFn.haptic()
+
+                                const focusPercent = Number(useUiContextFn.getValue("laserfocuspower") ?? 5)
+                                const maxS = Number(useUiContextFn.getValue("laser_max_power") ?? 1000)
+                                const focusS = Math.round(maxS * focusPercent / 100)
+
+                                targetCommands("G90")
+                                targetCommands("G21")
+
+                                targetCommands(`M3 S${focusS}`)
+                                targetCommands("G1 F1500")
+
+                                targetCommands(`X${xmin} Y${ymin}`)
+                                targetCommands(`X${xmax} Y${ymin}`)
+                                targetCommands(`X${xmax} Y${ymax}`)
+                                targetCommands(`X${xmin} Y${ymax}`)
+                                targetCommands(`X${xmin} Y${ymin}`)
+
+                                targetCommands("M5 S0")
+                                targetCommands("G0")
+                            }}
+                        />
+                    </div>
+                )}
                 {/* ▶ RUN FILE (nuevo botón separado) */}
 
 

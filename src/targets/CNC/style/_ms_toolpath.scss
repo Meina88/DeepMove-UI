@@ -228,3 +228,38 @@
     opacity: 0.3;
     pointer-events: none;
 }
+
+.toolpath-frame-container {
+    position: absolute;
+
+    /* 🔥 mismo eje vertical que el Play */
+    bottom: 34px;
+
+    /* 👉 a la derecha del Play */
+    left: calc(50% + 95px);
+
+    transform: translateX(0);
+
+    z-index: 6;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+#toolpathPanel .frame-btn {
+
+    /* 🔲 cambiar geometría */
+    width: 50px;
+    height: 44px;
+
+    border-radius: 12px !important;
+
+    /* mantener proporción visual */
+    transform: none;
+}
+
+#toolpathPanel .frame-btn svg {
+    transform: translateY(3px);
+}
