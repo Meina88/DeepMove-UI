@@ -47,6 +47,50 @@ type MachineSettingElement = {
 
 const machineSettings: { cache: any[] } = { cache: [] }
 
+const MachineSettingRow = ({
+    element,
+    index,
+    sendCommand,
+    generateValidation,
+}: {
+    element: MachineSettingElement
+    index: number
+    sendCommand: (element: MachineSettingElement, setvalidation: (v: any) => void) => void
+    generateValidation: (fieldData: MachineSettingElement) => any
+}) => {
+    const [validation, setvalidation] = useState<any>()
+
+    const button = (
+        <ButtonImg
+            className="submitBtn"
+            group
+            icon={<Send />}
+            label={T("S81")}
+            tooltip
+            data-tooltip={T("S82")}
+            onClick={() => {
+                useUiContextFn.haptic()
+                sendCommand(element, setvalidation)
+            }}
+        />
+    )
+
+    return (
+        <div key={`field-${index}`} class="machine-settings-item">
+            <Field
+                type={(element as any).type}
+                value={(element as any).value}
+                setValue={(val: any, update: boolean = false) => {
+                    if (!update) (element as any).value = val
+                    setvalidation(generateValidation(element))
+                }}
+                validation={validation}
+                button={button}
+            />
+        </div>
+    )
+}
+
 const MachineSettings = () => {
     const [isLoading, setIsLoading] = useState(false)
     const [collected, setCollected] = useState("0 B")
@@ -183,36 +227,14 @@ const MachineSettings = () => {
                                                     </div>
                                                 )
 
-                                            const [validation, setvalidation] = useState<any>()
-
-                                            const button = (
-                                                <ButtonImg
-                                                    className="submitBtn"
-                                                    group
-                                                    icon={<Send />}
-                                                    label={T("S81")}
-                                                    tooltip
-                                                    data-tooltip={T("S82")}
-                                                    onClick={() => {
-                                                        useUiContextFn.haptic()
-                                                        sendCommand(element, setvalidation)
-                                                    }}
-                                                />
-                                            )
-
                                             return (
-                                                <div key={`field-${index}`} class="machine-settings-item">
-                                                    <Field
-                                                        type={(element as any).type}
-                                                        value={(element as any).value}
-                                                        setValue={(val: any, update: boolean = false) => {
-                                                            if (!update) (element as any).value = val
-                                                            setvalidation(generateValidation(element))
-                                                        }}
-                                                        validation={validation}
-                                                        button={button}
-                                                    />
-                                                </div>
+                                                <MachineSettingRow
+                                                    key={`field-${index}`}
+                                                    element={element}
+                                                    index={index}
+                                                    sendCommand={sendCommand}
+                                                    generateValidation={generateValidation}
+                                                />
                                             )
                                         })}
                                     </div>
