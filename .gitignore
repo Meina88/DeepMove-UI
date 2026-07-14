@@ -7,3 +7,5 @@ dist
 debug.log
 **/debug.log
 nul
+bundle-report-CNC-FluidNC.html
+bundle-stats-CNC-FluidNC.json
