@@ -91,6 +91,7 @@ export interface PanelMenuItem {
     onClick?: (e: TargetedMouseEvent<HTMLElement>) => void
     displayToggle?: () => ComponentChildren
     className?: string
+    disabled?: boolean
 }
 
 // File list structure returned from API

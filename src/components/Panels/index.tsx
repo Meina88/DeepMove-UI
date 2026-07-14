@@ -9,6 +9,7 @@ interface MenuItem {
     onClick?: (e: TargetedMouseEvent<HTMLElement>) => void
     displayToggle?: () => ComponentChildren
     className?: string
+    disabled?: boolean
 }
 
 const Menu = ({ items }: { items: MenuItem[] }) => {
@@ -33,12 +34,13 @@ const Menu = ({ items }: { items: MenuItem[] }) => {
                         }
                         return (
                             <li
-    class={`menu-item ${item.className || ""}`}
+    class={`menu-item ${item.className || ""} ${item.disabled ? "disabled" : ""}`}
     key={i}
 >
                                 <div
                                     className="menu-entry"
-                                    onClick={item.onClick}
+                                    onClick={item.disabled ? undefined : item.onClick}
+                                    style={item.disabled ? { opacity: 0.5, cursor: "not-allowed" } : undefined}
                                 >
                                     <div class="menu-panel-item">
                                         <span class="text-menu-item">

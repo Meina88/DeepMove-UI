@@ -59,6 +59,10 @@ const FilesPanel: FunctionalComponent<FilesPanelProps> = ({ embedded = false }) 
     const [selectedFile, setSelectedFile] = useState<string | null>(null)
     const [fabOpen, setFabOpen] = useState(false)
 
+    // Filesystem in error state or SD card missing: block upload / create-dir actions
+    const isFilesystemError =
+        state.filesList?.status === T("S22") || state.filesList?.status === T("S110")
+
 
     // Register the file input ref with the hook
     useEffect(() => {
@@ -455,27 +459,33 @@ const FilesPanel: FunctionalComponent<FilesPanelProps> = ({ embedded = false }) 
 
                     <div class={`files-fab-wrapper ${fabOpen ? "is-open" : ""}`}>
 
-                        {/* Action: Upload file */}
+                        {/* Action: Upload file (disabled if filesystem is in error / SD card missing) */}
                         <button
                             type="button"
                             class="files-fab-action"
                             aria-label={T("S89")}
+                            disabled={isFilesystemError}
+                            style={isFilesystemError ? { opacity: 0.5, cursor: "not-allowed" } : undefined}
                             onClick={(e) => {
                                 e.stopPropagation()
+                                if (isFilesystemError) return
                                 setFabOpen(false)
                                 actions.openFileUploadBrowser()
                             }}>
                             <Upload />
                         </button>
 
-                        {/* Action: Create directory */}
+                        {/* Action: Create directory (disabled if filesystem is in error / SD card missing) */}
 
                         <button
                             type="button"
                             class="files-fab-action"
                             aria-label={T("S88")}
+                            disabled={isFilesystemError}
+                            style={isFilesystemError ? { opacity: 0.5, cursor: "not-allowed" } : undefined}
                             onClick={(e) => {
                                 e.stopPropagation()
+                                if (isFilesystemError) return
                                 setFabOpen(false)
                                 actions.showCreateDirModal()
                             }}>
