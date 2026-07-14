@@ -76,65 +76,57 @@ DeepMove combina simplicidad operativa con potencia técnica, ofreciendo una exp
 
 ## Configuración de las herramientas de desarrollo
 
-1 - Instalar la versión LTS de Node.js (actualmente v20.8.0)
+1 - Instalar la versión LTS de Node.js
 
 ```
 node -v
-v20.8.0
-
 npm -v
-10.2.0
 ```
 
-2 - Descargar todos los paquetes necesarios en el directorio ESP3D-WEBUI (raíz del repositorio)
+2 - Clonar el repositorio e instalar las dependencias
 
 ```
+git clone https://github.com/Meina88/DeepMove-UI.git
+cd DeepMove-UI
 npm install
 ```
 
 ### Iniciar el servidor de desarrollo
 
-en el directorio ESP3D-WEBUI (raíz del repositorio)
-
 ```
-npm run dev-<system>-<firmware>
+npm run dev
 ```
 
-- donde `<system>` es `cnc` (sistema CNC, láser, husillo, etc.), `printer` (impresora 3D), `sand` (mesa de arena)
-- donde `<firmware>` es:
-- `grbl`, `grblhal` para `cnc`
-- `marlin`, `marlin-embedded` (esp3dlib), `repetier`, `smoothieware` para `printer`
-- `grbl` para `sand`
+Levanta en simultáneo un backend simulado de ESP32/FluidNC (HTTP en `:8080`, WebSocket en `:8090` — ver `config/server.js`) y el `webpack-dev-server` del frontend. Abrí `http://localhost:8088` para usar la interfaz contra ese backend simulado, sin necesidad de hardware real.
 
-Abrirá http://localhost:8088, que muestra la interfaz web usando un servidor de pruebas local.
-
-### Construir index.html.gz en la carpeta /dist
-
-en el directorio ESP3D-WEBUI (raíz del repositorio)
+También se pueden levantar por separado:
 
 ```
-npm run buildall
+npm run server   # solo el backend simulado
+npm run front    # solo el dev server del frontend
 ```
 
-Generará la versión de producción para cada objetivo y firmware en el directorio dist
-
-para construir index.html.gz específico
+### Generar la build de producción
 
 ```
-npm run <system>-<firmware>
+npm run build
 ```
 
-- donde `<system>` es `cnc` (sistema CNC, láser, husillo...), `printer` (impresora 3D), `sand` (mesa de arena)
-- donde `<firmware>` es:
-- `grbl`, `grblhal` para `cnc`
-- `marlin` `marlin-embedded` (esp3dlib), `repetier`, `smoothieware` para `printer`
-- `grbl` para `sand`
+Genera `dist/index.html.gz`, listo para subir a la memoria flash del ESP32.
 
+### Otros comandos
 
+```
+npm run type-check   # chequeo de tipos (tsc --noEmit)
+npm run lint          # eslint sobre src/
+npm run lint:fix      # eslint con autofix
+```
 
-# Construido sobre el proyecto de [michmela](https://github.com/michmela44/ESP3D-WEBUI).
+---
 
-# Proyecto base: ESP3D-WEBUI 3.0 ![ESP3D-WEBUI](https://img.shields.io/badge/dynamic/json?label=ESP3D-WEBUI&query=$.version&url=https://raw.githubusercontent.com/luc-github/ESP3D-WEBUI/refs/heads/3.0/info.json)
+# Construido sobre el trabajo de [michmela44/ESP3D-WEBUI](https://github.com/michmela44/ESP3D-WEBUI) y del proyecto original [ESP3D-WEBUI](https://github.com/luc-github/ESP3D-WEBUI) de Luc Lebosse.
+
+![DeepMove-UI](https://img.shields.io/badge/DeepMove--UI-1.0.0-blue)
 
 # ¿Necesitas más información sobre ESP3D-WEBUI y proyectos relacionados?
 
