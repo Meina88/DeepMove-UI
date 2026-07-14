@@ -43,7 +43,7 @@ const ToolpathPanel: FunctionalComponent<ToolpathPanelProps> = ({ embedded = fal
 
     const id = "toolpathPanel"
     const showPanel = useUiContextFn.getValue("showtoolpathpanel")
-    const { positions } = useTargetContext()
+    const { positions, status } = useTargetContext()
     const { modals } = useModalsContext()
     const { toolNumbers } = useUiContext()
     const { states } = useTargetContext() as any
@@ -851,8 +851,6 @@ const ToolpathPanel: FunctionalComponent<ToolpathPanelProps> = ({ embedded = fal
                 <div class="toolpath-starthold-container">
 
                     {(() => {
-                        const { status } = useTargetContext()
-
                         const canResumeFromDoor =
                             status?.state === "Door" && status?.substate === 0
 
