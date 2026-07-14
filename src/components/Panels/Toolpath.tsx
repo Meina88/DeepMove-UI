@@ -28,7 +28,7 @@ import { useTargetCommands } from "../../hooks"
 import { files } from "../../targets"
 import { espHttpURL } from "../Helpers/http"
 
-import { detectGCodeType, computeBoundingBox, GCodeBounds } from "../Toolpath/core/GCodeLaserDetector"
+import { detectGCodeType, GCodeBounds } from "../Toolpath/core/GCodeLaserDetector"
 import { showModal } from "../Modal"
 import { useModalsContext } from "../../contexts"
 import { useUiContext } from "../../contexts"
@@ -500,16 +500,6 @@ const ToolpathPanel: FunctionalComponent<ToolpathPanelProps> = ({ embedded = fal
                         typeof result === "string"
                             ? result
                             : await result.text()
-                    // 🔍 Detectar tipo + bounds
-                    const type = detectGCodeType(gcodeText)
-
-                    if (type === "LASER") {
-                        const b = computeBoundingBox(gcodeText)
-                        setBounds(b)
-                    } else {
-                        setBounds(null)
-                    }
-
                     // ─────────────────────────────
                     // 🔽 PARSE DEL TOOLPATH
                     // ─────────────────────────────
@@ -526,6 +516,27 @@ const ToolpathPanel: FunctionalComponent<ToolpathPanelProps> = ({ embedded = fal
                     }).parse(gcodeText)
 
                     modelRef.current = model
+
+                    // 🔍 Detectar tipo + bounds
+                    // Los bounds se derivan del bbox ya calculado por ModalInterpreter,
+                    // que respeta G90/G91 (absoluto/relativo), G20/G21 (pulgadas/mm) y
+                    // offsets G92 — a diferencia de un cálculo por regex sobre el texto
+                    // crudo, que asumía todo X/Y como absoluto en mm.
+                    const type = detectGCodeType(gcodeText)
+
+                    if (type === "LASER" && model.segments.length > 0) {
+                        const { minX, maxX, minY, maxY } = model.bbox
+                        setBounds({
+                            xmin: minX,
+                            xmax: maxX,
+                            ymin: minY,
+                            ymax: maxY,
+                            width: maxX - minX,
+                            height: maxY - minY,
+                        })
+                    } else {
+                        setBounds(null)
+                    }
 
                     const first = model.segments[0]
                     setToolPos(first ? { ...first.start } : null)
