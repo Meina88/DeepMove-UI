@@ -1,8 +1,13 @@
 {
-    "name": "ESP3D-WEBUI",
-    "version": "3.0.7",
-    "description": "Web UI for ESP3D V3 based FW ",
+    "name": "deepmove-ui",
+    "version": "1.0.0",
+    "description": "DeepMove - CNC Web HMI for ESP32 + FluidNC",
     "main": "index.js",
+    "author": "Pablo Meinardo",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Meina88/DeepMove-UI"
+    },
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "front": "webpack serve --config config/webpack.dev.js",
@@ -17,7 +22,6 @@
         "lint": "eslint src --ext .ts,.tsx",
         "lint:fix": "eslint src --ext .ts,.tsx --fix"
     },
-    "author": "",
     "license": "ISC",
     "devDependencies": {
         "@babel/core": "^7.18.6",
