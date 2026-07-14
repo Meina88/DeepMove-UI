@@ -446,6 +446,18 @@ export class ModalInterpreter {
             if (delta < 0) delta += Math.PI * 2
         }
 
+        // Círculo completo: convención estándar (GRBL/LinuxCNC) cuando el
+        // punto final coincide con el inicial sin P explícito. Sin este caso
+        // especial, delta colapsa a 0 y el "arco" se dibuja como un punto
+        // fijo en vez de una vuelta completa.
+        const isFullCircle =
+            Math.abs(start.x - end.x) < 1e-9 &&
+            Math.abs(start.y - end.y) < 1e-9 &&
+            Math.abs(delta) < 1e-9
+        if (isFullCircle) {
+            delta = clockwise ? -Math.PI * 2 : Math.PI * 2
+        }
+
         // Vueltas completas (P)
         const turns = Math.max(1, Math.floor(P ?? 1))
         if (turns > 1) {
