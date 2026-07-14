@@ -49,12 +49,14 @@ interface HttpQueueReturn {
     processRequestsNow: () => void
     createNewTopRequest: (url: string, params: HttpRequestParams, callbacks?: HttpCallbacks) => void
     abortRequest: (id?: string) => void
+    removeAllRequests: () => void
     setKillOnUnmount: (kill: boolean) => void
 }
 
 interface UseHttpFn {
     createNewRequest: (url: string, params: HttpRequestParams, callbacks?: HttpCallbacks) => void
     abortRequest: (id?: string) => void
+    removeAllRequests: () => void
 }
 
 const useHttpFn: UseHttpFn = {} as UseHttpFn
@@ -69,6 +71,7 @@ const useHttpQueue = (): HttpQueueReturn => {
         addInTopQueue,
         removeRequests,
         getCurrentRequest,
+        removeAllRequests: removeAllRequestsFromQueue,
         processRequests,
     } = useHttpQueueContext()
     const [killOnUnmount, setKillOnUnmount] = useState<boolean>(true)
@@ -159,14 +162,21 @@ const useHttpQueue = (): HttpQueueReturn => {
         processRequests()
     }
 
+    const removeAllRequests = (): void => {
+        localRequests.current = []
+        removeAllRequestsFromQueue()
+    }
+
     useHttpFn.createNewRequest = createNewRequest
     useHttpFn.abortRequest = abortRequest
+    useHttpFn.removeAllRequests = removeAllRequests
 
     return {
         createNewRequest,
         processRequestsNow,
         createNewTopRequest,
         abortRequest,
+        removeAllRequests,
         setKillOnUnmount,
     }
 }
