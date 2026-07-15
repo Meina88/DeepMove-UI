@@ -250,7 +250,7 @@
   .btn.feather-icon-container.btn-primary {
 
     background-color: var(--ms-accent) !important;
-    color: #111 !important;
+    color: var(--ms-accent-contrast) !important;
 
     box-shadow:
       inset 0 2px 4px rgba(0, 0, 0, 0.4),

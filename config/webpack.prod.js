@@ -36,6 +36,12 @@ module.exports = {
                         loader: "sass-loader",
                         options: {
                             sourceMap: false,
+                            sassOptions: {
+                                // spectre.css (node_modules) still uses `/` for math outside
+                                // calc(), deprecated in Dart Sass; quietDeps hides warnings
+                                // from dependencies while keeping them for our own src/*.scss
+                                quietDeps: true,
+                            },
                         },
                     },
                 ],

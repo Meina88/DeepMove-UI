@@ -1,0 +1,195 @@
+/* =====================================================
+   theme-light.css — neumorfismo claro ("Soft UI")
+   =====================================================
+
+   Cómo se carga: la UI descarga este archivo desde el filesystem
+   del ESP32 (Flash o SD) e inyecta su contenido tal cual como
+   <style id="themestyle"> al final de <head>, después del CSS del
+   bundle (ver src/hooks/useSettings.ts -> loadTheme()). Por eso
+   basta con un solo bloque :root — la cascada normal hace que estos
+   valores ganen sobre los definidos en src/style/_theme-default.scss,
+   sin necesidad de !important ni de repetir selectores de componentes.
+
+   Convención de nombre: el selector de temas (Ajustes > Interfaz >
+   Tema) sólo lista archivos que empiecen con "theme-", con o sin
+   extensión ".gz", ubicados en la carpeta de subida del dispositivo
+   (HostUploadPath).
+
+   Receta de neumorfismo claro (estilo "Soft UI" / neumorphism.io):
+   1) El fondo NO es blanco — es un gris medio azulado. Hace falta ese
+      "cuerpo" para que tanto la sombra clara como la oscura se noten.
+   2) Botones y tarjetas usan el MISMO color que el fondo. El volumen
+      lo da 100% la sombra dual, no un cambio de color de superficie.
+   3) La sombra oscura NO es negra — es gris-azulada fría (el clásico
+      rgba(163,177,198,...) de los generadores de neumorfismo). Negro
+      puro se ve sucio sobre un fondo claro.
+   4) Sin bordes duros — la forma la da la sombra, no un stroke.
+
+   Qué NO se redefine acá a propósito: spacing, radios, tipografía,
+   tamaños de control y z-index son tokens "estructurales" (ver
+   src/style/_variables.scss) y no deberían cambiar entre temas —
+   sólo se toca la capa de color y de elevación.
+   ===================================================== */
+
+:root {
+  /* =====================================================
+     ACCENT / BRANDING
+     ===================================================== */
+  --ms-accent: hsl(205, 88%, 46%);
+  --ms-accent-dark: hsl(210, 88%, 37%);
+  --ms-accent-light: hsl(210, 88%, 58%);
+  --ms-accent-muted: hsla(205, 88%, 46%, 0.14);
+  --ms-accent-soft: hsla(205, 88%, 46%, 0.3);
+
+  /* =====================================================
+     GRAYS / UI NEUTRALS
+     El tema default usa grises CLAROS (pensados para resaltar sobre
+     fondo oscuro). Acá se invierte la escala para que se lean sobre
+     la base gris-azulada clara.
+     ===================================================== */
+  --ms-gray: hsl(220, 12%, 44%);
+  --ms-gray-dark: hsl(220, 18%, 32%);
+  --ms-gray-light: hsl(220, 18%, 78%);
+
+  /* --ms-light se usa como "tinta" sobre superficies saturadas
+     (toasts, botón de reset) — se mantiene blanco en cualquier tema. */
+  --ms-light: hsl(0, 0%, 100%);
+  --ms-dark: hsl(220, 25%, 20%);
+
+  /* =====================================================
+     SECONDARY / NEUTRAL
+     ===================================================== */
+  --ms-secondary: hsl(220, 10%, 42%);
+  --ms-secondary-dark: hsl(220, 15%, 30%);
+  --ms-secondary-light: hsl(220, 10%, 60%);
+
+  /* =====================================================
+     BACKGROUNDS — gris-azulado, "cuerpo" neumórfico
+     bg-surface apenas más clara que bg-main: en neumorfismo puro el
+     volumen lo da la sombra, no el relleno, pero un panel entero
+     necesita algo de separación perceptible contra la página además
+     de la sombra — 4 puntos de luminosidad alcanza sin romper el
+     efecto "misma tela".
+     bg-dark queda para zonas hundidas (inputs presionados, disabled).
+     ===================================================== */
+  --ms-bg-dark: hsl(220, 25%, 86%);
+  --ms-bg-main: hsl(220, 25%, 91%);
+  --ms-bg-surface: hsl(220, 25%, 95%);
+
+  /* =====================================================
+     TEXT — slate suave, no negro puro (se ve duro sobre el gris base)
+     ===================================================== */
+  --ms-text-strong: hsl(220, 25%, 22%);
+  --ms-text-normal: hsl(220, 15%, 38%);
+  /* .form-label (_spectre_overrides.scss) usa este token para TODAS
+     las etiquetas de campo de la app — necesita AA (>=4.5:1) contra
+     --ms-bg-main. hsl(220,14%,41%) da ~4.8:1 (verificado). */
+  --ms-text-muted: hsl(220, 14%, 41%);
+
+  /* =====================================================
+     BORDERS / DIVIDERS — sutiles, casi no se usan en neumorfismo
+     puro (la sombra reemplaza al borde), pero algunos elementos
+     (tablas, separadores) sí necesitan una línea fina.
+     ===================================================== */
+  --ms-border: hsl(220, 20%, 80%);
+  --ms-border-dark: hsl(220, 20%, 72%);
+  --ms-border-light: hsl(220, 22%, 86%);
+
+  /* =====================================================
+     SEMANTIC STATES (CNC SAFE)
+     ===================================================== */
+  --ms-success: hsl(140, 55%, 38%);
+  --ms-warning: hsl(38, 90%, 48%);
+  --ms-error: hsl(0, 75%, 50%);
+
+  /* =====================================================
+     PANELS / HEADERS
+     ===================================================== */
+  --ms-panel-header-bg: var(--ms-bg-main);
+  --ms-panel-header-text: var(--ms-text-strong);
+  --ms-panel-header-hover: hsl(220, 25%, 87%);
+
+  /* =====================================================
+     HIGHLIGHTS / CODE
+     ===================================================== */
+  --ms-highlight: hsla(205, 88%, 46%, 0.16);
+  --ms-code: hsl(205, 70%, 40%);
+
+  /* =====================================================
+     EXTRA — UX / ACCESSIBILITY / HMI
+     ===================================================== */
+  --ms-bg-overlay: hsla(220, 30%, 12%, 0.45);
+  --ms-bg-glass: hsla(0, 0%, 100%, 0.55);
+
+  --ms-bar-track: hsla(220, 20%, 30%, 0.18);
+  --ms-bar-fill: hsl(205, 88%, 46%);
+
+  --ms-disabled: hsl(220, 12%, 62%);
+  --ms-disabled-bg: var(--ms-bg-dark);
+
+  --ms-bg-hover: hsl(220, 24%, 87%);
+
+  /* =====================================================
+     BUTTONS — HIERARCHY SURFACES
+     base = mismo gris que el fondo, "corte de la misma tela"
+     ===================================================== */
+  --ms-btn-base-bg: var(--ms-bg-main);
+  --ms-btn-base-hover-bg: hsl(220, 24%, 89%);
+  --ms-btn-base-active-bg: hsl(220, 24%, 84%);
+
+  --ms-btn-primary-bg: var(--ms-accent);
+  --ms-btn-primary-hover-bg: hsl(210, 88%, 50%);
+  --ms-btn-primary-active-bg: hsl(210, 88%, 38%);
+
+  --ms-btn-critical-bg: var(--ms-error);
+  --ms-btn-critical-hover-bg: hsl(0, 75%, 56%);
+  --ms-btn-critical-active-bg: hsl(0, 75%, 44%);
+
+  --ms-btn-ghost-bg: transparent;
+  --ms-btn-ghost-hover-bg: hsla(220, 25%, 15%, 0.06);
+  --ms-btn-ghost-active-bg: hsla(220, 25%, 15%, 0.1);
+  --ms-btn-ghost-border: hsla(220, 25%, 15%, 0.16);
+  --ms-btn-ghost-text: var(--ms-text-normal);
+
+  /* =====================================================
+     TOOLPATH — DeepMove Blue Identity
+     ===================================================== */
+  --tp-bg: var(--ms-bg-surface);
+  --tp-tool: hsl(220, 30%, 18%);
+  /* --tp-rapid y --tp-completed no se redefinen: en _theme-default.scss
+     apuntan a var(--ms-gray)/var(--ms-gray-dark), que esta hoja ya
+     sobreescribió más arriba — heredan el tono oscuro automáticamente. */
+
+  /* El default deja la grilla como un tinte blanco casi invisible,
+     pensado para un canvas oscuro — acá necesita ser oscura para
+     leerse sobre --tp-bg (el gris base). */
+  --tp-grid-major: hsla(220, 25%, 15%, 0.13);
+  --tp-grid-minor: hsla(220, 25%, 15%, 0.05);
+
+  /* =====================================================
+     ELEVATION — neumorfismo claro real (par de sombras)
+     Luz arriba-izquierda casi blanca + sombra abajo-derecha gris-
+     azulada fría (nunca negra). Mismos 4 niveles que ya consume el
+     resto de los componentes (raised/pressed/soft/deep), solo que
+     acá SÍ son un emboss de dos tonos, no un flat+borde.
+     ===================================================== */
+  --neo-shadow-raised: -3px -3px 6px hsla(0, 0%, 100%, 0.85), 3px 3px 6px hsla(217, 25%, 55%, 0.45);
+  --neo-shadow-pressed: inset 3px 3px 5px hsla(217, 25%, 55%, 0.45), inset -3px -3px 5px hsla(0, 0%, 100%, 0.85);
+  --neo-shadow-soft: -2px -2px 4px hsla(0, 0%, 100%, 0.7), 2px 2px 4px hsla(217, 25%, 55%, 0.3);
+  --neo-shadow-deep: -6px -6px 12px hsla(0, 0%, 100%, 0.9), 6px 6px 12px hsla(217, 25%, 50%, 0.5);
+  --neo-svg-shadow: drop-shadow(-1px -1px 1px hsla(0, 0%, 100%, 0.85)) drop-shadow(2px 2px 3px hsla(217, 25%, 55%, 0.4));
+  --neo-svg-shadow-pressed: drop-shadow(0 1px 2px hsla(217, 25%, 50%, 0.4));
+
+  /* =====================================================
+     PANEL NAVIGATOR (Mobile Bottom Bar)
+     ===================================================== */
+  --ms-panelnav-bg: hsla(220, 25%, 91%, 0.9);
+  --ms-panelnav-btn-bg: var(--ms-bg-main);
+  --ms-panelnav-btn-icon: hsl(220, 25%, 25%);
+  --ms-panelnav-reset-bg: linear-gradient(145deg, hsl(0, 78%, 60%), hsl(0, 70%, 46%));
+
+  /* =====================================================
+     LOGO
+     ===================================================== */
+  --logo-color: hsl(220, 25%, 15%);
+}

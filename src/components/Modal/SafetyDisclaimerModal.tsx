@@ -177,7 +177,7 @@ const SafetyDisclaimerModal: FunctionalComponent<Props> = ({
                                 <div
                                     style={{
                                         fontSize: "11px",
-                                        color: "var(--ms-text-secondary)",
+                                        color: "var(--ms-text-muted)",
                                         opacity: 0.7
                                     }}
                                 >
@@ -210,7 +210,7 @@ const SafetyDisclaimerModal: FunctionalComponent<Props> = ({
                                     padding: "6px",
                                     borderRadius: "6px",
                                     background: "var(--ms-bg-surface)",
-                                    color: "var(--ms-text-primary)"
+                                    color: "var(--ms-text-normal)"
                                 }}
                             >
                                 {Object.entries(LANGUAGE_OPTIONS).map(([key, label]) => (

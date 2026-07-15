@@ -406,8 +406,11 @@
 
 /* =====================================================
    Input group addon
+   El selector real de Spectre es ".input-group .input-group-addon"
+   (2 clases, _forms.scss:369) — con menos especificidad este
+   override pierde siempre sin importar el orden de import.
    ===================================================== */
-.input-group-addon {
+.input-group .input-group-addon {
   background-color: var(--ms-bg-main);
   border-color: var(--ms-border);
   color: var(--ms-text-normal);
@@ -837,11 +840,97 @@ a:visited {
 }
 
 /* =====================================================
-   Spectre — text-primary override (THEME SAFE)
+   Spectre — utility color classes override (THEME SAFE)
+   Spectre genera estas 15 clases (utilities/_colors.scss) con
+   $variables de compilación — sin este override quedan con un
+   color fijo sin importar qué theme-*.css esté cargado.
+   Los .bg-* usados en la app siempre vienen acompañados de una
+   clase .text-* explícita (ver StatusCNC.tsx, InputPins.tsx), por
+   eso acá solo se toca background, no color, para no pelear
+   especificidad con esa clase de texto explícita.
    ===================================================== */
 
 .text-primary {
   color: var(--ms-accent) !important;
+}
+
+.text-secondary {
+  color: var(--ms-secondary-dark) !important;
+}
+
+.text-gray {
+  color: var(--ms-gray) !important;
+}
+
+.text-light {
+  color: var(--ms-light) !important;
+}
+
+.text-dark {
+  color: var(--ms-text-normal) !important;
+}
+
+.text-success {
+  color: var(--ms-success) !important;
+}
+
+.text-warning {
+  color: var(--ms-warning) !important;
+}
+
+.text-error {
+  color: var(--ms-error) !important;
+}
+
+.bg-primary {
+  background: var(--ms-accent) !important;
+}
+
+.bg-secondary {
+  background: var(--ms-secondary) !important;
+}
+
+.bg-dark {
+  background: var(--ms-bg-dark) !important;
+}
+
+.bg-gray {
+  background: var(--ms-bg-main) !important;
+}
+
+.bg-success {
+  background: var(--ms-success) !important;
+}
+
+.bg-warning {
+  background: var(--ms-warning) !important;
+}
+
+.bg-error {
+  background: var(--ms-error) !important;
+}
+
+/* =====================================================
+   Spectre — Modals override (THEME SAFE)
+   Mismos selectores/especificidad que node_modules/spectre.css/
+   src/_modals.scss para ganar por orden de import, no por fuerza
+   bruta. El overlay necesita igualar la especificidad de 3 clases
+   de Spectre (.modal.active .modal-overlay) — con menos, pierde
+   siempre porque todo modal se renderiza con class="active"
+   (src/components/Modal/index.tsx).
+   ===================================================== */
+
+.modal-container {
+  background: var(--ms-bg-surface);
+
+  .modal-header {
+    color: var(--ms-text-strong);
+  }
+}
+
+.modal:target .modal-overlay,
+.modal.active .modal-overlay {
+  background: var(--ms-bg-overlay);
 }
 
 /* =====================================================

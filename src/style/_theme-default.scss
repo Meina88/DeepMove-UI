@@ -1,0 +1,241 @@
+// =====================================================
+// THEME: None (default) — PUBLIC THEME API
+//
+// Este bloque :root es el contrato público de theming: un archivo
+// theme-*.css cargado en runtime desde el ESP32 (ver useSettings.ts
+// -> loadTheme()) solo necesita redefinir el subconjunto de estas
+// custom properties que le interese cambiar. No hace falta repetir
+// selectores de componentes ni usar !important — la cascada normal
+// alcanza porque todo src/**/*.scss consume color/tipografía/espaciado
+// /sombra exclusivamente vía var(--ms-*)/var(--neo-*)/var(--tp-*).
+//
+// No renombrar ni eliminar tokens sin revisar los temas de ejemplo
+// en themes_samples/.
+// =====================================================
+
+:root {
+  /* =====================================================
+     ACCENT / BRANDING
+     ===================================================== */
+  --ms-accent: #{$primary-color};
+  --ms-accent-dark: #{$primary-color-dark};
+  --ms-accent-light: #{$primary-color-light};
+  --ms-accent-contrast: #{$btn-primary-color};
+
+  /* Variantes tenues del acento (switches, rangos de calendario, etc.) */
+  --ms-accent-muted: #{rgba($primary-color, 0.15)};
+  --ms-accent-soft: #{rgba($primary-color, 0.35)};
+
+  /* =====================================================
+     SECONDARY / NEUTRAL
+     ===================================================== */
+  --ms-secondary: #{$secondary-color};
+  --ms-secondary-dark: #{$secondary-color-dark};
+  --ms-secondary-light: #{$secondary-color-light};
+
+  /* =====================================================
+     BACKGROUNDS (HMI Dark)
+     ===================================================== */
+  --ms-bg-main: #{$bg-color};
+  --ms-bg-dark: #{$bg-color-dark};
+  --ms-bg-surface: #{$bg-color-light};
+
+  /* =====================================================
+     TEXT
+     ===================================================== */
+  --ms-text-strong: #{$text-strong-color};
+  --ms-text-normal: #{$text-normal-color};
+  --ms-text-muted: #{$text-muted-color};
+  --ms-text-inverse: #{$btn-primary-color};
+
+  /* =====================================================
+     GRAYS / UI NEUTRALS
+     ===================================================== */
+  --ms-gray: #{$gray-color};
+  --ms-gray-dark: #{$gray-color-dark};
+  --ms-gray-light: #{$gray-color-light};
+
+  --ms-light: #{$light-color};
+  --ms-dark: #{$dark-color};
+
+  /* =====================================================
+     BORDERS / DIVIDERS
+     ===================================================== */
+  --ms-border: #{$border-color};
+  --ms-border-dark: #{$border-color-dark};
+  --ms-border-light: #{$border-color-light};
+  --ms-border-width: #{$border-width};
+  --ms-border-width-lg: #{$border-width-lg};
+
+  /* =====================================================
+     SEMANTIC STATES (CNC SAFE)
+     ===================================================== */
+  --ms-success: #{$success-color};
+  --ms-warning: #{$warning-color};
+  --ms-error: #{$error-color};
+
+  /* =====================================================
+     PANELS / HEADERS
+     ===================================================== */
+  --ms-panel-header-bg: #{$panel-header-bg};
+  --ms-panel-header-text: #{$panel-header-text};
+  --ms-panel-header-hover: #{$panel-header-hover};
+
+  /* =====================================================
+     HIGHLIGHTS / CODE
+     ===================================================== */
+  --ms-highlight: #{$highlight-color};
+  --ms-code: #{$code-color};
+
+  /* =====================================================
+     EXTRA — UX / ACCESSIBILITY / HMI
+     ===================================================== */
+  --ms-accent-visited: #{$link-color-light};
+  --ms-focus: #{$primary-color};
+
+  --ms-bg-overlay: hsla(0, 0%, 0%, 0.55);
+  --ms-bg-glass: hsla(0, 0%, 100%, 0.08);
+
+  /* Progress / indicators (tracks) */
+  --ms-bar-track: hsla(0, 0%, 100%, 0.35);
+  --ms-bar-fill: hsla(0, 0%, 100%, 0.9);
+
+  --ms-disabled: #{$gray-color-dark};
+  --ms-disabled-bg: #{$bg-color-dark};
+
+  /* =====================================================
+     INTERACTION STATES (REQUIRED)
+     ===================================================== */
+  --ms-bg-hover: #{$panel-header-hover};
+
+  /* Links */
+  --ms-link: var(--ms-accent);
+  --ms-link-hover: var(--ms-accent-light);
+
+  /* =====================================================
+     BUTTONS — HIERARCHY SURFACES
+     ===================================================== */
+  --ms-btn-base-bg: #{$btn-base-bg};
+  --ms-btn-base-hover-bg: #{$btn-base-hover-bg};
+  --ms-btn-base-active-bg: #{$btn-base-active-bg};
+
+  --ms-btn-primary-bg: #{$btn-primary-bg};
+  --ms-btn-primary-hover-bg: #{$btn-primary-hover-bg};
+  --ms-btn-primary-active-bg: #{$btn-primary-active-bg};
+
+  --ms-btn-critical-bg: #{$btn-critical-bg};
+  --ms-btn-critical-hover-bg: #{$btn-critical-hover-bg};
+  --ms-btn-critical-active-bg: #{$btn-critical-active-bg};
+
+  --ms-btn-ghost-bg: #{$btn-ghost-bg};
+  --ms-btn-ghost-hover-bg: #{$btn-ghost-hover-bg};
+  --ms-btn-ghost-active-bg: #{$btn-ghost-active-bg};
+  --ms-btn-ghost-border: #{$btn-ghost-border};
+  --ms-btn-ghost-text: #{$btn-ghost-text};
+
+  /* =====================================================
+     TYPOGRAPHY (runtime)
+     ===================================================== */
+  --ms-font-body: #{$body-font-family};
+  --ms-font-mono: #{$mono-font-family};
+
+  --ms-font-size-sm: #{$font-size-sm};
+  --ms-font-size: #{$font-size};
+  --ms-font-size-lg: #{$font-size-lg};
+  --ms-line-height: #{$line-height};
+
+  /* =====================================================
+     SPACING (runtime unit scale)
+     ===================================================== */
+  --ms-unit-o: #{$unit-o};
+  --ms-unit-h: #{$unit-h};
+  --ms-unit-1: #{$unit-1};
+  --ms-unit-2: #{$unit-2};
+  --ms-unit-3: #{$unit-3};
+  --ms-unit-4: #{$unit-4};
+  --ms-unit-5: #{$unit-5};
+  --ms-unit-6: #{$unit-6};
+  --ms-unit-7: #{$unit-7};
+  --ms-unit-8: #{$unit-8};
+  --ms-unit-9: #{$unit-9};
+  --ms-unit-10: #{$unit-10};
+  --ms-unit-12: #{$unit-12};
+  --ms-unit-16: #{$unit-16};
+
+  /* =====================================================
+     RADIUS (runtime scale)
+     ===================================================== */
+  --ms-radius-sm: #{$unit-h};
+  --ms-radius: #{$border-radius};
+  --ms-radius-lg: #{$unit-2};
+  --ms-radius-pill: 999px;
+
+  /* =====================================================
+     CONTROL SIZING (runtime)
+     ===================================================== */
+  --ms-control-size-sm: #{$control-size-sm};
+  --ms-control-size: #{$control-size};
+  --ms-control-size-lg: #{$control-size-lg};
+  --ms-control-width-sm: #{$control-width-sm};
+
+  /* =====================================================
+     MOTION
+     ===================================================== */
+  --ms-transition-fast: 0.2s ease;
+  --ms-transition-base: 0.25s ease;
+  --ms-transition-slow: 1.6s ease;
+
+  /* =====================================================
+     TOOLPATH — DeepMove Blue Identity
+     ===================================================== */
+  --tp-bg: var(--ms-bg-surface);
+
+  /* Rapids (movimientos rápidos) — gris técnico neutro */
+  --tp-rapid: var(--ms-gray);
+  /* Corte lineal — azul principal */
+  --tp-linear: var(--ms-accent);
+  /* Arcos — azul más oscuro */
+  --tp-arc: var(--ms-accent-dark);
+  /* Feed general */
+  --tp-feed: var(--ms-accent);
+  /* Trayectoria ya ejecutada */
+  --tp-completed: var(--ms-gray-dark);
+  /* Tool head */
+  --tp-tool: var(--ms-light);
+  /* Grid */
+  --tp-grid-major: hsla(205, 90%, 52%, 0.08);
+  --tp-grid-minor: rgba(255, 255, 255, 0.05);
+  /* Axis */
+  --tp-axis-x: rgba(255, 0, 0, 0.9);
+  --tp-axis-y: rgba(0, 255, 0, 0.9);
+  --tp-axis-z: rgba(0, 128, 255, 0.9);
+
+  /* =====================================================
+     NEUMORPHIC SHADOWS
+     ===================================================== */
+  --neo-shadow-raised: #{$neo-shadow-raised};
+  --neo-shadow-pressed: #{$neo-shadow-pressed};
+  --neo-shadow-soft: #{$neo-shadow-soft};
+  --neo-shadow-deep: #{$neo-shadow-deep};
+  --neo-svg-shadow: #{$neo-svg-shadow};
+  --neo-svg-shadow-pressed: #{$neo-svg-shadow-pressed};
+
+  /* =====================================================
+     PANEL NAVIGATOR (Mobile Bottom Bar)
+     ===================================================== */
+  --ms-panelnav-bg: #{rgba($panelnav-bg-color, $panelnav-bg-alpha)};
+  --ms-panelnav-btn-bg: #{rgba($panelnav-btn-bg-color, $panelnav-btn-bg-alpha)};
+  --ms-panelnav-btn-icon: #{$panelnav-btn-icon-color};
+  --ms-panelnav-reset-bg: linear-gradient(145deg, #{$panelnav-reset-highlight}, #{$panelnav-reset-shadow});
+
+  --ms-panelnav-reset-hover-brightness: #{$panelnav-reset-hover-brightness};
+  --ms-panelnav-reset-hover-lift: #{$panelnav-reset-hover-lift};
+  --ms-panelnav-reset-locked-brightness: #{$panelnav-reset-locked-brightness};
+  --ms-panelnav-reset-locked-press: #{$panelnav-reset-locked-press};
+  --ms-panelnav-reset-busy-brightness: #{$panelnav-reset-busy-brightness};
+
+  /* =====================================================
+     LOGO
+     ===================================================== */
+  --logo-color: #{$logo-color};
+}

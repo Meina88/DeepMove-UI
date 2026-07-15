@@ -121,7 +121,7 @@ body {
 .splash-content {
     text-align: center;
     opacity: 0;
-    transition: opacity 1.6s ease;
+    transition: opacity var(--ms-transition-slow);
 }
 
 .splash-content.fadeIn {

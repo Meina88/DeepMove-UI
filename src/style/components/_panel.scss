@@ -31,6 +31,10 @@
     /* Theme */
     background-color: var(--ms-bg-surface);
     color: var(--ms-text-normal);
+    /* Spectre define .panel { border: ... $border-color } compilado
+       en build-time (node_modules/spectre.css/src/_panels.scss) —
+       sin esto el borde queda fijo sin importar el tema. */
+    border-color: var(--ms-border);
 }
 
 /* =========================================================
@@ -277,7 +281,7 @@
 /* Estado INACTIVO → visible pero gris */
 .select-inactive svg {
     opacity: 0.35;
-    color: var(--text-muted-color);
+    color: var(--ms-text-muted);
 }
 
 /* Estado ACTIVO → visible y acento */

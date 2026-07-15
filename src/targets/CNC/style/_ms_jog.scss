@@ -237,11 +237,11 @@ $jog-surface-text: var(--ms-text-normal);
 
 
 .jog-position-action svg {
-    color: var(--ms-gray-light);
+    color: var(--ms-text-muted);
 }
 
 .jog-position-action:hover svg {
-    color: var(--ms-light);
+    color: var(--ms-accent);
 }
 
 

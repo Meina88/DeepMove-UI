@@ -29,7 +29,7 @@
 /* Offline / Sleep */
 .state-offline,
 .state-sleep {
-    background: hsl(0, 0%, 62%);
+    background: var(--ms-gray);
     box-shadow: 0 0 3px rgba(0, 0, 0, 0.25);
 }
 
@@ -40,7 +40,7 @@
     border-radius: 50%;
     flex: 0 0 auto;
     margin: 0 6px;
-    background: hsl(0, 0%, 48%);
+    background: var(--ms-gray-dark);
 }
 
 /* =========================
@@ -49,20 +49,20 @@
 
 /* Idle */
 .state-idle {
-    background: hsl(140, 55%, 42%);
+    background: var(--ms-success);
     box-shadow:
-        0 0 4px hsl(140, 55%, 42%),
-        0 0 8px hsl(140, 55%, 42%),
-        0 0 14px hsl(140, 55%, 42%);
+        0 0 4px var(--ms-success),
+        0 0 8px var(--ms-success),
+        0 0 14px var(--ms-success);
 }
 
 /* Run */
 .state-run {
-    background: hsl(140, 55%, 42%);
+    background: var(--ms-success);
     box-shadow:
-        0 0 4px hsl(140, 55%, 42%),
-        0 0 8px hsl(140, 55%, 42%),
-        0 0 14px hsl(140, 55%, 42%);
+        0 0 4px var(--ms-success),
+        0 0 8px var(--ms-success),
+        0 0 14px var(--ms-success);
 }
 
 /* Pulso suave de trabajo */
@@ -86,31 +86,31 @@
 
 /* 🕹️ JOG / JOYSTICK */
 .state-jog {
-    background: hsl(140, 55%, 42%);
+    background: var(--ms-success);
     box-shadow:
-        0 0 3px hsl(140, 55%, 42%),
-        0 0 6px hsl(140, 55%, 42%),
-        0 0 14px hsl(140, 55%, 42%);
+        0 0 3px var(--ms-success),
+        0 0 6px var(--ms-success),
+        0 0 14px var(--ms-success);
 }
 
 /* Hold / Door */
 .state-hold,
 .state-door {
-    background: hsl(38, 95%, 55%);
+    background: var(--ms-warning);
     box-shadow:
-        0 0 4px hsl(38, 95%, 55%),
-        0 0 8px hsl(38, 95%, 55%),
-        0 0 14px hsl(38, 95%, 55%);
+        0 0 4px var(--ms-warning),
+        0 0 8px var(--ms-warning),
+        0 0 14px var(--ms-warning);
 }
 
 /* Alarm / Error */
 .state-alarm,
 .state-error {
-    background: hsl(0, 78%, 52%);
+    background: var(--ms-error);
     box-shadow:
-        0 0 5px hsl(0, 78%, 52%),
-        0 0 10px hsl(0, 78%, 52%),
-        0 0 18px hsl(0, 78%, 52%);
+        0 0 5px var(--ms-error),
+        0 0 10px var(--ms-error),
+        0 0 18px var(--ms-error);
 }
 
 /* Parpadeo en alarma */
@@ -131,7 +131,10 @@
     animation: alarm-blink 0.25s infinite;
 }
 
-/* 🏠 HOMING (fucsia original) */
+/* 🏠 HOMING (fucsia original) — sin token semántico propio a
+   propósito: es un color "especial" fuera de la paleta success/
+   warning/error, y al ser saturado se lee igual de bien en temas
+   claros y oscuros, por eso queda fijo en vez de var(--ms-*). */
 .state-home,
 .state-homing {
     background: hsl(295, 85%, 55%);
@@ -198,7 +201,7 @@
         border-radius: 20px;
         background: var(--ms-bg-surface);
         position: relative;
-        transition: background 0.25s ease;
+        transition: background var(--ms-transition-base);
         box-shadow: var(--neo-shadow-soft);
         display: flex;
         align-items: center;
@@ -211,7 +214,7 @@
         border-radius: 50%;
         background: var(--ms-bg-dark);
         box-shadow: var(--neo-shadow-raised);
-        transition: transform 0.25s ease;
+        transition: transform var(--ms-transition-base);
     }
 
     &.active {
@@ -252,7 +255,7 @@
     letter-spacing: 0.5px;
 
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all var(--ms-transition-fast);
 
     flex-shrink: 0;
 
@@ -318,7 +321,7 @@
     display: flex;
     align-items: center;
     padding: 2px;
-    transition: background 0.25s ease;
+    transition: background var(--ms-transition-base);
 }
 
 /* Thumb */
@@ -328,7 +331,7 @@
     border-radius: 50%;
     background: var(--ms-accent);
     box-shadow: var(--neo-shadow-raised);
-    transition: transform 0.25s ease;
+    transition: transform var(--ms-transition-base);
 }
 
 /* Active state */
@@ -343,7 +346,7 @@
 /* Monitor icon */
 .switch-monitor-icon {
     color: var(--ms-text-normal);
-    transition: color 0.2s ease;
+    transition: color var(--ms-transition-fast);
 }
 
 .tablet-hmi-switch.active .switch-monitor-icon {
@@ -354,7 +357,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    color: hsl(205, 90%, 52%);
+    color: var(--ms-accent);
     padding-top: 0;
 }
 
@@ -395,7 +398,7 @@
   height: 16px;
   background: var(--ms-accent);
   border-radius: 50%;
-  transition: transform 0.25s ease;
+  transition: transform var(--ms-transition-base);
 }
 
 /* laser position */

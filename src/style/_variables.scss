@@ -1,21 +1,22 @@
 @use "sass:math";
 
-// Core variables
-$version: "0.5.9";
+// =====================================================
+// Core
+// =====================================================
 
-// Core features
+$version: "0.5.9";
 $rtl: false !default;
 
 // =====================================================
-// Core colors 
+// Color primitives
 // =====================================================
 
-// Acento principal 
-$primary-color: hsl(205, 90%, 52%);
-$primary-color-dark: hsl(210, 90%, 42%);
-$primary-color-light: hsl(210, 92%, 60%);
+// Acento principal
+$primary-color: hsl(205, 92%, 56%);
+$primary-color-dark: hsl(210, 90%, 44%);
+$primary-color-light: hsl(210, 92%, 63%);
 
-// Secundario 
+// Secundario
 $secondary-color: hsl(0, 0%, 55%) !default;
 $secondary-color-dark: hsl(0, 0%, 42%) !default;
 $secondary-color-light: hsl(0, 0%, 68%) !default;
@@ -25,27 +26,8 @@ $btn-primary-color: #0c0c0c !default;
 $btn-primary-color-dark: #0c0c0c !default;
 $btn-primary-color-light: #0c0c0c !default;
 
-// =====================================================
-// DeepMove Logo Color (Institutional)
-// =====================================================
-
-// 🔵 Azul institucional
-$logo-color: hsl(0, 0%, 75%);
-
-// 🔵 Azul brand
-// $logo-color: hsl(205, 90%, 52%);
-
-// ⚪ Para usar en dark themes:
-// $logo-color: hsl(0, 0%, 75%);
-
-// ⚫ Para usar en light themes:
-// $logo-color: hsl(0, 0%, 15%);
-
-// =====================================================
 // Gray colors (Dark HMI surfaces)
-// =====================================================
-
-// En dark theme, el “dark-color” pasa a ser texto principal claro
+// En dark theme, el "dark-color" pasa a ser texto principal claro
 $dark-color: hsl(0, 0%, 92%) !default; // texto principal (claro)
 $light-color: hsl(0, 0%, 98%) !default; // blanco técnico (para highlights / overlays)
 
@@ -53,25 +35,75 @@ $gray-color: hsl(0, 0%, 62%) !default;
 $gray-color-dark: hsl(0, 0%, 48%) !default;
 $gray-color-light: hsl(0, 0%, 78%) !default;
 
-// =====================================================
 // Borders
-// =====================================================
-
 $border-color: hsl(0, 0%, 20%) !default;
 $border-color-dark: hsl(0, 0%, 16%) !default;
 $border-color-light: hsl(0, 0%, 26%) !default;
 
+// Backgrounds — separación de profundidad más perceptible entre
+// fondo base / fondo profundo / superficie elevada
+$bg-color: hsl(0, 0%, 10%); // fondo principal
+$bg-color-dark: hsl(0, 0%, 5%); // más profundo
+$bg-color-light: hsl(0, 0%, 15%); // superficie / cards
+
+// Control colors (semantic states)
+$success-color: hsl(140, 55%, 42%);
+$warning-color: hsl(38, 95%, 55%);
+$error-color: hsl(0, 78%, 52%);
+
+// Panel headers
+$panel-header-bg: $bg-color-light;
+$panel-header-text: hsl(0, 0%, 96%);
+$panel-header-hover: hsl(0, 0%, 21%);
+
+// Other colors
+$code-color: hsl(195, 85%, 55%) !default; // cian técnico sobre dark
+$highlight-color: rgba($primary-color, 0.18) !default;
+$body-bg: $bg-color !default;
+
+// Typography colors
+$text-strong-color: hsl(0, 0%, 96%);
+$text-normal-color: hsl(0, 0%, 84%);
+$text-muted-color: hsl(0, 0%, 66%);
+
+$body-font-color: $text-normal-color !default;
+
+// Links
+$link-color: $primary-color !default;
+$link-color-dark: darken($link-color, 10%) !default;
+$link-color-light: lighten($link-color, 10%) !default;
+
+// Buttons — surfaces by hierarchy (Base/Primary/Critical/Ghost)
+
+// Base (neutro)
+$btn-base-bg: $bg-color-light;
+$btn-base-hover-bg: hsl(0, 0%, 21%);
+$btn-base-active-bg: $bg-color-dark;
+
+// Primary (acción principal)
+$btn-primary-bg: $primary-color;
+$btn-primary-hover-bg: lighten($primary-color, 6%);
+$btn-primary-active-bg: darken($primary-color, 8%);
+
+// Critical (peligroso / stop / reset)
+$btn-critical-bg: $error-color;
+$btn-critical-hover-bg: lighten($error-color, 6%);
+$btn-critical-active-bg: darken($error-color, 10%);
+
+// Ghost (secundario liviano)
+$btn-ghost-bg: transparent;
+$btn-ghost-hover-bg: hsla(0, 0%, 100%, 0.06);
+$btn-ghost-active-bg: hsla(0, 0%, 100%, 0.10);
+$btn-ghost-border: hsla(0, 0%, 100%, 0.14);
+$btn-ghost-text: $text-normal-color;
+
 // =====================================================
-// Neumorphism — Light & Shadow model (HMI / CNC)
+// Elevation primitives — Neumorphism Light & Shadow model (HMI / CNC)
 // =====================================================
 
-// Fuente de luz (top-left)
-$neo-light: hsla(0, 0%, 100%, 0.18);
-$neo-dark: hsla(0, 0%, 0%, 0.55);
-
-// =====================================================
-// Neumorphism — Semantic shadows
-// =====================================================
+// Fuente de luz (top-left) — afinado para un emboss más limpio/legible
+$neo-light: hsla(0, 0%, 100%, 0.22);
+$neo-dark: hsla(0, 0%, 0%, 0.45);
 
 // Botón / control elevado (estado normal)
 $neo-shadow-raised: -2px -2px 3px $neo-light,
@@ -89,102 +121,14 @@ $neo-shadow-soft: -1px -1px 2px $neo-light,
 $neo-shadow-deep: -4px -4px 8px $neo-light,
   4px 4px 10px $neo-dark;
 
-$neo-svg-shadow: 
-drop-shadow(-1px -1px 1px $neo-light) 
+$neo-svg-shadow:
+drop-shadow(-1px -1px 1px $neo-light)
 drop-shadow(2px 2px 3px $neo-dark);
 
 $neo-svg-shadow-pressed: drop-shadow(0 1px 2px $neo-dark);
 
 // =====================================================
-// Backgrounds
-// =====================================================
-
-$bg-color: hsl(0, 0%, 9%); // fondo principal
-$bg-color-dark: hsl(0, 0%, 6%); // más profundo
-$bg-color-light: hsl(0, 0%, 13%); // superficie / cards
-
-// =====================================================
-// Control colors
-// =====================================================
-
-$success-color: hsl(140, 55%, 42%);
-$warning-color: hsl(38, 95%, 55%);
-$error-color: hsl(0, 78%, 52%);
-
-// =====================================================
-// Panel headers
-// =====================================================
-
-$panel-header-bg: $bg-color-light;
-$panel-header-text: hsl(0, 0%, 96%);
-$panel-header-hover: hsl(0, 0%, 16%);
-
-// =====================================================
-// Other colors
-// =====================================================
-
-$code-color: hsl(195, 85%, 55%) !default; // cian técnico sobre dark
-$highlight-color: rgba($primary-color, 0.18) !default;
-$body-bg: $bg-color !default;
-
-// =====================================================
-// Typography
-// =====================================================
-
-$text-strong-color: hsl(0, 0%, 96%);
-$text-normal-color: hsl(0, 0%, 84%);
-$text-muted-color: hsl(0, 0%, 62%);
-
-$body-font-color: $text-normal-color !default;
-
-// =====================================================
-// Links
-// =====================================================
-
-$link-color: $primary-color !default;
-$link-color-dark: darken($link-color, 10%) !default;
-$link-color-light: lighten($link-color, 10%) !default;
-
-// =====================================================
-// Panel Navigator (Mobile Bottom Bar)
-// =====================================================
-
-// Fondo del dock 
-$panelnav-bg-color: $bg-color;
-$panelnav-bg-alpha: 0.92;
-
-// Botones laterales — “vidrio” muy sutil (no blancos sólidos)
-$panelnav-btn-bg-color: $light-color;
-$panelnav-btn-bg-alpha: 0.08;
-
-// Iconos laterales — blanco técnico
-$panelnav-btn-icon-color: hsla(0, 0%, 98%, 0.88);
-
-// Estado activo de botones laterales (un poco más presente)
-$panelnav-btn-active-bg-alpha: 0.14;
-
-// Reset — rojo alarma (no usar naranja para esto)
-$panelnav-reset-color: $error-color;
-$panelnav-reset-highlight: lighten($error-color, 10%);
-$panelnav-reset-shadow: darken($error-color, 20%);
-
-// =====================================================
-// Panel Navigator — Reset button states (SEMANTIC)
-// =====================================================
-
-// Hover (PC) — sutil
-$panelnav-reset-hover-brightness: 1.06;
-$panelnav-reset-hover-lift: -1px;
-
-// Locked / Alarm — más hundido, más serio
-$panelnav-reset-locked-brightness: 0.82;
-$panelnav-reset-locked-press: 2px;
-
-// Busy / Debounce — apenas atenuado
-$panelnav-reset-busy-brightness: 0.88;
-
-// =====================================================
-// Fonts
+// Typography — structural
 // =====================================================
 
 $base-font-family: "Inter",
@@ -213,10 +157,7 @@ $fallback-font-family: -apple-system,
 
 $body-font-family: $base-font-family !default;
 
-// =====================================================
-// CJK font families (REQUIRED by Spectre)
-// =====================================================
-
+// CJK font families (required by Spectre)
 $cjk-zh-hans-font-family: $base-font-family,
   "PingFang SC",
   "Hiragino Sans GB",
@@ -241,8 +182,16 @@ $cjk-ko-font-family: $base-font-family,
   "Malgun Gothic",
   $fallback-font-family !default;
 
+// Font sizes
+$html-font-size: 20px !default;
+$html-line-height: 1.5 !default;
+$font-size: 0.82rem !default;
+$font-size-sm: 0.72rem !default;
+$font-size-lg: 0.92rem !default;
+$line-height: 1.25rem !default;
+
 // =====================================================
-// Unit sizes
+// Spacing / unit scale
 // =====================================================
 
 $unit-o: 0.05rem !default;
@@ -260,28 +209,21 @@ $unit-10: 2rem !default;
 $unit-12: 2.4rem !default;
 $unit-16: 3.2rem !default;
 
-// =====================================================
-// Font sizes
-// =====================================================
-
-$html-font-size: 20px !default;
-$html-line-height: 1.5 !default;
-$font-size: 0.82rem !default;
-$font-size-sm: 0.72rem !default;
-$font-size-lg: 0.92rem !default;
-$line-height: 1.25rem !default;
-
-// =====================================================
-// Sizes
-// =====================================================
-
 $layout-spacing: $unit-2 !default;
 $layout-spacing-sm: $unit-1 !default;
 $layout-spacing-lg: $unit-4 !default;
 
+// =====================================================
+// Radius & border widths
+// =====================================================
+
 $border-radius: $unit-1 !default;
 $border-width: 0.05rem !default;
 $border-width-lg: 0.1rem !default;
+
+// =====================================================
+// Control sizing
+// =====================================================
 
 $control-size: $unit-9 !default;
 $control-size-sm: $unit-7 !default;
@@ -297,15 +239,15 @@ $control-padding-y-lg: math.div(($control-size-lg - $line-height), 2) - $border-
 
 $control-icon-size: 0.8rem !default;
 
-// =====================================================
-// Responsive breakpoints
-// =====================================================
-
 $control-width-xs: 180px !default;
 $control-width-sm: 320px !default;
 $control-width-md: 640px !default;
 $control-width-lg: 960px !default;
 $control-width-xl: 1280px !default;
+
+// =====================================================
+// Responsive breakpoints
+// =====================================================
 
 $size-xs: 480px !default;
 $size-sm: 600px !default;
@@ -327,186 +269,51 @@ $zindex-3: 300 !default;
 $zindex-4: 400 !default;
 
 // =====================================================
-// Buttons — surfaces by hierarchy (Base/Primary/Critical/Ghost)
+// Product-specific — DeepMove Logo Color (Institutional)
 // =====================================================
 
-// Base (neutro)
-$btn-base-bg: $bg-color-light;
-$btn-base-hover-bg: hsl(0, 0%, 16%);
-$btn-base-active-bg: $bg-color-dark;
+// 🔵 Azul institucional
+$logo-color: hsl(0, 0%, 75%);
 
-// Primary (acción principal)
-$btn-primary-bg: $primary-color;
-$btn-primary-hover-bg: lighten($primary-color, 6%);
-$btn-primary-active-bg: darken($primary-color, 8%);
+// 🔵 Azul brand
+// $logo-color: hsl(205, 90%, 52%);
 
-// Critical (peligroso / stop / reset)
-$btn-critical-bg: $error-color;
-$btn-critical-hover-bg: lighten($error-color, 6%);
-$btn-critical-active-bg: darken($error-color, 10%);
+// ⚪ Para usar en dark themes:
+// $logo-color: hsl(0, 0%, 75%);
 
-// Ghost (secundario liviano)
-$btn-ghost-bg: transparent;
-$btn-ghost-hover-bg: hsla(0, 0%, 100%, 0.06);
-$btn-ghost-active-bg: hsla(0, 0%, 100%, 0.10);
-$btn-ghost-border: hsla(0, 0%, 100%, 0.14);
-$btn-ghost-text: $text-normal-color;
+// ⚫ Para usar en light themes:
+// $logo-color: hsl(0, 0%, 15%);
 
-:root {
-  /* =====================================================
-     ACCENT / BRANDING
-     ===================================================== */
-  --ms-accent: #{$primary-color};
-  --ms-accent-dark: #{$primary-color-dark};
-  --ms-accent-light: #{$primary-color-light};
+// =====================================================
+// Product-specific — Panel Navigator (Mobile Bottom Bar)
+// =====================================================
 
-  --ms-accent-contrast: #{$btn-primary-color};
+// Fondo del dock
+$panelnav-bg-color: $bg-color;
+$panelnav-bg-alpha: 0.92;
 
-  /* =====================================================
-     SECONDARY / NEUTRAL
-     ===================================================== */
-  --ms-secondary: #{$secondary-color};
-  --ms-secondary-dark: #{$secondary-color-dark};
-  --ms-secondary-light: #{$secondary-color-light};
+// Botones laterales — "vidrio" muy sutil (no blancos sólidos)
+$panelnav-btn-bg-color: $light-color;
+$panelnav-btn-bg-alpha: 0.08;
 
-  /* =====================================================
-     BACKGROUNDS (HMI Dark)
-     ===================================================== */
-  --ms-bg-main: #{$bg-color};
-  --ms-bg-dark: #{$bg-color-dark};
-  --ms-bg-surface: #{$bg-color-light};
+// Iconos laterales — blanco técnico
+$panelnav-btn-icon-color: hsla(0, 0%, 98%, 0.88);
 
-  /* =====================================================
-     TEXT
-     ===================================================== */
-  --ms-text-strong: #{$text-strong-color};
-  --ms-text-normal: #{$text-normal-color};
-  --ms-text-muted: #{$text-muted-color};
+// Estado activo de botones laterales (un poco más presente)
+$panelnav-btn-active-bg-alpha: 0.14;
 
-  --ms-text-inverse: #{$btn-primary-color};
+// Reset — rojo alarma (no usar naranja para esto)
+$panelnav-reset-color: $error-color;
+$panelnav-reset-highlight: lighten($error-color, 10%);
+$panelnav-reset-shadow: darken($error-color, 20%);
 
-  /* =====================================================
-     GRAYS / UI NEUTRALS
-     ===================================================== */
-  --ms-gray: #{$gray-color};
-  --ms-gray-dark: #{$gray-color-dark};
-  --ms-gray-light: #{$gray-color-light};
+// Hover (PC) — sutil
+$panelnav-reset-hover-brightness: 1.06;
+$panelnav-reset-hover-lift: -1px;
 
-  --ms-light: #{$light-color};
-  --ms-dark: #{$dark-color};
+// Locked / Alarm — más hundido, más serio
+$panelnav-reset-locked-brightness: 0.82;
+$panelnav-reset-locked-press: 2px;
 
-  /* =====================================================
-     BORDERS / DIVIDERS
-     ===================================================== */
-  --ms-border: #{$border-color};
-  --ms-border-dark: #{$border-color-dark};
-  --ms-border-light: #{$border-color-light};
-
-  /* =====================================================
-     SEMANTIC STATES (CNC SAFE)
-     ===================================================== */
-  --ms-success: #{$success-color};
-  --ms-warning: #{$warning-color};
-  --ms-error: #{$error-color};
-
-  /* =====================================================
-     PANELS / HEADERS
-     ===================================================== */
-  --ms-panel-header-bg: #{$panel-header-bg};
-  --ms-panel-header-text: #{$panel-header-text};
-  --ms-panel-header-hover: #{$panel-header-hover};
-
-  /* =====================================================
-     HIGHLIGHTS / CODE
-     ===================================================== */
-  --ms-highlight: #{$highlight-color};
-  --ms-code: #{$code-color};
-
-  /* =====================================================
-   EXTRA — UX / ACCESSIBILITY / HMI
-   ===================================================== */
-  --ms-accent-visited: #{$link-color-light};
-  --ms-focus: #{$primary-color};
-
-  --ms-bg-overlay: hsla(0, 0%, 0%, 0.55);
-  --ms-bg-glass: hsla(0, 0%, 100%, 0.08);
-
-  /* Progress / indicators (tracks) */
-  --ms-bar-track: hsla(0, 0%, 100%, 0.35);
-  --ms-bar-fill: hsla(0, 0%, 100%, 0.9);
-
-  --ms-disabled: #{$gray-color-dark};
-  --ms-disabled-bg: #{$bg-color-dark};
-
-  /* =====================================================
-   INTERACTION STATES (REQUIRED)
-   ===================================================== */
-
-  --ms-bg-hover: hsl(0, 0%, 16%);
-
-  /* Links */
-  --ms-link: var(--ms-accent);
-  --ms-link-hover: var(--ms-accent-light);
-
-  /* =====================================================
-     BUTTONS — HIERARCHY SURFACES
-     ===================================================== */
-
-  --ms-btn-base-bg: #{$btn-base-bg};
-  --ms-btn-base-hover-bg: #{$btn-base-hover-bg};
-  --ms-btn-base-active-bg: #{$btn-base-active-bg};
-
-  --ms-btn-primary-bg: #{$btn-primary-bg};
-  --ms-btn-primary-hover-bg: #{$btn-primary-hover-bg};
-  --ms-btn-primary-active-bg: #{$btn-primary-active-bg};
-
-  --ms-btn-critical-bg: #{$btn-critical-bg};
-  --ms-btn-critical-hover-bg: #{$btn-critical-hover-bg};
-  --ms-btn-critical-active-bg: #{$btn-critical-active-bg};
-
-  --ms-btn-ghost-bg: #{$btn-ghost-bg};
-  --ms-btn-ghost-hover-bg: #{$btn-ghost-hover-bg};
-  --ms-btn-ghost-active-bg: #{$btn-ghost-active-bg};
-  --ms-btn-ghost-border: #{$btn-ghost-border};
-  --ms-btn-ghost-text: #{$btn-ghost-text};
-
-
-/* =====================================================
-   TOOLPATH — DeepMove Blue Identity
-   ===================================================== */
-
---tp-bg: var(--ms-bg-surface);
-
-/* Rapids (movimientos rápidos) — gris técnico neutro */
---tp-rapid: var(--ms-gray);
-/* Corte lineal — azul principal */
---tp-linear: var(--ms-accent);
-/* Arcos — azul más oscuro */
---tp-arc: var(--ms-accent-dark);
-/* Feed general */
---tp-feed: var(--ms-accent);
-/* Trayectoria ya ejecutada */
---tp-completed: var(--ms-gray-dark);
-/* Tool head */
---tp-tool: var(--ms-light);
-/* Grid */
---tp-grid-major: hsla(205, 90%, 52%, 0.08);
-
-
-  /* =====================================================
-   NEUMORPHIC SHADOWS
-   ===================================================== */
-
-  --neo-shadow-raised: #{$neo-shadow-raised};
-  --neo-shadow-pressed: #{$neo-shadow-pressed};
-  --neo-shadow-soft: #{$neo-shadow-soft};
-  --neo-shadow-deep: #{$neo-shadow-deep};
-  --neo-svg-shadow: #{$neo-svg-shadow};
-  --neo-svg-shadow-pressed: #{$neo-svg-shadow-pressed};
-
-  /* =====================================================
-   LOGO
-   ===================================================== */
-
-  --logo-color: #{$logo-color};
-}
+// Busy / Debounce — apenas atenuado
+$panelnav-reset-busy-brightness: 0.88;
