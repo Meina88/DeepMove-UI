@@ -2,7 +2,7 @@
 
 
 .bg-secondary {
-    background: $secondary-color !important;
+    background: var(--ms-secondary) !important;
 }
 
 .btn:focus,
@@ -16,22 +16,22 @@
 .btn:hover {
     background: var(--ms-highlight);
     border-color: var(--ms-highlight);
-    color: $light-color;          
+    color: var(--ms-light);
     text-decoration: none;
 }
 
 .btn.btn-primary.loading::after {
-    border-bottom-color: #fff;
-    border-left-color: #fff
+    border-bottom-color: var(--ms-light);
+    border-left-color: var(--ms-light)
 }
 
 .terminal .warning {
-    color: orange;
+    color: var(--ms-warning);
     font-weight: bolder
 }
-    
+
 .terminal .info {
-    color: green;
+    color: var(--ms-success);
     font-weight: bolder
 }
 

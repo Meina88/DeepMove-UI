@@ -767,26 +767,26 @@ a label {
 
     .toast-error {
         background-color: color-mix(in srgb, var(--ms-error) 95%, transparent);
-        color: #fff;
+        color: var(--ms-light);
     }
 
     .toast-warning {
         background-color: color-mix(in srgb, var(--ms-warning) 95%, transparent);
-        color: #fff;
+        color: var(--ms-light);
     }
 
     .toast-success {
         background-color: color-mix(in srgb, var(--ms-success) 95%, transparent);
-        color: #fff;
+        color: var(--ms-light);
     }
 
     .toast-info {
         background-color: color-mix(in srgb, var(--ms-accent) 95%, transparent);
-        color: #fff;
+        color: var(--ms-light);
     }
 
     .toast .btn-clear {
-        color: #fff;
+        color: var(--ms-light);
         opacity: 0.85;
     }
 

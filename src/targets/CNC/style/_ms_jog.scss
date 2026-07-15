@@ -237,11 +237,11 @@ $jog-surface-text: var(--ms-text-normal);
 
 
 .jog-position-action svg {
-    color: $gray-color-light;
+    color: var(--ms-gray-light);
 }
 
 .jog-position-action:hover svg {
-    color: $light-color;
+    color: var(--ms-light);
 }
 
 
@@ -387,7 +387,7 @@ $jog-radial-offset: 5px;
     pointer-events: none;
     z-index: 1;
     will-change: transform, opacity;
-    filter: $neo-svg-shadow;
+    filter: var(--neo-svg-shadow);
 }
 
 .jog-xy-pad .jog-cell svg path {
@@ -397,13 +397,13 @@ $jog-radial-offset: 5px;
 
 /* Hover = igual que botones Z */
 .jog-xy-pad .jog-xy-hit:hover+svg {
-    filter: $neo-svg-shadow;
+    filter: var(--neo-svg-shadow);
 }
 
 /* Active = hundido como botones Z */
 .jog-xy-pad .jog-xy-hit:active+svg {
     transform: scale(0.96);
-    filter: $neo-svg-shadow-pressed;
+    filter: var(--neo-svg-shadow-pressed);
 }
 
 
