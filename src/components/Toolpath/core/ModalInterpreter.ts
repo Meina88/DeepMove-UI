@@ -66,7 +66,6 @@ export class ModalInterpreter {
         model: ToolpathModel,
         options?: {
             maxSegments?: number
-            onProgress?: (percent: number) => void
         }
     ) {
 

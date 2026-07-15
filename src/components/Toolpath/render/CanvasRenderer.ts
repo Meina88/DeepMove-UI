@@ -246,28 +246,36 @@ if (seg.type === "rapid") {
     const GRID_MINOR = 10
     const GRID_MAJOR = GRID_MINOR * 5
 
+    // tamaño del viewport en mundo (mm), rango suficiente para cubrir pantalla
+    const RANGE_X = ctx.canvas.width / scale
+    const RANGE_Y = ctx.canvas.height / scale
 
-    // tamaño del viewport en mundo (mm)
-    const viewW = ctx.canvas.width / scale
-    const viewH = ctx.canvas.height / scale
-
-    // rango suficiente para cubrir pantalla
-    const RANGE_X = viewW
-    const RANGE_Y = viewH
-
-    // ─────────────────────────────
-    // SUB GRID (fino)
-    // ─────────────────────────────
     ctx.strokeStyle = COLORS.gridMinor
     ctx.lineWidth = 0.3
+    this.drawGridPass(ctx, view, scale, offsetX, offsetY, plane, GRID_MINOR, RANGE_X, RANGE_Y)
 
+    ctx.strokeStyle = COLORS.gridMajor
+    ctx.lineWidth = 0.6
+    this.drawGridPass(ctx, view, scale, offsetX, offsetY, plane, GRID_MAJOR, RANGE_X, RANGE_Y)
+  }
 
-
+  // Dibuja un set de líneas de grilla (usado para el paso menor y el mayor)
+  private drawGridPass(
+    ctx: CanvasRenderingContext2D,
+    view: ViewPreset,
+    scale: number,
+    offsetX: number,
+    offsetY: number,
+    plane: "XY" | "XZ" | "YZ",
+    step: number,
+    RANGE_X: number,
+    RANGE_Y: number
+  ) {
     // Líneas paralelas al eje principal (Y / Z según plano)
     for (
-      let y = Math.floor(-RANGE_Y / GRID_MINOR) * GRID_MINOR;
+      let y = Math.floor(-RANGE_Y / step) * step;
       y <= RANGE_Y;
-      y += GRID_MINOR
+      y += step
     ) {
       const a3 =
         plane === "XY" ? { x: -RANGE_X, y, z: 0 } :
@@ -290,9 +298,9 @@ if (seg.type === "rapid") {
 
     // Líneas paralelas al eje secundario (X / Y según plano)
     for (
-      let x = Math.floor(-RANGE_X / GRID_MINOR) * GRID_MINOR;
+      let x = Math.floor(-RANGE_X / step) * step;
       x <= RANGE_X;
-      x += GRID_MINOR
+      x += step
     ) {
       const a3 =
         plane === "XY" ? { x, y: -RANGE_Y, z: 0 } :
@@ -312,62 +320,6 @@ if (seg.type === "rapid") {
       ctx.lineTo(offsetX + b2.x * scale, offsetY + b2.y * scale)
       ctx.stroke()
     }
-
-    // ─────────────────────────────
-    // GRID MAYOR
-    // ─────────────────────────────
-    ctx.strokeStyle = COLORS.gridMajor
-    ctx.lineWidth = 0.6
-
-
-    for (
-      let y = Math.floor(-RANGE_Y / GRID_MAJOR) * GRID_MAJOR;
-      y <= RANGE_Y;
-      y += GRID_MAJOR
-    ) {
-      const a3 =
-        plane === "XY" ? { x: -RANGE_X, y, z: 0 } :
-          plane === "XZ" ? { x: -RANGE_X, y: 0, z: y } :
-            { x: 0, y: -RANGE_Y, z: y }
-
-      const b3 =
-        plane === "XY" ? { x: RANGE_X, y, z: 0 } :
-          plane === "XZ" ? { x: RANGE_X, y: 0, z: y } :
-            { x: 0, y: RANGE_Y, z: y }
-
-      const a2 = view.projection(a3)
-      const b2 = view.projection(b3)
-
-      ctx.beginPath()
-      ctx.moveTo(offsetX + a2.x * scale, offsetY + a2.y * scale)
-      ctx.lineTo(offsetX + b2.x * scale, offsetY + b2.y * scale)
-      ctx.stroke()
-    }
-
-    for (
-      let x = Math.floor(-RANGE_X / GRID_MAJOR) * GRID_MAJOR;
-      x <= RANGE_X;
-      x += GRID_MAJOR
-    ) {
-      const a3 =
-        plane === "XY" ? { x, y: -RANGE_Y, z: 0 } :
-          plane === "XZ" ? { x, y: 0, z: -RANGE_Y } :
-            { x: 0, y: x, z: -RANGE_Y }
-
-      const b3 =
-        plane === "XY" ? { x, y: RANGE_Y, z: 0 } :
-          plane === "XZ" ? { x, y: 0, z: RANGE_Y } :
-            { x: 0, y: x, z: RANGE_Y }
-
-      const a2 = view.projection(a3)
-      const b2 = view.projection(b3)
-
-      ctx.beginPath()
-      ctx.moveTo(offsetX + a2.x * scale, offsetY + a2.y * scale)
-      ctx.lineTo(offsetX + b2.x * scale, offsetY + b2.y * scale)
-      ctx.stroke()
-    }
-    ctx.stroke()
   }
 
 
