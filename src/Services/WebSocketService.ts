@@ -1,7 +1,7 @@
 import { WebSocketAdapter } from "./WebSocketAdapter"
-import { sleep } from "../../src/utils"
-import { Command, CommandState } from "./Commands/Command"
-import type { Toast } from "../../src/contexts/ToastsContext"
+import { sleep } from "../utils"
+import { Command } from "./Commands/Command"
+import type { Toast } from "../contexts/ToastsContext"
 
 import {
     NotificationHandler,
@@ -11,6 +11,11 @@ import {
     createReconnectionToast,
     createMaxReconnectionToast,
 } from "./NotificationHandlers"
+import { ReconnectionManager } from "./ReconnectionManager"
+import { PingKeepAlive } from "./PingKeepAlive"
+import { SessionManager } from "./SessionManager"
+import { CommandQueue } from "./CommandQueue"
+import { extractLines } from "./LineBuffer"
 
 export enum ControllerStatus {
     CONNECTION_LOST,
@@ -43,35 +48,25 @@ export interface ServiceContext {
 export class WebSocketService {
     private wsAdapter: WebSocketAdapter
     private buffer: string = ""
-    private commands: Command[] = []
+    private commandQueue = new CommandQueue()
     private _status: ControllerStatus = ControllerStatus.DISCONNECTED
-    private currentVersion: string | undefined
     private statusListeners: ControllerStatusListener[] = []
 
-    // Auto-reconnection settings
-    private reconnectAttempts: number = 0
-    private maxReconnectAttempts: number = 4
-    private baseRetryDelayMs: number = 2000
-    private reconnectTimeoutId: NodeJS.Timeout | undefined
-    private isManualDisconnect: boolean = false
+    // Reconnection, ping/keep-alive and session bookkeeping are delegated to
+    // their own collaborators; this class is left orchestrating what happens
+    // at each transition (toasts, status, cleanup).
+    private reconnection = new ReconnectionManager()
+    private session = new SessionManager()
+    private ping: PingKeepAlive
 
     // Notification handler (optional)
     private notificationHandler: NotificationHandler | undefined
-
-    // Ping/keep-alive settings
-    private pingIntervalId: NodeJS.Timeout | undefined
-    private pingDelayMs: number = 5000 // 5 seconds
-    private isPingPaused: boolean = false
-    private sessionId: string | undefined
-    private pingListeners: Array<(timeRemaining: number, maxTime: number) => void> = []
-    private sessionTimeoutListener: (() => void) | undefined
 
     // Error handler (called when ERROR message received from controller)
     private errorHandler: ((errorCode: string, errorMessage: string) => void) | undefined
 
     // Data routing (for core message processing)
     private dataListeners: Array<(type: string, data: string) => void> = []
-    private binaryDataListeners: Array<(data: string) => void> = []
 
     // Connection state listener (for UI updates)
     // Matches UiContext ConnectionState: { connected: boolean; page: string; extraMsg?: string; updating?: boolean }
@@ -85,6 +80,13 @@ export class WebSocketService {
     constructor(wsAdapter: WebSocketAdapter, notificationHandler?: NotificationHandler) {
         this.wsAdapter = wsAdapter
         this.notificationHandler = notificationHandler
+
+        this.ping = new PingKeepAlive({
+            isOpen: () => this.wsAdapter.isOpen(),
+            write: (data) => this.wsAdapter.write(data),
+            getSessionId: () => this.session.getSessionId(),
+            isManualDisconnect: () => this.reconnection.isManualDisconnect(),
+        })
 
         // Register main data listener
         this.wsAdapter.addReader(this.onData)
@@ -112,17 +114,17 @@ export class WebSocketService {
     async connect(): Promise<ControllerStatus> {
         try {
             this.status = ControllerStatus.CONNECTING
-            this.isManualDisconnect = false
+            this.reconnection.setManualDisconnect(false)
             this._updateConnectionState({ connected: false, page: "connecting" })
             if (!this.wsAdapter.isOpen()) {
                 await this.wsAdapter.open()
             }
 
             this.status = ControllerStatus.CONNECTED
-            this.reconnectAttempts = 0
+            this.reconnection.resetAttempts()
 
             // Start ping mechanism
-            this._startPing()
+            this.ping.start()
 
             // Update connection state
             this._updateConnectionState({ connected: true, page: "/" })
@@ -150,18 +152,18 @@ export class WebSocketService {
 
     /**
      * Disconnects from the controller
-     * @param stopReconnect - If true, marks as manually disconnected (no auto-reconnect)
      * @param reason - Reason for disconnection (for UI feedback)
+     * @param stopReconnect - If true, marks as manually disconnected (no auto-reconnect)
      */
     async disconnect(reason: string = "disconnected", stopReconnect: boolean = true): Promise<void> {
         console.log("Disconnect:", reason);
 
         this._updateConnectionState({ connected: false, page: reason })
-        this._stopPing()
+        this.ping.stop()
         if (stopReconnect) {
-            this.isManualDisconnect = true
+            this.reconnection.setManualDisconnect(true)
             this.status = ControllerStatus.DISCONNECTED
-            this._cancelReconnection()
+            this.reconnection.cancel()
         }
 
         this._performDisconnectCleanup()
@@ -180,31 +182,28 @@ export class WebSocketService {
     }
 
     /**
-     * Schedules a reconnection attempt
+     * Schedules a reconnection attempt via ReconnectionManager, and reacts to
+     * whichever of the three outcomes it reports.
      */
     private _scheduleReconnection(): void {
-        // Check if reconnection is allowed
-        if (this.isManualDisconnect) {
-            return
-        }
-
-        if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-            console.error(`Max reconnection attempts (${this.maxReconnectAttempts}) reached`)
-            this.status = ControllerStatus.DISCONNECTED
-            this._showToast(createMaxReconnectionToast())
-            this._updateConnectionState({ connected: false, page: "connectionlost" })
-            this._performDisconnectCleanup()
-            return
-        }
-
-        this.reconnectAttempts++
-        this._showToast(createReconnectionToast(this.reconnectAttempts, this.maxReconnectAttempts))
-
-        this._cancelReconnection()
-        this.reconnectTimeoutId = setTimeout(
-            () => this.connect().catch(() => this._scheduleReconnection()),
-            this.baseRetryDelayMs
+        const result = this.reconnection.scheduleRetry(() =>
+            this.connect().catch(() => this._scheduleReconnection())
         )
+
+        switch (result.kind) {
+            case "skipped-manual":
+                return
+            case "exhausted":
+                console.error(`Max reconnection attempts (${result.maxAttempts}) reached`)
+                this.status = ControllerStatus.DISCONNECTED
+                this._showToast(createMaxReconnectionToast())
+                this._updateConnectionState({ connected: false, page: "connectionlost" })
+                this._performDisconnectCleanup()
+                return
+            case "scheduled":
+                this._showToast(createReconnectionToast(result.attempt, result.maxAttempts))
+                return
+        }
     }
 
     /**
@@ -225,16 +224,6 @@ export class WebSocketService {
         // Notify extensions that we're disconnected
         if (this.serviceContext?.extensionsNotify) {
             this.serviceContext.extensionsNotify("notification", { isConnected: false }, "all")
-        }
-    }
-
-    /**
-     * Cancels any pending reconnection attempt
-     */
-    private _cancelReconnection(): void {
-        if (this.reconnectTimeoutId) {
-            clearTimeout(this.reconnectTimeoutId)
-            this.reconnectTimeoutId = undefined
         }
     }
 
@@ -285,9 +274,8 @@ export class WebSocketService {
 
                     // Disconnect if this is a different session ID than ours
                     if (incomingSessionId !== this.getSessionId()) {
-                        if ((this.serviceContext?.uiSettings?.getValue("disconnectonotherlogin") ?? true)) {                        
+                        if ((this.serviceContext?.uiSettings?.getValue("disconnectonotherlogin") ?? true)) {
                             console.warn(`Another session connected with different ID ${incomingSessionId}, disconnecting`)
-                            // this._showToast(createConnectionErrorToast("already connected"))
                             this.disconnect("already connected")
                         }
                         else
@@ -335,28 +323,16 @@ export class WebSocketService {
     }
 
     private onData = (data: string): void => {
-        this.buffer += data.replace(/\r/g, "")
+        const { lines, remainder } = extractLines(this.buffer, data)
+        this.buffer = remainder
 
-        let endLineIndex = this.buffer.indexOf("\n")
-        while (endLineIndex >= 0) {
-            const line = this.buffer.substring(0, endLineIndex)
-            this.buffer = this.buffer.substring(endLineIndex + 1)
-
-            // Check if this is a system message
-            if (this.commands.length) {
-                if (this.commands[0].debugReceive) {
-                    console.log(`<<< ${  line}`)
-                }
-                this.commands[0].appendLine(line)
-                if (this.commands[0].state === CommandState.DONE) {
-                    this.commands = this.commands.slice(1)
-                }
-            } else {
+        for (const line of lines) {
+            const routedTo = this.commandQueue.routeLine(line)
+            if (!routedTo) {
                 // Route unhandled core messages to data listeners
                 console.log(`<<< ${  line}`)
                 this._notifyDataListeners("core", line)
             }
-            endLineIndex = this.buffer.indexOf("\n")
         }
     }
 
@@ -365,9 +341,7 @@ export class WebSocketService {
      */
     async write(data: string | Buffer): Promise<void> {
         // Wait for other commands to finish
-        while (this.commands.length > 0) {
-            await sleep(100)
-        }
+        await this.commandQueue.waitUntilIdle()
 
         const stringData = typeof data === "string" ? data : data.toString()
         await this.wsAdapter.write(stringData)
@@ -387,16 +361,14 @@ export class WebSocketService {
         }
 
         // Wait for other commands to finish
-        while (this.commands.length > 0) {
-            await sleep(100)
-        }
+        await this.commandQueue.waitUntilIdle()
 
-        this.commands.push(command)
+        this.commandQueue.enqueue(command)
         const result = new Promise<T>((resolve, reject) => {
             let timer: NodeJS.Timeout | undefined
             if (timeoutMs > 0) {
                 timer = setTimeout(() => {
-                    this._removeCommand(command)
+                    this.commandQueue.remove(command)
                     reject("Command timed out")
                 }, timeoutMs)
             }
@@ -413,17 +385,13 @@ export class WebSocketService {
         return result
     }
 
-    private _removeCommand(command: Command): void {
-        this.commands = this.commands.filter((c) => c !== command)
-    }
-
     /**
      * Reconnects to the controller
      */
     async hardReset(): Promise<void> {
         this.status = ControllerStatus.CONNECTING
         try {
-            this.reconnectAttempts = 0
+            this.reconnection.resetAttempts()
             await this.disconnect("disconnected", false)
             await sleep(500)
             await this.connect()
@@ -438,132 +406,66 @@ export class WebSocketService {
      * Configures auto-reconnection settings
      */
     setReconnectConfig(options: { maxAttempts?: number; baseDelayMs?: number }): void {
-        if (options.maxAttempts !== undefined) {
-            this.maxReconnectAttempts = options.maxAttempts
-        }
-        if (options.baseDelayMs !== undefined) {
-            this.baseRetryDelayMs = options.baseDelayMs
-        }
+        this.reconnection.setConfig(options)
     }
 
     /**
      * Gets current reconnection attempt count
      */
     getReconnectAttempts(): number {
-        return this.reconnectAttempts
+        return this.reconnection.getAttempts()
     }
 
     /**
      * Checks if a reconnection is pending
      */
     isReconnectPending(): boolean {
-        return this.reconnectTimeoutId !== undefined
+        return this.reconnection.isPending()
     }
 
     /**
      * Sets the session ID (typically from CURRENTID message)
      */
     setSessionId(sessionId: string): void {
-        this.sessionId = sessionId
+        this.session.setSessionId(sessionId)
     }
 
     /**
      * Gets the current session ID
      */
     getSessionId(): string | undefined {
-        return this.sessionId
+        return this.session.getSessionId()
     }
 
     /**
      * Pauses ping messages (useful during HTTP requests)
      */
     setPingPaused(paused: boolean): void {
-        this.isPingPaused = paused
+        this.ping.setPaused(paused)
     }
 
     /**
      * Checks if ping is paused
      */
     isPingPausedStatus(): boolean {
-        return this.isPingPaused
+        return this.ping.isPaused()
     }
 
     /**
      * Configures ping settings
      */
     setPingConfig(options: { delayMs?: number }): void {
-        if (options.delayMs !== undefined) {
-            this.pingDelayMs = options.delayMs
-        }
+        this.ping.setConfig(options)
     }
 
     /**
-     * Starts the ping mechanism (automatic after connect)
-     */
-    private _startPing(): void {
-        if (this.pingIntervalId) {
-            return // Already running
-        }
-
-        const sendPing = () => {
-            if (this.isManualDisconnect) {
-                return
-            }
-
-            if (!this.isPingPaused && this.wsAdapter.isOpen()) {
-                const pingmsg = `PING:${this.sessionId || "none"}`
-                try {
-                    this.wsAdapter.write(pingmsg)
-                } catch (error) {
-                    console.error("Failed to send ping:", error)
-                }
-            }
-
-            // Schedule next ping
-            this.pingIntervalId = setTimeout(sendPing, this.pingDelayMs)
-        }
-
-        // Send first ping immediately, then schedule the rest
-        sendPing()
-    }
-
-    /**
-     * Stops the ping mechanism
-     */
-    private _stopPing(): void {
-        if (this.pingIntervalId) {
-            clearTimeout(this.pingIntervalId)
-            this.pingIntervalId = undefined
-        }
-    }
-
-    /**
-     * Handles PING response messages
-     * Format: PING:timeRemaining:maxTime
+     * Handles PING response messages, and disconnects on session timeout
+     * (PingKeepAlive detects the timeout but does not call disconnect()
+     * itself, to avoid a circular dependency back into this class)
      */
     private _handlePingResponse(parts: string[]): void {
-        if (parts.length < 3) {
-            return
-        }
-
-        const timeRemaining = parseInt(parts[1], 10)
-        const maxTime = parseInt(parts[2], 10)
-
-        // Notify listeners
-        this.pingListeners.forEach((listener) => {
-            try {
-                listener(timeRemaining, maxTime)
-            } catch (error) {
-                console.error("Error in ping listener:", error)
-            }
-        })
-
-        // Check for session timeout
-        if (timeRemaining <= 0) {
-            console.warn("Session timeout detected (timeRemaining <= 0)")
-            if (this.sessionTimeoutListener) {
-                this.sessionTimeoutListener()
-            }
+        const timedOut = this.ping.handleResponse(parts)
+        if (timedOut) {
             this.disconnect("sessiontimeout", true)
         }
     }
@@ -573,19 +475,14 @@ export class WebSocketService {
      * Called when PING response is received from controller
      */
     addPingListener(listener: (timeRemaining: number, maxTime: number) => void): () => void {
-        this.pingListeners.push(listener)
-
-        // Return unregister function
-        return () => {
-            this.pingListeners = this.pingListeners.filter((l) => l !== listener)
-        }
+        return this.ping.addListener(listener)
     }
 
     /**
      * Sets a callback for session timeout
      */
     setSessionTimeoutListener(callback: (() => void) | undefined): void {
-        this.sessionTimeoutListener = callback
+        this.ping.setSessionTimeoutListener(callback)
     }
 
     /**
@@ -645,7 +542,11 @@ export class WebSocketService {
      */
     private _handleWebSocketError = (_error: Event): void => {
         console.log("WebSocket error occurred")
-        this.reconnectAttempts++
+        // Note: _scheduleReconnection() below also increments the attempt
+        // counter once it decides to schedule a retry, so a single
+        // WebSocket error currently counts as two attempts. Pre-existing
+        // behavior, preserved as-is (see ReconnectionManager.bumpAttempts).
+        this.reconnection.bumpAttempts()
 
         this._updateConnectionState({ connected: false, page: "error" })
         // Show error toast to user
