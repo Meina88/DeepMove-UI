@@ -60,6 +60,7 @@ Esto es lo que DeepMove agrega sobre la base de [michmela44/ESP3D-WEBUI](https:/
 - Disclaimer de seguridad de aceptación obligatoria y persistente (multi-paso, versionado) antes de poder operar la interfaz.
 - Sincronización de estado tras reset/reconexión: el husillo activo y las salidas (incluido el PWM del láser) se fuerzan a un estado conocido y seguro en vez de asumir que siguen como estaban.
 - Confirmación explícita antes de ejecutar un archivo si el tipo de G-code detectado no coincide con el modo (CNC/Láser) activo de la máquina.
+- Endurecimiento de la seguridad del código: se revisó y protegió el canal de comunicación con extensiones de terceros (ya no puede aceptar comandos ni contenido de un origen no confiable) y el manejo de nombres de archivo/carpeta (ya no se aceptan rutas manipuladas que intenten salir del directorio esperado en el ESP32).
 
 ### 📶 Wi-Fi
 
