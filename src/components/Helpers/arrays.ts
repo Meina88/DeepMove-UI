@@ -42,54 +42,6 @@ const splitArrayByLines = (arrayBuffer: ArrayBuffer): number[][] => {
     )
 }
 
-//Merge 2 JSON in generic way
-//based on https://gist.github.com/sinemetu1/1732896#gistcomment-2571586
-function mergeJSON<T = any>(o1: T, o2: Partial<T>): T {
-    let tempNewObj: any = o1
-    if ((o1 as any).length === undefined && typeof o1 !== "number") {
-        for (let key in o2) {
-            let value = o2[key]
-            if ((o1 as any)[key] === undefined) {
-                tempNewObj[key] = value
-            } else {
-                tempNewObj[key] = mergeJSON((o1 as any)[key], (o2 as any)[key])
-            }
-        }
-    } else if ((o1 as any).length > 0 && typeof o1 !== "string") {
-        for (let index in o2) {
-            if (JSON.stringify(o1).indexOf(JSON.stringify((o2 as any)[index])) === -1) {
-                //look for existing id in same section
-                let i = (tempNewObj as any[]).findIndex(
-                    (element) => element.id == (o2 as any)[index].id
-                )
-                if (i == -1) tempNewObj.push((o2 as any)[index])
-                else {
-                    if (Array.isArray(tempNewObj[i].value)) {
-                        //need to check if id is already in array
-                        for (let v in (o2 as any)[index].value) {
-                            let j = tempNewObj[i].value.findIndex(
-                                (element: any) => element.id == (o2 as any)[index].value[v].id
-                            )
-                            if (j == -1) {
-                                tempNewObj[i].value.push((o2 as any)[index].value[v])
-                            } else {
-                                tempNewObj[i].value[j] = (o2 as any)[index].value[v]
-                            }
-                        }
-                    } else {
-                        tempNewObj[i].value = (o2 as any)[index].value
-                        if (typeof (o2 as any)[index].hide != "undefined")
-                            tempNewObj[i].hide = (o2 as any)[index].hide
-                    }
-                }
-            }
-        }
-    } else {
-        tempNewObj = o2
-    }
-    return tempNewObj
-}
-
 const addObjectItem = <T extends Record<string, any>>(
     src: T[],
     entry: keyof T,
@@ -186,7 +138,6 @@ const BitsArray: BitsArrayType = {
 
 export {
     limitArr,
-    mergeJSON,
     removeEntriesByIDs,
     splitArrayByLines,
     addObjectItem,

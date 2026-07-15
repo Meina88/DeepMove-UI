@@ -1,5 +1,5 @@
 /*
- index.js - ESP3D WebUI Target file (CNC/FluidNC)
+ index.ts - ESP3D WebUI Target file (CNC/FluidNC)
 
  Copyright (c) 2020 Luc Lebosse. All rights reserved.
 
@@ -40,19 +40,11 @@ import {
     BackgroundContainer,
 } from "./CNC/FluidNC"
 
-import defaultPreferencesSubTarget from "./CNC/FluidNC/preferences.json"
-import defaultPreferencesTarget from "./CNC/preferences.json"
-import defaultPreferencesBase from "./preferences.json"
-import { mergeJSON } from "../components/Helpers"
-
-/*
- * Local const
- *
- */
-const defaultPreferences = mergeJSON(
-    mergeJSON(defaultPreferencesBase, defaultPreferencesTarget),
-    defaultPreferencesSubTarget
-)
+// DeepMove is hardcoded to a single target/subtarget (CNC/FluidNC), so
+// preferences.json lives directly here rather than being assembled from
+// separate base/target/subtarget layers at runtime (see mergeJSON's removal
+// in src/components/Helpers/arrays.ts).
+import defaultPreferences from "./CNC/FluidNC/preferences.json"
 
 const webUiUrl = "https://github.com/Meina88/DeepMove-UI"
 

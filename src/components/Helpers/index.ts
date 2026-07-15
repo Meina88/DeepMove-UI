@@ -40,7 +40,6 @@ import {
 } from "./strings"
 import {
     limitArr,
-    mergeJSON,
     removeEntriesByIDs,
     splitArrayByLines,
     addObjectItem,
@@ -90,7 +89,6 @@ export {
     hslToHex,
     isLimitedEnvironment,
     limitArr,
-    mergeJSON,
     formatFileSizeToString,
     removeEntriesByIDs,
     sortedFilesList,

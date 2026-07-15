@@ -3,90 +3,16 @@ import {
     addObjectItem,
     BitsArray,
     limitArr,
-    mergeJSON,
     removeEntriesByIDs,
     removeObjectItem,
     splitArrayByLines,
 } from "./arrays"
 
-// Characterization tests: pin the CURRENT behavior of mergeJSON before it is
-// removed/replaced in Paso 4 (preferences.json collapse). Some of this
-// behavior (e.g. in-place mutation of o1) is a pre-existing quirk, not a
-// specification of desired behavior.
-describe("mergeJSON", () => {
-    it("adds keys present in o2 but missing in o1 (plain object merge)", () => {
-        const o1 = { a: 1 }
-        const result = mergeJSON<any>(o1, { b: 2 })
-        expect(result).toEqual({ a: 1, b: 2 })
-    })
-
-    it("recurses into nested plain objects", () => {
-        const o1 = { general: { theme: "dark" } }
-        const result = mergeJSON<any>(o1, { general: { language: "es" } })
-        expect(result).toEqual({ general: { theme: "dark", language: "es" } })
-    })
-
-    it("mutates o1 in place and returns the same reference", () => {
-        const o1 = { a: 1 }
-        const result = mergeJSON<any>(o1, { b: 2 })
-        expect(result).toBe(o1)
-    })
-
-    it("appends array items from o2 whose id is not already present in o1", () => {
-        const o1 = [{ id: "x", value: 1 }]
-        const result = mergeJSON(o1, [{ id: "y", value: 2 }])
-        expect(result).toEqual([
-            { id: "x", value: 1 },
-            { id: "y", value: 2 },
-        ])
-    })
-
-    it("overwrites the scalar `value` of a matching-id item instead of duplicating it", () => {
-        const o1 = [{ id: "x", value: 1 }]
-        const result = mergeJSON(o1, [{ id: "x", value: 99 }])
-        expect(result).toEqual([{ id: "x", value: 99 }])
-    })
-
-    it("carries over `hide` onto a matching-id item when o2 specifies it", () => {
-        const o1 = [{ id: "x", value: 1 }]
-        const result = mergeJSON<any>(o1, [{ id: "x", value: 1, hide: true }])
-        expect(result).toEqual([{ id: "x", value: 1, hide: true }])
-    })
-
-    it("id-merges nested array `value`s of a matching-id item instead of replacing wholesale", () => {
-        const o1 = [
-            {
-                id: "toolpath",
-                value: [{ id: "showtoolpathpanel", value: true }],
-            },
-        ]
-        const o2 = [
-            {
-                id: "toolpath",
-                value: [
-                    { id: "showtoolpathpanel", value: false },
-                    { id: "toolpathMaxSegmentsDesktop", value: 5000 },
-                ],
-            },
-        ]
-        const result = mergeJSON<any>(o1, o2)
-        expect(result).toEqual([
-            {
-                id: "toolpath",
-                value: [
-                    { id: "showtoolpathpanel", value: false },
-                    { id: "toolpathMaxSegmentsDesktop", value: 5000 },
-                ],
-            },
-        ])
-    })
-
-    it("leaves an item alone when its JSON representation is already identical", () => {
-        const o1 = [{ id: "x", value: 1 }]
-        const result = mergeJSON(o1, [{ id: "x", value: 1 }])
-        expect(result).toEqual([{ id: "x", value: 1 }])
-    })
-})
+// mergeJSON was removed in Paso 4 (preferences.json collapse) - its only
+// real consumer, src/targets/index.ts, now imports a single, hand-merged
+// preferences.json instead of assembling one from 3 layers at runtime. See
+// src/targets/defaultPreferences.snapshot.test.ts for the gate that proved
+// the collapsed file produces the same tree the old merge did.
 
 describe("limitArr", () => {
     it("keeps the array untouched when under the limit", () => {

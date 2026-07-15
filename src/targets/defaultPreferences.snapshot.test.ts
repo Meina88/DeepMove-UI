@@ -1,40 +1,30 @@
 import { describe, expect, it } from "vitest"
-import { mergeJSON } from "../components/Helpers/arrays"
-import defaultPreferencesBase from "./preferences.json"
-import defaultPreferencesTarget from "./CNC/preferences.json"
-import defaultPreferencesSubTarget from "./CNC/FluidNC/preferences.json"
+import defaultPreferences from "./CNC/FluidNC/preferences.json"
 
-// This deliberately does NOT import "./index" (the targets barrel): that file
-// unconditionally imports "./CNC/FluidNC", which transitively pulls in UI
-// panel components that touch `window` at module scope (e.g.
-// ExtraContent/extraContentItem.tsx's requestIdleCallback polyfill) and can
-// only run under a DOM environment. Vitest is configured with
-// environment: "node" until Paso 5 introduces one, so this test replicates
-// exactly the computation src/targets/index.js does for `defaultPreferences`,
-// without evaluating the rest of that module.
+// Paso 4 collapsed the 3-layer mergeJSON(base, target, subTarget) computation
+// into this single, hand-authored preferences.json (generated
+// programmatically from the old layers, not retyped by hand, to avoid
+// transcription mistakes). This test compares it against the snapshot
+// written in Paso 2 while the old merge was still in place - a diff here
+// means the collapse changed the effective preferences tree and must be
+// investigated before being accepted.
 //
-// This snapshot is the gate for Paso 4 (collapsing the 3-layer merge): the
-// preferences.json produced after that refactor must produce a deeply equal
-// tree to this one, or any difference must be explicitly justified.
-// Layers differ in shape at every level (each JSON file only defines the
-// sections/fields it needs), which is exactly the case mergeJSON exists for -
-// its declared `Partial<T>` signature is too strict to accept that at the
-// type level, so these calls opt out via an explicit `any` type argument
-// rather than fighting the generic inference on a function slated for
-// removal in Paso 4.
-const buildDefaultPreferences = () =>
-    mergeJSON<any>(
-        mergeJSON<any>(defaultPreferencesBase, defaultPreferencesTarget),
-        defaultPreferencesSubTarget
-    )
-
+// This still deliberately imports the JSON file directly rather than
+// "./index" (the targets barrel): that barrel unconditionally imports
+// "./CNC/FluidNC", which transitively pulls in UI panel components that
+// touch `window` at module scope and require a DOM environment Vitest
+// doesn't have configured yet (see Paso 5).
+// The describe/it names below are kept identical to the ones used in Paso 2
+// on purpose: Vitest keys stored snapshots by the full test name path, so
+// renaming them would make this test write a brand new snapshot instead of
+// diffing against the one captured before the collapse - defeating the gate.
 describe("defaultPreferences (pre-collapse snapshot)", () => {
     it("merges base -> CNC -> FluidNC preferences.json layers", () => {
-        expect(buildDefaultPreferences()).toMatchSnapshot()
+        expect(defaultPreferences).toMatchSnapshot()
     })
 
     it("resolves the 5 known overlapping sections with non-empty content", () => {
-        const settings = buildDefaultPreferences().settings
+        const settings = defaultPreferences.settings as Record<string, unknown[]>
 
         for (const section of ["toolpath", "panels", "polling", "files", "jog"]) {
             expect(Array.isArray(settings[section]), `expected settings.${section} to be an array`).toBe(true)
