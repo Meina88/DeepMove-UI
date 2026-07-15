@@ -51,6 +51,3 @@ export interface TargetContextValue {
     streamStatus: StreamStatus
     [key: string]: any
 }
-
-// Re-export for backward compatibility
-export type { TargetContextFn as UseTargetContextFn }
