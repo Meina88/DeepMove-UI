@@ -19,37 +19,16 @@ exportHelper.ts - ESP3D WebUI helper file
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+import type { PreferencesFieldData, PreferencesSection } from "../../types/preferences.types"
+
 // Navigator extension for IE10+ compatibility
 interface NavigatorWithMsSave extends Navigator {
     msSaveOrOpenBlob?: (blob: Blob, filename: string) => void;
 }
 
-// Interface setting value type
-interface SettingValue {
-    id: string;
-    name: string;
-    initial: any;
-    value: any;
-}
-
-// Interface settings subsection item
-interface SettingsSubItem {
-    id?: string;
-    type?: string;
-    value?: any;
-    initial?: any;
-}
-
-// Interface settings section
-interface InterfaceSettingsSection {
-    [key: string]: {
-        [subkey: string]: SettingsSubItem;
-    };
-}
-
 // Complete interface settings data
 export interface InterfaceSettingsData {
-    settings: InterfaceSettingsSection;
+    settings: PreferencesSection;
     custom?: any;
     extensions?: any;
 }
@@ -62,7 +41,7 @@ export interface ExportPreferences {
 }
 
 function exportPreferencesSection(
-    interfaceSettingsDataSection: InterfaceSettingsSection,
+    interfaceSettingsDataSection: PreferencesSection,
     asFile: boolean = true,
     initial_value: boolean = false
 ): { [key: string]: any } {
@@ -72,7 +51,7 @@ function exportPreferencesSection(
             if (interfaceSettingsDataSection[key][subkey].id) {
                 if (interfaceSettingsDataSection[key][subkey].type == "group") {
                     interfaceSettingsDataSection[key][subkey].value.forEach(
-                        (element: SettingValue) => {
+                        (element: PreferencesFieldData) => {
                             section[element.id] = asFile
                                 ? element.initial
                                 : element.value
@@ -83,11 +62,11 @@ function exportPreferencesSection(
                 ) {
                     const itemsList: any[] = []
                     interfaceSettingsDataSection[key][subkey].value.forEach(
-                        (element: any) => {
+                        (element: PreferencesFieldData) => {
                             const item: any = {}
                             item.id = element.id
-                            element.value.forEach((setting: SettingValue) => {
-                                item[setting.name] = asFile
+                            element.value.forEach((setting: PreferencesFieldData) => {
+                                item[setting.name!] = asFile
                                     ? setting.initial
                                     : setting.value
                             })

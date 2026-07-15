@@ -18,20 +18,13 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 import { Fragment, FunctionalComponent, JSX } from "preact"
-import { useEffect, useState, useRef } from "preact/hooks"
-import { useUiContext, useUiContextFn, useModalsContext } from "../../contexts"
-import { T } from "../../components/Translations"
-// List, CheckCircle, Circle, QuickButtonsBar: only referenced in the disabled
-// panels-dropdown UI below (see "descomentar lo de abajo" comment) - kept for
-// when it's re-enabled
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { List, CheckCircle, Circle, HelpCircle } from "preact-feather"
-import { iconsFeather } from "../../components/Images"
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { defaultPanelsList, iconsTarget, QuickButtonsBar } from "../../targets"
+import { useEffect, useState } from "preact/hooks"
+import { useUiContext, useUiContextFn } from "../../contexts"
+import type { Panel } from "../../contexts/UiContext"
+import { defaultPanelsList } from "../../targets"
 import { ExtraPanelElement } from "../../components/Panels/ExtraPanel"
-import { showModal } from "../../components/Modal"
 import PanelNavigator from "../../components/Controls/PanelNavigator"
+import type { PreferencesFieldData } from "../../types/preferences.types"
 
 
 interface KeyTracker {
@@ -87,10 +80,10 @@ const keyboardEventHandlerDown = (e: KeyboardEvent): void => {
     let cmdMatch: string | null = null
     const keysRefs: string[] = ["keymap", "macros"]
     keysRefs.forEach((list: string) => {
-        const keyMapObj = useUiContextFn.getValue(list)
+        const keyMapObj: PreferencesFieldData[] | undefined = useUiContextFn.getValue(list)
         if (keyMapObj) {
-            keyMapObj.forEach((element: any) => {
-                element.value.forEach((sub: any) => {
+            keyMapObj.forEach((element: PreferencesFieldData) => {
+                element.value.forEach((sub: PreferencesFieldData) => {
                     if (
                         sub.name == "key" &&
                         sub.value &&
@@ -123,64 +116,9 @@ let intialisationDone = false
 
 const Dashboard: FunctionalComponent = (): JSX.Element => {
     console.log("Dashboard")
-    // iconsList/menuPanelsList/isKeyboardEnabled/showKeyboarHelp: only used in the
-    // disabled panels-dropdown UI below (see "descomentar lo de abajo" comment) -
-    // kept for when it's re-enabled
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const iconsList: Record<string, any> = { ...iconsTarget, ...iconsFeather }
     const { panels, uisettings, shortcuts } = useUiContext()
-    const { modals } = useModalsContext()
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const menuPanelsList = useRef<HTMLUListElement>(null)
     const isfixed = uisettings.getValue("fixedpanels")
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [isKeyboardEnabled, setIsKeyboardEnabled] = useState<boolean>(
-        shortcuts.enabled
-    )
-
-    //Show keyboard mapped keys
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const showKeyboarHelp = (): void => {
-        useUiContextFn.haptic()
-        const keysRefs: string[] = ["keymap", "macros"]
-        const helpKeyboardJog: JSX.Element[] = []
-        keysRefs.forEach((list: string) => {
-            const keyMapObj = useUiContextFn.getValue(list)
-
-            if (keyMapObj) {
-                keyMapObj.forEach((element: any) => {
-                    const help: any = {}
-                    element.value.forEach((sub: any) => {
-                        if (sub.name == "key") {
-                            help.key = sub.value
-                        }
-                        if (sub.name == "name") {
-                            help.name = sub.value
-                        }
-                    })
-
-                    if (document.getElementById(element.id))
-                        helpKeyboardJog.push(
-                            <tr key={element.id}>
-                                <td> {T(help.name)}</td>
-                                <td> [{T(help.key)}]</td>
-                            </tr>
-                        )
-                })
-            }
-        })
-
-        showModal({
-            modals,
-            id: "keyboardhelp",
-            title: T("S216"),
-            button1: {
-                text: T("S24"),
-            },
-            icon: <HelpCircle />,
-            content: <table class="table">{helpKeyboardJog}</table>,
-        })
-    }
+    const [, setIsKeyboardEnabled] = useState<boolean>(shortcuts.enabled)
 
     //Add keyboard listener
     const AddKeyboardListener = (): void => {
@@ -217,6 +155,9 @@ const Dashboard: FunctionalComponent = (): JSX.Element => {
         return () => {
             //console.log("Unmount dashboard")
         }
+        // Mount-only bootstrap: shortcuts/uisettings are context values recreated every render; adding
+        // them here would re-run keyboard-shortcut initialization on every unrelated re-render.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     useEffect(() => {
@@ -233,42 +174,42 @@ const Dashboard: FunctionalComponent = (): JSX.Element => {
     useEffect(() => {
         if (!panels.initDone && panels.list.length != 0) {
             if (isfixed && fixedPanels.length == 0) {
-                const panelOrder = uisettings.getValue("panelsorder")
-                panelOrder.forEach((panel: any) => {
+                const panelOrder: PreferencesFieldData[] = uisettings.getValue("panelsorder")
+                panelOrder.forEach((panel) => {
                     fixedPanels.push({
                         index: panel.index,
                         id: panel.value[0].value,
                     })
                 })
                 panels.setPanelsOrder(fixedPanels)
-                const newList = fixedPanels.reduce((acc: any[], panel) => {
+                const newList = fixedPanels.reduce((acc: Panel[], panel) => {
                     const paneldesc = panels.list.filter(
-                        (p: any) => p.settingid == panel.id
+                        (p) => p.settingid == panel.id
                     )
                     if (paneldesc.length > 0) acc.push(...paneldesc)
                     return acc
-                }, [])
+                }, [] as Panel[])
                 panels.set([...newList])
                 panels.setVisibles(
-                    newList.reduce((acc: any[], curr: any) => {
+                    newList.reduce((acc: Panel[], curr) => {
                         if (
-                            uisettings.getValue(curr.onstart) &&
-                            uisettings.getValue(curr.show)
+                            uisettings.getValue(curr.onstart as string) &&
+                            uisettings.getValue(curr.show as string)
                         )
                             acc.push(curr)
                         return acc
-                    }, [])
+                    }, [] as Panel[])
                 )
             } else {
                 panels.setVisibles(
-                    panels.list.reduce((acc: any[], curr: any) => {
+                    panels.list.reduce((acc: Panel[], curr) => {
                         if (
-                            uisettings.getValue(curr.onstart) &&
-                            uisettings.getValue(curr.show)
+                            uisettings.getValue(curr.onstart as string) &&
+                            uisettings.getValue(curr.show as string)
                         )
                             acc.push(curr)
                         return acc
-                    }, [])
+                    }, [] as Panel[])
                 )
             }
 
@@ -284,10 +225,10 @@ const Dashboard: FunctionalComponent = (): JSX.Element => {
 
     useEffect(() => {
         if (uisettings.getValue("showextracontents")) {
-            const extraContents = uisettings.getValue("extracontents")
-            const extraPanelsList = extraContents.reduce((acc: any[], curr: any) => {
-                const item = curr.value.reduce((accumulator: any, current: any) => {
-                    accumulator[current.name] = current.initial
+            const extraContents: PreferencesFieldData[] = uisettings.getValue("extracontents")
+            const extraPanelsList = extraContents.reduce((acc: Panel[], curr) => {
+                const item = curr.value.reduce((accumulator: Record<string, any>, current: PreferencesFieldData) => {
+                    accumulator[current.name!] = current.initial
                     return accumulator
                 }, {})
 
@@ -295,164 +236,26 @@ const Dashboard: FunctionalComponent = (): JSX.Element => {
                     acc.push(ExtraPanelElement(item, curr.id))
                 }
                 return acc
-            }, [])
+            }, [] as Panel[])
             panels.set([...defaultPanelsList, ...extraPanelsList])
         } else {
             panels.set([...defaultPanelsList])
         }
 
-        /* */
         //now remove if any visible that is not in list
-        panels.visibles.forEach((element: any) => {
-            if (!uisettings.getValue(element.show)) panels.hide(element.id)
+        panels.visibles.forEach((element) => {
+            if (!uisettings.getValue(element.show as string)) panels.hide(element.id)
         })
+        // Mount-only bootstrap: panels/uisettings are context values recreated every render; adding
+        // them here would reset the panels list on every unrelated re-render.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     return (
         <div id="dashboard">
-            {
-
-//descomentar lo de abajo para recuperar el dropdown con la lista de paneles y el QuickButton
-
-            /* <div class="buttons-bar m-2">
-                {panels.list.length > 0 && (
-                    <div class="dropdown">
-                        <span
-                            class="dropdown-toggle btn tooltip tooltip-right m-1"
-                            tabIndex={0}
-                            style="z-index: 1000"
-                            data-tooltip={T("S187")}
-                            onClick={() => {
-                                useUiContextFn.haptic()
-                            }}
-                        >
-                            <List />
-                        </span>
-                        <ul class="menu" ref={menuPanelsList}>
-                            <li class="menu-item">
-                                <div
-                                    class="menu-entry"
-                                    onClick={(_e: MouseEvent) => {
-                                        useUiContextFn.haptic()
-                                        let state = !shortcuts.enabled
-                                        shortcuts.enable(state)
-                                        setIsKeyboardEnabled(state)
-                                        if (state) {
-                                            AddKeyboardListener()
-                                        } else {
-                                            RemoveKeyboardListener()
-                                        }
-                                    }}
-                                >
-                                    <div class="menu-panel-item">
-                                        <span class="text-menu-item">
-                                            {T("S215")}
-                                        </span>
-                                        <span class="feather-icon-container">
-                                            {isKeyboardEnabled ? (
-                                                <CheckCircle size={13} />
-                                            ) : (
-                                                <Circle size={13} />
-                                            )}
-                                        </span>
-                                    </div>
-                                </div>
-                            </li>
-                            <li class="menu-item">
-                                <div
-                                    class="menu-entry"
-                                    onClick={showKeyboarHelp}
-                                >
-                                    <div class="menu-panel-item">
-                                        <span class="text-menu-item">
-                                            {T("S216")}
-                                        </span>
-                                        <span class="feather-icon-container">
-                                            <HelpCircle size={13} />
-                                        </span>
-                                    </div>
-                                </div>
-                            </li>
-                            <li class="divider"></li>
-                            <li class="menu-item">
-                                <div
-                                    class="menu-entry"
-                                    onClick={(_e: MouseEvent) => {
-                                        useUiContextFn.haptic()
-                                        panels.setVisibles([])
-                                    }}
-                                >
-                                    <div class="menu-panel-item">
-                                        <span class="text-menu-item">
-                                            {T("S117")}
-                                        </span>
-                                        <span
-                                            class="btn btn-clear"
-                                            aria-label="Close"
-                                        />
-                                    </div>
-                                </div>
-                            </li>
-                            {panels.list.map((panel: any) => {
-                                if (!uisettings.getValue(panel.show)) return
-                                const displayIcon = iconsList[panel.icon]
-                                    ? iconsList[panel.icon]
-                                    : ""
-                                const isvisible = panels.visibles.find(
-                                    (element: any) => element.id == panel.id
-                                )
-                                const [isVisible, setVisible] =
-                                    useState<any>(isvisible)
-                                useEffect(() => {
-                                    setVisible(
-                                        panels.visibles.find(
-                                            (element: any) => element.id == panel.id
-                                        )
-                                    )
-                                }, [panels.visibles])
-                                return (
-                                    <li key={panel.id} class="menu-item">
-                                        <div
-                                            class="menu-entry"
-                                            onClick={(_e: MouseEvent) => {
-                                                useUiContextFn.haptic()
-                                                if (isVisible) {
-                                                    panels.hide(panel.id)
-                                                } else {
-                                                    panels.show(
-                                                        panel.id,
-                                                        isfixed
-                                                    )
-                                                }
-                                                setVisible(!isVisible)
-                                            }}
-                                        >
-                                            <div class="menu-panel-item">
-                                                <span class="menu-panel-item feather-icon-container">
-                                                    {displayIcon}
-                                                    <span class="text-menu-item">
-                                                        {T(panel.name)}
-                                                    </span>
-                                                </span>
-                                                {isVisible && (
-                                                    <span
-                                                        class="btn btn-clear mt-2"
-                                                        aria-label="Close"
-                                                    />
-                                                )}
-                                            </div>
-                                        </div>
-                                    </li>
-                                )
-                            })}
-                        </ul>
-                    </div>
-                )}
-                <QuickButtonsBar />
-            </div> */}
             <div class="panels-container m-2">
-                {panels.visibles.map((panel: any) => {
-                    return <Fragment key={panel.id}>{panel.content as any}</Fragment>
+                {panels.visibles.map((panel: Panel) => {
+                    return <Fragment key={panel.id}>{panel.content as JSX.Element}</Fragment>
                 })}
             </div>
             <PanelNavigator />

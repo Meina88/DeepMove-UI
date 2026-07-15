@@ -17,19 +17,17 @@
 */
 
 import { Fragment,  FunctionalComponent, TargetedMouseEvent } from "preact"
-import { useState, useEffect } from "preact/hooks"
+import { useState } from "preact/hooks"
 import { ButtonImg } from "../../Controls"
 import { T } from "../../Translations"
 import { iconsFeather } from "../../Images"
 import { iconsTarget } from "../../../targets"
 import {
     generateUID,
-    generateDependIds,
-    checkDependencies,
 } from "../../Helpers"
 import { Field } from "../../Controls"
 import { formatItem } from "../../../tabs/interface/importHelper"
-import { useUiContextFn, useSettingsContext } from "../../../contexts"
+import { useUiContextFn } from "../../../contexts"
 import {
     Plus,
     ArrowUp,
@@ -40,26 +38,18 @@ import {
 import defaultPanel from "./def_panel.json"
 import defaultMacro from "./def_macro.json"
 import defaultPolling from "./def_polling.json"
+import { useFieldVisibility } from "./useFieldVisibility"
+import { useNotifyValueChange } from "./useNotifyValueChange"
+import type { PreferencesFieldData } from "../../../types/preferences.types"
 
-interface FieldItem {
-    id: string
-    type?: string
-    label?: string
-    initial: any
-    value: any
-    options?: any[]
-    name?: string
-    haserror?: boolean
-    hasmodified?: boolean
-    [key: string]: any
-}
+// FieldItem/ItemData are the same settings-tree node shape shared with
+// tabs/interface/index.tsx and exportHelper.ts (see PreferencesFieldData),
+// just with `value` narrowed to FieldItem[] since every ItemData in this
+// file is a list-of-fields node.
+type FieldItem = PreferencesFieldData
 
-interface ItemData {
-    id: string
+interface ItemData extends Omit<PreferencesFieldData, "value"> {
     value: FieldItem[]
-    editionMode?: boolean
-    newItem?: boolean
-    [key: string]: any
 }
 
 type ValidationError = string | null | true  // true or null means valid, string is the error message
@@ -88,7 +78,7 @@ interface ItemControlProps {
     sorted?: boolean
 }
 
-interface ItemsListProps {
+export interface ItemsListProps {
     id: string
     label?: string
     validationfn: ValidationFunction
@@ -198,10 +188,7 @@ const ItemControl: FunctionalComponent<ItemControlProps> = ({
         completeList.splice(index, 1)
         setValue(completeList)
     }
-    useEffect(() => {
-        //to update state when import- but why ?
-        if (setValue) setValue(null, true)
-    }, [completeList])
+    useNotifyValueChange(setValue, completeList)
 
     let colorStyle: string | undefined
     if (
@@ -373,11 +360,6 @@ const ItemsList: FunctionalComponent<ItemsListProps> = ({
     nodelete,
     editable,
 }) => {
-    const { interfaceSettings, connectionSettings } = useSettingsContext()
-    const dependIds = generateDependIds(
-        depend,
-        interfaceSettings.current.settings
-    )
     console.log(id)
     const addItem = (e: TargetedMouseEvent<HTMLButtonElement>) => {
         useUiContextFn.haptic()
@@ -400,22 +382,8 @@ const ItemsList: FunctionalComponent<ItemsListProps> = ({
         setValue(value)
     }
 
-    useEffect(() => {
-        //to update state when import- but why ?
-        if (setValue) setValue(null, true)
-    }, [value])
-
-    useEffect(() => {
-        let visible = checkDependencies(depend, interfaceSettings.current.settings, connectionSettings.current)
-        if (document.getElementById(id))
-            document.getElementById(id)!.style.display = visible
-                ? "block"
-                : "none"
-        if (document.getElementById(`group-${  id}`))
-            document.getElementById(`group-${  id}`)!.style.display = visible
-                ? "block"
-                : "none"
-    }, [...dependIds])
+    useNotifyValueChange(setValue, value)
+    useFieldVisibility(id, depend)
 
     return (
         <fieldset

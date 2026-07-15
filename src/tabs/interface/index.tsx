@@ -25,6 +25,7 @@ import {
     useUiContextFn,
     useToastsContext,
 } from "../../contexts"
+import type { SettingsContextValue } from "../../contexts/SettingsContext"
 import { ButtonImg, Loading } from "../../components/Controls"
 import { useHttpQueue, useSettings } from "../../hooks"
 import {
@@ -36,37 +37,15 @@ import { RefreshCcw, Save, ExternalLink, Flag, Download } from "preact-feather"
 import { Field, FieldGroup } from "../../components/Controls"
 import { exportPreferences, exportPreferencesSection, ExportPreferences, InterfaceSettingsData } from "./exportHelper"
 import { importPreferencesSection, formatPreferences, ImportPreferencesResult } from "./importHelper"
+import type { PreferencesFieldData } from "../../types/preferences.types"
+import type { DependencyCondition } from "../../types/dependencies.types"
 
-// Option for select fields
-interface SelectOption {
-    label: string;
-    value: string;
-    depend?: any[];
-}
+// Field data interface - the settings-tree node shape shared across this
+// file, exportHelper.ts and Controls/Fields/ItemsList.tsx.
+type FieldData = PreferencesFieldData
 
-// Field data interface
-interface FieldData {
-    id: string;
-    type: string;
-    value: any;
-    initial: any;
-    label?: string;
-    depend?: any[];
-    shortkey?: boolean;
-    step?: number;
-    min?: number | string;
-    max?: number | string;
-    minSecondary?: number;
-    minsecondary?: number;
-    options?: SelectOption[];
-    name?: string;
-    regexpattern?: string;
-    nb?: number;
-    haserror?: boolean;
-    hasmodified?: boolean;
-    newItem?: boolean;
-    hide?: boolean;
-}
+type InterfaceSettingsRef = SettingsContextValue["interfaceSettings"]
+type ConnectionSettingsRef = SettingsContextValue["connectionSettings"]
 
 // Validation result interface
 interface ValidationResult {
@@ -75,7 +54,11 @@ interface ValidationResult {
     modified: boolean;
 }
 
-const isDependenciesMet = (depend: any, interfaceSettings: any, connectionSettings: any): boolean => {
+const isDependenciesMet = (
+    depend: DependencyCondition[] | undefined,
+    interfaceSettings: InterfaceSettingsRef,
+    connectionSettings: ConnectionSettingsRef
+): boolean => {
     return checkDependencies(depend, interfaceSettings.current.settings, connectionSettings.current)
 }
 
@@ -83,8 +66,8 @@ const generateValidationGlobal = (
     fieldData: FieldData,
     isFlashFS?: boolean,
     isSDFS?: boolean,
-    connectionSettings?: any,
-    interfaceSettings?: any,
+    connectionSettings?: ConnectionSettingsRef,
+    interfaceSettings?: InterfaceSettingsRef,
     setShowSave?: (value: boolean) => void,
     checkSaveStatus?: () => boolean
 ): ValidationResult => {
@@ -113,13 +96,13 @@ const generateValidationGlobal = (
                 },
             ]
             keysRefs.forEach((list) => {
-                let keysmap = list.ref.find((element: any) => {
+                let keysmap = (list.ref as PreferencesFieldData[]).find((element) => {
                     if (element.id == list.entry) return true
                 })
                 if (keysmap) {
                     let counter = 0
-                    keysmap.value.forEach((element: any) => {
-                        element.value.forEach((sub: any) => {
+                    keysmap.value.forEach((element: PreferencesFieldData) => {
+                        element.value.forEach((sub: PreferencesFieldData) => {
                             if (
                                 sub.name == "key" &&
                                 sub.value == fieldData.value &&
@@ -165,7 +148,7 @@ const generateValidationGlobal = (
                 fieldData.hasmodified =
                     stringified.includes('"hasmodified":true')
             //check order change
-            fieldData.value.forEach((element: any, index: number) => {
+            fieldData.value.forEach((element: PreferencesFieldData, index: number) => {
                 if (element.index != index) fieldData.hasmodified = true
             })
             validation.valid = !stringified.includes('"haserror":true')
@@ -254,25 +237,25 @@ const generateValidationGlobal = (
                 //Note: is there a less complexe way to do ?
                 const sourceId = fieldData.id.split("-")[0]
                 const extraList =
-                    interfaceSettings.current.settings.extracontents
+                    interfaceSettings.current.settings.extracontents as PreferencesFieldData[]
                 //look for extra panels entry
-                const subextraList =
+                const subextraList: PreferencesFieldData[] =
                     extraList[
-                        extraList.findIndex((element: any) => {
+                        extraList.findIndex((element) => {
                             return element.id == "extracontents"
                         })
                     ].value
                 //look for extra panel specific id
-                const datavalue =
+                const datavalue: PreferencesFieldData[] =
                     subextraList[
-                        subextraList.findIndex((element: any) => {
+                        subextraList.findIndex((element) => {
                             return element.id == sourceId
                         })
                     ].value
                 //get source item
                 const sourceItemValue =
                     datavalue[
-                        datavalue.findIndex((element: any) => {
+                        datavalue.findIndex((element) => {
                             return element.id == `${sourceId  }-source`
                         })
                     ]
@@ -281,8 +264,8 @@ const generateValidationGlobal = (
             }
             const index = fieldData.options?.findIndex((element) => {
                 return (
-                    (parseInt(element.value) === parseInt(fieldData.value) &&
-                        !isNaN(parseInt(element.value))) ||
+                    (parseInt(String(element.value)) === parseInt(fieldData.value) &&
+                        !isNaN(parseInt(String(element.value)))) ||
                     element.value == fieldData.value
                 )
             })
@@ -355,8 +338,8 @@ const InterfaceGroupField = ({ subFieldData, generateValidation }: InterfaceGrou
 interface InterfaceSubsectionProps {
     fieldData: FieldData
     generateValidation: (fieldData: FieldData) => ValidationResult
-    interfaceSettings: any
-    connectionSettings: any
+    interfaceSettings: InterfaceSettingsRef
+    connectionSettings: ConnectionSettingsRef
 }
 
 const InterfaceSubsection = ({
