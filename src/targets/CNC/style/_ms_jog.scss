@@ -190,7 +190,11 @@ $jog-surface-text: var(--ms-text-normal);
     &:focus,
     &:focus-visible {
         outline: none;
-        box-shadow: var(--neo-shadow-raised);
+        // !important: gana la pulseada de especificidad contra
+        // .btn:focus { box-shadow: none !important } (_spectre_overrides.scss),
+        // que si no deja el botón sin relieve al quedar enfocado (visible en
+        // móvil, donde no hay :hover que lo disimule tras el tap).
+        box-shadow: var(--neo-shadow-raised) !important;
     }
 }
 
@@ -484,7 +488,10 @@ $jog-radial-offset: 5px;
 .jog-global-btn:focus,
 .jog-global-btn:focus-visible {
     outline: none;
-    box-shadow: var(--neo-shadow-raised);
+    // !important: ver nota en jog-buttons-container button:focus más arriba.
+    // Sin esto, "Fijar" (sin modal de confirmación, a diferencia de Homing/Ir)
+    // se queda enfocado tras el tap en móvil y pierde el relieve.
+    box-shadow: var(--neo-shadow-raised) !important;
 }
 
 /* =========================

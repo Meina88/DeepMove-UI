@@ -186,10 +186,12 @@
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: #3a3a3a;
-  box-shadow:
-    inset 0 2px 4px rgba(0, 0, 0, 0.6),
-    0 1px 2px rgba(0, 0, 0, 0.3);
+  // Mismo token que .probe-led (_ms_probe.scss) y los badges de pin
+  // inactivo (bg-secondary) — antes era un hex fijo (#3a3a3a + sombra
+  // inset en negro puro) que no reaccionaba a ningún theme y se veía
+  // como un punto negro sobre fondo claro.
+  background: var(--ms-secondary);
+  box-shadow: var(--neo-shadow-soft);
   transition: all 180ms ease;
 }
 

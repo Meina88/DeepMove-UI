@@ -58,8 +58,11 @@
 
   /* =====================================================
      SECONDARY / NEUTRAL
+     --ms-secondary alimenta .bg-secondary, que hoy solo usan los
+     badges de "pin inactivo" (Sensor test / Input pins) — tiene que
+     leerse como un gris apagado, no como un punto negro.
      ===================================================== */
-  --ms-secondary: hsl(220, 10%, 42%);
+  --ms-secondary: hsl(220, 15%, 76%);
   --ms-secondary-dark: hsl(220, 15%, 30%);
   --ms-secondary-light: hsl(220, 10%, 60%);
 

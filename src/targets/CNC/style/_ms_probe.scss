@@ -192,7 +192,12 @@
     height: 10px;
     border-radius: 50%;
 
-    background: var(--ms-gray-dark);
+    // Mismo token que usan los badges de "pin inactivo" (InputPins/
+    // StatusCNC, .bg-secondary) para que el "off" se vea uniforme en
+    // toda la UI. --ms-gray-dark quedó descartado: es texto legible
+    // en el theme default, pero casi negro en el theme claro — no es
+    // un color pensado para rellenos.
+    background: var(--ms-secondary);
     box-shadow: var(--neo-shadow-soft);
 
     transition: background 150ms ease;

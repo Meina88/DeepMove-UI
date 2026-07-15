@@ -17,7 +17,11 @@ $primary-color-dark: hsl(210, 90%, 44%);
 $primary-color-light: hsl(210, 92%, 63%);
 
 // Secundario
-$secondary-color: hsl(0, 0%, 55%) !default;
+// Alimenta --ms-secondary, usado como color de "apagado" en los LEDs
+// de estado (probe-led, input-pin-led, badges de pin inactivo) — en
+// dark tiene que leerse oscuro/sutil, no un gris medio que compita
+// visualmente con el azul de "activo".
+$secondary-color: hsl(0, 0%, 24%) !default;
 $secondary-color-dark: hsl(0, 0%, 42%) !default;
 $secondary-color-light: hsl(0, 0%, 68%) !default;
 
