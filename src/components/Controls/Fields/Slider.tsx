@@ -18,18 +18,14 @@
 */
 
 import { Fragment, FunctionalComponent, TargetedEvent } from "preact"
-import { useEffect } from "preact/hooks"
 import {
     useUiContextFn,
-    useSettingsContext,
 } from "../../../contexts"
-import {
-    generateDependIds,
-    checkDependencies
-} from "../../Helpers"
 import Input from "./Input"
+import { useFieldVisibility } from "./useFieldVisibility"
+import { useNotifyValueChange } from "./useNotifyValueChange"
 
-interface SliderProps {
+export interface SliderProps {
     id: string
     label?: string
     validation?: any
@@ -72,29 +68,9 @@ const Slider: FunctionalComponent<SliderProps> = ({
             setValue(parseFloat(e.currentTarget.value))
         }
     }
-    const { interfaceSettings, connectionSettings } = useSettingsContext()
-    const dependIds = generateDependIds(
-        depend,
-        interfaceSettings.current.settings
-    )
+    useFieldVisibility(id, depend)
+    useNotifyValueChange(setValue, value)
 
-
-    useEffect(() => {
-        let visible = checkDependencies(depend, interfaceSettings.current.settings, connectionSettings.current)
-        if (document.getElementById(id))
-            document.getElementById(id)!.style.display = visible
-                ? "block"
-                : "none"
-        if (document.getElementById(`group-${  id}`))
-            document.getElementById(`group-${  id}`)!.style.display = visible
-                ? "block"
-                : "none"
-    }, [...dependIds])
-
-    useEffect(() => {
-        //to update state
-        if (setValue) setValue(null, true)
-    }, [value])
     return (
         <Fragment>
             <div class="slider-ctrl text-center hide-low">

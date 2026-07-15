@@ -18,25 +18,21 @@
 */
 
 import { FunctionalComponent, TargetedEvent } from "preact"
-import { useEffect } from "preact/hooks"
 import {
     useUiContextFn,
-    useSettingsContext,
 } from "../../../contexts"
-import {
-    generateDependIds,
-    checkDependencies,
-} from "../../Helpers"
 import type { DependencyCondition } from "../../../types/dependencies.types"
 
 import { T } from "./../../Translations"
 import { Validation } from "./FormGroup"
+import { useFieldVisibility } from "./useFieldVisibility"
+import { useNotifyValueChange } from "./useNotifyValueChange"
 
 /*
  * Local const
  *
  */
-interface BooleanProps {
+export interface BooleanProps {
     id: string
     label?: string
     validation?: Validation
@@ -73,28 +69,9 @@ const Boolean: FunctionalComponent<BooleanProps> = ({
         if (setValue) setValue(e.currentTarget.checked)
     }
 
-    const { interfaceSettings, connectionSettings } = useSettingsContext()
-    const dependIds = generateDependIds(
-        depend,
-        interfaceSettings.current.settings
-    )
+    useFieldVisibility(id, depend)
+    useNotifyValueChange(setValue, value)
 
-    useEffect(() => {
-        let visible = checkDependencies(depend, interfaceSettings.current.settings, connectionSettings.current)
-        if (document.getElementById(id))
-            document.getElementById(id)!.style.display = visible
-                ? "block"
-                : "none"
-        if (document.getElementById(`group-${  id}`))
-            document.getElementById(`group-${  id}`)!.style.display = visible
-                ? "block"
-                : "none"
-    }, [...dependIds])
-
-    useEffect(() => {
-        //to update state
-        if (setValue) setValue(null, true)
-    }, [value])
     return (
         <label
             class={`form-switch ${help ? "tooltip tooltip-right" : ""}`}

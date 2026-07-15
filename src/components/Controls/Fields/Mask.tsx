@@ -18,27 +18,24 @@
 */
 
 import { FunctionalComponent, JSX } from "preact"
-import { useEffect, useState } from "preact/hooks"
+import { useState } from "preact/hooks"
 import { Flag } from "preact-feather"
 import {
-    useSettingsContext,
-} from "../../../contexts"
-import {
-    generateDependIds,
-    checkDependencies,
     BitsArray,
 } from "../../Helpers"
 
 import Boolean from "./Boolean"
 import FormGroup from "./FormGroup"
 import FieldGroup from "../FieldGroup"
+import { useFieldVisibility } from "./useFieldVisibility"
+import { useNotifyValueChange } from "./useNotifyValueChange"
 
 interface MaskOption {
     value: string | number
     label: string
 }
 
-interface MaskProps {
+export interface MaskProps {
     initial?: number
     id: string
     label?: string
@@ -173,11 +170,6 @@ const Mask: FunctionalComponent<MaskProps> = ({
     inline: _inline,
     options = [],
 }) => {
-    const { interfaceSettings, connectionSettings } = useSettingsContext()
-    const dependIds = generateDependIds(
-        depend,
-        interfaceSettings.current.settings
-    )
     function getSize(optionsArray: MaskOption[]): number {
         let size = 0
         if (optionsArray.length > 0) {
@@ -190,24 +182,11 @@ const Mask: FunctionalComponent<MaskProps> = ({
     }
     let maskSize = getSize(options)
 
-    useEffect(() => {
-        let visible = checkDependencies(depend, interfaceSettings.current.settings, connectionSettings.current)
-        if (document.getElementById(id))
-            document.getElementById(id)!.style.display = visible
-                ? "block"
-                : "none"
-        if (document.getElementById(`group-${  id}`))
-            document.getElementById(`group-${  id}`)!.style.display = visible
-                ? "block"
-                : "none"
-    }, [...dependIds])
+    useFieldVisibility(id, depend)
     if (options && options.length == 0) {
         console.log("No options specified, should we use axis ?")
     }
-    useEffect(() => {
-        //to update state
-        if (setValue) setValue(null, true)
-    }, [value])
+    useNotifyValueChange(setValue, value)
     const mask = Object.assign({}, BitsArray.fromInt(value, maskSize))
     const maskinitial = Object.assign({}, BitsArray.fromInt(initial, maskSize))
 

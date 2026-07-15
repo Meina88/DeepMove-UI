@@ -17,7 +17,6 @@
 */
 
 import { FunctionalComponent, TargetedMouseEvent } from "preact"
-import { useEffect } from "preact/hooks"
 import { useUiContextFn, useModalsContext } from "../../../contexts"
 import { ButtonImg } from "../../Controls"
 import { iconsFeather } from "../../Images"
@@ -26,8 +25,9 @@ import { showModal } from "../../Modal"
 import { Search } from "preact-feather"
 
 import { T } from "./../../Translations"
+import { useNotifyValueChange } from "./useNotifyValueChange"
 
-interface IconSelectProps {
+export interface IconSelectProps {
     id: string
     label?: string
     validation?: any
@@ -97,10 +97,7 @@ const IconSelect: FunctionalComponent<IconSelectProps> = ({
         })
     }
     const controlIcon = iconsList[value || ""] ? iconsList[value || ""] : ""
-    useEffect(() => {
-        //to update state
-        if (setValue) setValue(null, true)
-    }, [value])
+    useNotifyValueChange(setValue, value)
     return (
         <div class={`input-group  `}>
             <ButtonImg

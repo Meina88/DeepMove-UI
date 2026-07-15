@@ -18,9 +18,9 @@
 */
 
 import { FunctionalComponent } from "preact"
-import { useEffect } from "preact/hooks"
+import { useNotifyValueChange } from "./useNotifyValueChange"
 
-interface LabelCtrlProps {
+export interface LabelCtrlProps {
     label?: string
     id?: string
     value?: string
@@ -28,11 +28,11 @@ interface LabelCtrlProps {
     [key: string]: any
 }
 
+// Notified once on mount/import - value never actually changes afterwards
+// since a label isn't an input, but the effect still keys off `value` for
+// consistency with the other Fields/*.tsx components.
 const LabelCtrl: FunctionalComponent<LabelCtrlProps> = ({ label: _label = "", id: _id = "", value = "", setValue }) => {
-    useEffect(() => {
-        //to update state when import or show first time as value will never change because it is a label not an input
-        if (setValue) setValue(null, true)
-    }, [value])
+    useNotifyValueChange(setValue, value)
     return null
 }
 

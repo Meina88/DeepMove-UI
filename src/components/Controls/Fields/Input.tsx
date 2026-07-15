@@ -33,14 +33,11 @@ import { T } from "./../../Translations"
 import { showModal } from "../../Modal"
 import {
     useUiContextFn,
-    useSettingsContext,
     useModalsContext,
 } from "../../../contexts"
-import {
-    generateDependIds,
-    checkDependencies,
-} from "../../Helpers"
 import type { DependencyCondition } from "../../../types/dependencies.types"
+import { useFieldVisibility } from "./useFieldVisibility"
+import { useNotifyValueChange } from "./useNotifyValueChange"
 
 interface RevealProps {
     applyTo: { current: HTMLInputElement | null }
@@ -57,7 +54,7 @@ interface DropListOption {
 
 type ValueChangeCallback = (value: string | number | null, shouldValidate?: boolean) => void
 
-interface InputProps {
+export interface InputProps {
     label?: string
     type?: string
     id?: string
@@ -93,7 +90,7 @@ const Reveal: FunctionalComponent<RevealProps> = ({ applyTo }) => {
         if (applyTo.current) {
             applyTo.current.type = reveal ? "text" : "password"
         }
-    }, [])
+    }, [applyTo, reveal])
     return (
         <div class="form-icon passwordReveal" onClick={clickReveal}>
             {reveal ? (
@@ -140,11 +137,6 @@ const Input: FunctionalComponent<InputProps> = ({
     shortkey,
     ...rest
 }) => {
-    const { interfaceSettings, connectionSettings } = useSettingsContext()
-    const dependIds = generateDependIds(
-        depend,
-        interfaceSettings.current.settings
-    )
     const { step } = rest
     const inputref = useRef<HTMLInputElement>(null)
     const appendtooltip = prec ? "tooltip tooltip-left" : ""
@@ -193,22 +185,9 @@ const Input: FunctionalComponent<InputProps> = ({
         if (ScanNetworks) ScanNetworks()
     }
 
-    useEffect(() => {
-        let visible = checkDependencies(depend, interfaceSettings.current.settings, connectionSettings.current)
-        if (document.getElementById(id))
-            document.getElementById(id)!.style.display = visible
-                ? "block"
-                : "none"
-        if (document.getElementById(`group-${  id}`))
-            document.getElementById(`group-${  id}`)!.style.display = visible
-                ? "block"
-                : "none"
-    }, [...dependIds])
+    useFieldVisibility(id, depend)
+    useNotifyValueChange(setValue, value)
 
-    useEffect(() => {
-        //to update state when import- but why ?
-        if (setValue) setValue(null, true)
-    }, [value])
     if (shortkey) {
         return (
             <div class={`has-icon-right ${inline ? "column" : ""}`} {...rest}>

@@ -26,6 +26,7 @@ import {
     checkDependencies
 } from "../../Helpers"
 import type { DependencyCondition } from "../../../types/dependencies.types"
+import { useNotifyValueChange } from "./useNotifyValueChange"
 
 interface OptionProps {
     label: string
@@ -42,7 +43,7 @@ interface SelectOption {
 
 type SelectValueCallback = (value: string | null, shouldValidate?: boolean) => void
 
-interface SelectProps {
+export interface SelectProps {
     label?: string
     id?: string
     options?: SelectOption[]
@@ -115,6 +116,12 @@ const Select: FunctionalComponent<SelectProps> = ({
             dependIds.push(...deps)
         }
     })
+    // Not extracted to useFieldVisibility/useNotifyValueChange on purpose: unlike every
+    // other Fields/*.tsx component, this effect also re-runs when an *option's* own
+    // depend changes (dependIds above includes each option.depend), and it fires
+    // setValue(null, true) from here as well as from the plain value-effect below -
+    // a real divergence from the rest of the Field components, not a copy-paste
+    // duplicate, so it's kept as its own effect rather than forced into the shared hooks.
     useEffect(() => {
         let visible = checkDependencies(depend, interfaceSettings.current.settings, connectionSettings.current)
         if (document.getElementById(id))
@@ -126,12 +133,13 @@ const Select: FunctionalComponent<SelectProps> = ({
                 ? "block"
                 : "none"
         if (setValue) setValue(null, true)
+        // dependIds already flattens `depend` into the primitive values that matter (generateDependIds);
+        // interfaceSettings/connectionSettings are stable refs. setValue is provided fresh (non-memoized)
+        // by the caller on every render, so it must not gate this effect.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [...dependIds])
 
-    useEffect(() => {
-        //to update state
-        if (setValue) setValue(null, true)
-    }, [value])
+    useNotifyValueChange(setValue, value)
 
     return (
         <div class={`${inline ? "column" : ""} ${help ? "tooltip tooltip-top" : ""}`}

@@ -24,7 +24,7 @@ import { ScanPacksList } from "../ScanPacksList"
 import { useUiContextFn, useModalsContext } from "../../../contexts"
 import { T, getLanguageName } from "../../Translations"
 
-interface PickUpProps {
+export interface PickUpProps {
     label?: string
     id?: string
     inline?: boolean
@@ -71,7 +71,10 @@ const PickUp: FunctionalComponent<PickUpProps> = ({
                     ? getLanguageName(value || "")
                     : (value || "").replace("theme-", "").replace(".gz", "")
         )
-    }, [value])
+        // setValue is provided fresh (non-memoized) by the caller on every render; this effect must
+        // fire only when `value` itself changes, not when the caller re-renders.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [value, id, defaultDisplayValue])
 
     return (
         <div class={`input-group ${inline ? "column" : ""} `}>
