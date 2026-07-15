@@ -37,7 +37,7 @@ const HMIPanel: FunctionalComponent = () => {
   const UNLOCK = "$X"
   const [activeSection, setActiveSection] = useState<string>("files")
   const { targetCommands } = useTargetCommands()
-  const { status } = useTargetContext() as any
+  const { status } = useTargetContext()
   const uiFn = useUiContextFn
   const { modals } = useModalsContext()
 

@@ -3,7 +3,7 @@
 */
 
 import { FunctionalComponent } from "preact"
-import { useEffect, useRef, useState } from "preact/hooks"
+import { useCallback, useEffect, useMemo, useRef, useState } from "preact/hooks"
 
 import { T } from "../Translations"
 import { ContainerHelper, FullScreenButton, CloseButton } from "../Controls"
@@ -32,6 +32,7 @@ import { detectGCodeType, GCodeBounds } from "../Toolpath/core/GCodeLaserDetecto
 import { showModal } from "../Modal"
 import { useModalsContext } from "../../contexts"
 import { useUiContext } from "../../contexts"
+import type { StateEntry } from "../../targets/types"
 
 
 interface ToolpathPanelProps {
@@ -43,12 +44,14 @@ const ToolpathPanel: FunctionalComponent<ToolpathPanelProps> = ({ embedded: _emb
 
     const id = "toolpathPanel"
     const showPanel = useUiContextFn.getValue("showtoolpathpanel")
-    const { positions, status } = useTargetContext()
+    const { positions, status, states } = useTargetContext()
     const { modals } = useModalsContext()
     const { toolNumbers } = useUiContext()
-    const { states } = useTargetContext() as any
 
-    const currentTool = states?.active_tool?.value
+    // active_tool is always a single entry (never an array) per how
+    // getStates() populates it in filters.ts, unlike other dynamic
+    // gcode-mode-based state keys.
+    const currentTool = (states.active_tool as StateEntry | undefined)?.value
 
     const isLaserMode =
         toolNumbers?.laser != null &&
@@ -111,15 +114,16 @@ const ToolpathPanel: FunctionalComponent<ToolpathPanelProps> = ({ embedded: _emb
         )
     }, [enabledViews])
 
-    const visiblePresets = VIEW_PRESETS.filter(v =>
-        enabledViews.includes(v.id as ViewId)
+    const visiblePresets = useMemo(
+        () => VIEW_PRESETS.filter(v => enabledViews.includes(v.id as ViewId)),
+        [enabledViews]
     )
 
     useEffect(() => {
         if (viewIndex >= visiblePresets.length) {
             setViewIndex(0)
         }
-    }, [enabledViews])
+    }, [viewIndex, visiblePresets])
 
 
 
@@ -199,7 +203,7 @@ const ToolpathPanel: FunctionalComponent<ToolpathPanelProps> = ({ embedded: _emb
             showGrid
         )
     }
-        , [viewIndex, toolPos, showGrid])
+        , [viewIndex, toolPos, showGrid, visiblePresets])
 
 
     // 📐 Resize
@@ -244,7 +248,7 @@ const ToolpathPanel: FunctionalComponent<ToolpathPanelProps> = ({ embedded: _emb
             ro.disconnect()
             window.removeEventListener("resize", resize)
         }
-    }, [viewIndex, toolPos, showGrid])
+    }, [viewIndex, toolPos, showGrid, visiblePresets])
 
     // 🖱️ Zoom con rueda
     useEffect(() => {
@@ -277,7 +281,7 @@ const ToolpathPanel: FunctionalComponent<ToolpathPanelProps> = ({ embedded: _emb
         return () => {
             canvas.removeEventListener("wheel", onWheel)
         }
-    }, [viewIndex, toolPos, showGrid])
+    }, [viewIndex, toolPos, showGrid, visiblePresets])
 
 
 
@@ -336,7 +340,7 @@ const ToolpathPanel: FunctionalComponent<ToolpathPanelProps> = ({ embedded: _emb
             window.removeEventListener("mouseup", stopDrag)
             canvas.removeEventListener("mouseleave", stopDrag)
         }
-    }, [viewIndex, toolPos, showGrid])
+    }, [viewIndex, toolPos, showGrid, visiblePresets])
 
 
     const getTouchCenter = (t1: Touch, t2: Touch) => ({
@@ -344,6 +348,24 @@ const ToolpathPanel: FunctionalComponent<ToolpathPanelProps> = ({ embedded: _emb
         y: (t1.clientY + t2.clientY) / 2,
     })
 
+
+    // 🎯 Reset cámara: centrar vista (zoom/pan default)
+    const resetCamera = useCallback(() => {
+        cameraRef.current.zoom = 1
+        cameraRef.current.panX = 0
+        cameraRef.current.panY = 0
+
+        const renderer = rendererRef.current
+        if (!renderer) return
+
+        renderer.render(
+            modelRef.current ?? null,
+            visiblePresets[viewIndex],
+            cameraRef.current,
+            toolPos ?? undefined,
+            showGrid
+        )
+    }, [visiblePresets, viewIndex, toolPos, showGrid])
 
     // 📱 Touch pan + pinch zoom
     useEffect(() => {
@@ -467,7 +489,7 @@ const ToolpathPanel: FunctionalComponent<ToolpathPanelProps> = ({ embedded: _emb
             canvas.removeEventListener("touchmove", onTouchMove)
             canvas.removeEventListener("touchend", onTouchEnd)
         }
-    }, [viewIndex, toolPos])
+    }, [viewIndex, toolPos, showGrid, visiblePresets, resetCamera])
 
     useEffect(() => {
         const listenerId = eventBus.on(
@@ -581,7 +603,7 @@ const ToolpathPanel: FunctionalComponent<ToolpathPanelProps> = ({ embedded: _emb
         return () => {
             eventBus.off("toolpath:preview", listenerId)
         }
-    }, [viewIndex])
+    }, [viewIndex, visiblePresets])
 
 
     useEffect(() => {
@@ -627,7 +649,7 @@ const ToolpathPanel: FunctionalComponent<ToolpathPanelProps> = ({ embedded: _emb
         return () => {
             eventBus.off("toolpath:reset", resetId)
         }
-    }, [viewIndex, showGrid])
+    }, [viewIndex, showGrid, visiblePresets])
 
 
     const checkFileModeAndRun = async (
@@ -670,26 +692,6 @@ const ToolpathPanel: FunctionalComponent<ToolpathPanelProps> = ({ embedded: _emb
             console.warn("GCode detection failed", e)
             targetCommands(runCmd)
         }
-    }
-
-
-
-    // 🎯 Reset cámara: centrar vista (zoom/pan default)
-    const resetCamera = () => {
-        cameraRef.current.zoom = 1
-        cameraRef.current.panX = 0
-        cameraRef.current.panY = 0
-
-        const renderer = rendererRef.current
-        if (!renderer) return
-
-        renderer.render(
-            modelRef.current ?? null,
-            visiblePresets[viewIndex],
-            cameraRef.current,
-            toolPos ?? undefined,
-            showGrid
-        )
     }
 
 

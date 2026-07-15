@@ -25,7 +25,7 @@ const PanelNavigator: FunctionalComponent = () => {
   const { panels } = useUiContext()
   const uiFn = useUiContextFn
   const { targetCommands } = useTargetCommands()
-  const { status } = useTargetContext() as any
+  const { status } = useTargetContext()
 
   const machineState: string = status?.state ?? "Idle"
   const prevMachineState = useRef<string>(machineState)

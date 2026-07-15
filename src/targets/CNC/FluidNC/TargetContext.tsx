@@ -26,6 +26,16 @@ import { useDatasContext, useSettingsContextFn } from "../../../contexts"
 import { processor } from "./processor"
 import { isVerboseOnly } from "./stream"
 import { eventsList, variablesList } from "."
+import type {
+    TargetContextValue,
+    TargetContextFn,
+    Positions,
+    Status,
+    StatesMap,
+    PinsStates,
+    GcodeParameters,
+    StreamStatus,
+} from "../../types"
 import {
     isOk,
     isStatus,
@@ -49,17 +59,21 @@ import {
     getStreamingStatus,
 } from "./filters"
 
-const lastStatus: Record<string, any> = {}
-const lastStates: Record<string, any> = {}
-const lastPins: Record<string, any> = {}
+const lastPins: PinsStates = {}
 
 /*
  * Local const
  *
  */
-const TargetContext = createContext<any>("TargetContext")
-const useTargetContext = () => useContext(TargetContext)
-const useTargetContextFn: Record<string, any> = {}
+const TargetContext = createContext<TargetContextValue | undefined>(undefined)
+const useTargetContext = (): TargetContextValue => {
+    const context = useContext(TargetContext)
+    if (!context) {
+        throw new Error("useTargetContext must be used within a TargetContextProvider")
+    }
+    return context
+}
+const useTargetContextFn = {} as TargetContextFn
 
 useTargetContextFn.isStaId = (subsectionId: string, label: string, _fieldData: any) => {
     if (subsectionId == "sta" && label == "SSID") return true
@@ -72,25 +86,32 @@ interface TargetContextProviderProps {
 }
 
 const TargetContextProvider = ({ children }: TargetContextProviderProps) => {
-    const [positions, setPositions] = useState<Record<string, any>>({
+    const [positions, setPositions] = useState<Positions>({
         x: "?",
         y: "?",
         z: "?",
     })
-    const [status, setStatus] = useState<Record<string, any>>({ state: "?" })
-    const [overrides, setOverrides] = useState({})
-    const [pinsStates, setPinStates] = useState(lastPins)
-    const [states, setStates] = useState({})
-    const [streamStatus, setStreamStatus] = useState({})
+    const [status, setStatus] = useState<Status>({ state: "?" })
+    const [overrides, setOverrides] = useState<Record<string, any>>({})
+    const [pinsStates, setPinStates] = useState<PinsStates>(lastPins)
+    const [states, setStates] = useState<StatesMap>({})
+    const [streamStatus, setStreamStatus] = useState<StreamStatus>({})
     const [message, setMessage] = useState<string | undefined>()
     const [alarmCode, setAlarmCode] = useState(0)
     const [errorCode, setErrorCode] = useState(0)
-    const [gcodeParameters, setGcodeParameters] = useState({})
+    const [gcodeParameters, setGcodeParameters] = useState<GcodeParameters>({})
     const [grblVersion, setGrblVersion] = useState<Record<string, any>>({})
     const [grblSettings, setGrblSettings] = useState<Record<string, any>>({})
-    const gcodeParametersRef = useRef({})
+    const gcodeParametersRef = useRef<GcodeParameters>({})
+    // lastStatus/lastStates used to be plain module-level objects accessed via a
+    // nonexistent `.current` property (a copy-paste ref look-alike, not a real
+    // ref). TargetContextProvider only ever mounts once, so converting them to
+    // real per-instance refs changes nothing observable, it just makes the
+    // `.current` access actually type- and runtime-correct.
+    const lastStatusRef = useRef<Status | null>(null)
+    const lastStatesRef = useRef<StatesMap | null>(null)
     const { terminal } = useDatasContext()
-    const dataBuffer = useRef({
+    const dataBuffer = useRef<Record<string, string>>({
         stream: "",
         core: "",
         response: "",
@@ -169,19 +190,19 @@ const TargetContextProvider = ({ children }: TargetContextProviderProps) => {
                     })
                 }
 if (response.status) {
-    const newStatus: any = {
+    const newStatus: Status = {
         ...response.status,
     }
 
-    // 👇 PROPAGAR POWER
+    // Propagate spindle power reading onto the status object
     if (response.power && typeof response.power.value === "number") {
         newStatus.power = response.power
     }
 
     setStatus(newStatus)
 
-    if ((lastStatus as any).current !== newStatus) {
-        (lastStatus as any).current = newStatus
+    if (lastStatusRef.current !== newStatus) {
+        lastStatusRef.current = newStatus
         if (
             !(
                 newStatus.state == "Alarm" ||
@@ -208,16 +229,16 @@ if (response.status) {
                 }
                 if (response.f) {
                     //Update state accordingly
-                    if (!(lastStates as any).current) (lastStates as any).current = {}
+                    if (!lastStatesRef.current) lastStatesRef.current = {}
                     if (typeof response.f.value != "undefined")
-                        (lastStates as any).current.feed_rate = {
+                        lastStatesRef.current.feed_rate = {
                             value: response.f.value,
                         }
                     if (typeof response.rpm.value != "undefined")
-                        (lastStates as any).current.spindle_speed = {
+                        lastStatesRef.current.spindle_speed = {
                             value: response.rpm.value,
                         }
-                    setStates((lastStates as any).current)
+                    setStates(lastStatesRef.current)
                 }
                 if (response.sd) {
                     setStreamStatus(response.sd)
@@ -247,8 +268,8 @@ if (response.status) {
             //prefiltering
             if (data[0] === "[") {
                 if (isStates(data)) {
-                    (lastStates as any).current = getStates(data)
-                    setStates((lastStates as any).current)
+                    lastStatesRef.current = getStates(data)
+                    setStates(lastStatesRef.current)
                 }
 
                 if (isMessage(data)) {
@@ -258,14 +279,14 @@ if (response.status) {
                 if (isGcodeParameter(data)) {
                     const response = getGcodeParameter(data)
                     if (response) {
-                        (gcodeParametersRef.current as any)[response.code] = {
+                        gcodeParametersRef.current[response.code] = {
                             data: [...response.data],
                         }
                         if (typeof response.success !== "undefined") {
-                            (gcodeParametersRef.current as any)[response.code].success =
+                            gcodeParametersRef.current[response.code].success =
                                 response.success
                         }
-                        if ((gcodeParametersRef.current as any).PRB) {
+                        if (gcodeParametersRef.current.PRB) {
                             //the PRB is x y z even
                             //TODO:
                             //should use the xyzabc or xyzabcuv or xyzuvw instead
@@ -275,7 +296,7 @@ if (response.status) {
                             const letterslist = definedletters && typeof definedletters === 'string'
                                 ? definedletters.toLowerCase().split("")
                                 : defaultletters.split("");
-                            (gcodeParametersRef.current as any).PRB.data.forEach(
+                            gcodeParametersRef.current.PRB.data.forEach(
                                 (value: string, index: number) => {
                                     let name = `#prb_${ letterslist[index] }#`
                                     variablesList.addCommand({
@@ -320,21 +341,21 @@ if (response.status) {
                 //this will split by char
                 data.split("").forEach((element) => {
                     if (element == "\n" || element == "\r") {
-                        if ((dataBuffer.current as any)[type].length > 0) {
+                        if (dataBuffer.current[type].length > 0) {
                             const isverboseOnly = isVerboseOnly(
                                 type,
-                                (dataBuffer.current as any)[type]
+                                dataBuffer.current[type]
                             )
-                            dispatchInternally(type, (dataBuffer.current as any)[type])
+                            dispatchInternally(type, dataBuffer.current[type])
                             //format the output if needed
-                            if ((dataBuffer.current as any)[type].startsWith("{")) {
+                            if (dataBuffer.current[type].startsWith("{")) {
                                 const newbuffer = beautifyJSONString(
-                                    (dataBuffer.current as any)[type]
+                                    dataBuffer.current[type]
                                 )
                                 if (newbuffer == "error")
                                     terminal.add({
                                         type,
-                                        content: (dataBuffer.current as any)[type],
+                                        content: dataBuffer.current[type],
                                         isverboseOnly,
                                     })
                                 else {
@@ -348,15 +369,15 @@ if (response.status) {
                                 //if not json
                                 terminal.add({
                                     type,
-                                    content: (dataBuffer.current as any)[type],
+                                    content: dataBuffer.current[type],
                                     isverboseOnly,
                                 })
                             }
 
-                            (dataBuffer.current as any)[type] = ""
+                            dataBuffer.current[type] = ""
                         }
                     } else {
-                        (dataBuffer.current as any)[type] += element
+                        dataBuffer.current[type] += element
                     }
                 })
             } else if (type == "response") {
@@ -403,7 +424,7 @@ if (response.status) {
 
     useTargetContextFn.processData = processData
 
-    const store = useMemo(
+    const store = useMemo<TargetContextValue>(
         () => ({
             positions,
             streamStatus,
@@ -419,6 +440,12 @@ if (response.status) {
             grblSettings,
             processData,
         }),
+        // processData is a large, non-memoized function recreated every render; adding it below
+        // would recompute (and re-render every consumer of) this context value on every render
+        // instead of only when the underlying machine data actually changes. In practice `store`
+        // already recomputes very frequently via the other deps below, so processData is rarely
+        // stale for more than one update cycle.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         [
             positions,
             streamStatus,
@@ -432,7 +459,6 @@ if (response.status) {
             gcodeParameters,
             grblVersion,
             grblSettings
-            
         ]
     )
 

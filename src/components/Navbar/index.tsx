@@ -97,8 +97,6 @@ const Navbar = () => {
 
     const laserModeEnabled = uisettings?.getValue?.("lasermode") ?? true
 
-    const { parserstate } = useTargetContext() as any
-
     const { modals } = useModalsContext()
     const { targetCommands } = useTargetCommands()
     const menuRef = useRef<HTMLDivElement | null>(null)
@@ -121,9 +119,7 @@ const Navbar = () => {
         setMenuOpen((prev) => !prev)
     }
 
-    const { status } = useTargetContext() as unknown as {
-        status: { state?: string }
-    }
+    const { status } = useTargetContext()
     const isIdle = status?.state === "Idle"
 
     const menuLinks: NavLinkItem[] = []
@@ -370,20 +366,16 @@ const Navbar = () => {
                 }
             }
         })
+        // Mount-only poll: targetCommands is a fresh (non-memoized) dispatcher every render; adding it
+        // here would re-send the ESP420 request on every unrelated re-render of the navbar.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     useEffect(() => {
         if (toolNumbers.vfd != null && currentTool == null) {
             setCurrentTool(toolNumbers.vfd)
         }
-    }, [toolNumbers.vfd])
-
-
-    useEffect(() => {
-        if (parserstate?.tool != null) {
-            setCurrentTool(parserstate.tool)
-        }
-    }, [parserstate?.tool])
+    }, [toolNumbers.vfd, currentTool])
 
     useEffect(() => {
         targetCommands("[ESP400]json=yes", undefined, { echo: false }, {
@@ -417,6 +409,9 @@ const Navbar = () => {
                 console.log("ESP400 failed", err)
             }
         })
+        // Mount-only poll: targetCommands is a fresh (non-memoized) dispatcher every render; adding it
+        // here would re-send the ESP400 request on every unrelated re-render of the navbar.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     useEffect(() => {
@@ -495,6 +490,10 @@ const Navbar = () => {
 
         return () => eventBus.off("fw:reset", sub)
 
+        // targetCommands is a fresh, stateless dispatcher every render (it doesn't close over any
+        // per-render value); depending on it would just resubscribe on every render for no behavioral
+        // gain, defeating the intent of only resubscribing when toolNumbers changes.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [toolNumbers])
 
     useEffect(() => {

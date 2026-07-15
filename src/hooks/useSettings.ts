@@ -71,7 +71,7 @@ const useSettings = (): UseSettingsReturn => {
         const callbacks = {
             onSuccess: (result: string) => {
                 if (cmd.startsWith("[ESP") && !result.startsWith("ESP3D says:")) {
-                    processData("response", result, result.startsWith("{"))
+                    processData?.("response", result, result.startsWith("{"))
                 }
             },
             onFail: failToast,
@@ -177,7 +177,7 @@ const useSettings = (): UseSettingsReturn => {
                 ) {
                     connectionSettings.current.Screen = "none"
                 }
-                processData("core", "ESP800", true)
+                processData?.("core", "ESP800", true)
                 //console.log(connectionSettings.current)
 
                 // Uncomment the following line to restore HostName functionality

@@ -38,24 +38,8 @@ import {
  *
  */
 
-type StreamStatus = {
-    status?: string
-    name?: string
-    type?: string
-    processed?: number
-    total?: number
-    code?: number
-}
-
 const StatusControls: FunctionalComponent = () => {
-    const { status, message, alarmCode, errorCode, streamStatus } =
-        useTargetContext() as unknown as {
-            status: { state?: string; code?: number }
-            message?: string
-            alarmCode: number
-            errorCode: number
-            streamStatus: StreamStatus
-        }
+    const { status, message, alarmCode, errorCode, streamStatus } = useTargetContext()
     if (!useUiContextFn.getValue("showstatuspanel")) return null
     return (
         <Fragment>
@@ -129,16 +113,9 @@ const StatusControls: FunctionalComponent = () => {
 }
 
 type ModeDescriptor = { id: string; label: string; pre?: string }
-type PinsStates = Record<string, boolean>
-type StatesMap = Record<string, { value: string; pre?: string } | Array<{ value: string; pre?: string }> | unknown>
 
 const StatusPanel: FunctionalComponent = () => {
-    const { status, states, pinsStates, streamStatus: _streamStatus } = useTargetContext() as unknown as {
-        status: { state?: string }
-        states: StatesMap
-        pinsStates: PinsStates
-        streamStatus: StreamStatus
-    }
+    const { status, states, pinsStates, streamStatus: _streamStatus } = useTargetContext()
     const { targetCommands } = useTargetCommands()
     const id = "statusPanel"
     const buttonsList: Array<{
@@ -268,10 +245,10 @@ const StatusPanel: FunctionalComponent = () => {
                             <div class="field-group-content maxwidth">
                                 <div class="states-buttons-container">
                                     {(variablesList.modes as ModeDescriptor[]).map((element) => {
-                                        if ((states as StatesMap)[element.id]) {
-                                            const stateEntry = (states as StatesMap)[element.id]
+                                        if (states[element.id]) {
+                                            const stateEntry = states[element.id]
                                             if (Array.isArray(stateEntry)) {
-                                                return (stateEntry as Array<{ value: string; pre?: string }>).map((item) => {
+                                                return stateEntry.map((item) => {
                                                     return(
                                                         <Button key={item.value}
                                                             m1
@@ -309,7 +286,7 @@ const StatusPanel: FunctionalComponent = () => {
                                                     {element.pre
                                                         ? element.pre
                                                         : null}
-                                                    {(stateEntry as { value: string }).value}
+                                                    {stateEntry.value}
                                                 </Button>
                                             )
                                         }

@@ -22,8 +22,9 @@ import { useTargetContext } from "../../.."
 import { useToastsContext } from "../../../../contexts"
 import { T } from "../../../../components/Translations"
 import { useTargetCommands } from "../../../../hooks"
+import type { Status } from "../../../types"
 
-const last: { status: { state: string } } = { status: { state: "?" } }
+const last: { status: Status } = { status: { state: "?" } }
 
 const BackgroundContainer = () => {
     const { alarmCode, errorCode, status } = useTargetContext()
@@ -45,6 +46,10 @@ const BackgroundContainer = () => {
                 ),
             })
         }
+        // targetCommands/toasts are recreated every render; adding them here would re-fire this
+        // effect (and re-post the alarm/error toast) on every unrelated re-render while an
+        // alarm/error is active, spamming duplicate notifications.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [alarmCode, errorCode, status])
 
     return null

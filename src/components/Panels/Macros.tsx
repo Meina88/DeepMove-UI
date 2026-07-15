@@ -29,7 +29,6 @@ import {
     useTargetContextFn,
     files,
 } from "../../targets"
-import type { TargetContextFn } from "../../targets/types"
 
 /*
  * Local const
@@ -60,7 +59,7 @@ interface MacroButton {
 
 const MacrosPanel: FunctionalComponent = () => {
     const { uisettings } = useUiContext()
-    const { processData } = useTargetContextFn as TargetContextFn
+    const { processData } = useTargetContextFn
     const { targetCommands, failToast } = useTargetCommands()
     const iconsList: Record<string, ComponentChildren> = { ...iconsTarget, ...iconsFeather }
     const id = "macrosPanel"
@@ -75,7 +74,7 @@ const MacrosPanel: FunctionalComponent = () => {
     const sendCommand = (command: string): void => {
         const callbacks = {
             onSuccess: (result: string) => {
-                processData("response", result)
+                processData?.("response", result)
             },
             onFail: failToast,
         }

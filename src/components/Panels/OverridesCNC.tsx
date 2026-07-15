@@ -37,9 +37,6 @@ import { useState } from "preact/hooks"
 
 
 
-type StateValue = { value: string } | Array<{ value: string }>
-type StatesMap = Record<string, StateValue>
-
 const OverridesControls: FunctionalComponent<{
     linked: boolean
     setLinked: (v: boolean) => void
@@ -109,22 +106,7 @@ const OverridesPanel: FunctionalComponent<OverridesPanelProps> = ({ embedded = f
     const feedMax = Number(useUiContextFn.getValue("feed_max")) || 5000
     const laserMaxPower = Number(useUiContextFn.getValue("laser_max_power")) || 255
     
-    const { status, streamStatus, states } = useTargetContext() as {
-
-        status?: {
-            state?: string
-            power?: { value: number }
-            [key: string]: any
-        }
-
-
-        streamStatus?: {
-            name?: string
-            processed?: number
-            total?: number
-        }
-        states?: StatesMap
-    }
+    const { status, streamStatus, states } = useTargetContext()
 
     const { toolNumbers } = useUiContext()
 

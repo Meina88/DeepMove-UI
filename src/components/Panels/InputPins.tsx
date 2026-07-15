@@ -9,8 +9,6 @@ import { FunctionalComponent } from "preact"
 import { T } from "../Translations"
 import { useTargetContext } from "../../targets"
 
-type PinsStates = Record<string, boolean>
-
 /**
  * Lista fija de pines a mostrar.
  * Ajustala según tu máquina.
@@ -19,9 +17,7 @@ const DEFAULT_PINS = ["P", "X", "Y", "Z", "V"]
 
 const InputPins: FunctionalComponent = () => {
 
-    const { pinsStates } = useTargetContext() as {
-        pinsStates?: PinsStates
-    }
+    const { pinsStates } = useTargetContext()
 
     return (
         <fieldset class="fieldset-top-separator fieldset-bottom-separator field-group">

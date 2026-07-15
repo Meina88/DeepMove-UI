@@ -45,7 +45,7 @@ const probetype = {} as Partial<StringValue>
 const probeaxis = {} as Partial<StringValue>
 
 const ProbeControls: FunctionalComponent = () => {
-    const { gcodeParameters, pinsStates } = useTargetContext() as any
+    const { gcodeParameters, pinsStates } = useTargetContext()
     if (!useUiContextFn.getValue("showprobepanel")) return null
     return (
         <Fragment>

@@ -42,12 +42,8 @@ import { eventBus } from "../../hooks/eventBus"
 type NumberValue = { current: number }
 const spindleSpeedValue = {} as Partial<NumberValue>
 
-
-type StateValue = { value: string } | Array<{ value: string }>
-type StatesMap = Record<string, StateValue>
-
 const SpindleControls: FunctionalComponent<{ isLaserMode: boolean }> = ({ isLaserMode }) => {
-    const { states } = useTargetContext() as { states: StatesMap }
+    const { states } = useTargetContext()
 
     console.log(states)
     const { interfaceSettings, connectionSettings } = useSettingsContext()
@@ -76,7 +72,7 @@ const SpindleControls: FunctionalComponent<{ isLaserMode: boolean }> = ({ isLase
                                     )
                                         return null
                                 }
-                                const sv = states[element.id] as StateValue
+                                const sv = states[element.id]
                                 let displayVal = ""
 
                                 if (Array.isArray(sv)) {
@@ -144,11 +140,7 @@ interface SpindlePanelProps {
 const SpindlePanel: FunctionalComponent<SpindlePanelProps> = ({ embedded = false }) => {
 
     const { interfaceSettings, connectionSettings } = useSettingsContext()
-    const { status, states, pinsStates } = useTargetContext() as {
-        status: { state?: string }
-        states: StatesMap
-        pinsStates: Record<string, boolean>
-    }
+    const { status, states, pinsStates } = useTargetContext()
 
     const { toolNumbers } = useUiContext()
 
@@ -252,7 +244,7 @@ const SpindlePanel: FunctionalComponent<SpindlePanelProps> = ({ embedded = false
         }
 
         previousStateRef.current = current
-    }, [status?.state])
+    }, [status?.state, targetCommands])
 
     useEffect(() => {
 
@@ -268,6 +260,9 @@ const SpindlePanel: FunctionalComponent<SpindlePanelProps> = ({ embedded = false
             eventBus.off("fw:reset", subId)
         }
 
+        // targetCommands is a fresh, stateless dispatcher every render; depending on it would just
+        // resubscribe to the event bus on every render for no behavioral gain.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     useEffect(() => {
@@ -289,6 +284,9 @@ const SpindlePanel: FunctionalComponent<SpindlePanelProps> = ({ embedded = false
 
         return () => eventBus.off("fw:reset", sub)
 
+        // targetCommands is a fresh, stateless dispatcher every render; depending on it would just
+        // resubscribe to the event bus on every render for no behavioral gain.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     if (typeof spindleSpeedValue.current === "undefined") {

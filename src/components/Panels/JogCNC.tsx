@@ -33,6 +33,7 @@ import { showModal } from "../Modal"
 import { useTargetContext } from "../../targets"
 import { Joystick } from "../../targets/CNC/FluidNC/icons"
 import { useUiContext } from "../../contexts"
+import type { StateEntry } from "../../targets/types"
 
 let currentFeedRate: Record<string, any> = {}
 let currentAxis: string = "-1"
@@ -167,7 +168,7 @@ const PositionsControls = ({
                                         class="jog-position-value jog-position-clickable"
                                         onClick={() => {
                                             useUiContextFn.click()
-                                            onWPosClick(letter, positions[`w${letter}`])
+                                            onWPosClick(letter, String(positions[`w${letter}`]))
                                         }}
                                     >
                                         {positions[`w${letter}`]}
@@ -206,12 +207,13 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
     const id = "jogPanel"
     const haptic = () => { useUiContextFn.haptic() }
     const { shortcuts, toolNumbers } = useUiContext()
-    const { states } = useTargetContext() as any
-
-    const { status } = useTargetContext() as any
+    const { states, status } = useTargetContext()
     const isIdle = status?.state === "Idle"
 
-    const currentTool = states?.active_tool?.value
+    // active_tool is always a single entry (never an array) per how
+    // getStates() populates it in filters.ts, unlike other dynamic
+    // gcode-mode-based state keys.
+    const currentTool = (states.active_tool as StateEntry | undefined)?.value
 
     const isLaserMode =
         toolNumbers?.laser != null &&
@@ -650,7 +652,7 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
 
             setCurrentSelectedAxis(currentAxis)
         }
-    }, [])
+    }, [positions])
 
     useEffect(() => {
         if (!shortcuts.enabled) return
@@ -735,6 +737,11 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
             forceCancelJog()
         }
 
+        // startJog/stopJog/forceCancelJog are plain functions recreated every render; this component
+        // re-renders on every live position update, so adding them here would tear down and rebuild the
+        // keyboard listeners (and reset the activeKeys tracking) on every position tick, causing missed
+        // or duplicated jog start/stop events while a key is held.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [shortcuts.enabled])
 
     useEffect(() => {
@@ -745,7 +752,7 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
         if (!isLaserMode && laserFocus) {
             setLaserFocus(false)
         }
-    }, [isLaserMode])
+    }, [isLaserMode, laserFocus])
 
     return (
         <div class="panel panel-dashboard" id={id} >
