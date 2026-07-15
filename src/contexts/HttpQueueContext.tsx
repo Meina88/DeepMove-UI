@@ -21,7 +21,7 @@ import { useContext, useRef } from "preact/hooks"
 import { httpAdapter } from "../adapters"
 import { useUiContext } from "./UiContext"
 import { getWebSocketService } from "../hooks/useWebSocketService";
-import { useTargetContext } from "../targets"
+import { useTargetContextFn } from "../targets"
 
 // Type definitions
 interface HttpRequest {
@@ -71,7 +71,6 @@ const useHttpQueueContext = (): HttpQueueContextValue => {
 }
 
 const HttpQueueContextProvider: FunctionalComponent<HttpQueueContextProviderProps> = ({ children }) => {
-    const { processData } = useTargetContext()
     const requestQueue = useRef<HttpRequest[]>([]) // Http queue for every components
     const isBusy = useRef<boolean>(false)
     const currentRequest = useRef<any>()
@@ -132,7 +131,7 @@ const HttpQueueContextProvider: FunctionalComponent<HttpQueueContextProviderProp
         try {
             currentRequest.current = httpAdapter(url, params, onProgress || ((_percent: number) => {     }))
             if (params.echo) {
-                processData("echo", params.echo)
+                useTargetContextFn.processData?.("echo", params.echo)
             }
             const response = await currentRequest.current.response
             onSuccess(response)
