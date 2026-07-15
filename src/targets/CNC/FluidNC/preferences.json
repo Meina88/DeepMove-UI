@@ -1,13 +1,5 @@
 {
     "settings": {
-        "general": [
-            {
-                "id": "theme",
-                "type": "pickup",
-                "label": "S181",
-                "value": "default"
-            }
-        ],
         "panels": [
             {
                 "id": "fixedpanels",

@@ -222,24 +222,6 @@
         ],
         "toolpath": [
             {
-                "id": "showtoolpathpanel",
-                "type": "boolean",
-                "label": "S63",
-                "value": true
-            },
-            {
-                "id": "opentoolpathonstart",
-                "type": "boolean",
-                "label": "S93",
-                "value": true,
-                "depend": [
-                    {
-                        "id": "showtoolpathpanel",
-                        "value": true
-                    }
-                ]
-            },
-            {
                 "id": "filesplaypcgroup",
                 "type": "group",
                 "label": "S240",
@@ -292,29 +274,6 @@
                 "help": "S229",
                 "value": 150000,
                 "min": 1000
-            }
-        ],
-
-
-        
-        "hmi": [
-            {
-                "id": "showhmipanel",
-                "type": "boolean",
-                "label": "S63",
-                "value": true
-            },
-            {
-                "id": "openhmionstart",
-                "type": "boolean",
-                "label": "S93",
-                "value": true,
-                "depend": [
-                    {
-                        "id": "showhmipanel",
-                        "value": true
-                    }
-                ]
             }
         ]
     }
