@@ -74,7 +74,7 @@
         "preact": "^10.27.2",
         "preact-feather": "^4.2.1",
         "smoothie": "^1.36.0",
-        "spectre.css": "michmela44/spectre"
+        "spectre.css": "^0.5.9"
     },
     "browserslist": {
         "production": [
