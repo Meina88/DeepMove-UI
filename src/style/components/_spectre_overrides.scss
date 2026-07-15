@@ -37,45 +37,6 @@
 
 
 /* =====================================================
-   Spectre — Badges
-   ===================================================== */
-
-.badge::after {
-  background-color: var(--ms-accent);
-  color: var(--ms-text-strong);
-  box-shadow: 0 0 0 0.1rem var(--ms-bg-surface);
-}
-
-/* =====================================================
-   Spectre — Bars / Progress / Sliders
-   ===================================================== */
-
-/* Fondo de la barra */
-.bar {
-  background-color: var(--ms-bg-surface);
-}
-
-/* Progreso */
-.bar .bar-item {
-  background-color: var(--ms-accent);
-  color: var(--ms-text-strong);
-}
-
-/* Slider track */
-.bar-slider .bar-item:first-child {
-  background-color: var(--ms-bg-surface);
-}
-
-/* Slider knob */
-.bar-slider .bar-slider-btn {
-  background-color: var(--ms-accent);
-}
-
-.bar-slider .bar-slider-btn:active {
-  box-shadow: 0 0 0 0.1rem var(--ms-accent);
-}
-
-/* =====================================================
    Spectre — Buttons (FULL override, safe)
    ===================================================== */
 
@@ -741,56 +702,6 @@
   border-bottom-color: var(--ms-accent);
   color: var(--ms-accent);
 }
-
-/* =====================================================
-   Tab — Block mode badges
-   ===================================================== */
-
-.tab.tab-block .tab-item .badge[data-badge]::after {
-  background: var(--ms-accent);
-  color: var(--ms-text-strong);
-}
-
-/* =====================================================
-   Spectre — Timeline
-   ===================================================== */
-
-.timeline .timeline-item::before {
-  background: var(--ms-border);
-}
-
-/* =====================================================
-   Timeline — Icon base
-   ===================================================== */
-
-.timeline .timeline-icon {
-  color: var(--ms-text-strong);
-}
-
-/* Punto interno (default state) */
-.timeline .timeline-icon::before {
-  border-color: var(--ms-accent);
-}
-
-/* =====================================================
-   Timeline — Active / Large icon
-   ===================================================== */
-
-.timeline .timeline-icon.icon-lg {
-  background: var(--ms-accent);
-}
-
-/* =====================================================
-   Timeline — Content
-   ===================================================== */
-
-.timeline .timeline-content {
-  color: var(--ms-text-normal);
-}
-
-
-
-
 
 
 
