@@ -22,7 +22,7 @@
         "lint": "eslint src --ext .ts,.tsx",
         "lint:fix": "eslint src --ext .ts,.tsx --fix"
     },
-    "license": "ISC",
+    "license": "GPL-3.0-or-later",
     "devDependencies": {
         "@babel/core": "^7.18.6",
         "@babel/plugin-transform-react-jsx-source": "^7.27.1",
