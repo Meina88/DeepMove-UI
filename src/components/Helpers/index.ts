@@ -57,7 +57,7 @@ import {
 } from "./html"
 import { sortedFilesList, filterResultFiles } from "./filters"
 import { useStoredState } from "./storedState"
-import { sanitizeHtml } from "./sanitizeHtml"
+import { sanitizeHtml, sanitizeSvg } from "./sanitizeHtml"
 import { sanitizePathSegment } from "./paths"
 
 export {
@@ -75,6 +75,7 @@ export {
     isFullscreenSupported,
     getFullscreenElement,
     sanitizeHtml,
+    sanitizeSvg,
     sanitizePathSegment,
     espHttpURL,
     filterResultFiles,

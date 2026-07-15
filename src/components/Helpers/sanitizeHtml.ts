@@ -87,4 +87,99 @@ const sanitizeHtml = (html: string): string => {
     return container.innerHTML
 }
 
-export { sanitizeHtml }
+// Allowlist sanitizer for user-provided custom-logo markup (imported from a
+// preferences.json file, so untrusted). Purely presentational vector tags -
+// deliberately no <script>, <foreignObject>, <image>/href (unneeded for a
+// logo), no "style" attribute (CSS-exfil vector), and no "on*" handlers:
+// those simply aren't in the allowlist below, so they're dropped like any
+// other disallowed attribute.
+const ALLOWED_SVG_TAGS = new Set([
+    "svg",
+    "g",
+    "path",
+    "circle",
+    "rect",
+    "ellipse",
+    "line",
+    "polyline",
+    "polygon",
+    "defs",
+    "lineargradient",
+    "radialgradient",
+    "stop",
+    "clippath",
+    "use",
+    "title",
+])
+
+// DOM attribute lookups on foreign (SVG) elements are case-sensitive, so the
+// declared case here matters - this is the real attribute name to look up,
+// not just a display label.
+const ALLOWED_SVG_ATTRS = [
+    "fill",
+    "stroke",
+    "stroke-width",
+    "d",
+    "viewBox",
+    "width",
+    "height",
+    "x",
+    "y",
+    "cx",
+    "cy",
+    "r",
+    "rx",
+    "ry",
+    "x1",
+    "y1",
+    "x2",
+    "y2",
+    "points",
+    "transform",
+    "offset",
+    "stop-color",
+    "stop-opacity",
+    "fill-rule",
+    "clip-rule",
+    "class",
+    "id",
+    "shape-rendering",
+    "text-rendering",
+    "xmlns",
+]
+
+const sanitizeSvgNode = (node: Node, out: Node): void => {
+    for (const child of Array.from(node.childNodes)) {
+        if (child.nodeType === Node.TEXT_NODE) {
+            out.appendChild(document.createTextNode(child.textContent || ""))
+            continue
+        }
+        if (child.nodeType !== Node.ELEMENT_NODE) continue
+
+        const el = child as Element
+        const tag = el.tagName.toLowerCase()
+        if (!ALLOWED_SVG_TAGS.has(tag)) {
+            // Unwrap: keep the safe children, drop the disallowed tag itself
+            sanitizeSvgNode(el, out)
+            continue
+        }
+
+        const clean = document.createElementNS("http://www.w3.org/2000/svg", tag)
+        for (const attr of ALLOWED_SVG_ATTRS) {
+            if (!el.hasAttribute(attr)) continue
+            clean.setAttribute(attr, el.getAttribute(attr) || "")
+        }
+
+        sanitizeSvgNode(el, clean)
+        out.appendChild(clean)
+    }
+}
+
+const sanitizeSvg = (html: string): string => {
+    const doc = new DOMParser().parseFromString(html, "text/html")
+    const container = document.createElement("div")
+    sanitizeSvgNode(doc.body, container)
+    return container.innerHTML
+}
+
+export { sanitizeHtml, sanitizeSvg }
