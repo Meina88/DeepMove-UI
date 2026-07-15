@@ -77,6 +77,7 @@ function setupIframeObserver(): void {
                             const element = node as Element
                             return element.tagName === 'IFRAME' ||
                                    (element.classList && element.classList.contains('extensionContainer')) ||
+                                   // eslint-disable-next-line deprecation/deprecation -- false positive, DOM querySelector is not deprecated
                                    (element.querySelector && element.querySelector('iframe.extensionContainer') !== null)
                         }
                         return false
@@ -99,6 +100,15 @@ interface MessageData {
     type: string
     content: any
     id: string
+}
+
+// Accept an incoming postMessage only if it comes from an iframe.extensionContainer
+// the app itself mounted - an external origin cannot forge that window reference
+const isTrustedExtensionMessage = (event: MessageEvent): boolean => {
+    if (cacheInvalidated || iframeCache.some(cache => !cache.element || !cache.element.isConnected)) {
+        updateIframeCache()
+    }
+    return iframeCache.some(cache => cache.contentWindow !== null && cache.contentWindow === event.source)
 }
 
 const dispatchToExtensions = (type: string, data: any, targetId?: string): void => {
@@ -169,5 +179,5 @@ const isFullscreenActive = (): boolean => {
     )
 }
 
-export { dispatchToExtensions, getFullscreenElement, isFullscreenSupported, isFullscreenActive, invalidateIframeCache }
+export { dispatchToExtensions, getFullscreenElement, isFullscreenSupported, isFullscreenActive, invalidateIframeCache, isTrustedExtensionMessage }
 export type { IframeCache, MessageData }

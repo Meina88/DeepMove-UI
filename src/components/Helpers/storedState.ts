@@ -25,7 +25,7 @@ export const useStoredState = <T>(
         try {
             const item = localStorage.getItem(key)
             return item ? JSON.parse(item) : null
-        } catch (e) {
+        } catch {
             return null
         }
     }, [key])

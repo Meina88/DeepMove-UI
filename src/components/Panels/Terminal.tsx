@@ -53,7 +53,7 @@ interface TerminalPanelProps {
 
 const TerminalPanel: FunctionalComponent<TerminalPanelProps> = ({ embedded = false }) => {
 
-    const { panels, uisettings } = useUiContext()
+    const { uisettings } = useUiContext()
     const { terminal } = useDatasContext()
     const { processData } = useTargetContext()
     const { targetCommands } = useTargetCommands()

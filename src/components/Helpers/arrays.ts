@@ -144,11 +144,6 @@ const BitsArray: BitsArrayType = {
         while (this.size > this.bits.length) {
             this.bits.push("0")
         }
-        let t = ""
-        for (let i = 0; i < this.bits.length; i++) {
-            if (i > 0) t += ","
-            t += this.bits[i]
-        }
         return this
     },
     fromArray: function (arrayVal: any[]): BitsArrayType {

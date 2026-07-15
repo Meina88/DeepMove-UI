@@ -16,7 +16,7 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { Fragment,  FunctionalComponent, TargetedMouseEvent, JSX } from "preact"
+import { Fragment,  FunctionalComponent, TargetedMouseEvent } from "preact"
 import { useState, useEffect } from "preact/hooks"
 import { ButtonImg } from "../../Controls"
 import { T } from "../../Translations"
@@ -36,7 +36,6 @@ import {
     ArrowDown,
     Trash2,
     Minimize2,
-    Flag,
 } from "preact-feather"
 import defaultPanel from "./def_panel.json"
 import defaultMacro from "./def_macro.json"
@@ -65,6 +64,15 @@ interface ItemData {
 
 type ValidationError = string | null | true  // true or null means valid, string is the error message
 type ValidationFunction = (item: FieldItem) => ValidationError | Promise<ValidationError>
+
+interface ItemFieldEditorProps {
+    item: FieldItem
+    idList: string
+    itemData: ItemData
+    completeList: ItemData[]
+    validationfn: ValidationFunction
+    setValue: (value: ItemData[] | null, update?: boolean) => void
+}
 
 interface ItemControlProps {
     itemData: ItemData
@@ -101,12 +109,54 @@ interface ItemsListProps {
  * Local const
  *
  */
+const ItemFieldEditor: FunctionalComponent<ItemFieldEditorProps> = ({
+    item,
+    idList,
+    itemData,
+    completeList,
+    validationfn,
+    setValue,
+}) => {
+    const { id: _id, type, label, initial: _initial, options, ...rest } = item
+    const [validation, setvalidation] = useState(validationfn(item))
+    //Do translation if necessary
+    const Options = options
+        ? [...options].reduce((acc: any[], curr: any) => {
+              acc.push({
+                  label: T(curr.label),
+                  value: curr.value,
+                  depend: curr.depend,
+              })
+              return acc
+          }, [])
+        : null
+    if (idList == "keymap" && item.name == "name") {
+        return null
+    }
+    return (
+        <Field
+            id={item.id}
+            label={idList == "keymap" ? T(itemData.id) : T(label)}
+            type={type}
+            options={Options}
+            inline={type == "boolean" || type == "icon" ? true : false}
+            {...rest}
+            setValue={(val: any, update?: boolean) => {
+                if (!update) item.value = val
+                setvalidation(validationfn(item))
+                setValue(completeList, update)
+            }}
+            validation={validation}
+        />
+    )
+}
+
 const ItemControl: FunctionalComponent<ItemControlProps> = ({
     itemData,
     index,
     completeList,
     idList,
-    depend,
+    depend: _depend,
     setValue,
     validationfn,
     fixed,
@@ -115,7 +165,7 @@ const ItemControl: FunctionalComponent<ItemControlProps> = ({
     sorted,
 }) => {
     const iconsList: Record<string, any> = { ...iconsTarget, ...iconsFeather }
-    const { id, value, editionMode, ...rest } = itemData
+    const { id, value, editionMode } = itemData
     const indexIcon = value.findIndex((element) => element.id == `${id  }-icon`)
     const indexName = value.findIndex((element) => element.id == `${id  }-name`)
     const icon = value ? value[indexIcon != -1 ? indexIcon : 0].value : null
@@ -290,57 +340,17 @@ const ItemControl: FunctionalComponent<ItemControlProps> = ({
                     </div>
                     <div class="m-1">
                         {value &&
-                            value.map((item) => {
-                                const {
-                                    id,
-                                    type,
-                                    label,
-                                    initial,
-                                    options,
-                                    ...rest
-                                } = item
-                                const [validation, setvalidation] = useState(
-                                    validationfn(item)
-                                )
-                                //Do translation if necessary
-                                const Options = options
-                                    ? [...options].reduce((acc: any[], curr: any) => {
-                                          acc.push({
-                                              label: T(curr.label),
-                                              value: curr.value,
-                                              depend: curr.depend,
-                                          })
-                                          return acc
-                                      }, [])
-                                    : null
-                                if (idList == "keymap" && item.name == "name") {
-                                    return
-                                }
-                                return (
-                                    <Field
-                                        id={item.id}
-                                        label={
-                                            idList == "keymap"
-                                                ? T(itemData.id)
-                                                : T(label)
-                                        }
-                                        type={type}
-                                        options={Options}
-                                        inline={
-                                            type == "boolean" || type == "icon"
-                                                ? true
-                                                : false
-                                        }
-                                        {...rest}
-                                        setValue={(val: any, update?: boolean) => {
-                                            if (!update) item.value = val
-                                            setvalidation(validationfn(item))
-                                            setValue(completeList, update)
-                                        }}
-                                        validation={validation}
-                                    />
-                                )
-                            })}
+                            value.map((item) => (
+                                <ItemFieldEditor
+                                    key={item.id}
+                                    item={item}
+                                    idList={idList}
+                                    itemData={itemData}
+                                    completeList={completeList}
+                                    validationfn={validationfn}
+                                    setValue={setValue}
+                                />
+                            ))}
                     </div>
                 </div>
             )}
@@ -352,11 +362,11 @@ const ItemsList: FunctionalComponent<ItemsListProps> = ({
     id,
     label,
     validationfn,
-    validation,
+    validation: _validation,
     value,
-    type,
+    type: _type,
     setValue,
-    inline,
+    inline: _inline,
     fixed,
     sorted,
     depend,
@@ -443,6 +453,7 @@ const ItemsList: FunctionalComponent<ItemsListProps> = ({
                     value.map((element, index, completeList) => {
                         return (
                             <ItemControl
+                                key={element.id}
                                 itemData={element}
                                 index={index}
                                 completeList={completeList}

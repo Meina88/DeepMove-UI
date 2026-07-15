@@ -105,9 +105,7 @@ const bbox = model?.bbox ?? {
     ctx.lineJoin = "round"
 
    if (model) {
-  const maxSeg = Math.min(model.segments.length)
-
-  model.segments.forEach((seg, index) => {
+  model.segments.forEach((seg) => {
     const a3 = {
       x: seg.start.x - centerX,
       y: seg.start.y - centerY,
@@ -121,8 +119,6 @@ const bbox = model?.bbox ?? {
 
     const a2 = view.projection(a3)
     const b2 = view.projection(b3)
-
-    const isCompleted = index < maxSeg
 
 if (seg.type === "rapid") {
   ctx.strokeStyle = COLORS.rapid

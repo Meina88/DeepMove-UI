@@ -20,7 +20,7 @@
 import { Fragment, FunctionalComponent, render, TargetedEvent } from "preact"
 import { Menu } from "./menu"
 import { iconsFeather } from "../components/Images"
-import { machineSettings, iconsTarget } from "../targets"
+import { machineSettings } from "../targets"
 import { ConnectionContainer } from "./connection"
 import { MainContainer } from "./main"
 import { useUiContext, useUiContextFn } from "../contexts/UiContext"
@@ -39,8 +39,14 @@ import {
 import { useSettings, useHttpQueue, useTargetCommands } from "../hooks"
 import { useEffect } from "preact/hooks"
 import { Field, FieldGroup } from "../components/Controls"
-import { showKeepConnected, showModal } from "../components/Modal"
-import { espHttpURL, dispatchToExtensions } from "../components/Helpers"
+import { useKeepConnectedModal, showModal } from "../components/Modal"
+import {
+    espHttpURL,
+    dispatchToExtensions,
+    isTrustedExtensionMessage,
+    sanitizeHtml,
+    sanitizePathSegment,
+} from "../components/Helpers"
 import { T, baseLangRessource } from "../components/Translations"
 import { HelpCircle, Layout } from "preact-feather"
 
@@ -51,10 +57,7 @@ import { HelpCircle, Layout } from "preact-feather"
 
 const ViewContainer: FunctionalComponent = () => {
     const { connection, dialogs } = useUiContext()
-    if (dialogs.showKeepConnected == true) {
-        dialogs.setShowKeepConnected(false)
-        showKeepConnected()
-    }
+    useKeepConnectedModal(dialogs.showKeepConnected, dialogs.setShowKeepConnected)
     if (
         connection.connectionState.connected &&
         !connection.connectionState.updating
@@ -80,6 +83,7 @@ const ContentContainer: FunctionalComponent = () => {
     const { modals } = useModalsContext()
 
     const processExtensionMessage = (eventMsg: any) => {
+        if (!isTrustedExtensionMessage(eventMsg)) return
         if (eventMsg.data.type && eventMsg.data.target == "webui") {
             switch (eventMsg.data.type) {
                 case "response":
@@ -195,10 +199,19 @@ const ContentContainer: FunctionalComponent = () => {
                     break
                 }
                 case "upload": {
+                    const uploadPath = sanitizePathSegment(eventMsg.data.path)
+                    const uploadFilename = sanitizePathSegment(eventMsg.data.filename)
+                    if (uploadPath === null || uploadFilename === null) {
+                        console.error(
+                            "Rejected upload with unsafe path/filename from extension",
+                            eventMsg.data
+                        )
+                        break
+                    }
                     const formData = new FormData()
                     const file = new File(
                         [eventMsg.data.content],
-                        eventMsg.data.filename
+                        uploadFilename
                     )
                     const initiator = {
                         type: "upload",
@@ -212,12 +225,9 @@ const ContentContainer: FunctionalComponent = () => {
                         noDispatch: eventMsg.data.noDispatch,
                     }
                     //TODO add support for additional POST arguments if needed
-                    formData.append("path", eventMsg.data.path)
-                    formData.append(
-                        `${eventMsg.data.filename}S`,
-                        eventMsg.data.size
-                    )
-                    formData.append("myfiles", file, eventMsg.data.filename)
+                    formData.append("path", uploadPath)
+                    formData.append(`${uploadFilename}S`, eventMsg.data.size)
+                    formData.append("myfiles", file, uploadFilename)
                     createNewRequest(
                         espHttpURL(eventMsg.data.url, eventMsg.data.args),
                         {
@@ -266,9 +276,32 @@ const ContentContainer: FunctionalComponent = () => {
                     )
                     break
                 }
-                case "download":
+                case "download": {
+                    const downloadArgs = { ...eventMsg.data.args }
+                    if ("path" in downloadArgs) {
+                        const sanitized = sanitizePathSegment(downloadArgs.path)
+                        if (sanitized === null) {
+                            console.error(
+                                "Rejected download with unsafe path from extension",
+                                eventMsg.data
+                            )
+                            break
+                        }
+                        downloadArgs.path = sanitized
+                    }
+                    if ("filename" in downloadArgs) {
+                        const sanitized = sanitizePathSegment(downloadArgs.filename)
+                        if (sanitized === null) {
+                            console.error(
+                                "Rejected download with unsafe filename from extension",
+                                eventMsg.data
+                            )
+                            break
+                        }
+                        downloadArgs.filename = sanitized
+                    }
                     createNewRequest(
-                        espHttpURL(eventMsg.data.url, eventMsg.data.args),
+                        espHttpURL(eventMsg.data.url, downloadArgs),
                         { method: "GET", id: "download" },
                         {
                             onSuccess: (result: string) => {
@@ -310,6 +343,7 @@ const ContentContainer: FunctionalComponent = () => {
                         }
                     )
                     break
+                }
                 case "toast":
                     toasts.addToast({
                         content: eventMsg.data.content.text,
@@ -506,9 +540,9 @@ const ContentContainer: FunctionalComponent = () => {
                                                     const subFieldData =
                                                         fieldData.value[subData]
                                                     const {
-                                                        label,
-                                                        initial,
-                                                        type,
+                                                        label: _label,
+                                                        initial: _initial,
+                                                        type: _type,
                                                         ...rest
                                                     } = subFieldData
                                                     return (
@@ -542,7 +576,7 @@ const ContentContainer: FunctionalComponent = () => {
                                         </FieldGroup>
                                     )
                                 } else {
-                                    const { label, initial, type, ...rest } =
+                                    const { label, initial: _initial, type, ...rest } =
                                         fieldData
                                     return (
                                         <Field
@@ -574,7 +608,7 @@ const ContentContainer: FunctionalComponent = () => {
                     }
                     let modal_content = modalContent.content
                     if (content.style != "fields") {
-                        modal_content = (<div dangerouslySetInnerHTML={{ __html: modalContent.content }}></div>)
+                        modal_content = (<div dangerouslySetInnerHTML={{ __html: sanitizeHtml(modalContent.content) }}></div>)
                     }
                     showModal({
                         modals,
@@ -746,7 +780,7 @@ const ContentContainer: FunctionalComponent = () => {
                             body: formDataExtensions,
                         },
                         {
-                            onSuccess: (result: string) => {
+                            onSuccess: (_result: string) => {
                                 dispatchToExtensions(
                                     "extensionsData",
                                     {
@@ -756,7 +790,7 @@ const ContentContainer: FunctionalComponent = () => {
                                     eventMsg.data.id
                                 )
                             },
-                            onFail: (error: string) => {
+                            onFail: (_error: string) => {
                                 dispatchToExtensions(
                                     "extensionsData",
                                     {

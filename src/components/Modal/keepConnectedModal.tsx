@@ -16,9 +16,10 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 import { TargetedMouseEvent } from "preact"
+import { useEffect } from "preact/hooks"
 import { HelpCircle } from "preact-feather"
 import { useUiContextFn, useModalsContext } from "../../contexts"
-import { useHttpQueue } from "../../hooks"
+import { useHttpFn } from "../../hooks"
 import { T } from "../../components/Translations"
 import { espHttpURL } from "../../components/Helpers"
 
@@ -26,52 +27,59 @@ import { espHttpURL } from "../../components/Helpers"
  * Local const
  *
  */
-const showKeepConnected = (): void => {
+const useKeepConnectedModal = (showKeepConnected: boolean, setShowKeepConnected: (show: boolean) => void): void => {
     const { modals } = useModalsContext()
-    const { createNewRequest } = useHttpQueue()
-    const id = "keepconnected"
-    const clickKeepConnected = (e: TargetedMouseEvent<HTMLButtonElement>): void => {
-        useUiContextFn.haptic()
-        createNewRequest(
-            espHttpURL("command", { PING: "Yes" }),
-            { method: "GET" },
-            {
-                onSuccess: (result: string): void => {
-                    //TODO:Need to do something ? TBD
-                },
-                onFail: (error: string): void => {
-                    //TODO:Need to do something ? TBD
-                },
-            }
-        )
-        modals.removeModal(modals.getModalIndex(id))
-    }
-    const clickCancel = (e: TargetedMouseEvent<HTMLButtonElement>): void => {
-        useUiContextFn.haptic()
-        modals.removeModal(modals.getModalIndex(id))
-    }
-    if (modals.getModalIndex(id) == -1)
-        modals.addModal({
-            id: id,
-            title: (
-                <div class="text-primary feather-icon-container modal_title">
-                    <HelpCircle />
-                    <label>{T("S145")}</label>
-                </div>
-            ),
-            content: T("S153"),
-            footer: (
-                <div>
-                    <button class="btn mx-2" onClick={clickKeepConnected}>
-                        {T("S27")}
-                    </button>
-                    <button class="btn mx-2" onClick={clickCancel}>
-                        {T("S28")}
-                    </button>
-                </div>
-            ),
-            //overlay: true,
-            hideclose: false,
-        })
+
+    useEffect(() => {
+        if (!showKeepConnected) return
+        setShowKeepConnected(false)
+
+        const id = "keepconnected"
+        const clickKeepConnected = (_e: TargetedMouseEvent<HTMLButtonElement>): void => {
+            useUiContextFn.haptic()
+            useHttpFn.createNewRequest(
+                espHttpURL("command", { PING: "Yes" }),
+                { method: "GET" },
+                {
+                    onSuccess: (_result: string): void => {
+                        //TODO:Need to do something ? TBD
+                    },
+                    onFail: (_error: string): void => {
+                        //TODO:Need to do something ? TBD
+                    },
+                }
+            )
+            modals.removeModal(modals.getModalIndex(id))
+        }
+        const clickCancel = (_e: TargetedMouseEvent<HTMLButtonElement>): void => {
+            useUiContextFn.haptic()
+            modals.removeModal(modals.getModalIndex(id))
+        }
+        if (modals.getModalIndex(id) == -1)
+            modals.addModal({
+                id: id,
+                title: (
+                    <div class="text-primary feather-icon-container modal_title">
+                        <HelpCircle />
+                        <label>{T("S145")}</label>
+                    </div>
+                ),
+                content: T("S153"),
+                footer: (
+                    <div>
+                        <button class="btn mx-2" onClick={clickKeepConnected}>
+                            {T("S27")}
+                        </button>
+                        <button class="btn mx-2" onClick={clickCancel}>
+                            {T("S28")}
+                        </button>
+                    </div>
+                ),
+                //overlay: true,
+                hideclose: false,
+            })
+        // intentional: only re-run when the flag flips, not on every modals/createNewRequest identity change
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [showKeepConnected])
 }
-export { showKeepConnected }
+export { useKeepConnectedModal }

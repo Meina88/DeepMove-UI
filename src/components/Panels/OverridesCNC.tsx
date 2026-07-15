@@ -16,7 +16,6 @@ SpindleCNC.js - ESP3D WebUI component file
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { Fragment, TargetedMouseEvent } from "preact"
 import type { FunctionalComponent } from "preact"
 import { T } from "../Translations"
 import { Play, Pause, Plus, Minus, RefreshCw } from "preact-feather"
@@ -242,25 +241,9 @@ const spindleAtMax = spindleNextRPM > spindleMax
 
 
     const progressVisiblePct = Math.max(progressPct, 1)
-    const progressRemainingPct = 100 - progressPct
-
-    const spindleButtons = [
-        { label: "+10%", tooltip: "CN67", delta: "+10" as const },
-        { label: "100%", tooltip: "CN66", delta: "100" as const },
-        { label: "-10%", tooltip: "CN67", delta: "-10" as const },
-    ]
-
-    const feedButtons = [
-        { label: "+10%", tooltip: "CN68", delta: "+10" as const },
-        { label: "100%", tooltip: "CN66", delta: "100" as const },
-        { label: "-10%", tooltip: "CN68", delta: "-10" as const },
-    ]
-
 
     type OverrideType = "spindle" | "feed"
     type OverrideDelta = "+10" | "-10" | "100"
-
-    const clamp = (v: number) => Math.max(50, Math.min(150, v))
 
     const sendOverride = (type: OverrideType, delta: OverrideDelta) => {
         const applyDelta = (current: number) => {
@@ -288,17 +271,7 @@ const spindleAtMax = spindleNextRPM > spindleMax
         targetCommands(`#FO${delta}#`)
     }
 
-    const POWER_GAUGE_LEN = 252
     const PROGRESS_GAUGE_LEN = 220
-
-    // Offsets calculados (0–100%)
-    const powerStrokeOffset =
-        POWER_GAUGE_LEN * (1 - powerPct / 100)
-
-    const progressStrokeOffset =
-        PROGRESS_GAUGE_LEN * (1 - progressPct / 100)
-
-
 
     return (
         <div class="panel panel-dashboard" id={id}>

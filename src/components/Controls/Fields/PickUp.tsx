@@ -34,7 +34,7 @@ interface PickUpProps {
 }
 
 const PickUp: FunctionalComponent<PickUpProps> = ({
-    label = "",
+    label: _label = "",
     id = "",
     inline,
     setValue,

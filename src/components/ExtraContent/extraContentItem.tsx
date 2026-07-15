@@ -17,7 +17,6 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { Fragment } from "preact"
 import { useState, useEffect, useCallback, useRef, useMemo } from "preact/hooks"
 import { espHttpURL, invalidateIframeCache } from "../Helpers"
 import { useHttpFn } from "../../hooks"
@@ -61,7 +60,7 @@ const ExtraContentItem = ({
     name,
     target,
     refreshtime,
-    isVisibleOnStart,
+    isVisibleOnStart: _isVisibleOnStart,
 }: ExtraContentItemProps) => {
     const [contentUrl, setContentUrl] = useState("")
     const [hasError, setHasError] = useState(false)
@@ -73,17 +72,6 @@ const ExtraContentItem = ({
     //console.log(`Rendering ExtraContentItem ${id} at ${Date.now()}`);
     if (visibilityState[id] === undefined) {
         visibilityState[id] = false;
-        if (type=="extension" && isLoadedState[id]){    
-            // @ts-ignore element/msg are only defined in update handler below
-            const iframeElement = element.querySelector('iframe.extensionContainer') as any;
-            if (iframeElement){
-                // @ts-ignore element/msg are only defined in update handler below
-                // // // iframeElement.contentWindow.postMessage(
-                // // //     { type: "notification", content: {isVisible: msg.isVisible}, id },
-                // // //     "*"
-                // // // )
-            }
-        }
     }
     if (isLoadedState[id] === undefined) {
         isLoadedState[id] = false;

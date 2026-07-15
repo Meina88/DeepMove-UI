@@ -20,7 +20,7 @@ import { Fragment, FunctionalComponent, VNode, ComponentChildren, HTMLAttributes
 import { useState, useEffect, useCallback } from "preact/hooks"
 import { Loading } from "../Controls"
 import { useRouterContext } from "../../contexts"
-import type { RouteDef, RoutesMap, ParentRoutesRef } from "../../types/routes.types"
+import type { RoutesMap, ParentRoutesRef } from "../../types/routes.types"
 
 interface RouterProps {
   children?: ComponentChildren

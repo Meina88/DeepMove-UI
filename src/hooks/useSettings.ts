@@ -44,7 +44,7 @@ import {
     importPreferencesSection,
     formatPreferences,
 } from "../tabs/interface/importHelper"
-import { Frown, Info } from "preact-feather"
+import { Info } from "preact-feather"
 import { showModal } from "../components/Modal"
 
 /*

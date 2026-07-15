@@ -24,7 +24,7 @@ import { useFilesManager, fileSizeString, getCurrentPath, setFileRef } from "../
 import type { FileEntry, PanelMenuItem } from "../../types/files.types"
 import { Loading, ButtonImg, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
 import { useUiContextFn, useModalsContext } from "../../contexts"
-import { showConfirmationModal, showModal } from "../Modal"
+import { showConfirmationModal } from "../Modal"
 import { Upload, RefreshCcw, FolderPlus, CornerRightUp, XCircle, Plus } from "preact-feather"
 import { SDCard } from "../../targets/CNC/FluidNC/icons"
 
@@ -33,8 +33,6 @@ import { Folder, File, Trash2, Eye } from "preact-feather"
 import { Menu as PanelMenu } from "./"
 import { eventBus } from "../../hooks/eventBus"
 import { espHttpURL } from "../Helpers/http"
-import { useTargetContext } from "../../targets"
-import { useUiContext } from "../../contexts"
 
 
 
@@ -55,7 +53,7 @@ const FilesPanel: FunctionalComponent<FilesPanelProps> = ({ embedded = false }) 
 
 
 
-    const [isFullScreen, setIsFullScreen] = useState<boolean>(false)
+    const [_isFullScreen, setIsFullScreen] = useState<boolean>(false)
     const [selectedFile, setSelectedFile] = useState<string | null>(null)
     const [fabOpen, setFabOpen] = useState(false)
 

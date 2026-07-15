@@ -3,7 +3,7 @@
 */
 
 import type { FunctionalComponent } from "preact"
-import { ContainerHelper, FullScreenButton, Button } from "../Controls"
+import { ContainerHelper, Button } from "../Controls"
 import { T } from "../Translations"
 import {
   Monitor,
@@ -24,12 +24,8 @@ import { useTargetCommands } from "../../hooks"
 import { useTargetContext } from "../../targets"
 import { useUiContextFn } from "../../contexts"
 import { eventBus } from "../../hooks/eventBus"
-import { DashboardIcon } from "../../targets/CNC/FluidNC/icons"
 import { iconsTarget } from "../../targets"
 import { useModalsContext } from "../../contexts"
-import { useHttpQueue } from "../../hooks"
-import { useWebSocketService } from "../../hooks/useWebSocketService"
-import { espHttpURL } from "../Helpers"
 import { showConfirmationModal } from "../Modal"
 import { TargetedMouseEvent } from "preact"
 
@@ -44,8 +40,6 @@ const HMIPanel: FunctionalComponent = () => {
   const { status } = useTargetContext() as any
   const uiFn = useUiContextFn
   const { modals } = useModalsContext()
-  const { createNewRequest } = useHttpQueue()
-  const webSocketService = useWebSocketService()
 
   const lastValidState = useRef<string>("Offline")
 
@@ -156,20 +150,6 @@ const HMIPanel: FunctionalComponent = () => {
       button1: { cb: powerOffNow, text: T("S248") },
       button2: { text: T("S28") },
     })
-  }
-
-  // Opcional: si en HMI querés también cortar sesión como en navbar global
-  const disconnectNow = () => {
-    const formData = new FormData()
-    formData.append("DISCONNECT", "YES")
-    createNewRequest(
-      espHttpURL("login"),
-      { method: "POST", id: "login", body: formData },
-      {
-        onSuccess: () => webSocketService.disconnect("sessiontimeout"),
-        onFail: () => webSocketService.disconnect("sessiontimeout"),
-      }
-    )
   }
 
   const onResetPress = () => {

@@ -17,7 +17,7 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { Fragment,  FunctionalComponent, TargetedEvent, JSX } from "preact"
+import { FunctionalComponent, TargetedEvent, JSX } from "preact"
 import { useEffect } from "preact/hooks"
 import { useSettingsContext, useUiContextFn } from "../../../contexts"
 import { T } from "../../Translations"
@@ -79,7 +79,7 @@ const Option: FunctionalComponent<OptionProps> = ({ label, depend, ...props }) =
 }
 
 const Select: FunctionalComponent<SelectProps> = ({
-    label = "",
+    label: _label = "",
     id = "",
     options = [],
     depend,

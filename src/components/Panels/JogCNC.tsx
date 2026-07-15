@@ -19,21 +19,15 @@ Jog.tsx - ESP3D WebUI component file
 import { Fragment } from "preact"
 import {
     Home,
-    ChevronDown,
-    Edit3,
-    StopCircle,
-    MoreHorizontal,
     Crosshair,
     ArrowUp,
     ArrowDown,
-    ArrowLeft,
-    ArrowRight,
     Sun
 } from "preact-feather"
 import { useTargetCommands } from "../../hooks"
 import { useUiContextFn, useModalsContext } from "../../contexts"
 import { T } from "../Translations"
-import { Button, ButtonImg, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
+import { Button, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
 import { useEffect, useState, useRef } from "preact/hooks"
 import { showModal } from "../Modal"
 import { useTargetContext } from "../../targets"
@@ -108,7 +102,7 @@ interface PositionsControlsProps {
 const PositionsControls = ({
     mode,
     onWPosClick,
-    onHomeAxis,
+    onHomeAxis: _onHomeAxis,
     onZeroAxis,
     onConfirmHomeAxis,
 }: PositionsControlsProps) => {
@@ -581,55 +575,6 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
     }
 
 
-    //Set the current feedrate for axis//
-    const setFeedrate = (axis: string) => {
-        let value = currentFeedRate[axis]
-        let t
-        if (axis == "XY") {
-            t = T("CN2")
-        } else {
-            t = T("CN3").replace("$", axis)
-        }
-        showModal({
-            modals,
-            title: t,
-            button2: { text: T("S28") },
-            button1: {
-                cb: () => {
-                    if (value.length > 0.1 as any) currentFeedRate[axis] = value
-                },
-                text: T("S43"),
-                id: "applyFrBtn",
-            },
-            icon: <Edit3 />,
-            id: "inputFeedrate",
-            content: (
-                <Fragment>
-                    <div>{t}</div>
-                    <input
-                        class="form-input"
-                        type="number"
-                        step="0.1"
-                        value={value}
-                        onInput={(e) => {
-                            value = (e.target as HTMLInputElement).value.trim()
-                            const btn = document.getElementById("applyFrBtn") as HTMLButtonElement
-                            if (parseFloat(value) < 0.1) {
-                                if (btn) {
-                                    btn.disabled = true
-                                }
-                            } else {
-                                if (btn) {
-                                    btn.disabled = false
-                                }
-                            }
-                        }}
-                    />
-                </Fragment>
-            ),
-        })
-    }
-
     // Axis selector for additional axes (A, B, C, U, V, W)
     const selectorBtn = (type: string) => {
         if (type == "prev" || type == "next") {
@@ -947,7 +892,7 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
                                         targetCommands("G0")
                                     }
 
-                                    ; (e.currentTarget as HTMLElement).blur()
+                                    (e.currentTarget as HTMLElement).blur()
                                 }}
                                 title="Laser Focus"
                             >
@@ -1192,7 +1137,7 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
                                             )
                                         )
                                             return (
-                                                <option value={letter}>
+                                                <option key={letter} value={letter}>
                                                     {letter}
                                                 </option>
                                             )

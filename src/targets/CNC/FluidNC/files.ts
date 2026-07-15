@@ -21,6 +21,13 @@ import { FLASH } from "../../FLASH-source"
 import { DIRECTSD } from "./DIRECTSD-source"
 import { useSettingsContextFn, useUiContextFn } from "../../../contexts"
 import { FileCommand, FilesModule, SupportedFileType } from "../../../types/files.types"
+import { sanitizePathSegment } from "../../../components/Helpers"
+
+// Commands with a (path, filename?) signature - the only ones that take a
+// user/extension-controlled filesystem path in FLASH-source.ts/DIRECTSD-source.ts.
+// formatResult/filterResult are intentionally excluded: their first argument is
+// a data blob, not a path.
+const PATH_COMMANDS = new Set(["list", "upload", "deletedir", "delete", "createdir", "download", "play"])
 
 //List of supported files systems
 const supportedFileSystems : SupportedFileType[] = [
@@ -65,8 +72,24 @@ function capability(filesystem: string, capability: string, ...rest: any[]): any
 }
 
 function command(filesystem: string, cmd: string, ...rest: any[]): FileCommand {
-    if (commands[filesystem] && commands[filesystem][cmd])
+    if (commands[filesystem] && commands[filesystem][cmd]) {
+        if (PATH_COMMANDS.has(cmd)) {
+            const [rawPath, rawFilename, ...others] = rest
+            const path = typeof rawPath === "string" ? sanitizePathSegment(rawPath) : rawPath
+            const filename =
+                rawFilename !== undefined
+                    ? typeof rawFilename === "string"
+                        ? sanitizePathSegment(rawFilename)
+                        : rawFilename
+                    : undefined
+            if (path === null || (rawFilename !== undefined && filename === null)) {
+                console.error("files.command: rejected unsafe path/filename", { cmd, rawPath, rawFilename })
+                return { type: "error" }
+            }
+            return commands[filesystem][cmd](path, filename, ...others)
+        }
         return commands[filesystem][cmd](...rest)
+    }
     //console.log("Unknow command ", cmd, " for ", filesystem)
     return { type: "error" }
 }

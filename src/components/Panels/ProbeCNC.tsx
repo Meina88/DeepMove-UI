@@ -26,7 +26,7 @@ import {
     useSettingsContext,
 } from "../../contexts"
 import { useTargetContext, variablesList } from "../../targets"
-import { ButtonImg, Button, Field, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
+import { ButtonImg, Field, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
 import { checkDependencies } from "../Helpers"
 import { useTargetCommands } from "../../hooks"
 
@@ -70,6 +70,106 @@ const ProbeControls: FunctionalComponent = () => {
                 </div>
             </div>
         </Fragment>
+    )
+}
+
+interface ProbeControlFieldProps {
+    element: any
+    interfaceSettings: any
+    connectionSettings: any
+}
+
+const ProbeControlField: FunctionalComponent<ProbeControlFieldProps> = ({
+    element,
+    interfaceSettings,
+    connectionSettings,
+}) => {
+    //we won't handle modified state just handle error
+    //too many user cases where changing value to show button is not suitable
+    const [validation, setvalidation] = useState({
+        message: null,
+        valid: true,
+        modified: false,
+    })
+
+    const generateValidation = (element: any) => {
+        let validation = {
+            message: null,
+            valid: true,
+            modified: false,
+        }
+        if (
+            element.type === "select" &&
+            -1 ==
+                filterOptions(element.options).findIndex(
+                    (item: any) => item.value == element.value.current
+                )
+        ) {
+            element.value.current = filterOptions(element.options)[0].value
+        }
+        if (typeof element.step !== "undefined") {
+            //hack to avoid float precision issue
+            const inv = 1 / element.step
+            const mult = inv > 0 ? Number(inv.toFixed(0)) : 1
+            const valueMult = Math.round(element.value.current * mult)
+            const stepMult = Math.round(element.step * mult)
+            if (valueMult % stepMult != 0) {
+                validation.valid = false
+            }
+        }
+        if (
+            element.type === "number" &&
+            (element.value.current < element.min ||
+                element.value.current.length === 0)
+        ) {
+            //No error message to keep all control aligned
+            //may be have a better way ?
+            // validation.message = T("S42");
+            validation.valid = false
+        }
+
+        element.value.valid = validation.valid
+        return validation
+    }
+    const filterOptions = (options: any[]) => {
+        if (options)
+            return options.filter((option: any) => {
+                return checkDependencies(
+                    option.depend,
+                    interfaceSettings.current.settings,
+                    connectionSettings.current
+                )
+            })
+        return options
+    }
+    return (
+        <Field
+            key={element.id}
+            inline
+            id={element.id}
+            type={element.type}
+            label={T(element.label)}
+            append={element.append}
+            options={filterOptions(element.options)}
+            min={element.min}
+            max={element.max}
+            step={element.step}
+            value={element.value.current}
+            setValue={(val: any, update = false) => {
+                if (!update) {
+                    element.value.current = val
+                }
+                const validationObj = generateValidation(element)
+                setvalidation(validationObj)
+                if (validationObj.valid && element.variableName) {
+                    variablesList.addCommand({
+                        name: element.variableName,
+                        value: element.value.current,
+                    })
+                }
+            }}
+            validation={validation}
+        />
     )
 }
 
@@ -440,182 +540,12 @@ const ProbePanel: FunctionalComponent<ProbePanelProps> = ({ embedded = false }) 
                                                         />
                                                     )
                                                 } else {
-                                                    //we won't handle modified state just handle error
-                                                    //too many user cases where changing value to show button is not suitable
-                                                    const [
-                                                        validation,
-                                                        setvalidation,
-                                                    ] = useState({
-                                                        message: null,
-                                                        valid: true,
-                                                        modified: false,
-                                                    })
-
-                                                    const generateValidation = (
-                                                        element: any
-                                                    ) => {
-                                                        let validation = {
-                                                            message: null,
-                                                            valid: true,
-                                                            modified: false,
-                                                        }
-                                                        if (
-                                                            element.type ===
-                                                            "select" &&
-                                                            -1 ==
-                                                            filterOptions(
-                                                                element.options
-                                                            ).findIndex(
-                                                                (item: any) =>
-                                                                    item.value ==
-                                                                    element
-                                                                        .value
-                                                                        .current
-                                                            )
-                                                        ) {
-                                                            element.value.current =
-                                                                filterOptions(
-                                                                    element.options
-                                                                )[0].value
-                                                        }
-                                                        if (
-                                                            typeof element.step !==
-                                                            "undefined"
-                                                        ) {
-                                                            //hack to avoid float precision issue
-                                                            const inv = 1 / element.step
-                                                            const mult = inv > 0 ? Number(inv.toFixed(0)) : 1
-                                                            const valueMult =
-                                                                Math.round(
-                                                                    element
-                                                                        .value
-                                                                        .current *
-                                                                    mult
-                                                                )
-                                                            const stepMult =
-                                                                Math.round(
-                                                                    element.step *
-                                                                    mult
-                                                                )
-                                                            // console.log(
-                                                            //     "Element:",
-                                                            //     element.value
-                                                            //         .current,
-                                                            //     "Step:",
-                                                            //     element.step,
-                                                            //     "Mult",
-                                                            //     mult,
-                                                            //     "Modal:",
-                                                            //     "Value mult",
-                                                            //     valueMult,
-                                                            //     "Step mult",
-                                                            //     stepMult,
-                                                            //     "Modulo",
-                                                            //     valueMult %
-                                                            //         stepMult
-                                                            // )
-                                                            if (
-                                                                valueMult %
-                                                                stepMult !=
-                                                                0
-                                                            ) {
-                                                                // console.log(
-                                                                //     "not valid"
-                                                                // )
-                                                                validation.valid = false
-                                                            }
-                                                        }
-                                                        if (
-                                                            element.type ===
-                                                            "number" &&
-                                                            (element.value
-                                                                .current <
-                                                                element.min ||
-                                                                element.value
-                                                                    .current
-                                                                    .length ===
-                                                                0)
-                                                        ) {
-                                                            //No error message to keep all control aligned
-                                                            //may be have a better way ?
-                                                            // validation.message = T("S42");
-                                                            validation.valid = false
-                                                        }
-
-                                                        element.value.valid =
-                                                            validation.valid
-                                                        return validation
-                                                    }
-                                                    const filterOptions = (
-                                                        options: any[]
-                                                    ) => {
-                                                        if (options)
-                                                            return options.filter(
-                                                                (option: any) => {
-                                                                    return checkDependencies(
-                                                                        option.depend,
-                                                                        interfaceSettings
-                                                                            .current
-                                                                            .settings,
-                                                                        connectionSettings.current
-                                                                    )
-                                                                }
-                                                            )
-                                                        return options
-                                                    }
                                                     return (
-                                                        <Field key={element.id}
-                                                            inline
-                                                            id={element.id}
-                                                            type={element.type}
-                                                            label={T(
-                                                                element.label
-                                                            )}
-                                                            append={
-                                                                element.append
-                                                            }
-                                                            options={filterOptions(
-                                                                element.options
-                                                            )}
-                                                            min={element.min}
-                                                            max={element.max}
-                                                            step={element.step}
-                                                            value={
-                                                                element.value
-                                                                    .current
-                                                            }
-                                                            setValue={(
-                                                                val: any,
-                                                                update = false
-                                                            ) => {
-                                                                if (!update) {
-                                                                    element.value.current =
-                                                                        val
-                                                                }
-                                                                const validationObj =
-                                                                    generateValidation(
-                                                                        element
-                                                                    )
-                                                                setvalidation(
-                                                                    validationObj
-                                                                )
-                                                                if (
-                                                                    validationObj.valid &&
-                                                                    element.variableName
-                                                                ) {
-                                                                    variablesList.addCommand(
-                                                                        {
-                                                                            name: element.variableName,
-                                                                            value: element
-                                                                                .value
-                                                                                .current,
-                                                                        }
-                                                                    )
-                                                                }
-                                                            }}
-                                                            validation={
-                                                                validation
-                                                            }
+                                                        <ProbeControlField
+                                                            key={element.id}
+                                                            element={element}
+                                                            interfaceSettings={interfaceSettings}
+                                                            connectionSettings={connectionSettings}
                                                         />
                                                     )
                                                 }

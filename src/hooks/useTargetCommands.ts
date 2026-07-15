@@ -19,14 +19,13 @@
 
 import { espHttpURL, replaceVariables } from "../components/Helpers"
 import { useState } from "preact/hooks"
-import { useUiContext } from "../contexts"
 import { useHttpFn } from "./useHttpQueue"
-import { variablesList, processor, useTargetContext } from "../targets"
+import { variablesList, processor } from "../targets"
 import { useToastsContext } from "../contexts/ToastsContext"
 import { getWebSocketService } from "../hooks/useWebSocketService"
 
 const useTargetCommands = () => {
-    const [isLoading, setIsLoading] = useState(false)
+    const [_isLoading, setIsLoading] = useState(false)
     const { createNewRequest } = useHttpFn
     const { toasts } = useToastsContext()
 
@@ -89,7 +88,7 @@ const useTargetCommands = () => {
         if (!callbacks) {
             callbacks = {
                 // The default success action is to do nothing
-                onSuccess: (result) => { },
+                onSuccess: (_result) => { },
                 // The default failure action is to create a toast with the error message
                 onFail: (error) => {
                     toasts.addToast({ content: error, type: "error" })

@@ -20,16 +20,15 @@ import { Fragment, TargetedMouseEvent } from "preact"
 import type { FunctionalComponent, JSX } from "preact"
 import { useState, useEffect, useRef } from "preact/hooks"
 import { T } from "../Translations"
-import { Zap, Wind, CloudDrizzle, RotateCw, RotateCcw, Octagon, Sun } from "preact-feather"
+import { Zap, RotateCw, RotateCcw, Octagon } from "preact-feather"
 import { Outputs, Flare } from "../../targets/CNC/FluidNC/icons"
 import {
     useUiContext,
     useUiContextFn,
     useSettingsContext,
-    useToastsContext,
 } from "../../contexts"
-import { useTargetContext, eventsList } from "../../targets"
-import { ButtonImg, Field, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
+import { useTargetContext } from "../../targets"
+import { ButtonImg, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
 import { checkDependencies } from "../Helpers"
 import { useTargetCommands } from "../../hooks"
 import { eventBus } from "../../hooks/eventBus"
@@ -144,7 +143,6 @@ interface SpindlePanelProps {
 
 const SpindlePanel: FunctionalComponent<SpindlePanelProps> = ({ embedded = false }) => {
 
-    const { toasts } = useToastsContext()
     const { interfaceSettings, connectionSettings } = useSettingsContext()
     const { status, states, pinsStates } = useTargetContext() as {
         status: { state?: string }
@@ -179,9 +177,6 @@ const SpindlePanel: FunctionalComponent<SpindlePanelProps> = ({ embedded = false
     }, [isLaserMode])
     const laserMaxPower =
         Number(useUiContextFn.getValue("laser_max_power")) || 255
-
-    const laserFocusPercent =
-        interfaceSettings.current.settings?.laserfocuspower ?? 1
 
     const getLaserPowerValue = () => {
 

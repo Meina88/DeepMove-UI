@@ -39,7 +39,7 @@ interface FieldProps {
 }
 
 const Field: FunctionalComponent<FieldProps> = (props) => {
-    const { type, id, help } = props
+    const { type, id: _id, help: _help } = props
     switch (type) {
         case "mask":
         case "xmask":

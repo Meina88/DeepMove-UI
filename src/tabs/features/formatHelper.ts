@@ -30,7 +30,7 @@ import type {
 // Re-export types for backwards compatibility
 export type { RawSettingItem, SelectOption, SettingFieldProps, FeaturesStructure }
 
-const getFieldTypeName = ({ value, type, options }: { value: string; type: string; options?: Array<{ [key: string]: string }> | SelectOption[] }): FieldTypeName => {
+const getFieldTypeName = ({ value: _value, type, options }: { value: string; type: string; options?: Array<{ [key: string]: string }> | SelectOption[] }): FieldTypeName => {
     if (options !== undefined && !(type === "M" || type === "X"))
         return "select" //boolean
     if (type === "B") return "number" //byte is input number

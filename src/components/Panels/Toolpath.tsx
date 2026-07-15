@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from "preact/hooks"
 import { T } from "../Translations"
 import { ContainerHelper, FullScreenButton, CloseButton } from "../Controls"
 import { Menu as PanelMenu } from "./"
-import { Eye, CheckCircle, Circle, Trash2 } from "preact-feather"
+import { Eye, CheckCircle, Circle } from "preact-feather"
 import { useUiContextFn } from "../../contexts"
 import { useTargetContext } from "../../targets"
 
@@ -39,7 +39,7 @@ interface ToolpathPanelProps {
 }
 
 
-const ToolpathPanel: FunctionalComponent<ToolpathPanelProps> = ({ embedded = false }) => {
+const ToolpathPanel: FunctionalComponent<ToolpathPanelProps> = ({ embedded: _embedded = false }) => {
 
     const id = "toolpathPanel"
     const showPanel = useUiContextFn.getValue("showtoolpathpanel")

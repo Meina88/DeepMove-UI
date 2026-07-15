@@ -18,7 +18,7 @@
 */
 import { ComponentType, JSX } from "preact"
 import { useUiContextFn } from "../../contexts"
-import type { DependencyCondition, DependItem } from "../../types/dependencies.types"
+import type { DependItem } from "../../types/dependencies.types"
 
 interface ResponsiveProps {
     col: number
@@ -34,7 +34,7 @@ const getColClasses = ({ col, ...responsive }: ResponsiveProps): string => {
     return `col-${col} ${responsiveClasses}`
 }
 
-const generateUID = (): string => Math.random().toString(36).substr(2, 9)
+const generateUID = (): string => Math.random().toString(36).substring(2, 11)
 
 interface CreateComponentProps {
     is?: keyof JSX.IntrinsicElements | ComponentType<any>
@@ -142,16 +142,25 @@ const generateDependIds = (depend: DependItem[] | undefined, settings: any): any
     return dependIds;
 }
 
+// Matches the only two shapes d.value ever takes in preferences.json: "=='x'" / "!='x'"
+const CONNECTION_VALUE_RE = /^\s*(==|!=)\s*'([^']*)'\s*$/
+
 //this won't change as it is initalised with [ESP800] which is call at start
 const connectionDepend = (depend: DependItem[] | undefined, connectionsettings: any): boolean => {
     if (Array.isArray(depend)) {
         return depend.every(d => {
             if (d.connection_id && connectionsettings[d.connection_id]) {
-                const quote = d.value && d.value.trim().endsWith("'") ? "'" : "";
+                const actual = String(connectionsettings[d.connection_id]);
                 if (d.value) {
-                    return eval(quote + connectionsettings[d.connection_id] + quote + d.value);
+                    const match = CONNECTION_VALUE_RE.exec(String(d.value));
+                    if (!match) {
+                        console.error(`connectionDepend: unsupported value expression "${d.value}"`);
+                        return true;
+                    }
+                    const [, operator, expected] = match;
+                    return operator === "==" ? actual === expected : actual !== expected;
                 } else if (d.contains) {
-                    return eval(`'${connectionsettings[d.connection_id]}'` + `.indexOf('${d.contains}')!=-1`);
+                    return actual.includes(d.contains);
                 }
             }
             return true;

@@ -21,14 +21,14 @@ TabNar.tsx - ESP3D WebUI Tabs bar file
 import { VNode, TargetedMouseEvent } from "preact"
 import { Link } from "../Router"
 import { T } from "../Translations"
-import { AppLogo, WebUILogo, variablesList, Target } from "../../targets"
+import { variablesList } from "../../targets"
 import {
     useSettingsContext,
     useUiContext,
     useUiContextFn,
 } from "../../contexts"
 import { Tool, Wifi, Info } from "preact-feather"
-import { DashGear, FluidIcon, GearIcon } from "../../targets/CNC/FluidNC/icons"
+import { DashGear, GearIcon } from "../../targets/CNC/FluidNC/icons"
 
 interface NavItem {
     label: string
@@ -93,7 +93,7 @@ const TabBar = () => {
                                 }
                                 activeClassName="active"
                                 href={href}
-                                onClick={(e: TargetedMouseEvent<HTMLAnchorElement>) => {
+                                onClick={(_e: TargetedMouseEvent<HTMLAnchorElement>) => {
                                     useUiContextFn.haptic()
                                 }}
                             >

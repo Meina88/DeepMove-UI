@@ -19,30 +19,19 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { Fragment, ComponentChildren, TargetedMouseEvent } from "preact"
 import { useState, useEffect, useRef } from "preact/hooks"
 import { iconsFeather, } from "../Images"
 import { iconsTarget, AppLogo, } from "../../targets"
 import { useTargetContext } from "../../targets"
-import { Link } from "../Router"
 import { T } from "../Translations"
 import {
-    useSettingsContext,
     useUiContext,
     useModalsContext,
     useUiContextFn,
 } from "../../contexts"
-import { useWebSocketService } from "../../hooks/useWebSocketService";
-import { useHttpQueue } from "../../hooks"
-import { espHttpURL } from "../Helpers"
 import { showConfirmationModal } from "../Modal"
 import {
-    Server,
     Settings,
-    LogOut,
-    Trello,
-    ChevronDown,
-    Smartphone,
     Maximize,
     Minimize,
     Power,
@@ -54,7 +43,7 @@ import { useTargetCommands } from "../../hooks"
 import { DashboardIcon } from "../../targets/CNC/FluidNC/icons"
 import { DeepMoveIcon } from "../../targets/CNC/FluidNC/icons"
 import { eventBus } from "../../hooks/eventBus"
-import { Cyclone, Flare } from "../../targets/CNC/FluidNC/icons"
+import { Flare } from "../../targets/CNC/FluidNC/icons"
 
 
 
@@ -71,20 +60,6 @@ interface NavLinkItem {
     href: string
     id?: string
 }
-
-const defaultLinks: NavLinkItem[] = [
-    {
-        label: "",
-        icon: <AppLogo bgcolor="#ffffff" />,
-        href: "/dashboard",
-    },
-    {
-        label: "S14",
-        icon: <Settings />,
-        href: "/settings",
-        id: "settingsLink",
-    },
-]
 
 // Utility to detect iOS/iPadOS
 function isIOS(): boolean {
@@ -117,34 +92,22 @@ const Navbar = () => {
         window.location.hash.startsWith("#/settings")
     )
 
-    const { connectionSettings } = useSettingsContext()
     const { uisettings } = useUiContext()
     const { toolNumbers, setToolNumbers } = useUiContext()
 
     const laserModeEnabled = uisettings?.getValue?.("lasermode") ?? true
 
     const { parserstate } = useTargetContext() as any
-    const activeTool = parserstate?.tool
 
     const { modals } = useModalsContext()
-    const { createNewRequest } = useHttpQueue()
     const { targetCommands } = useTargetCommands()
-    const webSocketService = useWebSocketService();
-    const buttonExtraPage = useRef<HTMLAnchorElement | null>(null)
     const menuRef = useRef<HTMLDivElement | null>(null)
     const iconsList: Record<string, any> = { ...iconsTarget, ...iconsFeather }
-    const [textbutton, setTextButton] = useState<ComponentChildren>(
-        <Fragment>
-            <Trello />
-            <label class="hide-low">{T("S155")}</label>
-        </Fragment>
-    )
-    const [hrefbutton, setHrefButton] = useState<string | undefined>(undefined)
     const [isFullscreen, setIsFullscreen] = useState(false)
     const [menuOpen, setMenuOpen] = useState(false)
     const [isTabletDevice, setIsTabletDevice] = useState(isTablet())
-    const [isMobileDevice, setIsMobileDevice] = useState(isMobile())
-    const [cpuTemp, setCpuTemp] = useState<string | null>(null)
+    const [_isMobileDevice, setIsMobileDevice] = useState(isMobile())
+    const [_cpuTemp, setCpuTemp] = useState<string | null>(null)
     const [pendingTool, setPendingTool] = useState<number | null>(null)
     const toolChangeTimer = useRef<number | null>(null)
 
@@ -163,22 +126,6 @@ const Navbar = () => {
     }
     const isIdle = status?.state === "Idle"
 
-    const disconnectNow = () => {
-        const formData = new FormData()
-        formData.append("DISCONNECT", "YES")
-        createNewRequest(
-            espHttpURL("login"),
-            { method: "POST", id: "login", body: formData },
-            {
-                onSuccess: (_result: string) => {
-                    webSocketService.disconnect("sessiontimeout")
-                },
-                onFail: (_error: string) => {
-                    webSocketService.disconnect("sessiontimeout")
-                },
-            }
-        )
-    }
     const menuLinks: NavLinkItem[] = []
     const rawState = status?.state;
 
@@ -217,17 +164,6 @@ const Navbar = () => {
             }, [])
             menuLinks.push(...extraPages)
         }
-    }
-
-    const onDisconnect = () => {
-        useUiContextFn.haptic()
-        showConfirmationModal({
-            modals,
-            title: T("S26"),
-            content: T("S152"),
-            button1: { cb: disconnectNow, text: T("S27") },
-            button2: { text: T("S28") },
-        })
     }
 
     const powerOffNow = () => {

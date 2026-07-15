@@ -75,8 +75,7 @@ interface ValidationResult {
     modified: boolean;
 }
 
-const isDependenciesMet = (depend: any): boolean => {
-    const { interfaceSettings, connectionSettings } = useSettingsContext()
+const isDependenciesMet = (depend: any, interfaceSettings: any, connectionSettings: any): boolean => {
     return checkDependencies(depend, interfaceSettings.current.settings, connectionSettings.current)
 }
 
@@ -327,9 +326,93 @@ const generateValidationGlobal = (
     return validation
 }
 
+interface InterfaceGroupFieldProps {
+    subFieldData: FieldData
+    generateValidation: (fieldData: FieldData) => ValidationResult
+}
+
+const InterfaceGroupField = ({ subFieldData, generateValidation }: InterfaceGroupFieldProps) => {
+    const [validation, setvalidation] = useState<ValidationResult | undefined>()
+    const { label, initial: _initial, type, ...rest } = subFieldData
+    return (
+        <Field
+            label={T(label || '')}
+            type={type}
+            validationfn={generateValidation}
+            inline={type == "boolean" || type == "icon" ? true : false}
+            {...rest}
+            setValue={(val: any, update: boolean = false) => {
+                if (!update) {
+                    subFieldData.value = val
+                }
+                setvalidation(generateValidation(subFieldData))
+            }}
+            validation={validation}
+        />
+    )
+}
+
+interface InterfaceSubsectionProps {
+    fieldData: FieldData
+    generateValidation: (fieldData: FieldData) => ValidationResult
+    interfaceSettings: any
+    connectionSettings: any
+}
+
+const InterfaceSubsection = ({
+    fieldData,
+    generateValidation,
+    interfaceSettings,
+    connectionSettings,
+}: InterfaceSubsectionProps) => {
+    const [validation, setvalidation] = useState<ValidationResult | undefined>()
+
+    if (fieldData.type == "group") {
+        //show group
+        if (fieldData.depend) {
+            if (!isDependenciesMet(fieldData.depend, interfaceSettings, connectionSettings)) {
+                return null
+            }
+        }
+        return (
+            <FieldGroup id={fieldData.id} label={T(fieldData.label || '')} depend={fieldData.depend}>
+                {Object.keys(fieldData.value).map((subData) => {
+                    const subFieldData: FieldData = fieldData.value[subData]
+                    return (
+                        <InterfaceGroupField
+                            key={subData}
+                            subFieldData={subFieldData}
+                            generateValidation={generateValidation}
+                        />
+                    )
+                })}
+            </FieldGroup>
+        )
+    } else if (!fieldData.hide) {
+        const { label, initial: _initial, type, ...rest } = fieldData
+        return (
+            <Field
+                label={T(label || '')}
+                type={type}
+                validationfn={type == "list" ? generateValidation : null}
+                inline={type == "boolean" || type == "icon" ? true : false}
+                {...rest}
+                setValue={(val: any, update: boolean = false) => {
+                    if (!update) {
+                        fieldData.value = val
+                    }
+                    setvalidation(generateValidation(fieldData))
+                }}
+                validation={validation}
+            />
+        )
+    }
+    return null
+}
+
 const InterfaceTab = () => {
     const { toasts } = useToastsContext()
-    const { createNewRequest, abortRequest } = useHttpQueue()
+    const { createNewRequest } = useHttpQueue()
     const { getInterfaceSettings } = useSettings()
     const { interfaceSettings, connectionSettings } = useSettingsContext()
     const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -435,12 +518,12 @@ const InterfaceTab = () => {
             espHttpURL(useSettingsContextFn.getValue("HostTarget")),
             { method: "POST", id: "preferences", body: formData },
             {
-                onSuccess: (result: string) => {
+                onSuccess: (_result: string) => {
                     setTimeout(() => {
                         window.location.reload()
                     }, 1000)
                 },
-                onFail: (error: string) => {
+                onFail: (_error: string) => {
                     setIsLoading(false)
                 },
             }
@@ -473,7 +556,7 @@ const InterfaceTab = () => {
                                         sectionId
                                         ]
                                     return (
-                                        <Fragment>
+                                        <Fragment key={sectionId}>
                                             <div class="panel panel-interface">
                                                 <div class="navbar">
                                                     <span class="navbar-section text-ellipsis">
@@ -484,164 +567,15 @@ const InterfaceTab = () => {
                                                 </div>
                                                 <div class="panel-body panel-body-interface">
                                                     {Object.keys(section).map(
-                                                        (subsectionId) => {
-                                                            const fieldData: FieldData =
-                                                                section[
-                                                                subsectionId
-                                                                ]
-                                                            if (
-                                                                fieldData.type ==
-                                                                "group"
-                                                            ) {
-                                                                //show group
-                                                                if (
-                                                                    fieldData.depend
-                                                                ) {
-                                                                    if (
-                                                                        !isDependenciesMet(
-                                                                            fieldData.depend
-                                                                        )
-                                                                    ) {
-                                                                        return
-                                                                    }
-                                                                }
-                                                                return (
-                                                                    <FieldGroup
-                                                                        id={
-                                                                            fieldData.id
-                                                                        }
-                                                                        label={T(
-                                                                            fieldData.label || ''
-                                                                        )}
-                                                                        depend={
-                                                                            fieldData.depend
-                                                                        }
-                                                                    >
-                                                                        {Object.keys(
-                                                                            fieldData.value
-                                                                        ).map(
-                                                                            (
-                                                                                subData
-                                                                            ) => {
-                                                                                const subFieldData: FieldData =
-                                                                                    fieldData
-                                                                                        .value[
-                                                                                    subData
-                                                                                    ]
-                                                                                const [
-                                                                                    validation,
-                                                                                    setvalidation,
-                                                                                ] =
-                                                                                    useState<ValidationResult | undefined>()
-                                                                                const {
-                                                                                    label,
-                                                                                    initial,
-                                                                                    type,
-                                                                                    ...rest
-                                                                                } =
-                                                                                    subFieldData
-                                                                                return (
-                                                                                    <Field
-                                                                                        label={T(
-                                                                                            label || ''
-                                                                                        )}
-                                                                                        type={
-                                                                                            type
-                                                                                        }
-                                                                                        validationfn={
-                                                                                            generateValidation
-                                                                                        }
-                                                                                        inline={
-                                                                                            type ==
-                                                                                                "boolean" ||
-                                                                                                type ==
-                                                                                                "icon"
-                                                                                                ? true
-                                                                                                : false
-                                                                                        }
-                                                                                        {...rest}
-                                                                                        setValue={(
-                                                                                            val: any,
-                                                                                            update: boolean = false
-                                                                                        ) => {
-                                                                                            if (
-                                                                                                !update
-                                                                                            ) {
-                                                                                                subFieldData.value =
-                                                                                                    val
-                                                                                            }
-                                                                                            setvalidation(
-                                                                                                generateValidation(
-                                                                                                    subFieldData
-                                                                                                )
-                                                                                            )
-                                                                                        }}
-                                                                                        validation={
-                                                                                            validation
-                                                                                        }
-                                                                                    />
-                                                                                )
-                                                                            }
-                                                                        )}
-                                                                    </FieldGroup>
-                                                                )
-                                                            } else if (
-                                                                !fieldData.hide
-                                                            ) {
-                                                                const [
-                                                                    validation,
-                                                                    setvalidation,
-                                                                ] = useState<ValidationResult | undefined>()
-                                                                const {
-                                                                    label,
-                                                                    initial,
-                                                                    type,
-                                                                    ...rest
-                                                                } = fieldData
-                                                                return (
-                                                                    <Field
-                                                                        label={T(
-                                                                            label || ''
-                                                                        )}
-                                                                        type={type}
-                                                                        validationfn={
-                                                                            type ==
-                                                                                "list"
-                                                                                ? generateValidation
-                                                                                : null
-                                                                        }
-                                                                        inline={
-                                                                            type ==
-                                                                                "boolean" ||
-                                                                                type ==
-                                                                                "icon"
-                                                                                ? true
-                                                                                : false
-                                                                        }
-                                                                        {...rest}
-                                                                        setValue={(
-                                                                            val: any,
-                                                                            update: boolean = false
-                                                                        ) => {
-                                                                            if (
-                                                                                !update
-                                                                            ) {
-                                                                                fieldData.value =
-                                                                                    val
-                                                                            }
-                                                                            setvalidation(
-                                                                                generateValidation(
-                                                                                    fieldData
-                                                                                )
-                                                                            )
-                                                                        }}
-                                                                        validation={
-                                                                            validation
-                                                                        }
-                                                                    />
-                                                                )
-                                                            }
-                                                        }
+                                                        (subsectionId) => (
+                                                            <InterfaceSubsection
+                                                                key={subsectionId}
+                                                                fieldData={section[subsectionId]}
+                                                                generateValidation={generateValidation}
+                                                                interfaceSettings={interfaceSettings}
+                                                                connectionSettings={connectionSettings}
+                                                            />
+                                                        )
                                                     )}
                                                     <div class="m-1" />
                                                 </div>

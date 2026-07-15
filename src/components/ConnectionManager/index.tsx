@@ -1,9 +1,13 @@
 import { useEffect } from "preact/hooks";
-import { getWebSocketService } from "../../hooks/useWebSocketService";
+import { getWebSocketService, useWebSocketService } from "../../hooks/useWebSocketService";
 import { useSettingsContext } from "../../contexts/SettingsContext";
 
 export function ConnectionManager() {
     const { connectionSettings } = useSettingsContext();
+    // Calling the hook (regardless of its return value) is what creates the
+    // WebSocketService singleton - without a mounted caller it never gets
+    // instantiated and getWebSocketService() below stays undefined forever.
+    useWebSocketService();
 
     useEffect(() => {
         // Connect if WebCommunication is enabled

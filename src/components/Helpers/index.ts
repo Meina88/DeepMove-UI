@@ -47,9 +47,18 @@ import {
     removeObjectItem,
     BitsArray,
 } from "./arrays"
-import { dispatchToExtensions, isFullscreenActive, isFullscreenSupported, getFullscreenElement, invalidateIframeCache } from "./html"
+import {
+    dispatchToExtensions,
+    isFullscreenActive,
+    isFullscreenSupported,
+    getFullscreenElement,
+    invalidateIframeCache,
+    isTrustedExtensionMessage,
+} from "./html"
 import { sortedFilesList, filterResultFiles } from "./filters"
 import { useStoredState } from "./storedState"
+import { sanitizeHtml } from "./sanitizeHtml"
+import { sanitizePathSegment } from "./paths"
 
 export {
     beautifyJSONString,
@@ -61,9 +70,12 @@ export {
     disableUI,
     dispatchToExtensions,
     invalidateIframeCache,
+    isTrustedExtensionMessage,
     isFullscreenActive,
     isFullscreenSupported,
     getFullscreenElement,
+    sanitizeHtml,
+    sanitizePathSegment,
     espHttpURL,
     filterResultFiles,
     formatStatus,

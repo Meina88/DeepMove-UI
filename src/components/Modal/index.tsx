@@ -20,7 +20,7 @@ import { useUiContextFn, useModalsContext } from "../../contexts"
 import { Modal as SpectreModal } from "../Controls"
 import { disableUI } from "../Helpers"
 import { showConfirmationModal } from "./confirmModal"
-import { showKeepConnected } from "./keepConnectedModal"
+import { useKeepConnectedModal } from "./keepConnectedModal"
 import { showProgressModal } from "./progressModal"
 import { showModal } from "./genericModal"
 import { createPortal } from "preact/compat"
@@ -108,7 +108,7 @@ const ModalContainer: FunctionalComponent<ModalContainerProps> = ({ id }) => {
 export {
     ModalContainer,
     showConfirmationModal,
-    showKeepConnected,
+    useKeepConnectedModal,
     showProgressModal,
     showModal,
 }

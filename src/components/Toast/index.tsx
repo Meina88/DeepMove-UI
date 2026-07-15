@@ -15,19 +15,10 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { ComponentChildren } from "preact"
 import { useEffect } from "preact/hooks"
 import { useUiContextFn, useToastsContext } from "../../contexts"
 import { Toast as SpectreToast } from "../Controls"
 import { T } from "../Translations"
-
-interface ToastProps {
-  index: string | number
-  type?: string
-  children?: ComponentChildren
-  timeout?: number
-  remove: (id: string | number) => void
-}
 
 const Toast = ({ index, type = "", children, timeout = 2000, remove, updatedAt }: any) => {
 

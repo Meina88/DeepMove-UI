@@ -18,7 +18,6 @@
 */
 import { createContext, FunctionalComponent } from "preact"
 import { useContext, useState, useRef } from "preact/hooks"
-import { variablesList } from "../targets"
 
 // Type definitions
 interface RouterContextValue {

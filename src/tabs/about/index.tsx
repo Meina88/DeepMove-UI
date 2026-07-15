@@ -39,8 +39,8 @@ import {
     useSettingsContextFn,
 } from "../../contexts"
 import { Esp3dVersion } from "../../components/App/version"
-import { Github, RefreshCcw, UploadCloud, LifeBuoy, Info, BookOpen } from "preact-feather"
-import { webUiUrl, fwUrl, Name, restartdelay } from "../../targets"
+import { Github, UploadCloud, LifeBuoy, Info, BookOpen } from "preact-feather"
+import { webUiUrl, fwUrl, restartdelay } from "../../targets"
 import {
     showConfirmationModal,
     showModal,
@@ -213,6 +213,7 @@ const About: FunctionalComponent = (): JSX.Element => {
         }
         M = M[2]
             ? [M[1], M[2]]
+            // eslint-disable-next-line deprecation/deprecation -- intentional legacy UA sniffing fallback
             : [navigator.appName, navigator.appVersion, "-?"]
         if ((tem = ua.match(/version\/(\d+)/i)) != null) M.splice(1, 1, tem[1])
         return M.join(" ")
@@ -241,8 +242,8 @@ const About: FunctionalComponent = (): JSX.Element => {
             url = fwUrl[0] || ""
         }
 
-        (window as any).open(url, "_blank")
-            (e.target as HTMLElement).blur()
+        (window as any).open(url, "_blank");
+        (e.target as HTMLElement).blur()
     }
 
     const downloadFromGithub = (): void => {
@@ -373,8 +374,8 @@ const About: FunctionalComponent = (): JSX.Element => {
     }
     const onWebUiGit = (e: MouseEvent) => {
         useUiContextFn.haptic();
-        (window as any).open(webUiUrl, "_blank")
-            (e.target as HTMLElement).blur()
+        (window as any).open(webUiUrl, "_blank");
+        (e.target as HTMLElement).blur()
     }
 
     const uploadFiles = (): void => {
@@ -413,7 +414,7 @@ const About: FunctionalComponent = (): JSX.Element => {
             espHttpURL(base),
             { method: "POST", id: "upload", body: formData },
             {
-                onSuccess: (result: any) => {
+                onSuccess: (_result: any) => {
                     if (
                         progressBar.update &&
                         typeof progressBar.update === "function"
@@ -449,7 +450,7 @@ const About: FunctionalComponent = (): JSX.Element => {
             value.startsWith("OFF (") ||
             value.startsWith("shared (")
         ) {
-            const reg_search = /(?<label>[^\(]*)\s\((?<content>[^\)]*)/
+            const reg_search = /(?<label>[^(]*)\s\((?<content>[^)]*)/
             let res = reg_search.exec(value)
             if (res && res.groups) {
                 return `${T(res.groups.label)} (${T(res.groups.content)})`
@@ -459,7 +460,7 @@ const About: FunctionalComponent = (): JSX.Element => {
         return T(value)
     }
 
-    const filesSelected = (e: Event) => {
+    const filesSelected = (_e: Event) => {
         const list = inputFilesRef.current?.files
         if (!list || list.length === 0) return
         const titleConfirmation = isFwUpdate ? T("S30") : T("S31")

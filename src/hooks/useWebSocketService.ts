@@ -71,7 +71,7 @@ export function useWebSocketService() : WebSocketService {
             });
 
             // Set up ping listener for session timeout warning
-            webSocketServiceInstance.addPingListener((timeRemaining, maxTime) => {
+            webSocketServiceInstance.addPingListener((timeRemaining, _maxTime) => {
                 if (timeRemaining < 30000 && timeRemaining > 0) {
                     dialogs.setShowKeepConnected(true);
                 }
@@ -83,7 +83,7 @@ export function useWebSocketService() : WebSocketService {
             });
 
             // Set up error handler to abort HTTP requests on controller errors
-            webSocketServiceInstance.setErrorHandler((errorCode, errorMessage) => {
+            webSocketServiceInstance.setErrorHandler((_errorCode, _errorMessage) => {
                 removeAllRequests();
             });
         }

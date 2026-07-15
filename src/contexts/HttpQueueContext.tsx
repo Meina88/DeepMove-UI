@@ -130,7 +130,7 @@ const HttpQueueContextProvider: FunctionalComponent<HttpQueueContextProviderProp
             requestQueue.current[0]
         let is401Error = false
         try {
-            currentRequest.current = httpAdapter(url, params, onProgress || ((percent: number) => {     }))
+            currentRequest.current = httpAdapter(url, params, onProgress || ((_percent: number) => {     }))
             if (params.echo) {
                 processData("echo", params.echo)
             }

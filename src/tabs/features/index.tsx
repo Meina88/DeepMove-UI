@@ -21,7 +21,6 @@ import { Fragment,  TargetedMouseEvent, JSX } from "preact"
 import { useEffect, useState, useRef } from "preact/hooks"
 import { ButtonImg, Loading, Progress } from "../../components/Controls"
 import { useHttpQueue, useTargetCommands } from "../../hooks"
-import { espHttpURL } from "../../components/Helpers"
 import { T } from "../../components/Translations"
 import { useWebSocketService } from "../../hooks/useWebSocketService";
 import {
@@ -79,6 +78,48 @@ interface ValidationResult {
 // Progress bar interface
 interface ProgressBarRef {
     update?: (value: number) => void;
+}
+
+interface FeatureFieldItemProps {
+    fieldData: ValidationFieldData
+    subsectionId: string
+    generateValidation: (fieldData: ValidationFieldData) => ValidationResult | null
+}
+
+const FeatureFieldItem = ({ fieldData, subsectionId, generateValidation }: FeatureFieldItemProps) => {
+    const [validation, setvalidation] = useState<ValidationResult | null>()
+    const { label, options, initial, prec, ...rest } = fieldData
+    const Options = options
+        ? options.reduce((acc, curval) => {
+              return [
+                  ...acc,
+                  {
+                      label: T(curval.label),
+                      value: curval.value,
+                  },
+              ]
+          }, [] as { label: string; value: string }[])
+        : null
+
+    return (
+        <Field
+            label={T(label)}
+            options={Options}
+            extra={
+                useTargetContextFn.isStaId(subsectionId, label, fieldData)
+                    ? "scan"
+                    : null
+            }
+            initial={initial}
+            prec={prec}
+            {...rest}
+            setValue={(val: string, update?: boolean) => {
+                if (!update) fieldData.value = val
+                setvalidation(generateValidation(fieldData))
+            }}
+            validation={validation}
+        />
+    )
 }
 
 const FeaturesTab = () => {
@@ -302,7 +343,7 @@ const FeaturesTab = () => {
      */
     function reStartBoard() {
         const callbacks = {
-            onSuccess: (result: string) => {
+            onSuccess: (_result: string) => {
                 webSocketService.disconnect("restart")
                 setTimeout(() => {
                     window.location.reload()
@@ -501,13 +542,13 @@ const FeaturesTab = () => {
                                     {Object.keys(features).map((sectionId) => {
                                         const section = features[sectionId]
                                         return (
-                                            <Fragment>
+                                            <Fragment key={sectionId}>
                                                 {Object.keys(section).map(
                                                     (subsectionId) => {
                                                         const subSection =
                                                             section[subsectionId]
                                                         return (
-                                                            <div class="panel panel-features">
+                                                            <div key={subsectionId} class="panel panel-features">
                                                                 <div class="navbar">
                                                                     <span class="navbar-section text-ellipsis">
                                                                         <strong class="text-ellipsis">
@@ -529,88 +570,14 @@ const FeaturesTab = () => {
 
                                                                 <div class="panel-body panel-body-features">
                                                                     {subSection.map(
-                                                                        (
-                                                                            fieldData
-                                                                        ) => {
-                                                                            const [
-                                                                                validation,
-                                                                                setvalidation,
-                                                                            ] =
-                                                                                useState<ValidationResult | null>()
-                                                                            const {
-                                                                                label,
-                                                                                options,
-                                                                                initial,
-                                                                                prec,
-                                                                                ...rest
-                                                                            } =
-                                                                                fieldData
-                                                                            const Options =
-                                                                                options
-                                                                                    ? options.reduce(
-                                                                                        (
-                                                                                            acc,
-                                                                                            curval
-                                                                                        ) => {
-                                                                                            return [
-                                                                                                ...acc,
-                                                                                                {
-                                                                                                    label: T(
-                                                                                                        curval.label
-                                                                                                    ),
-                                                                                                    value: curval.value,
-                                                                                                },
-                                                                                            ]
-                                                                                        },
-                                                                                        [] as { label: string; value: string }[]
-                                                                                    )
-                                                                                    : null
-
-                                                                            return (
-                                                                                <Field
-                                                                                    label={T(
-                                                                                        label
-                                                                                    )}
-                                                                                    options={
-                                                                                        Options
-                                                                                    }
-                                                                                    extra={
-                                                                                        useTargetContextFn.isStaId(
-                                                                                            subsectionId,
-                                                                                            label,
-                                                                                            fieldData
-                                                                                        )
-                                                                                            ? "scan"
-                                                                                            : null
-                                                                                    }
-                                                                                    initial={
-                                                                                        initial
-                                                                                    }
-                                                                                    prec={
-                                                                                        prec
-                                                                                    }
-                                                                                    {...rest}
-                                                                                    setValue={(
-                                                                                        val: string,
-                                                                                        update?: boolean
-                                                                                    ) => {
-                                                                                        if (
-                                                                                            !update
-                                                                                        )
-                                                                                            fieldData.value =
-                                                                                                val
-                                                                                        setvalidation(
-                                                                                            generateValidation(
-                                                                                                fieldData
-                                                                                            )
-                                                                                        )
-                                                                                    }}
-                                                                                    validation={
-                                                                                        validation
-                                                                                    }
-                                                                                />
-                                                                            )
-                                                                        }
+                                                                        (fieldData) => (
+                                                                            <FeatureFieldItem
+                                                                                key={fieldData.id}
+                                                                                fieldData={fieldData}
+                                                                                subsectionId={subsectionId}
+                                                                                generateValidation={generateValidation}
+                                                                            />
+                                                                        )
                                                                     )}
                                                                     <div class="m-1" />
                                                                 </div>

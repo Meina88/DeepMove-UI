@@ -16,7 +16,7 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 import { useUiContextFn } from "../../contexts"
-import type { ShowModalParams, ButtonConfig } from "../../types/modals.types"
+import type { ShowModalParams } from "../../types/modals.types"
 
 const showModal = ({
     modals,

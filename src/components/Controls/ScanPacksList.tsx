@@ -134,7 +134,7 @@ const ScanPacksList = ({
                                 const entryValue = e.name.replace(".gz", "")
 
                                 return (
-                                    <tr>
+                                    <tr key={e.name}>
                                         <td>
                                             <span
                                                 class="tooltip tooltip-right"

@@ -643,7 +643,7 @@ export class WebSocketService {
      * Handles WebSocket errors (equivalent to onErrorCB in WsContext)
      * Shows error toast and increments reconnection counter
      */
-    private _handleWebSocketError = (error: Event): void => {
+    private _handleWebSocketError = (_error: Event): void => {
         console.log("WebSocket error occurred")
         this.reconnectAttempts++
 

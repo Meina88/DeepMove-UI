@@ -21,13 +21,9 @@ import { FunctionalComponent, TargetedMouseEvent } from "preact"
 import { useRef, useEffect } from "preact/hooks"
 import { useUiContext, useSettingsContext, useUiContextFn } from "../contexts"
 import { Loading } from "../components/Controls"
-import { AppLogo } from "../targets"
 import {
-    Minus,
-    HardDrive,
     Frown,
     AlertTriangle,
-    Slash,
 } from "preact-feather"
 import { T } from "../components/Translations"
 import { espHttpURL } from "../components/Helpers"
@@ -93,7 +89,7 @@ const ConnectionContainer: FunctionalComponent = () => {
                 setTimeout(refreshTimer, 1000)
             }
         }
-        const onclick = (e: TargetedMouseEvent<HTMLButtonElement>): void => {
+        const onclick = (_e: TargetedMouseEvent<HTMLButtonElement>): void => {
             useUiContextFn.haptic()
             connection.setConnectionState({
                 connected: false,

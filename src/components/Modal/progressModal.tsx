@@ -17,7 +17,7 @@
 */
 import { Info } from "preact-feather"
 import { useUiContextFn } from "../../contexts"
-import type { ShowProgressModalParams, ProgressButton } from "../../types/modals.types"
+import type { ShowProgressModalParams } from "../../types/modals.types"
 
 const showProgressModal = ({ modals, title, button1, content }: ShowProgressModalParams): void => {
     const id = "progression"

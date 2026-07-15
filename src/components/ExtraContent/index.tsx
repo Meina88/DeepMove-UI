@@ -18,7 +18,7 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 import { Fragment } from "preact"
-import { useEffect, useCallback, useState } from "preact/hooks"
+import { useEffect, useCallback } from "preact/hooks"
 import { elementsCache } from "../../areas/elementsCache"
 import { ExtraContentItem } from "./extraContentItem"
 import { eventBus } from "../../hooks/eventBus"
@@ -43,8 +43,7 @@ interface ExtraContentProps {
     icon?: string
 }
 
-const ExtraContent = ({ id, source, refreshtime, label, type, target, icon }: ExtraContentProps) => {
-    const [isFullScreen, setIsFullScreen] = useState(false)
+const ExtraContent = ({ id, source: _source, refreshtime: _refreshtime, label, type: _type, target, icon }: ExtraContentProps) => {
     const { panels } = useUiContext()
     const extra_content_id = `extra_content_${id}`
     const target_id = `target_${id}`

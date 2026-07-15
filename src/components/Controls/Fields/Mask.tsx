@@ -70,6 +70,93 @@ interface FieldData {
     inline: boolean
 }
 
+interface MaskOptionFieldProps {
+    option: MaskOption
+    index: number
+    id: string
+    mask: ReturnType<typeof BitsArray.fromInt>
+    maskinitial: ReturnType<typeof BitsArray.fromInt>
+    controlEnabled: boolean
+    setControlEnabled: (v: boolean) => void
+    type?: string
+    setValue?: (value: number | null, update?: boolean) => void
+}
+
+const MaskOptionField: FunctionalComponent<MaskOptionFieldProps> = ({
+    option,
+    index,
+    id,
+    mask,
+    maskinitial,
+    controlEnabled,
+    setControlEnabled,
+    type,
+    setValue,
+}) => {
+    const [validationState, setvalidation] = useState<ValidationResult | null>()
+    const generateValidation = (fieldData: FieldData): ValidationResult | null => {
+        let validation: ValidationResult = {
+            message: <Flag style={{ width: "1rem", height: "1rem" }} />,
+            valid: true,
+            modified: true,
+        }
+        if (
+            maskinitial.getBit(parseInt(option.value.toString())) !=
+            mask.getBit(parseInt(option.value.toString()))
+        ) {
+            validation.modified = true
+            fieldData.hasmodified = true
+        } else {
+            validation.modified = false
+            fieldData.hasmodified = false
+        }
+
+        return validation.modified ? validation : null
+    }
+    const FieldData: FieldData = {
+        id: `${id  }M${  index}`,
+        value: mask.getBit(parseInt(option.value.toString())) !== 0,
+        initial: mask.getBit(parseInt(option.value.toString())) !== 0,
+        label: option.label,
+        type: "boolean",
+        haserror: false,
+        hasmodified: false,
+        validation: validationState,
+        inline: true,
+    }
+    if (
+        controlEnabled ||
+        parseInt(option.value.toString()) == 0 ||
+        type == "mask"
+    )
+        return (
+            <FormGroup {...FieldData} key={option.label}>
+                <Boolean
+                    id={`${id  }M${  index}`}
+                    label={FieldData.label}
+                    value={FieldData.value}
+                    setValue={(val: boolean, update?: boolean) => {
+                        if (!update) {
+                            mask.setBit(parseInt(option.value.toString()), val ? 1 : 0)
+                            if (
+                                type == "xmask" &&
+                                parseInt(option.value.toString()) == 0
+                            ) {
+                                setControlEnabled(val)
+                            }
+                        }
+                        setValue && setValue(mask.toInt(), update)
+
+                        setvalidation(generateValidation(FieldData))
+                    }}
+                    inline={true}
+                    validation={validationState || undefined}
+                />
+            </FormGroup>
+        )
+    return null
+}
+
 /*
  * Local const
  *
@@ -78,12 +165,12 @@ const Mask: FunctionalComponent<MaskProps> = ({
     initial = 0,
     id,
     label,
-    validation,
+    validation: _validation,
     value = 0,
     type,
     depend,
     setValue,
-    inline,
+    inline: _inline,
     options = [],
 }) => {
     const { interfaceSettings, connectionSettings } = useSettingsContext()
@@ -124,75 +211,26 @@ const Mask: FunctionalComponent<MaskProps> = ({
     const mask = Object.assign({}, BitsArray.fromInt(value, maskSize))
     const maskinitial = Object.assign({}, BitsArray.fromInt(initial, maskSize))
 
-    const [controlEnabled, setControlEnabled] = useState(
-        type == "xmask" ? mask.getBit(0) : true
+    const [controlEnabled, setControlEnabled] = useState<boolean>(
+        type == "xmask" ? !!mask.getBit(0) : true
     )
 
     return (
         <FieldGroup className="m-1" id={id} label={label}>
-            {options.map((option, index) => {
-                const [validationState, setvalidation] = useState<ValidationResult | null>()
-                const generateValidation = (fieldData: FieldData): ValidationResult | null => {
-                    let validation: ValidationResult = {
-                        message: <Flag style={{ width: "1rem", height: "1rem" }} />,
-                        valid: true,
-                        modified: true,
-                    }
-                    if (
-                        maskinitial.getBit(parseInt(option.value.toString())) !=
-                        mask.getBit(parseInt(option.value.toString()))
-                    ) {
-                        validation.modified = true
-                        fieldData.hasmodified = true
-                    } else {
-                        validation.modified = false
-                        fieldData.hasmodified = false
-                    }
-
-                    return validation.modified ? validation : null
-                }
-                const FieldData: FieldData = {
-                    id: `${id  }M${  index}`,
-                    value: mask.getBit(parseInt(option.value.toString())) !== 0,
-                    initial: mask.getBit(parseInt(option.value.toString())) !== 0,
-                    label: option.label,
-                    type: "boolean",
-                    haserror: false,
-                    hasmodified: false,
-                    validation: validationState,
-                    inline: true,
-                }
-                if (
-                    controlEnabled ||
-                    parseInt(option.value.toString()) == 0 ||
-                    type == "mask"
-                )
-                    return (
-                        <FormGroup {...FieldData} key={option.label}>
-                            <Boolean
-                                id={`${id  }M${  index}`}
-                                label={FieldData.label}
-                                value={FieldData.value}
-                                setValue={(val: boolean, update?: boolean) => {
-                                    if (!update) {
-                                        mask.setBit(parseInt(option.value.toString()), val ? 1 : 0)
-                                        if (
-                                            type == "xmask" &&
-                                            parseInt(option.value.toString()) == 0
-                                        ) {
-                                            setControlEnabled(val)
-                                        }
-                                    }
-                                    setValue && setValue(mask.toInt(), update)
-
-                                    setvalidation(generateValidation(FieldData))
-                                }}
-                                inline={true}
-                                validation={validationState || undefined}
-                            />
-                        </FormGroup>
-                    )
-            })}
+            {options.map((option, index) => (
+                <MaskOptionField
+                    key={option.label}
+                    option={option}
+                    index={index}
+                    id={id}
+                    mask={mask}
+                    maskinitial={maskinitial}
+                    controlEnabled={controlEnabled}
+                    setControlEnabled={setControlEnabled}
+                    type={type}
+                    setValue={setValue}
+                />
+            ))}
         </FieldGroup>
     )
 }

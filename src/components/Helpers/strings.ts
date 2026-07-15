@@ -57,7 +57,7 @@ const hslToHex = (h: number, s: number, l: number): string => {
 const beautifyJSONString = (jsonstring: string): string => {
     try {
         return JSON.stringify(JSON.parse(jsonstring), null, " ")
-    } catch (e) {
+    } catch {
         return "error"
     }
 }

@@ -52,9 +52,9 @@ interface BooleanProps {
 const Boolean: FunctionalComponent<BooleanProps> = ({
     id,
     label,
-    validation,
+    validation: _validation,
     value = false,
-    type,
+    type: _type,
     help,
     depend,
     setValue,

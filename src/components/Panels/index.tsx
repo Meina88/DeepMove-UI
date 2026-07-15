@@ -16,7 +16,7 @@ const Menu = ({ items }: { items: MenuItem[] }) => {
     return (
         <div
             class="dropdown dropdown-right"
-            onClick={(e) => {
+            onClick={(_e) => {
                 useUiContextFn.haptic()
             }}
         >

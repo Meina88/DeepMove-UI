@@ -16,7 +16,7 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { useState, useRef } from "preact/hooks"
+import { useState } from "preact/hooks"
 import { useHttpQueueContext } from "../contexts"
 import { generateUID } from "../components/Helpers"
 
@@ -61,6 +61,11 @@ interface UseHttpFn {
 
 const useHttpFn: UseHttpFn = {} as UseHttpFn
 
+// Shared across every useHttpQueue() instance (and useHttpFn callers) on purpose:
+// the "id"/"max" dedup only works if all callers agree on the same in-flight bookkeeping,
+// regardless of which component/hook instance last registered itself in useHttpFn.
+let localRequests: string[] = []
+
 /*
  * Local const
  *
@@ -74,8 +79,7 @@ const useHttpQueue = (): HttpQueueReturn => {
         removeAllRequests: removeAllRequestsFromQueue,
         processRequests,
     } = useHttpQueueContext()
-    const [killOnUnmount, setKillOnUnmount] = useState<boolean>(true)
-    const localRequests = useRef<string[]>([])
+    const [_killOnUnmount, setKillOnUnmount] = useState<boolean>(true)
 
     const createNewTopRequest = (url: string, params: HttpRequestParams, callbacks: HttpCallbacks = {}): void => {
         const {
@@ -84,7 +88,7 @@ const useHttpQueue = (): HttpQueueReturn => {
             onProgress: onProgressCb,
         } = callbacks
         const id = params.id ? params.id : generateUID()
-        localRequests.current = [...localRequests.current, id]
+        localRequests = [...localRequests, id]
         addInTopQueue({
             id,
             url,
@@ -112,7 +116,7 @@ const useHttpQueue = (): HttpQueueReturn => {
         const id = params.id ? params.id : generateUID()
 
         if (params.max != undefined) {
-            const totalInQueue = localRequests.current.reduce(
+            const totalInQueue = localRequests.reduce(
                 (total, current) => {
                     if (id == current) return total + 1
                     else return total
@@ -121,26 +125,20 @@ const useHttpQueue = (): HttpQueueReturn => {
             )
             if (totalInQueue >= params.max) return
         }
-        localRequests.current = [...localRequests.current, id]
+        localRequests = [...localRequests, id]
         addInQueue({
             id,
             url,
             params,
             onSuccess: (result: string | Blob) => {
                 if (onSuccessCb) onSuccessCb(result as string)
-                localRequests.current.splice(
-                    localRequests.current.indexOf(id),
-                    1
-                )
+                localRequests.splice(localRequests.indexOf(id), 1)
             },
             onProgress: (percent: number) => {
                 if (onProgressCb) onProgressCb(percent)
             },
             onFail: (error: string) => {
-                localRequests.current.splice(
-                    localRequests.current.indexOf(id),
-                    1
-                )
+                localRequests.splice(localRequests.indexOf(id), 1)
                 if (onFailCb) onFailCb(error)
             },
         })
@@ -163,7 +161,7 @@ const useHttpQueue = (): HttpQueueReturn => {
     }
 
     const removeAllRequests = (): void => {
-        localRequests.current = []
+        localRequests = []
         removeAllRequestsFromQueue()
     }
 

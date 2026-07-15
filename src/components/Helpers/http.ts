@@ -37,7 +37,7 @@ const espHttpURL = (base: string = "", args: Record<string, string> = {}): strin
     const url = (() => {
         try {
             return new URL(base)
-        } catch (error) {
+        } catch {
             return new URL(base, `http://${window.location.host}`)
         }
     })()

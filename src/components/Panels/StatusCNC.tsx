@@ -133,7 +133,7 @@ type PinsStates = Record<string, boolean>
 type StatesMap = Record<string, { value: string; pre?: string } | Array<{ value: string; pre?: string }> | unknown>
 
 const StatusPanel: FunctionalComponent = () => {
-    const { status, states, pinsStates, streamStatus } = useTargetContext() as unknown as {
+    const { status, states, pinsStates, streamStatus: _streamStatus } = useTargetContext() as unknown as {
         status: { state?: string }
         states: StatesMap
         pinsStates: PinsStates

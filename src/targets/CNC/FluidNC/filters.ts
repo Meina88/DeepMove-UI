@@ -77,7 +77,7 @@ const getStatus = (str: string): StatusResponse => {
     const mpos_pattern = /\|MPos:(?<mpos>[^|>]+)/i
     const wpos_pattern = /\|WPos:(?<wpos>[^|>]+)/i
     const WCO_pattern = /\|WCO:(?<wco>[^|>]+)/i
-    const status_pattern = /<(?<state>[^:|]+):*(?<code>[^\|:]*)\|/i
+    const status_pattern = /<(?<state>[^:|]+):*(?<code>[^|:]*)\|/i
     const ov_patern = /\|Ov:(?<ov>[^|>]+)/i
     const pn_patern = /\|Pn:(?<pn>[^|>]+)/i
     const fs_patern = /\|Fs:(?<fs>[^|>]+)/i
@@ -484,7 +484,7 @@ const isStreamingStatus = (str: string): boolean => {
         const res = JSON.parse(str)
         if (res.cmd == "701" && typeof res.data != "undefined") return true
         return false
-    } catch (e) {
+    } catch {
         return false
     }
 }

@@ -21,8 +21,13 @@ import { Fragment, FunctionalComponent, JSX } from "preact"
 import { useEffect, useState, useRef } from "preact/hooks"
 import { useUiContext, useUiContextFn, useModalsContext } from "../../contexts"
 import { T } from "../../components/Translations"
+// List, CheckCircle, Circle, QuickButtonsBar: only referenced in the disabled
+// panels-dropdown UI below (see "descomentar lo de abajo" comment) - kept for
+// when it's re-enabled
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { List, CheckCircle, Circle, HelpCircle } from "preact-feather"
 import { iconsFeather } from "../../components/Images"
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { defaultPanelsList, iconsTarget, QuickButtonsBar } from "../../targets"
 import { ExtraPanelElement } from "../../components/Panels/ExtraPanel"
 import { showModal } from "../../components/Modal"
@@ -50,7 +55,7 @@ const keyTracker: KeyTracker = {
 }
 
 //Need to put outside of Dashboard object to be sure add/remove alsways use same address
-const keyboardEventHandlerUp = (e: KeyboardEvent): void => {
+const keyboardEventHandlerUp = (_e: KeyboardEvent): void => {
     keyTracker.keyState = 0
 }
 
@@ -118,16 +123,23 @@ let intialisationDone = false
 
 const Dashboard: FunctionalComponent = (): JSX.Element => {
     console.log("Dashboard")
+    // iconsList/menuPanelsList/isKeyboardEnabled/showKeyboarHelp: only used in the
+    // disabled panels-dropdown UI below (see "descomentar lo de abajo" comment) -
+    // kept for when it's re-enabled
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const iconsList: Record<string, any> = { ...iconsTarget, ...iconsFeather }
     const { panels, uisettings, shortcuts } = useUiContext()
     const { modals } = useModalsContext()
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const menuPanelsList = useRef<HTMLUListElement>(null)
     const isfixed = uisettings.getValue("fixedpanels")
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [isKeyboardEnabled, setIsKeyboardEnabled] = useState<boolean>(
         shortcuts.enabled
     )
 
     //Show keyboard mapped keys
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const showKeyboarHelp = (): void => {
         useUiContextFn.haptic()
         const keysRefs: string[] = ["keymap", "macros"]

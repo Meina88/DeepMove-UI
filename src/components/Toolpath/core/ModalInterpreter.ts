@@ -154,7 +154,7 @@ export class ModalInterpreter {
     // ---------------------------
     private tokenize(line: string): WordMap | null {
         // Soporta "G1X10Y10" y con espacios
-        const matches = line.match(/[A-Za-z][+\-]?\d*\.?\d+/g)
+        const matches = line.match(/[A-Za-z][+-]?\d*\.?\d+/g)
         if (!matches || matches.length === 0) return null
 
         const out: WordMap = {}

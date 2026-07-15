@@ -122,7 +122,7 @@ const ClearText: FunctionalComponent<ClearTextProps> = ({ setValue }) => {
 }
 
 const Input: FunctionalComponent<InputProps> = ({
-    label = "",
+    label: _label = "",
     type = "text",
     id = "",
     value = "",
