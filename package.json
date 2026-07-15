@@ -9,7 +9,8 @@
         "url": "https://github.com/Meina88/DeepMove-UI"
     },
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
+        "test": "vitest run",
+        "test:watch": "vitest",
         "front": "webpack serve --config config/webpack.dev.js",
         "server": "nodemon config/server.js",
         "dev": "concurrently \"npm run server\" \"npm run front\"",
@@ -64,6 +65,7 @@
         "style-loader": "^3.3.1",
         "ts-loader": "^9.5.4",
         "typescript": "^5.9.3",
+        "vitest": "^3.2.4",
         "webpack": "^5.73.0",
         "webpack-bundle-analyzer": "^4.10.2",
         "webpack-cli": "^4.10.0",

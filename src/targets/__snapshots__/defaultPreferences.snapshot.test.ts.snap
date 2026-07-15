@@ -1,0 +1,1258 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`defaultPreferences (pre-collapse snapshot) > merges base -> CNC -> FluidNC preferences.json layers 1`] = `
+{
+  "settings": {
+    "S212": [
+      {
+        "editable": true,
+        "fixed": true,
+        "id": "keymap",
+        "nodelete": true,
+        "sorted": false,
+        "type": "list",
+        "value": [
+          {
+            "id": "btn+X",
+            "key": "ArrowRight",
+            "name": "btn+X",
+          },
+          {
+            "id": "btn-X",
+            "key": "ArrowLeft",
+            "name": "btn-X",
+          },
+          {
+            "id": "btnHX",
+            "key": "X",
+            "name": "btnHX",
+          },
+          {
+            "id": "btnZX",
+            "key": "1",
+            "name": "btnZX",
+          },
+          {
+            "id": "btn+Y",
+            "key": "ArrowUp",
+            "name": "btn+Y",
+          },
+          {
+            "id": "btn-Y",
+            "key": "ArrowDown",
+            "name": "btn-Y",
+          },
+          {
+            "id": "btnHY",
+            "key": "Y",
+            "name": "btnHY",
+          },
+          {
+            "id": "btnZY",
+            "key": "2",
+            "name": "btnZY",
+          },
+          {
+            "id": "btn+Z",
+            "key": "PageUp",
+            "name": "btn+Z",
+          },
+          {
+            "id": "btn-Z",
+            "key": "PageDown",
+            "name": "btn-Z",
+          },
+          {
+            "id": "btnHZ",
+            "key": "Z",
+            "name": "btnHZ",
+          },
+          {
+            "id": "btnZZ",
+            "key": "3",
+            "name": "btnZZ",
+          },
+          {
+            "id": "btn+axis",
+            "key": "/",
+            "name": "btn+axis",
+          },
+          {
+            "id": "btn-axis",
+            "key": "*",
+            "name": "btn-axis",
+          },
+          {
+            "id": "btnHaxis",
+            "key": "A",
+            "name": "btnHaxis",
+          },
+          {
+            "id": "btnZaxis",
+            "key": "4",
+            "name": "btnZaxis",
+          },
+          {
+            "id": "btnHAll",
+            "key": "Home",
+            "name": "btnHAll",
+          },
+          {
+            "id": "btnZAll",
+            "key": "0",
+            "name": "btnZAll",
+          },
+          {
+            "id": "btnaxisSel+",
+            "key": "Control+0",
+            "name": "btnaxisSel+",
+          },
+          {
+            "id": "btnaxisSel-",
+            "key": "Control+0",
+            "name": "btnaxisSel-",
+          },
+          {
+            "id": "btndistSel+",
+            "key": "+",
+            "name": "btndistSel+",
+          },
+          {
+            "id": "btndistSel-",
+            "key": "-",
+            "name": "btndistSel-",
+          },
+          {
+            "id": "btnStop",
+            "key": "Control+s",
+            "name": "btnStop",
+          },
+          {
+            "id": "btnEStop",
+            "key": "Delete",
+            "name": "btnEStop",
+          },
+        ],
+      },
+    ],
+    "extracontents": [
+      {
+        "id": "showextracontents",
+        "label": "S63",
+        "type": "boolean",
+        "value": false,
+      },
+      {
+        "depend": [
+          {
+            "id": "showextracontents",
+            "value": true,
+          },
+        ],
+        "id": "openextrapanelsonstart",
+        "label": "S93",
+        "type": "boolean",
+        "value": false,
+      },
+      {
+        "depend": [
+          {
+            "id": "showextracontents",
+            "value": true,
+          },
+        ],
+        "id": "extracontents",
+        "sorted": true,
+        "type": "list",
+        "value": [],
+      },
+    ],
+    "files": [
+      {
+        "id": "showfilespanel",
+        "label": "S63",
+        "type": "boolean",
+        "value": true,
+      },
+      {
+        "depend": [
+          {
+            "id": "showfilespanel",
+            "value": true,
+          },
+        ],
+        "id": "openfilesonstart",
+        "label": "S93",
+        "type": "boolean",
+        "value": true,
+      },
+      {
+        "depend": [
+          {
+            "id": "showfilespanel",
+            "value": true,
+          },
+        ],
+        "help": "S97",
+        "id": "filesfilter",
+        "label": "S96",
+        "type": "text",
+        "value": "g;G;gco;GCO;gcode;GCODE;nc;txt;cnc;ngc",
+      },
+      {
+        "depend": [
+          {
+            "id": "showfilespanel",
+            "value": true,
+          },
+          {
+            "connection_id": "FlashFileSystem",
+            "value": "!='none'",
+          },
+        ],
+        "id": "flashfsgroup",
+        "label": "S137",
+        "type": "group",
+        "value": [
+          {
+            "id": "flashfs",
+            "label": "S63",
+            "type": "boolean",
+            "value": false,
+          },
+          {
+            "depend": [
+              {
+                "id": "flashfs",
+                "value": true,
+              },
+            ],
+            "id": "sort_flashfs_files",
+            "label": "S224",
+            "type": "boolean",
+            "value": true,
+          },
+        ],
+      },
+      {
+        "depend": [
+          {
+            "id": "showfilespanel",
+            "value": true,
+          },
+          {
+            "connection_id": "SDConnection",
+            "value": "!='none'",
+          },
+        ],
+        "id": "sdfsgroup",
+        "label": "S190",
+        "type": "group",
+        "value": [
+          {
+            "depend": [
+              {
+                "connection_id": "SDConnection",
+                "value": "!='none'",
+              },
+            ],
+            "id": "directsd",
+            "label": "S63",
+            "type": "boolean",
+            "value": true,
+          },
+          {
+            "depend": [
+              {
+                "id": "directsd",
+                "value": true,
+              },
+            ],
+            "id": "sort_sd_files",
+            "label": "S224",
+            "type": "boolean",
+            "value": true,
+          },
+        ],
+      },
+      {
+        "depend": [
+          {
+            "id": "showfilespanel",
+            "value": true,
+          },
+          {
+            "orGroups": [
+              [
+                {
+                  "id": "sd",
+                  "value": true,
+                },
+              ],
+              [
+                {
+                  "id": "flashfs",
+                  "value": true,
+                },
+              ],
+            ],
+          },
+        ],
+        "id": "default_filesystem",
+        "label": "S223",
+        "options": [
+          {
+            "depend": [
+              {
+                "id": "flashfs",
+                "value": true,
+              },
+            ],
+            "label": "S137",
+            "value": "FLASH",
+          },
+          {
+            "depend": [
+              {
+                "id": "directsd",
+                "value": true,
+              },
+              {
+                "connection_id": "SDConnection",
+                "value": "!='none'",
+              },
+            ],
+            "label": "S190",
+            "value": "DIRECTSD",
+          },
+        ],
+        "type": "select",
+        "value": "DIRECTSD",
+      },
+    ],
+    "general": [
+      {
+        "id": "language",
+        "label": "S68",
+        "type": "pickup",
+        "value": "default",
+      },
+      {
+        "id": "theme",
+        "label": "S181",
+        "type": "pickup",
+        "value": "default",
+      },
+      {
+        "id": "autoload",
+        "label": "S64",
+        "type": "boolean",
+        "value": true,
+      },
+      {
+        "id": "audio",
+        "label": "S170",
+        "type": "boolean",
+        "value": true,
+      },
+      {
+        "id": "hapticfeedback",
+        "label": "S176",
+        "type": "boolean",
+        "value": true,
+      },
+      {
+        "depend": [
+          {
+            "id": "audio",
+            "value": true,
+          },
+        ],
+        "id": "audiofeedback",
+        "label": "S200",
+        "type": "boolean",
+        "value": true,
+      },
+      {
+        "id": "lasermode",
+        "label": "S343",
+        "type": "boolean",
+        "value": true,
+      },
+      {
+        "depend": [
+          {
+            "id": "lasermode",
+            "value": true,
+          },
+        ],
+        "id": "lasermodesettings",
+        "label": "",
+        "type": "group",
+        "value": [
+          {
+            "id": "laser_m7_on_enable",
+            "label": "S344",
+            "type": "boolean",
+            "value": false,
+          },
+          {
+            "id": "laser_m8_on_enable",
+            "label": "S345",
+            "type": "boolean",
+            "value": false,
+          },
+          {
+            "append": "S",
+            "id": "laser_max_power",
+            "label": "Laser max S value",
+            "max": 10000,
+            "min": 1,
+            "type": "number",
+            "value": 255,
+          },
+          {
+            "append": "%",
+            "id": "laserfocuspower",
+            "label": "S342",
+            "max": 10,
+            "min": 1,
+            "type": "number",
+            "value": 1,
+          },
+        ],
+      },
+      {
+        "id": "showmachinesettings",
+        "label": "S197",
+        "type": "boolean",
+        "value": true,
+      },
+      {
+        "id": "enableshortcuts",
+        "label": "S215",
+        "type": "boolean",
+        "value": false,
+      },
+    ],
+    "hmi": [
+      {
+        "id": "showhmipanel",
+        "label": "S63",
+        "type": "boolean",
+        "value": true,
+      },
+      {
+        "depend": [
+          {
+            "id": "showhmipanel",
+            "value": true,
+          },
+        ],
+        "id": "openhmionstart",
+        "label": "S93",
+        "type": "boolean",
+        "value": true,
+      },
+    ],
+    "jog": [
+      {
+        "id": "showjogpanel",
+        "label": "S63",
+        "type": "boolean",
+        "value": true,
+      },
+      {
+        "depend": [
+          {
+            "id": "showjogpanel",
+            "value": true,
+          },
+        ],
+        "id": "openjogonstart",
+        "label": "S93",
+        "type": "boolean",
+        "value": true,
+      },
+      {
+        "id": "axis",
+        "label": "CN8",
+        "type": "group",
+        "value": [
+          {
+            "depend": [
+              {
+                "connection_id": "Axisletters",
+                "contains": "X",
+              },
+            ],
+            "id": "showx",
+            "label": "X",
+            "type": "boolean",
+            "value": true,
+          },
+          {
+            "depend": [
+              {
+                "connection_id": "Axisletters",
+                "contains": "Y",
+              },
+            ],
+            "id": "showy",
+            "label": "Y",
+            "type": "boolean",
+            "value": true,
+          },
+          {
+            "depend": [
+              {
+                "connection_id": "Axisletters",
+                "contains": "Z",
+              },
+            ],
+            "id": "showz",
+            "label": "Z",
+            "type": "boolean",
+            "value": true,
+          },
+          {
+            "depend": [
+              {
+                "connection_id": "Axisletters",
+                "contains": "A",
+              },
+            ],
+            "id": "showa",
+            "label": "A",
+            "type": "boolean",
+            "value": false,
+          },
+          {
+            "depend": [
+              {
+                "connection_id": "Axisletters",
+                "contains": "B",
+              },
+            ],
+            "id": "showb",
+            "label": "B",
+            "type": "boolean",
+            "value": false,
+          },
+          {
+            "depend": [
+              {
+                "connection_id": "Axisletters",
+                "contains": "C",
+              },
+            ],
+            "id": "showc",
+            "label": "C",
+            "type": "boolean",
+            "value": false,
+          },
+          {
+            "depend": [
+              {
+                "connection_id": "Axisletters",
+                "contains": "U",
+              },
+            ],
+            "id": "showu",
+            "label": "U",
+            "type": "boolean",
+            "value": false,
+          },
+          {
+            "depend": [
+              {
+                "connection_id": "Axisletters",
+                "contains": "V",
+              },
+            ],
+            "id": "showv",
+            "label": "V",
+            "type": "boolean",
+            "value": false,
+          },
+          {
+            "depend": [
+              {
+                "connection_id": "Axisletters",
+                "contains": "W",
+              },
+            ],
+            "id": "showw",
+            "label": "W",
+            "type": "boolean",
+            "value": false,
+          },
+        ],
+      },
+      {
+        "id": "feedrate",
+        "label": "CN9",
+        "type": "group",
+        "value": [
+          {
+            "append": "CN1",
+            "depend": [
+              {
+                "orGroups": [
+                  [
+                    {
+                      "id": "showx",
+                      "value": true,
+                    },
+                  ],
+                  [
+                    {
+                      "id": "showy",
+                      "value": true,
+                    },
+                  ],
+                ],
+              },
+              {
+                "connection_id": "Axisletters",
+                "contains": "Y",
+              },
+            ],
+            "id": "xyfeedrate",
+            "label": "XY",
+            "min": "1",
+            "type": "number",
+            "value": "5000",
+          },
+          {
+            "append": "CN1",
+            "depend": [
+              {
+                "id": "showz",
+                "value": true,
+              },
+              {
+                "connection_id": "Axisletters",
+                "contains": "Z",
+              },
+            ],
+            "id": "zfeedrate",
+            "label": "Z",
+            "min": "1",
+            "type": "number",
+            "value": "1500",
+          },
+          {
+            "append": "CN1",
+            "depend": [
+              {
+                "id": "showa",
+                "value": true,
+              },
+              {
+                "connection_id": "Axisletters",
+                "contains": "A",
+              },
+            ],
+            "id": "afeedrate",
+            "label": "A",
+            "min": "1",
+            "type": "number",
+            "value": "1000",
+          },
+          {
+            "append": "CN1",
+            "depend": [
+              {
+                "id": "showb",
+                "value": true,
+              },
+              {
+                "connection_id": "Axisletters",
+                "contains": "B",
+              },
+            ],
+            "id": "bfeedrate",
+            "label": "B",
+            "min": "1",
+            "type": "number",
+            "value": "1000",
+          },
+          {
+            "append": "CN1",
+            "depend": [
+              {
+                "id": "showc",
+                "value": true,
+              },
+              {
+                "connection_id": "Axisletters",
+                "contains": "C",
+              },
+            ],
+            "id": "cfeedrate",
+            "label": "C",
+            "min": "1",
+            "type": "number",
+            "value": "1000",
+          },
+          {
+            "append": "CN1",
+            "depend": [
+              {
+                "id": "showu",
+                "value": true,
+              },
+              {
+                "connection_id": "Axisletters",
+                "contains": "U",
+              },
+            ],
+            "id": "ufeedrate",
+            "label": "U",
+            "min": "1",
+            "type": "number",
+            "value": "1000",
+          },
+          {
+            "append": "CN1",
+            "depend": [
+              {
+                "id": "showv",
+                "value": true,
+              },
+              {
+                "connection_id": "Axisletters",
+                "contains": "V",
+              },
+            ],
+            "id": "vfeedrate",
+            "label": "V",
+            "min": "1",
+            "type": "number",
+            "value": "1000",
+          },
+          {
+            "append": "CN1",
+            "depend": [
+              {
+                "id": "showw",
+                "value": true,
+              },
+              {
+                "connection_id": "Axisletters",
+                "contains": "W",
+              },
+            ],
+            "id": "wfeedrate",
+            "label": "W",
+            "min": "1",
+            "type": "number",
+            "value": "1000",
+          },
+        ],
+      },
+    ],
+    "macros": [
+      {
+        "id": "showmacrospanel",
+        "label": "S63",
+        "type": "boolean",
+        "value": false,
+      },
+      {
+        "depend": [
+          {
+            "id": "showmacrospanel",
+            "value": true,
+          },
+        ],
+        "id": "openmacrosonstart",
+        "label": "S93",
+        "type": "boolean",
+        "value": false,
+      },
+      {
+        "depend": [
+          {
+            "id": "showmacrospanel",
+            "value": true,
+          },
+        ],
+        "id": "macros",
+        "sorted": true,
+        "type": "list",
+        "value": [],
+      },
+    ],
+    "notification": [
+      {
+        "id": "shownotificationspanel",
+        "label": "S63",
+        "type": "boolean",
+        "value": false,
+      },
+      {
+        "depend": [
+          {
+            "id": "shownotificationspanel",
+            "value": true,
+          },
+        ],
+        "id": "opennotificationsonstart",
+        "label": "S93",
+        "type": "boolean",
+        "value": false,
+      },
+      {
+        "depend": [
+          {
+            "id": "shownotificationspanel",
+            "value": true,
+          },
+        ],
+        "id": "notifautoscroll",
+        "label": "S77",
+        "type": "boolean",
+        "value": true,
+      },
+    ],
+    "overrides": [
+      {
+        "id": "showoverridespanel",
+        "label": "S63",
+        "type": "boolean",
+        "value": true,
+      },
+      {
+        "depend": [
+          {
+            "id": "showoverridespanel",
+            "value": true,
+          },
+        ],
+        "id": "openoverridesonstart",
+        "label": "S93",
+        "type": "boolean",
+        "value": true,
+      },
+      {
+        "depend": [
+          {
+            "id": "showoverridespanel",
+            "value": true,
+          },
+        ],
+        "id": "rpm_max",
+        "label": "S255",
+        "min": 1,
+        "type": "number",
+        "value": 24000,
+      },
+      {
+        "depend": [
+          {
+            "id": "showoverridespanel",
+            "value": true,
+          },
+        ],
+        "id": "feed_max",
+        "label": "S257",
+        "min": 1,
+        "type": "number",
+        "value": 5000,
+      },
+    ],
+    "panels": [
+      {
+        "id": "fixedpanels",
+        "label": "S203",
+        "type": "boolean",
+        "value": true,
+      },
+      {
+        "depend": [
+          {
+            "id": "fixedpanels",
+            "value": true,
+          },
+        ],
+        "fixed": true,
+        "id": "panelsorder",
+        "label": "S202",
+        "sorted": true,
+        "type": "list",
+        "value": [
+          {
+            "id": "Jog",
+            "name": "jog",
+          },
+          {
+            "id": "Files",
+            "name": "files",
+          },
+          {
+            "id": "Overrrides",
+            "name": "overrides",
+          },
+          {
+            "id": "Toolpath",
+            "name": "toolpath",
+          },
+          {
+            "id": "Spindle",
+            "name": "spindle",
+          },
+          {
+            "id": "Probe",
+            "name": "probe",
+          },
+          {
+            "id": "HMI",
+            "name": "hmi",
+          },
+          {
+            "id": "Terminal",
+            "name": "terminal",
+          },
+          {
+            "id": "Notifications",
+            "name": "notification",
+          },
+          {
+            "id": "Macros",
+            "name": "macros",
+          },
+          {
+            "id": "Extracontents",
+            "name": "extracontents",
+          },
+        ],
+      },
+    ],
+    "polling": [
+      {
+        "id": "enablepolling",
+        "label": "S112",
+        "type": "boolean",
+        "value": true,
+      },
+      {
+        "depend": [
+          {
+            "id": "enablepolling",
+            "value": true,
+          },
+        ],
+        "id": "pollingcmds",
+        "label": "S115",
+        "sorted": false,
+        "type": "list",
+        "value": [
+          {
+            "cmds": "?",
+            "id": "samplepolling",
+            "name": "100ms",
+            "refreshtime": "100",
+          },
+        ],
+      },
+    ],
+    "probe": [
+      {
+        "id": "showprobepanel",
+        "label": "S63",
+        "type": "boolean",
+        "value": true,
+      },
+      {
+        "depend": [
+          {
+            "id": "showprobepanel",
+            "value": true,
+          },
+        ],
+        "id": "openprobeonstart",
+        "label": "S93",
+        "type": "boolean",
+        "value": true,
+      },
+      {
+        "append": "CN1",
+        "depend": [
+          {
+            "id": "showprobepanel",
+            "value": true,
+          },
+        ],
+        "id": "probefeedrate",
+        "label": "CN9",
+        "min": 1,
+        "type": "number",
+        "value": 20,
+      },
+      {
+        "append": "CN96",
+        "depend": [
+          {
+            "id": "showprobepanel",
+            "value": true,
+          },
+        ],
+        "id": "maxprobe",
+        "label": "CN93",
+        "min": 0,
+        "type": "number",
+        "value": 15,
+      },
+      {
+        "append": "CN96",
+        "depend": [
+          {
+            "id": "showprobepanel",
+            "value": true,
+          },
+        ],
+        "id": "probethickness",
+        "label": "CN94",
+        "min": 0,
+        "step": "0.001",
+        "type": "number",
+        "value": "1",
+      },
+      {
+        "append": "CN96",
+        "id": "proberetract",
+        "label": "CN200",
+        "min": 0,
+        "step": "0.001",
+        "type": "number",
+        "value": "5",
+      },
+      {
+        "depend": [
+          {
+            "id": "showprobepanel",
+            "value": true,
+          },
+        ],
+        "help": "S97",
+        "id": "probepostcommand",
+        "label": "CN95",
+        "type": "text",
+        "value": "G10 L20 P0 #selected_axis##probe_thickness#;$J=G91 G21 F1000 #selected_axis##probe_retract#",
+      },
+    ],
+    "spindle": [
+      {
+        "id": "showspindlepanel",
+        "label": "S63",
+        "type": "boolean",
+        "value": true,
+      },
+      {
+        "depend": [
+          {
+            "id": "showspindlepanel",
+            "value": true,
+          },
+        ],
+        "id": "openspindleonstart",
+        "label": "S93",
+        "type": "boolean",
+        "value": true,
+      },
+      {
+        "depend": [
+          {
+            "id": "showspindlepanel",
+            "value": true,
+          },
+        ],
+        "id": "spindlespeed",
+        "label": "CN59",
+        "min": 0,
+        "type": "number",
+        "value": 0,
+      },
+      {
+        "depend": [
+          {
+            "id": "showspindlepanel",
+            "value": false,
+          },
+        ],
+        "id": "showM4ctrls",
+        "label": "CN70",
+        "type": "boolean",
+        "value": true,
+      },
+      {
+        "depend": [
+          {
+            "id": "showspindlepanel",
+            "value": false,
+          },
+        ],
+        "id": "showCoolantctrls",
+        "label": "CN72",
+        "type": "boolean",
+        "value": true,
+      },
+      {
+        "depend": [
+          {
+            "id": "showCoolantctrls",
+            "value": true,
+          },
+          {
+            "id": "showspindlepanel",
+            "value": false,
+          },
+        ],
+        "id": "showMistctrls",
+        "label": "CN73",
+        "type": "boolean",
+        "value": true,
+      },
+      {
+        "depend": [
+          {
+            "id": "showMistctrls",
+            "value": true,
+          },
+          {
+            "id": "showspindlepanel",
+            "value": false,
+          },
+        ],
+        "id": "showM7ctrls",
+        "label": "CN71",
+        "type": "boolean",
+        "value": false,
+      },
+    ],
+    "terminal": [
+      {
+        "id": "showterminalpanel",
+        "label": "S63",
+        "type": "boolean",
+        "value": true,
+      },
+      {
+        "depend": [
+          {
+            "id": "showterminalpanel",
+            "value": true,
+          },
+        ],
+        "id": "terminalsettings",
+        "label": "",
+        "type": "group",
+        "value": [
+          {
+            "id": "openterminalonstart",
+            "label": "S93",
+            "type": "boolean",
+            "value": true,
+          },
+          {
+            "id": "verbose",
+            "label": "S76",
+            "type": "boolean",
+            "value": true,
+          },
+          {
+            "id": "autoscroll",
+            "label": "S77",
+            "type": "boolean",
+            "value": true,
+          },
+          {
+            "id": "MaxTerminalMessages",
+            "label": "Max Terminal Messages",
+            "max": 10000,
+            "min": 1,
+            "type": "number",
+            "value": 400,
+          },
+        ],
+      },
+    ],
+    "toolpath": [
+      {
+        "id": "showtoolpathpanel",
+        "label": "S63",
+        "type": "boolean",
+        "value": true,
+      },
+      {
+        "depend": [
+          {
+            "id": "showtoolpathpanel",
+            "value": true,
+          },
+        ],
+        "id": "opentoolpathonstart",
+        "label": "S93",
+        "type": "boolean",
+        "value": true,
+      },
+      {
+        "depend": [
+          {
+            "id": "showfilespanel",
+            "value": true,
+          },
+        ],
+        "id": "filesplaypcgroup",
+        "label": "S240",
+        "type": "group",
+        "value": [
+          {
+            "id": "filesPreviewOnPlayDesktop",
+            "label": "S241",
+            "type": "boolean",
+            "value": true,
+          },
+        ],
+      },
+      {
+        "help": "S227",
+        "id": "toolpathMaxSegmentsDesktop",
+        "label": "S226",
+        "min": 1000,
+        "type": "number",
+        "value": 500000,
+      },
+      {
+        "depend": [
+          {
+            "id": "showfilespanel",
+            "value": true,
+          },
+        ],
+        "id": "filesplaymobilegroup",
+        "label": "S242",
+        "type": "group",
+        "value": [
+          {
+            "id": "filesPreviewOnPlayMobile",
+            "label": "S241",
+            "type": "boolean",
+            "value": true,
+          },
+        ],
+      },
+      {
+        "help": "S229",
+        "id": "toolpathMaxSegmentsMobile",
+        "label": "S226",
+        "min": 1000,
+        "type": "number",
+        "value": 150000,
+      },
+    ],
+  },
+}
+`;
