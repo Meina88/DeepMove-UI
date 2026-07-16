@@ -77,7 +77,7 @@ const generateValidationGlobal = (
         modified: true,
     }
 
-    if (fieldData.shortkey && interfaceSettings) {
+    if (fieldData.shortkey && interfaceSettings?.current.settings) {
         if (fieldData.value.length > 0) {
             if (fieldData.value.endsWith("+")) {
                 validation.message = T("S214")
@@ -122,13 +122,14 @@ const generateValidationGlobal = (
         }
     } else {
         if (typeof fieldData.step !== "undefined") {
+            const stepValue = typeof fieldData.step === "number" ? fieldData.step : parseFloat(fieldData.step)
             //hack to avoid float precision issue
             const mult =
-                (1 / fieldData.step).toFixed(0) > "0"
-                    ? parseFloat((1 / fieldData.step).toFixed(0))
+                (1 / stepValue).toFixed(0) > "0"
+                    ? parseFloat((1 / stepValue).toFixed(0))
                     : 1
             const valueMult = Math.round(fieldData.value * mult)
-            const stepMult = Math.round(fieldData.step * mult)
+            const stepMult = Math.round(stepValue * mult)
 
             if (valueMult % stepMult != 0) {
                 validation.message = <Flag  style={{ width: "1rem", height: "1rem" }} color="red" />
@@ -231,7 +232,7 @@ const generateValidationGlobal = (
             if (
                 fieldData.name == "type" &&
                 fieldData.value == "camera" &&
-                interfaceSettings
+                interfaceSettings?.current.settings
             ) {
                 //Update camera source automaticaly
                 //Note: is there a less complexe way to do ?
@@ -448,7 +449,7 @@ const InterfaceTab = () => {
 
                     const importResult: ImportPreferencesResult =
                         importPreferencesSection(
-                            interfaceSettings.current.settings,
+                            interfaceSettings.current.settings ?? {},
                             importData.settings
                         )
                     interfaceSettings.current.settings = importResult.preferences
@@ -531,11 +532,14 @@ const InterfaceTab = () => {
                     <Fragment>
                         {interfaceSettings.current.settings && (
                             <div class="panels-container">
+                                {/* Non-null: the surrounding `&&` guard already confirmed .settings
+                                    is set; the assertion is only needed because that narrowing doesn't
+                                    carry into this .map() callback. */}
                                 {Object.keys(
                                     interfaceSettings.current.settings
                                 ).map((sectionId) => {
                                     const section =
-                                        interfaceSettings.current.settings[
+                                        interfaceSettings.current.settings![
                                         sectionId
                                         ]
                                     return (
@@ -549,11 +553,14 @@ const InterfaceTab = () => {
                                                     </span>
                                                 </div>
                                                 <div class="panel-body panel-body-interface">
+                                                    {/* section is a PreferencesFieldData[]; Object.keys() on it
+                                                        yields its numeric indices as strings (see PreferencesSection),
+                                                        so subsectionId needs converting back to a number to index it. */}
                                                     {Object.keys(section).map(
                                                         (subsectionId) => (
                                                             <InterfaceSubsection
                                                                 key={subsectionId}
-                                                                fieldData={section[subsectionId]}
+                                                                fieldData={section[Number(subsectionId)]}
                                                                 generateValidation={generateValidation}
                                                                 interfaceSettings={interfaceSettings}
                                                                 connectionSettings={connectionSettings}

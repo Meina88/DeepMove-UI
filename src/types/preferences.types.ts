@@ -53,7 +53,11 @@ export interface PreferencesFieldData {
     depend?: DependencyCondition[]
     options?: PreferencesSelectOption[]
     shortkey?: boolean
-    step?: number
+    // step is stored as a JSON string in preferences.json (e.g. "0.001") for at
+    // least the probe section, same as min/max below; arithmetic use sites (e.g.
+    // ProbeCNC.tsx's `1 / element.step`) rely on JS's implicit string->number
+    // coercion, which is why this stays a union rather than just `number`.
+    step?: number | string
     min?: number | string
     max?: number | string
     minSecondary?: number

@@ -16,21 +16,22 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { createContext, FunctionalComponent } from "preact"
+import { createContext, FunctionalComponent, ComponentChildren } from "preact"
 import { useContext, useState, useRef } from "preact/hooks"
+import type { RoutesMap } from "../types/routes.types"
 
 // Type definitions
 interface RouterContextValue {
     activeRoute: string
     setActiveRoute: (route: string) => void
-    routes: Record<string, any>
-    setRoutes: (routes: Record<string, any>) => void
+    routes: RoutesMap
+    setRoutes: (routes: RoutesMap) => void
     defaultRoute: { current: string }
     activeTab: { current: string }
 }
 
 interface RouterContextProviderProps {
-    children: any
+    children: ComponentChildren
 }
 
 /*
@@ -52,7 +53,7 @@ const RouterContextProvider: FunctionalComponent<RouterContextProviderProps> = (
         "/settings/interface"            
     )
     const [activeRoute, setActiveRoute] = useState<string>(defaultRoute.current)
-    const [routes, setRoutes] = useState<Record<string, any>>({})
+    const [routes, setRoutes] = useState<RoutesMap>({})
 
     const store: RouterContextValue = {
         activeRoute,

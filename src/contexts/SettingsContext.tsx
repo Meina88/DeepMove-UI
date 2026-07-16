@@ -18,6 +18,8 @@
 */
 import { createContext, FunctionalComponent, ComponentChildren } from "preact"
 import { useRef, useContext } from "preact/hooks"
+import type { PreferencesSection } from "../types/preferences.types"
+import type { FeaturesStructure } from "../types/settings.types"
 
 // Type definitions
 interface PollingItem {
@@ -31,7 +33,7 @@ interface SettingsObject {
 }
 
 interface InterfaceSettings extends SettingsObject {
-    settings?: any
+    settings?: PreferencesSection
 }
 
 interface ConnectionSettings extends SettingsObject {
@@ -45,9 +47,7 @@ interface ConnectionSettings extends SettingsObject {
     HostDownloadPath?: string
 }
 
-interface FeaturesSettings extends SettingsObject {
-    [subsection: string]: any
-}
+type FeaturesSettings = FeaturesStructure
 
 type PollingCallback = () => void | Promise<void>
 
@@ -62,6 +62,8 @@ interface SettingsContextValue {
 }
 
 interface SettingsContextFn {
+    // any: reads directly off ConnectionSettings' index signature, which mixes
+    // known string fields with whatever else a given [ESP800] response carries.
     getValue: (val: string) => any
 }
 

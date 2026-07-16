@@ -5,7 +5,11 @@ import { generateUID, disableUI } from "../components/Helpers"
 // Type definitions
 interface Modal {
     id?: string
-    [key: string]: any
+    title?: ComponentChildren
+    content?: ComponentChildren
+    footer?: ComponentChildren
+    overlay?: boolean
+    hideclose?: boolean
 }
 
 interface ModalsContextValue {

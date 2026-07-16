@@ -16,18 +16,22 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { createContext, FunctionalComponent } from "preact"
+import { createContext, FunctionalComponent, ComponentChildren } from "preact"
 import { useRef, useContext, useState, useCallback, useMemo } from "preact/hooks"
 import { limitArr, useStoredState } from "../components/Helpers"
 
 // Type definitions
+// [key: string]: any deliberately kept: consumers (e.g. Terminal.tsx's own
+// TerminalLine) extend this with extra display-only fields (content, type,
+// isAction, actionType, ...) depending on the message source, and there's no
+// runtime schema validating which fields a given element actually carries.
 interface TerminalElement {
     isverboseOnly?: boolean
     [key: string]: any
 }
 
 interface Terminal {
-    input: { current: any }
+    input: { current: string }
     content: TerminalElement[]
     add: (element: TerminalElement) => void
     clear: () => void
@@ -44,7 +48,7 @@ interface DatasContextValue {
 }
 
 interface DatasContextProviderProps {
-    children: any
+    children: ComponentChildren
 }
 
 /*
@@ -72,7 +76,10 @@ const DatasContextProvider: FunctionalComponent<DatasContextProviderProps> = ({ 
         "terminalInputHistory",
         []
     )
-    const terminalInput = useRef<any>()
+    // Every consumer treats "" the same as unset via falsy checks, so an empty
+    // string default (rather than undefined) keeps the type simple without
+    // changing behavior.
+    const terminalInput = useRef<string>("")
 
     const clearTerminal = useCallback(() => {
         terminalBuffer.current = []

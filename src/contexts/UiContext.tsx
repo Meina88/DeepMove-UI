@@ -30,20 +30,22 @@ interface ConnectionState {
     updating?: boolean
 }
 
-interface UiSettingsObject {
-    [key: string]: any
-}
-
 interface UiSettings {
-    getValue: (id: string, base?: UiSettingsObject) => any
-    getElement: (id: string, base?: UiSettingsObject) => any
+    // any: getValue/getElement's base can be the interfaceSettings tree (real
+    // shape: PreferencesSection) or, defensively, other settings-like objects -
+    // see settingsTree.ts.
+    getValue: (id: string, base?: any) => any
+    getElement: (id: string, base?: any) => any
     current: any
     set: (settings: any) => void
     refreshPaused: Record<string, boolean>
 }
 
 interface UiContextValue {
-    timerIDs: { current: any }
+    // Currently unused across the codebase (nothing ever assigns into it besides
+    // this ref's own initial {}); kept as-is rather than removed since that's a
+    // dead-code cleanup, not a typing one.
+    timerIDs: { current: Record<string, unknown> }
     panels: PanelsVisibility
     shortcuts: {
         enabled: boolean
@@ -105,9 +107,9 @@ interface UiContextProviderProps {
 
 const UiContextProvider: FunctionalComponent<UiContextProviderProps> = ({ children }) => {
     const panels = usePanelsVisibility()
-    const timersList = useRef<any>({})
+    const timersList = useRef<Record<string, unknown>>({})
     const [uiSettings, setUISettings] = useState<any>()
-    const uiRefreshPaused = useRef<any>({})
+    const uiRefreshPaused = useRef<Record<string, boolean>>({})
     const [isKeyboardEnabled, setIsKeyboardEnabled] = useState<boolean>(false)
     const [showKeepConnected, setShowKeepConnected] = useState<boolean>(false)
     const [connectionState, setConnectionState] = useState<ConnectionState>({

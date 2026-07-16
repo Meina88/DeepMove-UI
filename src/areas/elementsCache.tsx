@@ -61,7 +61,7 @@ const ElementsCache: FunctionalComponent = () => {
             const extraContentSettings = interfaceSettings.current.settings.extracontents
             const extraContentsEntry = extraContentSettings.find((entry: any) => entry.id === 'extracontents')
 
-            if (extraContentsEntry?.value?.length > 0) {
+            if (extraContentsEntry?.value && extraContentsEntry.value.length > 0) {
                 const newContent = extraContentsEntry.value.map((entry: ExtraContentEntry) => {
                     const item = extractValues(entry)
                     // console.log(item)

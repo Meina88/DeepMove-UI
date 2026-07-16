@@ -22,10 +22,11 @@ import type { PreferencesFieldData } from "../../types/preferences.types"
 
 /*
  * getValue/getElement are called both with the current interfaceSettings tree
- * (shape: PreferencesSection, see types/preferences.types.ts) and with other
- * settings-like objects (e.g. connectionsettings in Helpers/components.tsx),
- * so the entry point stays untyped - only the node found while walking it is
- * typed as PreferencesFieldData.
+ * (shape: PreferencesSection, see types/preferences.types.ts - always flat
+ * sectionId -> PreferencesFieldData[] in real data) and, defensively, with
+ * arbitrary settings-like objects (this file's own tests cover a nested-object
+ * branch to pin that fallback), so the entry point stays untyped - only the
+ * node found while walking it is typed as PreferencesFieldData.
  */
 export function findSettingsNode(settingsObject: any, id: string): PreferencesFieldData | undefined {
     if (!settingsObject) return undefined

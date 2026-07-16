@@ -16,9 +16,10 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { createContext, FunctionalComponent } from "preact"
+import { createContext, FunctionalComponent, ComponentChildren } from "preact"
 import { useContext, useRef } from "preact/hooks"
 import { httpAdapter } from "../adapters"
+import type { HttpAdapterParams, HttpAdapterReturn, HttpError } from "../adapters/httpAdapter"
 import { useUiContext } from "./UiContext"
 import { getWebSocketService } from "../hooks/useWebSocketService";
 import { useTargetContextFn } from "../targets"
@@ -27,8 +28,11 @@ import { useTargetContextFn } from "../targets"
 interface HttpRequest {
     id: string
     url: string
-    params: any
-    onSuccess: (response: any) => void
+    // echo isn't part of HttpAdapterParams itself (it's queue-level metadata this
+    // context reads before handing params off to httpAdapter, not an XHR option);
+    // callers pass it as boolean (mute the echoed command) or string (the command text).
+    params: HttpAdapterParams & { echo?: boolean | string }
+    onSuccess: (response: string | Blob) => void
     onFail?: ((error: string) => void) | null
     onProgress?: (percent: number) => void
 }
@@ -37,13 +41,13 @@ interface HttpQueueContextValue {
     addInQueue: (request: HttpRequest) => void
     addInTopQueue: (request: HttpRequest) => void
     removeRequests: (requestIds: string | string[]) => void
-    getCurrentRequest: () => any
+    getCurrentRequest: () => HttpAdapterReturn | null
     removeAllRequests: () => void
     processRequests: () => void
 }
 
 interface HttpQueueContextProviderProps {
-    children: any
+    children: ComponentChildren
 }
 
 let counterNoAnswer = 0
@@ -73,7 +77,7 @@ const useHttpQueueContext = (): HttpQueueContextValue => {
 const HttpQueueContextProvider: FunctionalComponent<HttpQueueContextProviderProps> = ({ children }) => {
     const requestQueue = useRef<HttpRequest[]>([]) // Http queue for every components
     const isBusy = useRef<boolean>(false)
-    const currentRequest = useRef<any>()
+    const currentRequest = useRef<HttpAdapterReturn | null>(null)
     const { connection } = useUiContext()
 
     //Add new Request to queue
@@ -130,13 +134,17 @@ const HttpQueueContextProvider: FunctionalComponent<HttpQueueContextProviderProp
         let is401Error = false
         try {
             currentRequest.current = httpAdapter(url, params, onProgress || ((_percent: number) => {     }))
-            if (params.echo) {
+            // echo is only ever a string (the command text) or false (mute) across
+            // every current caller - never the literal `true` - so this narrows to
+            // exactly what processData's `data: string` parameter expects.
+            if (params.echo && typeof params.echo === "string") {
                 useTargetContextFn.processData?.("echo", params.echo)
             }
             const response = await currentRequest.current.response
             onSuccess(response)
             counterNoAnswer = 0
-        } catch (e: any) {
+        } catch (rawError: unknown) {
+            const e = rawError as HttpError
             if (e.code == 401) {
                 is401Error = true
                 connection.setConnectionState({
