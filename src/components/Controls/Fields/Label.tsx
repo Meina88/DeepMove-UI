@@ -24,7 +24,7 @@ export interface LabelCtrlProps {
     label?: string
     id?: string
     value?: string
-    setValue?: (val: any, update?: boolean) => void
+    setValue?: (val: string | null, update?: boolean) => void
     [key: string]: any
 }
 

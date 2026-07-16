@@ -32,6 +32,10 @@ interface ButtonImgProps {
     showlow?: boolean
     className?: string
     disabled?: boolean
+    // [key: string]: any deliberately kept: ...rest is spread onto <Button>,
+    // itself a createComponent() wrapper that accepts arbitrary native <button>
+    // attributes plus its own modifier flags (m2, tooltip, ...) - see
+    // Helpers/components.tsx's CreateComponentProps, which has the same shape.
     [key: string]: any
 }
 

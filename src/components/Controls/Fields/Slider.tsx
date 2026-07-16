@@ -24,6 +24,7 @@ import {
 import Input from "./Input"
 import { useFieldVisibility } from "./useFieldVisibility"
 import { useNotifyValueChange } from "./useNotifyValueChange"
+import type { DependencyCondition } from "../../../types/dependencies.types"
 
 export interface SliderProps {
     id: string
@@ -34,7 +35,7 @@ export interface SliderProps {
     max?: number
     adjustValue?: (id: string) => number
     type?: string
-    depend?: any
+    depend?: DependencyCondition[]
     setValue?: (value: string | number | null, update?: boolean) => void
     append?: string
     inline?: boolean

@@ -29,6 +29,7 @@ import FormGroup from "./FormGroup"
 import FieldGroup from "../FieldGroup"
 import { useFieldVisibility } from "./useFieldVisibility"
 import { useNotifyValueChange } from "./useNotifyValueChange"
+import type { DependencyCondition } from "../../../types/dependencies.types"
 
 interface MaskOption {
     value: string | number
@@ -42,7 +43,7 @@ export interface MaskProps {
     validation?: any
     value?: number
     type?: string
-    depend?: any
+    depend?: DependencyCondition[]
     setValue?: (value: number | null, update?: boolean) => void
     inline?: boolean
     options?: MaskOption[]
@@ -132,14 +133,18 @@ const MaskOptionField: FunctionalComponent<MaskOptionFieldProps> = ({
                     id={`${id  }M${  index}`}
                     label={FieldData.label}
                     value={FieldData.value}
-                    setValue={(val: boolean, update?: boolean) => {
+                    setValue={(val: boolean | null, update?: boolean) => {
                         if (!update) {
                             mask.setBit(parseInt(option.value.toString()), val ? 1 : 0)
                             if (
                                 type == "xmask" &&
                                 parseInt(option.value.toString()) == 0
                             ) {
-                                setControlEnabled(val)
+                                // val is only ever null when update is true (the
+                                // useNotifyValueChange convention), and this branch
+                                // only runs when !update, so val is always a real
+                                // boolean here; the ?? is just to satisfy the type.
+                                setControlEnabled(val ?? false)
                             }
                         }
                         setValue && setValue(mask.toInt(), update)

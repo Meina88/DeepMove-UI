@@ -113,10 +113,16 @@ const FeatureFieldItem = ({ fieldData, subsectionId, generateValidation }: Featu
             initial={initial}
             prec={prec}
             {...rest}
-            setValue={(val: string, update?: boolean) => {
+            // rest spreads fieldData.type as a plain string (not a literal), so
+            // <Field>'s discriminated union can't narrow to one variant here and
+            // expects setValue to satisfy all of them at once (boolean, string,
+            // number, ...). fieldData.value is really always a string
+            // (SettingFieldProps), so the cast just documents that mismatch
+            // rather than pretending this callback is generic.
+            setValue={((val: string, update?: boolean) => {
                 if (!update) fieldData.value = val
                 setvalidation(generateValidation(fieldData))
-            }}
+            }) as any}
             validation={validation}
         />
     )
@@ -517,7 +523,10 @@ const FeaturesTab = () => {
                 getFeatures()
             } else setIsLoading(false)
         }
-    }, [])
+        // Mount-only bootstrap: getFeatures/uisettings are recreated every render; adding them here
+        // would risk firing duplicate fetch requests on every re-render while the first is in flight.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [featuresSettings])
     console.log("feature")
     //console.log(featuresSettings.current)
     return (

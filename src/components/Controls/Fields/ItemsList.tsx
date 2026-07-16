@@ -16,7 +16,7 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { Fragment,  FunctionalComponent, TargetedMouseEvent } from "preact"
+import { Fragment,  FunctionalComponent, TargetedMouseEvent, VNode } from "preact"
 import { useState } from "preact/hooks"
 import { ButtonImg } from "../../Controls"
 import { T } from "../../Translations"
@@ -27,6 +27,7 @@ import {
 } from "../../Helpers"
 import { Field } from "../../Controls"
 import { formatItem } from "../../../tabs/interface/importHelper"
+import type { RawItemData } from "../../../tabs/interface/importHelper"
 import { useUiContextFn } from "../../../contexts"
 import {
     Plus,
@@ -40,7 +41,8 @@ import defaultMacro from "./def_macro.json"
 import defaultPolling from "./def_polling.json"
 import { useFieldVisibility } from "./useFieldVisibility"
 import { useNotifyValueChange } from "./useNotifyValueChange"
-import type { PreferencesFieldData } from "../../../types/preferences.types"
+import type { PreferencesFieldData, PreferencesSelectOption } from "../../../types/preferences.types"
+import type { DependencyCondition } from "../../../types/dependencies.types"
 
 // FieldItem/ItemData are the same settings-tree node shape shared with
 // tabs/interface/index.tsx and exportHelper.ts (see PreferencesFieldData),
@@ -69,7 +71,7 @@ interface ItemControlProps {
     index: number
     completeList: ItemData[]
     idList: string
-    depend?: any
+    depend?: DependencyCondition[]
     setValue: (value: ItemData[] | null, update?: boolean) => void
     validationfn: ValidationFunction
     fixed?: boolean
@@ -89,7 +91,7 @@ export interface ItemsListProps {
     inline?: boolean
     fixed?: boolean
     sorted?: boolean
-    depend?: any
+    depend?: DependencyCondition[]
     nodelete?: boolean
     editable?: boolean
     [key: string]: any
@@ -111,7 +113,7 @@ const ItemFieldEditor: FunctionalComponent<ItemFieldEditorProps> = ({
     const [validation, setvalidation] = useState(validationfn(item))
     //Do translation if necessary
     const Options = options
-        ? [...options].reduce((acc: any[], curr: any) => {
+        ? [...options].reduce((acc: PreferencesSelectOption[], curr: PreferencesSelectOption) => {
               acc.push({
                   label: T(curr.label),
                   value: curr.value,
@@ -154,7 +156,7 @@ const ItemControl: FunctionalComponent<ItemControlProps> = ({
     editable,
     sorted,
 }) => {
-    const iconsList: Record<string, any> = { ...iconsTarget, ...iconsFeather }
+    const iconsList: Record<string, VNode | null> = { ...iconsTarget, ...iconsFeather }
     const { id, value, editionMode } = itemData
     const indexIcon = value.findIndex((element) => element.id == `${id  }-icon`)
     const indexName = value.findIndex((element) => element.id == `${id  }-name`)
@@ -364,7 +366,7 @@ const ItemsList: FunctionalComponent<ItemsListProps> = ({
     const addItem = (e: TargetedMouseEvent<HTMLButtonElement>) => {
         useUiContextFn.haptic()
         e.currentTarget.blur()
-        const newItem: any = JSON.parse(
+        const newItem: RawItemData = JSON.parse(
             JSON.stringify(
                 id == "macros"
                     ? defaultMacro

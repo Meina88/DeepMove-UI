@@ -22,13 +22,14 @@ import {
     useSettingsContext,
 } from "../../contexts"
 import { checkDependencies } from "../Helpers"
+import type { DependencyCondition } from "../../types/dependencies.types"
 
 interface FieldGroupProps {
     className?: string
     children: ComponentChildren
     label?: string
     id?: string
-    depend?: any
+    depend?: DependencyCondition[]
 }
 
 const FieldGroup: FunctionalComponent<FieldGroupProps> = ({ className, children, label, id, depend }) => {

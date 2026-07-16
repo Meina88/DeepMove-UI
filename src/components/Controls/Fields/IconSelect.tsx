@@ -16,7 +16,7 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { FunctionalComponent, TargetedMouseEvent } from "preact"
+import { FunctionalComponent, TargetedMouseEvent, VNode } from "preact"
 import { useUiContextFn, useModalsContext } from "../../../contexts"
 import { ButtonImg } from "../../Controls"
 import { iconsFeather } from "../../Images"
@@ -47,7 +47,7 @@ const IconSelect: FunctionalComponent<IconSelectProps> = ({
     setValue,
 }) => {
     const { modals } = useModalsContext()
-    const iconsList: Record<string, any> = { ...iconsTarget, ...iconsFeather }
+    const iconsList: Record<string, VNode | null> = { ...iconsTarget, ...iconsFeather }
     const showList = (_e: TargetedMouseEvent<HTMLButtonElement>) => {
         useUiContextFn.haptic()
         const content = (

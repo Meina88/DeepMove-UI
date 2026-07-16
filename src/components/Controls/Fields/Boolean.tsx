@@ -40,7 +40,7 @@ export interface BooleanProps {
     type?: string
     help?: string
     depend?: DependencyCondition[]
-    setValue?: any
+    setValue?: (value: boolean | null, update?: boolean) => void
     inline?: boolean
     [key: string]: any
 }

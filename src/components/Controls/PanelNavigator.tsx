@@ -1,4 +1,4 @@
-import { FunctionalComponent } from "preact"
+import { FunctionalComponent, VNode } from "preact"
 import { useEffect, useRef, useState } from "preact/hooks"
 import { useUiContext, useUiContextFn } from "../../contexts"
 import { useTargetCommands } from "../../hooks"
@@ -9,7 +9,7 @@ import { T } from "../Translations"
 import { Octagon, Code } from "preact-feather"
 
 
-const iconsList: Record<string, any> = {
+const iconsList: Record<string, VNode | null> = {
   ...iconsTarget,
   ...iconsFeather,
 }
@@ -87,7 +87,7 @@ useEffect(() => {
     }
   )
 
-  panels.visibles.forEach((panel: any) => {
+  panels.visibles.forEach((panel) => {
     const el = document.getElementById(panel.id)
     if (el) observer.observe(el)
   })
