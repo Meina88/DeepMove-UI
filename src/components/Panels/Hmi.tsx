@@ -22,12 +22,13 @@ import { SpindlePanel } from "./SpindleCNC"
 import { ProbePanel } from "./ProbeCNC"
 import { useTargetCommands } from "../../hooks"
 import { useTargetContext } from "../../targets"
-import { useUiContextFn } from "../../contexts"
+import { useUiContext, useUiContextFn } from "../../contexts"
 import { eventBus } from "../../hooks/eventBus"
 import { iconsTarget } from "../../targets"
 import { useModalsContext } from "../../contexts"
 import { showConfirmationModal } from "../Modal"
 import { TargetedMouseEvent } from "preact"
+import { useExclusiveFullscreenPanels } from "./Hmi/useExclusiveFullscreenPanels"
 
 
 const HMIPanel: FunctionalComponent = () => {
@@ -38,6 +39,7 @@ const HMIPanel: FunctionalComponent = () => {
   const [activeSection, setActiveSection] = useState<string>("files")
   const { targetCommands } = useTargetCommands()
   const { status } = useTargetContext()
+  const { panels } = useUiContext()
   const uiFn = useUiContextFn
   const { modals } = useModalsContext()
 
@@ -85,6 +87,18 @@ const HMIPanel: FunctionalComponent = () => {
       document.removeEventListener("fullscreenchange", handleFullScreenChange)
     }
   }, [])
+
+  // Make HMI fullscreen exclusive: every other dashboard panel (including any
+  // other panel's own "embedded" instance rendered inside HMI itself, e.g.
+  // JogPanel) stays mounted underneath the fullscreen overlay otherwise,
+  // silently duplicating whichever panel is on-screen in both places at once.
+  useExclusiveFullscreenPanels({
+    selfId: id,
+    isFullScreen,
+    panelsList: panels.list,
+    panelsVisibles: panels.visibles,
+    setPanelsVisibles: panels.setVisibles,
+  })
 
   useEffect(() => {
     if (isAlarm) {
