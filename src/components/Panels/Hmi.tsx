@@ -12,7 +12,6 @@ import {
   Terminal,
   Power,
 } from "preact-feather"
-import { useState, useEffect, useRef } from "preact/hooks"
 import { FilesPanel } from "./Files"
 import { JogPanel } from "./JogCNC"
 import { OverridesPanel } from "./OverridesCNC"
@@ -23,70 +22,29 @@ import { ProbePanel } from "./ProbeCNC"
 import { useTargetCommands } from "../../hooks"
 import { useTargetContext } from "../../targets"
 import { useUiContext, useUiContextFn } from "../../contexts"
-import { eventBus } from "../../hooks/eventBus"
 import { iconsTarget } from "../../targets"
 import { useModalsContext } from "../../contexts"
 import { showConfirmationModal } from "../Modal"
 import { TargetedMouseEvent } from "preact"
 import { useExclusiveFullscreenPanels } from "./Hmi/useExclusiveFullscreenPanels"
+import { useHmiFullscreen } from "./Hmi/useHmiFullscreen"
+import { useHmiMachineState } from "./Hmi/useHmiMachineState"
+import { useHmiResetControl } from "./Hmi/useHmiResetControl"
+import { useHmiActiveSection } from "./Hmi/useHmiActiveSection"
 
 
 const HMIPanel: FunctionalComponent = () => {
   const id = "hmiPanel"
-  const [isFullScreen, setIsFullScreen] = useState(false)
-  const SOFT_RESET = "\x18"
-  const UNLOCK = "$X"
-  const [activeSection, setActiveSection] = useState<string>("files")
   const { targetCommands } = useTargetCommands()
   const { status } = useTargetContext()
   const { panels } = useUiContext()
   const uiFn = useUiContextFn
   const { modals } = useModalsContext()
 
-  const lastValidState = useRef<string>("Offline")
-
-  const machineState: string = status?.state ?? "Idle"
-  const normalizedState = String(machineState).toLowerCase()
-  const isAlarm = normalizedState.startsWith("alarm")
-  const isIdle = normalizedState === "idle"
-  const rawState = status?.state
-  if (rawState && rawState !== "?") {
-    lastValidState.current = rawState
-  }
-  const effectiveState =
-    !rawState || rawState === "?"
-      ? lastValidState.current
-      : rawState
-
-  const [isLatched, setIsLatched] = useState(false)
-  const [resetBusy, setResetBusy] = useState(false)
-
-  const exitFullscreen = () => {
-    uiFn.haptic()
-
-    if (document.fullscreenElement) {
-      document.exitFullscreen?.()
-    }
-  }
-
-
-
-  useEffect(() => {
-    const handleFullScreenChange = () => {
-      const element = document.getElementById(id)
-
-      const isFs = document.fullscreenElement === element
-
-      setIsFullScreen(isFs)
-    }
-
-
-    document.addEventListener("fullscreenchange", handleFullScreenChange)
-
-    return () => {
-      document.removeEventListener("fullscreenchange", handleFullScreenChange)
-    }
-  }, [])
+  const { isFullScreen, exitFullscreen } = useHmiFullscreen(id)
+  const { effectiveState, isAlarm, isIdle, isLatched } = useHmiMachineState(status)
+  const { resetBusy, onResetPress } = useHmiResetControl(isAlarm, targetCommands)
+  const { activeSection, setActiveSection } = useHmiActiveSection()
 
   // Make HMI fullscreen exclusive: every other dashboard panel (including any
   // other panel's own "embedded" instance rendered inside HMI itself, e.g.
@@ -99,51 +57,6 @@ const HMIPanel: FunctionalComponent = () => {
     panelsVisibles: panels.visibles,
     setPanelsVisibles: panels.setVisibles,
   })
-
-  useEffect(() => {
-    if (isAlarm) {
-      setIsLatched(true)
-    }
-
-    if (isIdle) {
-      setIsLatched(false)
-    }
-  }, [isAlarm, isIdle])
-
-  useEffect(() => {
-    const id = eventBus.on(
-      "hmi:play",
-      () => {
-        setActiveSection("overrides")
-      },
-      "hmi-play-listener"
-    )
-
-    return () => {
-      eventBus.off("hmi:play", id)
-    }
-  }, [])
-
-  useEffect(() => {
-    const listenerId = eventBus.on(
-      "hmi:toggleFullscreen",
-      () => {
-        const element = document.getElementById(id)
-        if (!element) return
-
-        if (document.fullscreenElement === element) {
-          document.exitFullscreen?.()
-        } else {
-          element.requestFullscreen?.()
-        }
-      },
-      "hmi-fullscreen-listener"
-    )
-
-    return () => {
-      eventBus.off("hmi:toggleFullscreen", listenerId)
-    }
-  }, [])
 
   const reloadPage = () => {
     uiFn.haptic()
@@ -164,29 +77,6 @@ const HMIPanel: FunctionalComponent = () => {
       button1: { cb: powerOffNow, text: T("S248") },
       button2: { text: T("S28") },
     })
-  }
-
-  const onResetPress = () => {
-    if (resetBusy) return
-
-    setResetBusy(true)
-    window.setTimeout(() => {
-      setResetBusy(false)
-    }, 350)
-
-    uiFn.haptic([50, 80, 50, 80, 50])
-
-    if (isAlarm) {
-      targetCommands(SOFT_RESET)
-
-      window.setTimeout(() => {
-        targetCommands(UNLOCK)
-      }, 120)
-
-      return
-    }
-
-    targetCommands(SOFT_RESET)
   }
 
 
