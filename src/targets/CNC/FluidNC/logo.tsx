@@ -37,17 +37,17 @@ const AppLogo: FunctionalComponent<LogoProps> = ({
   color = "var(--logo-color)",
   bgcolor = "transparent",
 }) => {
-  const { interfaceSettings } = useSettingsContext() as any
+  const { interfaceSettings } = useSettingsContext()
   if (
     interfaceSettings.current &&
-    interfaceSettings.custom &&
-    interfaceSettings.custom.logo
+    interfaceSettings.current.custom &&
+    interfaceSettings.current.custom.logo
   )
     return (
       <span
         dangerouslySetInnerHTML={{
           __html: sanitizeSvg(
-            interfaceSettings.custom.logo
+            interfaceSettings.current.custom.logo
               .replace("{height}", height)
               .replaceAll("{color}", color)
               .replaceAll("{bgcolor}", bgcolor)
