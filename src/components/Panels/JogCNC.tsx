@@ -40,20 +40,17 @@ import { useContinuousJog, jogStepsXYZ } from "./Jog/useContinuousJog"
 import { useJogKeyboardShortcuts } from "./Jog/useJogKeyboardShortcuts"
 import { useLaserFocus } from "./Jog/useLaserFocus"
 
-// KNOWN ARCHITECTURE ISSUE (documented, not fixed - needs hardware/simulator
-// verification before touching):
 // These are module-level singletons, so every mounted <JogPanel> instance
 // shares the exact same currentFeedRate/currentAxis - there is no per-instance
-// state. JogPanel is already rendered twice in practice: once as the
-// standalone "jog" panel (JogPanelElement, dashboard) and once embedded via
-// <JogPanel embedded /> in Hmi.tsx. If both are visible/mounted at the same
-// time, jogging the additional-axis selector or changing feed rate in one
-// instance silently changes it in the other too (they're the same variables).
-// Before deciding on a fix (e.g. moving this into per-instance component
-// state or a shared context keyed by panel id), reproduce the scenario for
-// real: open the standalone Jog panel and the Hmi "jog" section
-// simultaneously, and confirm whether this is an actual bug or an
-// intentional "one jog state for the whole app" design.
+// state. JogPanel is rendered in two places: the standalone "jog" dashboard
+// panel (JogPanelElement) and embedded via <JogPanel embedded /> in Hmi.tsx.
+// This used to be a real bug whenever both were mounted at once (jogging the
+// additional-axis selector or changing feed rate in one instance silently
+// changed it in the other), but Hmi.tsx's useExclusiveFullscreenPanels now
+// hides every other dashboard panel while HMI is fullscreen, so only one
+// JogPanel is ever mounted at a time - the sharing is safe by construction
+// again. If a future layout ever shows both at once on purpose, this needs
+// revisiting (per-instance state or a shared, reactive context).
 let currentFeedRate: Record<string, any> = {}
 let currentAxis: string = "-1"
 
