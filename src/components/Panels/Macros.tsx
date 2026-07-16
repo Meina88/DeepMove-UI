@@ -54,7 +54,7 @@ interface MacroButton {
     type: MacroType
     icon?: string
     color?: string
-    [key: string]: any
+    [key: string]: string | undefined
 }
 
 const MacrosPanel: FunctionalComponent = () => {
@@ -83,7 +83,7 @@ const MacrosPanel: FunctionalComponent = () => {
 
     const macroList: MacroItem[] = uisettings.getValue("macros")
     const macroButtons: MacroButton[] = macroList.reduce((acc: MacroButton[], curr: MacroItem) => {
-        const item: MacroButton = curr.value.reduce((accumulator: any, current: MacroValue) => {
+        const item: MacroButton = curr.value.reduce((accumulator: MacroButton, current: MacroValue) => {
             accumulator[current.name] = current.initial
             return accumulator
         }, {} as MacroButton)

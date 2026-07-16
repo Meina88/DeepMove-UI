@@ -48,7 +48,15 @@ const ExtraPanel: FunctionalComponent<ExtraPanelProps> = ({ id, source, refresht
     )
 }
 
-const ExtraPanelElement = (element: any, id: string): Panel => {
+interface ExtraPanelConfig {
+    name: string
+    icon?: string
+    source: string
+    refreshtime: number
+    type: "camera" | "image" | "extension" | "content"
+}
+
+const ExtraPanelElement = (element: ExtraPanelConfig, id: string): Panel => {
     console.log("Panel ", id)
     return {
         id,

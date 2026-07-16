@@ -19,12 +19,17 @@ importHelper.ts - ESP3D WebUI helper file
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+import type { PreferencesFieldData, PreferencesSection } from "../../types/preferences.types"
+import type { DependencyCondition } from "../../types/dependencies.types"
+
 // Item setting field
 interface ItemSettingField {
     id: string;
     name?: string;
-    value: any;
-    initial: any;
+    // value/initial mirror PreferencesFieldData's own reasoning (real shape
+    // depends on `type`, not modeled further here).
+    value: PreferencesFieldData["value"];
+    initial: PreferencesFieldData["initial"];
     type?: string;
     label?: string;
     help?: string;
@@ -33,7 +38,7 @@ interface ItemSettingField {
     minsecondary?: number;
     step?: number;
     append?: string;
-    options?: any[];
+    options?: PreferencesFieldData["options"];
     newItem?: boolean;
 }
 
@@ -46,15 +51,10 @@ export interface FormattedItem {
     newItem?: boolean;
 }
 
-// Raw item data
+// Raw item data - genuinely dynamic key/value pairs from JSON with no fixed schema
 export interface RawItemData {
     id: string;
-    [key: string]: any;
-}
-
-// Preferences section structure
-export interface PreferencesSection {
-    [key: string]: any[];
+    [key: string]: unknown;
 }
 
 // Import result interface
@@ -141,6 +141,10 @@ function formatItem(itemData: RawItemData, index: number = -1, origineId: string
                                 label: "S138",
                                 value: "SD",
                                 depend: [
+                                    // Not a recognized DependencyCondition shape (no id/connection_id/
+                                    // orGroups) - checkDependencies() falls through to "true" for it,
+                                    // same as before this was type-checked. Preserved as-is, not a
+                                    // behavior fix.
                                     {
                                         ids: [
                                             {
@@ -164,7 +168,7 @@ function formatItem(itemData: RawItemData, index: number = -1, origineId: string
                                                 value: true,
                                             },
                                         ],
-                                    },
+                                    } as DependencyCondition,
                                     {
                                         connection_id: "SDConnection",
                                         value: "!='none'",
@@ -238,7 +242,7 @@ function formatPreferences(section: PreferencesSection): PreferencesSection {
         if (Array.isArray(section[key])) {
             for (let index = 0; index < section[key].length; index++) {
                 if (section[key][index].type == "group") {
-                    section[key][index].value.forEach((element: any, _index: number) => {
+                    section[key][index].value.forEach((element: PreferencesFieldData) => {
                         element.initial = element.value
                     })
                 } else if (section[key][index].type == "list") {
@@ -262,21 +266,23 @@ function formatPreferences(section: PreferencesSection): PreferencesSection {
  */
 function importPreferencesSection(
     currentPreferencesData: PreferencesSection,
-    importedPreferences: Record<string, any>
+    importedPreferences: Record<string, unknown>
 ): ImportPreferencesResult {
     let hasErrors = false;
     const currentPreferences: PreferencesSection = JSON.parse(JSON.stringify(currentPreferencesData));
 
-    function updateElement(id: string, value: any): boolean {
-        function traverse(obj: any): boolean {
+    function updateElement(id: string, value: unknown): boolean {
+        function traverse(obj: Record<string, unknown>): boolean {
             for (let key in obj) {
                 if (Object.prototype.hasOwnProperty.call(obj, key)) {
-                    if (obj[key] && typeof obj[key] === 'object') {
-                        if (obj[key].id === id) {
-                            obj[key].value = value;
+                    const current = obj[key]
+                    if (current && typeof current === 'object') {
+                        const record = current as Record<string, unknown>
+                        if (record.id === id) {
+                            record.value = value;
                             return true;
                         }
-                        if (traverse(obj[key])) {
+                        if (traverse(record)) {
                             return true;
                         }
                     }

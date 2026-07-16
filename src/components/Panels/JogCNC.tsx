@@ -16,7 +16,7 @@ Jog.tsx - ESP3D WebUI component file
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { Fragment } from "preact"
+import { Fragment, TargetedEvent, TargetedMouseEvent } from "preact"
 import {
     Home,
     Crosshair,
@@ -51,7 +51,7 @@ import { useLaserFocus } from "./Jog/useLaserFocus"
 // JogPanel is ever mounted at a time - the sharing is safe by construction
 // again. If a future layout ever shows both at once on purpose, this needs
 // revisiting (per-instance state or a shared, reactive context).
-let currentFeedRate: Record<string, any> = {}
+let currentFeedRate: Record<string, number> = {}
 let currentAxis: string = "-1"
 
 const STEP_ANGLES = [45, 15, -15, -45]
@@ -226,8 +226,8 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
         })
     }
 
-    const onChangeAxis = (e: any) => {
-        let value = e.target ? e.target.value : e
+    const onChangeAxis = (e: TargetedEvent<HTMLSelectElement, Event> | string) => {
+        const value = typeof e === "string" ? e : e.currentTarget.value
         setCurrentSelectedAxis(value)
         currentAxis = value
     }
@@ -332,7 +332,7 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
                             targetValue = (e.target as HTMLInputElement).value.trim()
                             const btn = document.getElementById("applyMoveToBtn") as HTMLButtonElement
                             if (btn) {
-                                btn.disabled = targetValue.length === 0 || isNaN(targetValue as any)
+                                btn.disabled = targetValue.length === 0 || isNaN(Number(targetValue))
                             }
                         }}
                     />
@@ -490,7 +490,7 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
                                 confirmAxisAction("go-machine-zero")
                             }}
                         >
-                            {T("S252")} <Home size={"0.9rem" as any} />
+                            {T("S252")} <Home size={"0.9rem" as unknown as number} />
                         </Button>
 
 
@@ -510,7 +510,7 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
                                 confirmAxisAction("home-all")
                             }}
                         >
-                            {T("CN17")} <Home size={"0.9rem" as any} />
+                            {T("CN17")} <Home size={"0.9rem" as unknown as number} />
                         </Button>
 
                     </div>
@@ -531,7 +531,7 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
                                 confirmAxisAction("go-work-zero")
                             }}
                         >
-                            {T("S252")} <Crosshair size={"0.9rem" as any} />
+                            {T("S252")} <Crosshair size={"0.9rem" as unknown as number} />
                         </Button>
 
 
@@ -551,7 +551,7 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
                                 sendZeroCommand("")
                             }}
                         >
-                            {T("S43")} <Crosshair size={"0.9rem" as any} />
+                            {T("S43")} <Crosshair size={"0.9rem" as unknown as number} />
                         </Button>
                     </div>
 
@@ -801,7 +801,7 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
                                 <select
                                     id="selectAxisList"
                                     class="form-select"
-                                    onChange={(e: any) => {
+                                    onChange={(e: TargetedEvent<HTMLSelectElement, Event>) => {
                                         haptic()
                                         onChangeAxis(e)
                                     }}
@@ -828,7 +828,7 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
                                 tooltip
                                 data-tooltip={T("CN12")}
                                 id="btn+axis"
-                                onClick={(e: any) => {
+                                onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
                                     useUiContextFn.haptic();
                                     (e.target as HTMLElement).blur();
                                     sendJogCommand("Axis+")
@@ -842,7 +842,7 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
                                 tooltip
                                 data-tooltip={T("CN13")}
                                 id="btn-axis"
-                                onClick={(e: any) => {
+                                onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
                                     useUiContextFn.haptic();
                                     (e.target as HTMLElement).blur();
                                     sendJogCommand("Axis-")

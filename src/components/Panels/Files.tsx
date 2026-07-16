@@ -23,6 +23,7 @@ import { T } from "../Translations"
 import { useFilesManager, fileSizeString, getCurrentPath, setFileRef } from "../../hooks/useFilesManager"
 import type { FileEntry, PanelMenuItem } from "../../types/files.types"
 import { Loading, ButtonImg, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
+import type { UpdateStateMessage } from "../Controls/ContainerHelper"
 import { useUiContextFn, useModalsContext } from "../../contexts"
 import { showConfirmationModal } from "../Modal"
 import { Upload, RefreshCcw, FolderPlus, CornerRightUp, XCircle, Plus } from "preact-feather"
@@ -78,9 +79,9 @@ const FilesPanel: FunctionalComponent<FilesPanelProps> = ({ embedded = false }) 
     useEffect(() => {
         const listenerId = eventBus.on(
             "updateState",
-            (data: any) => {
+            (data: UpdateStateMessage) => {
                 if (data.id === "filesPanel") {
-                    setIsFullScreen(data.isFullScreen)
+                    setIsFullScreen(!!data.isFullScreen)
                 }
             },
             instanceId.current
@@ -94,8 +95,8 @@ const FilesPanel: FunctionalComponent<FilesPanelProps> = ({ embedded = false }) 
     useEffect(() => {
         const newMenu = () => {
             const fsItems: PanelMenuItem[] = files.supported
-                .filter((fs: any) => fs.depend && fs.depend())
-                .map((fs: any) => ({
+                .filter((fs) => fs.depend && fs.depend())
+                .map((fs) => ({
                     label:
                         (state.fileSystem === fs.value ? "✓ " : "") + T(fs.name),
                     className: "panel-menu-subitem",
@@ -160,7 +161,7 @@ const FilesPanel: FunctionalComponent<FilesPanelProps> = ({ embedded = false }) 
         if (!list || !fab) return
 
         let lastScrollTop = list.scrollTop
-        let timeout: any = null
+        let timeout: ReturnType<typeof setTimeout> | undefined = undefined
 
         const onScroll = () => {
             const current = list.scrollTop

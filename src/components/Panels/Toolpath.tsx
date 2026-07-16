@@ -31,7 +31,7 @@ import { useToolpathViewPrefs, type ViewId } from "./Toolpath/useToolpathViewPre
 import { useCanvasRenderer } from "./Toolpath/useCanvasRenderer"
 import { useToolpathCamera } from "./Toolpath/useToolpathCamera"
 import { useToolPositionTracking } from "./Toolpath/useToolPositionTracking"
-import { useToolpathFileEvents } from "./Toolpath/useToolpathFileEvents"
+import { useToolpathFileEvents, type SelectedToolpathFile } from "./Toolpath/useToolpathFileEvents"
 import { decidePlayAction } from "./Toolpath/decidePlayAction"
 
 
@@ -59,7 +59,7 @@ const ToolpathPanel: FunctionalComponent<ToolpathPanelProps> = ({ embedded: _emb
         Number(currentTool) === Number(toolNumbers.laser)
     const { targetCommands } = useTargetCommands()
 
-    const [selectedFile, setSelectedFile] = useState<any>(null)
+    const [selectedFile, setSelectedFile] = useState<SelectedToolpathFile | null>(null)
     const [bounds, setBounds] = useState<GCodeBounds | null>(null)
 
     // NO retornar acá (así se montan los hooks y el listener)
@@ -379,7 +379,7 @@ const ToolpathPanel: FunctionalComponent<ToolpathPanelProps> = ({ embedded: _emb
                                 }
 
                                 // 🔵 CASO 2: RUN FILE
-                                if (canRunFile) {
+                                if (canRunFile && selectedFile) {
 
                                     eventBus.emit("hmi:play", null)
 

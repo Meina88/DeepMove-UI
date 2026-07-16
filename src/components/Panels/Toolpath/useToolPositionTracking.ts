@@ -4,6 +4,7 @@
  are usually strings, same as in JogCNC).
 */
 import { useEffect } from "preact/hooks"
+import type { Positions } from "../../../targets/types"
 
 interface ToolPosition {
     x: number
@@ -12,16 +13,16 @@ interface ToolPosition {
 }
 
 export function useToolPositionTracking(
-    positions: any,
+    positions: Positions,
     setToolPos: (pos: ToolPosition | null) => void
 ): void {
     useEffect(() => {
         if (!positions) return
 
         // 1) Preferimos WPos si existe
-        const rawX = (positions as any).wx ?? (positions as any).x
-        const rawY = (positions as any).wy ?? (positions as any).y
-        const rawZ = (positions as any).wz ?? (positions as any).z
+        const rawX = positions.wx ?? positions.x
+        const rawY = positions.wy ?? positions.y
+        const rawZ = positions.wz ?? positions.z
 
         const x = typeof rawX === "number" ? rawX : parseFloat(String(rawX))
         const y = typeof rawY === "number" ? rawY : parseFloat(String(rawY))

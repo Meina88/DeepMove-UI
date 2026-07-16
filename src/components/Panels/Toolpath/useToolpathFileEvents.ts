@@ -22,6 +22,13 @@ interface ToolPosition {
     z: number
 }
 
+export interface SelectedToolpathFile {
+    url: string
+    filename: string
+    path: string
+    fs: string
+}
+
 interface UseToolpathFileEventsParams {
     viewIndex: number
     visiblePresets: ViewPreset[]
@@ -31,7 +38,7 @@ interface UseToolpathFileEventsParams {
     modelRef: { current: ToolpathModel | null }
     cameraRef: { current: CameraState }
     renderCurrent: (view: ViewPreset, camera: CameraState, toolPos: ToolPosition | null | undefined, showGrid?: boolean) => void
-    setSelectedFile: (file: any) => void
+    setSelectedFile: (file: SelectedToolpathFile | null) => void
     setBounds: (bounds: GCodeBounds | null) => void
     setToolPos: (pos: ToolPosition | null) => void
     setIsRendering: (rendering: boolean) => void
@@ -71,7 +78,7 @@ export function useToolpathFileEvents({
     const instanceId = useRef(`toolpath-${Math.random().toString(36).slice(2)}`)
 
     useEffect(() => {
-        const id = eventBus.on(
+        const id = eventBus.on<SelectedToolpathFile>(
             "toolpath:selectedFile",
             (data) => {
                 setSelectedFile(data)
@@ -218,7 +225,7 @@ export function useToolpathFileEvents({
                 // 🧹 LIBERAR MODELO (CLAVE)
                 if (modelRef.current) {
                     modelRef.current.segments.length = 0
-                    modelRef.current.bbox = undefined as any
+                    modelRef.current.bbox.reset()
                 }
                 modelRef.current = null
 

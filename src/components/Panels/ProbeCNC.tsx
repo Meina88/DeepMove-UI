@@ -17,7 +17,7 @@ ProbeCNC.js - ESP3D WebUI component file
 */
 
 import { Fragment, TargetedMouseEvent } from "preact"
-import type { FunctionalComponent } from "preact"
+import type { FunctionalComponent, JSX } from "preact"
 import { useState } from "preact/hooks"
 import { T } from "../Translations"
 import { Diamond } from "../../targets/CNC/FluidNC/icons"
@@ -25,9 +25,11 @@ import {
     useUiContextFn,
     useSettingsContext,
 } from "../../contexts"
+import type { SettingsContextValue } from "../../contexts"
 import { useTargetContext, variablesList } from "../../targets"
 import { ButtonImg, Field, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
 import { checkDependencies } from "../Helpers"
+import type { DependItem } from "../Helpers"
 import { useTargetCommands } from "../../hooks"
 
 /*
@@ -43,6 +45,44 @@ const probethickness = {} as Partial<NumberValue>
 const proberetract = {} as Partial<NumberValue>
 const probetype = {} as Partial<StringValue>
 const probeaxis = {} as Partial<StringValue>
+
+interface ProbeFieldOption {
+    label: string
+    value: string
+    depend?: DependItem[]
+}
+
+// The dynamic controls rendered in the probe panel body: number/select inputs
+// routed to ProbeControlField/<Field>, plus "m2" spacers and "button" entries
+// rendered directly below. Not a discriminated union - `type` is a plain
+// string (same reasoning as Field.tsx's own FieldProps) - so fields irrelevant
+// to a given `type` are simply left undefined.
+interface ProbeElementConfig {
+    id: string
+    type: string
+    label?: string
+    tooltip?: string
+    append?: string
+    options?: ProbeFieldOption[]
+    min?: number
+    max?: number
+    step?: number
+    value?: { current?: string | number; valid?: boolean }
+    variableName?: string
+    icon?: JSX.Element
+    iconRight?: boolean
+    mode?: string
+    useinput?: boolean
+    onclick?: (e: TargetedMouseEvent<HTMLButtonElement>) => void
+}
+
+// ProbeControlField only ever receives the number/select variant - the "m2"
+// and "button" cases are rendered inline before reaching it - so `value` is
+// guaranteed present there (though `.current` itself starts out undefined
+// until the panel's mount effect populates it from useUiContextFn.getValue()).
+interface ProbeFieldElement extends ProbeElementConfig {
+    value: { current?: string | number; valid?: boolean }
+}
 
 const ProbeControls: FunctionalComponent = () => {
     const { gcodeParameters, pinsStates } = useTargetContext()
@@ -74,9 +114,9 @@ const ProbeControls: FunctionalComponent = () => {
 }
 
 interface ProbeControlFieldProps {
-    element: any
-    interfaceSettings: any
-    connectionSettings: any
+    element: ProbeFieldElement
+    interfaceSettings: SettingsContextValue["interfaceSettings"]
+    connectionSettings: SettingsContextValue["connectionSettings"]
 }
 
 const ProbeControlField: FunctionalComponent<ProbeControlFieldProps> = ({
@@ -92,7 +132,19 @@ const ProbeControlField: FunctionalComponent<ProbeControlFieldProps> = ({
         modified: false,
     })
 
-    const generateValidation = (element: any) => {
+    const filterOptions = (options: ProbeFieldOption[] | undefined): ProbeFieldOption[] => {
+        if (options)
+            return options.filter((option) => {
+                return checkDependencies(
+                    option.depend,
+                    interfaceSettings.current.settings,
+                    connectionSettings.current
+                )
+            })
+        return options ?? []
+    }
+
+    const generateValidation = (element: ProbeFieldElement) => {
         let validation = {
             message: null,
             valid: true,
@@ -102,7 +154,7 @@ const ProbeControlField: FunctionalComponent<ProbeControlFieldProps> = ({
             element.type === "select" &&
             -1 ==
                 filterOptions(element.options).findIndex(
-                    (item: any) => item.value == element.value.current
+                    (item) => item.value == element.value.current
                 )
         ) {
             element.value.current = filterOptions(element.options)[0].value
@@ -111,7 +163,7 @@ const ProbeControlField: FunctionalComponent<ProbeControlFieldProps> = ({
             //hack to avoid float precision issue
             const inv = 1 / element.step
             const mult = inv > 0 ? Number(inv.toFixed(0)) : 1
-            const valueMult = Math.round(element.value.current * mult)
+            const valueMult = Math.round(Number(element.value.current) * mult)
             const stepMult = Math.round(element.step * mult)
             if (valueMult % stepMult != 0) {
                 validation.valid = false
@@ -119,8 +171,8 @@ const ProbeControlField: FunctionalComponent<ProbeControlFieldProps> = ({
         }
         if (
             element.type === "number" &&
-            (element.value.current < element.min ||
-                element.value.current.length === 0)
+            (Number(element.value.current) < Number(element.min) ||
+                (typeof element.value.current === "string" && element.value.current.length === 0))
         ) {
             //No error message to keep all control aligned
             //may be have a better way ?
@@ -131,32 +183,21 @@ const ProbeControlField: FunctionalComponent<ProbeControlFieldProps> = ({
         element.value.valid = validation.valid
         return validation
     }
-    const filterOptions = (options: any[]) => {
-        if (options)
-            return options.filter((option: any) => {
-                return checkDependencies(
-                    option.depend,
-                    interfaceSettings.current.settings,
-                    connectionSettings.current
-                )
-            })
-        return options
-    }
     return (
         <Field
             key={element.id}
             inline
             id={element.id}
             type={element.type}
-            label={T(element.label)}
+            label={T(element.label ?? "")}
             append={element.append}
             options={filterOptions(element.options)}
             min={element.min}
             max={element.max}
             step={element.step}
             value={element.value.current}
-            setValue={(val: any, update = false) => {
-                if (!update) {
+            setValue={(val: string | number | null, update = false) => {
+                if (!update && val !== null) {
                     element.value.current = val
                 }
                 const validationObj = generateValidation(element)
@@ -164,7 +205,9 @@ const ProbeControlField: FunctionalComponent<ProbeControlFieldProps> = ({
                 if (validationObj.valid && element.variableName) {
                     variablesList.addCommand({
                         name: element.variableName,
-                        value: element.value.current,
+                        // Always defined by the time a variableName field validates: ProbePanel's
+                        // mount effect seeds every value.current before any Field can call setValue.
+                        value: element.value.current!,
                     })
                 }
             }}
@@ -510,7 +553,7 @@ const ProbePanel: FunctionalComponent<ProbePanelProps> = ({ embedded = false }) 
   }
 >
 
-                                            {control.elements.map((element: any) => {
+                                            {control.elements.map((element: ProbeElementConfig) => {
                                                 if (element.type === "m2") {
                                                     return <div key={element.id} class="m-2" />
                                                 } else if (
@@ -543,7 +586,7 @@ const ProbePanel: FunctionalComponent<ProbePanelProps> = ({ embedded = false }) 
                                                     return (
                                                         <ProbeControlField
                                                             key={element.id}
-                                                            element={element}
+                                                            element={element as ProbeFieldElement}
                                                             interfaceSettings={interfaceSettings}
                                                             connectionSettings={connectionSettings}
                                                         />

@@ -325,7 +325,12 @@ const InterfaceGroupField = ({ subFieldData, generateValidation }: InterfaceGrou
             validationfn={generateValidation}
             inline={type == "boolean" || type == "icon" ? true : false}
             {...rest}
-            setValue={(val: any, update: boolean = false) => {
+            // type is a plain string (not a literal), so <Field>'s discriminated
+            // union can't narrow to one variant here - InputProps' ValueChangeCallback
+            // shape (string | number | null) is the member that structurally matches
+            // every branch. subFieldData.value is `any` by design (PreferencesFieldData),
+            // so it accepts whichever of these setValue actually gets called with.
+            setValue={(val: string | number | null, update: boolean = false) => {
                 if (!update) {
                     subFieldData.value = val
                 }
@@ -381,7 +386,8 @@ const InterfaceSubsection = ({
                 validationfn={type == "list" ? generateValidation : null}
                 inline={type == "boolean" || type == "icon" ? true : false}
                 {...rest}
-                setValue={(val: any, update: boolean = false) => {
+                // Same reasoning as InterfaceGroupField above.
+                setValue={(val: string | number | null, update: boolean = false) => {
                     if (!update) {
                         fieldData.value = val
                     }

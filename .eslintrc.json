@@ -55,8 +55,10 @@
   "overrides": [
     {
       "files": [
-        "src/components/Panels/Jog/**/*.ts",
-        "src/components/Panels/Jog/**/*.tsx",
+        "src/components/Panels/**/*.ts",
+        "src/components/Panels/**/*.tsx",
+        "src/tabs/**/*.ts",
+        "src/tabs/**/*.tsx",
         "src/Services/ReconnectionManager.ts",
         "src/Services/PingKeepAlive.ts",
         "src/Services/SessionManager.ts",

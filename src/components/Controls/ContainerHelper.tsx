@@ -28,7 +28,7 @@ interface ContainerHelperProps {
     active?: boolean
 }
 
-interface UpdateStateMessage {
+export interface UpdateStateMessage {
     isFullScreen?: boolean
     id?: string
 }

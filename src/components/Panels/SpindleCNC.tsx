@@ -30,6 +30,7 @@ import {
 import { useTargetContext } from "../../targets"
 import { ButtonImg, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
 import { checkDependencies } from "../Helpers"
+import type { DependItem } from "../Helpers"
 import { useTargetCommands } from "../../hooks"
 import { eventBus } from "../../hooks/eventBus"
 
@@ -42,6 +43,16 @@ import { eventBus } from "../../hooks/eventBus"
 type NumberValue = { current: number }
 const spindleSpeedValue = {} as Partial<NumberValue>
 
+// Machine-state gate on top of checkDependencies' setting/connection conditions
+// (e.g. `{ states: ["Hold"] }` to only show a button while the machine is held).
+// checkDependencies ignores entries with none of id/connection_id/orGroups (treats
+// them as always-true), so this file additionally filters on `states` itself.
+interface StatesDependItem {
+    states: string[]
+}
+type ButtonDependItem = DependItem | StatesDependItem
+const isStatesDependItem = (item: ButtonDependItem): item is StatesDependItem => "states" in item
+
 const SpindleControls: FunctionalComponent<{ isLaserMode: boolean }> = ({ isLaserMode }) => {
     const { states } = useTargetContext()
 
@@ -49,7 +60,7 @@ const SpindleControls: FunctionalComponent<{ isLaserMode: boolean }> = ({ isLase
     const { interfaceSettings, connectionSettings } = useSettingsContext()
 
     if (!useUiContextFn.getValue("showspindlepanel")) return null
-    const states_array: { id: string; label: string; depend?: any }[] = [
+    const states_array: { id: string; label: string; depend?: ButtonDependItem[] }[] = [
         { id: "spindle_speed", label: isLaserMode ? "Power" : "CN64" },
     ]
 
@@ -65,7 +76,9 @@ const SpindleControls: FunctionalComponent<{ isLaserMode: boolean }> = ({ isLase
                                 if (element.depend) {
                                     if (
                                         !checkDependencies(
-                                            element.depend,
+                                            // checkDependencies ignores entries with none of id/connection_id/orGroups
+                                            // (treats them as always-true), so StatesDependItem entries are harmless here.
+                                            element.depend as DependItem[],
                                             interfaceSettings.current.settings,
                                             connectionSettings.current
                                         )
@@ -123,13 +136,13 @@ type ButtonCfg = {
     iconRight?: boolean
     useinput?: boolean
     mode?: string
-    depend?: Array<any>
+    depend?: ButtonDependItem[]
 }
 type ButtonsGroup = {
     label: string
     buttons: ButtonCfg[]
     control?: { id: string; type: string; label: string; value: Partial<NumberValue>; min?: number }
-    depend?: Array<any>
+    depend?: ButtonDependItem[]
     tooltipclassic?: boolean
 }
 
@@ -422,7 +435,7 @@ const SpindlePanel: FunctionalComponent<SpindlePanelProps> = ({ embedded = false
                     if (item.depend) {
                         if (
                             !checkDependencies(
-                                item.depend,
+                                item.depend as DependItem[],
                                 interfaceSettings.current.settings,
                                 connectionSettings.current
                             )
@@ -436,21 +449,15 @@ const SpindlePanel: FunctionalComponent<SpindlePanelProps> = ({ embedded = false
                         if (button.depend) {
                             if (
                                 !checkDependencies(
-                                    button.depend,
+                                    button.depend as DependItem[],
                                     interfaceSettings.current.settings,
                                     connectionSettings.current
                                 )
                             )
                                 return null
-                            let index = button.depend.findIndex((element: any) => {
-                                return element.states
-                            })
-                            if (index !== -1) {
-                                if (
-                                    !button.depend[index].states.includes(
-                                        status.state || ""
-                                    )
-                                )
+                            const stateDepend = button.depend.find(isStatesDependItem)
+                            if (stateDepend) {
+                                if (!stateDepend.states.includes(status.state || ""))
                                     return null
                             }
                         }

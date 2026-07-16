@@ -114,15 +114,15 @@ const FeatureFieldItem = ({ fieldData, subsectionId, generateValidation }: Featu
             prec={prec}
             {...rest}
             // rest spreads fieldData.type as a plain string (not a literal), so
-            // <Field>'s discriminated union can't narrow to one variant here and
-            // expects setValue to satisfy all of them at once (boolean, string,
-            // number, ...). fieldData.value is really always a string
-            // (SettingFieldProps), so the cast just documents that mismatch
-            // rather than pretending this callback is generic.
-            setValue={((val: string, update?: boolean) => {
-                if (!update) fieldData.value = val
+            // <Field>'s discriminated union can't narrow to one variant here -
+            // widening to InputProps' ValueChangeCallback shape (string | number
+            // | null) is the member that structurally matches every branch.
+            // fieldData.value is really always a string (SettingFieldProps), so
+            // the null/number cases below never actually fire in this tab.
+            setValue={(val: string | number | null, update?: boolean) => {
+                if (!update && val !== null) fieldData.value = String(val)
                 setvalidation(generateValidation(fieldData))
-            }) as any}
+            }}
             validation={validation}
         />
     )

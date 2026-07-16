@@ -17,7 +17,7 @@
 */
 
 import { TargetedEvent } from "preact"
-import type { FunctionalComponent } from "preact"
+import type { ComponentChildren, FunctionalComponent } from "preact"
 import { useCallback, useEffect, useRef, useState } from "preact/hooks"
 import { T } from "../Translations"
 import {
@@ -159,7 +159,7 @@ const NotificationsPanel: FunctionalComponent = () => {
             >
                 {notifications.list &&
                     notifications.list.map((line: Notification) => {
-                        let icon: any = ""
+                        let icon: ComponentChildren = ""
                         let classText = "text-primary"
                         switch (line.type) {
                             case "error":

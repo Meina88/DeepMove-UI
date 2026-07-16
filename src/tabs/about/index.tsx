@@ -78,7 +78,7 @@ const CustomEntry: FunctionalComponent = (): JSX.Element => {
             const helpUrl = interfaceSettings.current.custom.help
             const onClickHelp = (e: MouseEvent) => {
                 useUiContextFn.haptic();
-                if (helpUrl) (window as any).open(helpUrl, "_blank");
+                if (helpUrl) window.open(helpUrl, "_blank");
                 (e.target as HTMLElement).blur()
             }
             HelpEntry = (
@@ -94,7 +94,7 @@ const CustomEntry: FunctionalComponent = (): JSX.Element => {
             const infoUrl = interfaceSettings.current.custom.information
             const onClickInfo = (e: MouseEvent) => {
                 useUiContextFn.haptic();
-                if (infoUrl) (window as any).open(infoUrl, "_blank");
+                if (infoUrl) window.open(infoUrl, "_blank");
                 (e.target as HTMLElement).blur()
             }
             InfoEntry = (
@@ -124,7 +124,7 @@ const CustomEntry: FunctionalComponent = (): JSX.Element => {
 
     const onClickHelp = (e: MouseEvent) => {
         useUiContextFn.haptic();
-        (window as any).open(defaultHelpUrl, "_blank");
+        window.open(defaultHelpUrl, "_blank");
         (e.target as HTMLElement).blur()
     }
     HelpEntry = (
@@ -170,7 +170,7 @@ const About: FunctionalComponent = (): JSX.Element => {
     const getProps = (): void => {
         setIsLoading(true)
         const callbacks = {
-            onSuccess: (result: any) => {
+            onSuccess: (result: string) => {
                 const jsonResult = JSON.parse(result)
                 if (
                     jsonResult.cmd != 420 ||
@@ -185,7 +185,7 @@ const About: FunctionalComponent = (): JSX.Element => {
                 about = [...jsonResult.data]
                 setIsLoading(false)
             },
-            onFail: (error: any) => {
+            onFail: (error: string) => {
                 setIsLoading(false)
                 toasts.addToast({ content: error, type: "error" })
                 console.log(error)
@@ -197,8 +197,8 @@ const About: FunctionalComponent = (): JSX.Element => {
     //from https://stackoverflow.com/questions/5916900/how-can-you-detect-the-version-of-a-browser
     function getBrowserInformation(): string {
         var ua = navigator.userAgent,
-            tem: any,
-            M: any =
+            tem: string[] | null,
+            M: string[] =
                 ua.match(
                     /(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i
                 ) || []
@@ -236,13 +236,13 @@ const About: FunctionalComponent = (): JSX.Element => {
         let url = ""
         if (interfaceSettings.current.custom && interfaceSettings.current.custom.fwurl) {
             url = interfaceSettings.current.custom.fwurl
-        } else if (i && i != "none" && (fwUrl as readonly any[]).length > 1) {
-            url = (fwUrl as readonly any[])[1]
+        } else if (i && i != "none" && (fwUrl as readonly string[]).length > 1) {
+            url = (fwUrl as readonly string[])[1]
         } else {
             url = fwUrl[0] || ""
         }
 
-        (window as any).open(url, "_blank");
+        window.open(url, "_blank");
         (e.target as HTMLElement).blur()
     }
 
@@ -322,7 +322,7 @@ const About: FunctionalComponent = (): JSX.Element => {
                             webSocketService.disconnect("connecting")
                             window.location.reload()
                         },
-                        onFail: (error: any) => {
+                        onFail: (error: string) => {
                             modals.removeModal(modals.getModalIndex("upload"))
                             toasts.addToast({ content: error, type: "error" })
                         },
@@ -374,7 +374,7 @@ const About: FunctionalComponent = (): JSX.Element => {
     }
     const onWebUiGit = (e: MouseEvent) => {
         useUiContextFn.haptic();
-        (window as any).open(webUiUrl, "_blank");
+        window.open(webUiUrl, "_blank");
         (e.target as HTMLElement).blur()
     }
 
@@ -414,7 +414,7 @@ const About: FunctionalComponent = (): JSX.Element => {
             espHttpURL(base),
             { method: "POST", id: "upload", body: formData },
             {
-                onSuccess: (_result: any) => {
+                onSuccess: (_result: string) => {
                     if (
                         progressBar.update &&
                         typeof progressBar.update === "function"
@@ -429,7 +429,7 @@ const About: FunctionalComponent = (): JSX.Element => {
                         }, restartdelay * 1000)
                     } else window.location.reload()
                 },
-                onFail: (error: any) => {
+                onFail: (error: string) => {
                     modals.removeModal(modals.getModalIndex("upload"))
                     toasts.addToast({ content: error, type: "error" })
                 },

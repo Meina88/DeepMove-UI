@@ -26,26 +26,31 @@ interface NavigatorWithMsSave extends Navigator {
     msSaveOrOpenBlob?: (blob: Blob, filename: string) => void;
 }
 
+// An exported field value - mirrors PreferencesFieldData.value/initial's own
+// reasoning (real shape depends on `type`, not modeled further here).
+type ExportedValue = PreferencesFieldData["value"]
+type ExportedSection = Record<string, ExportedValue>
+
 // Complete interface settings data
 export interface InterfaceSettingsData {
     settings: PreferencesSection;
-    custom?: any;
-    extensions?: any;
+    custom?: unknown;
+    extensions?: unknown;
 }
 
 // Export preferences structure
 export interface ExportPreferences {
-    settings: { [key: string]: any };
-    custom?: any;
-    extensions?: any;
+    settings: ExportedSection;
+    custom?: unknown;
+    extensions?: unknown;
 }
 
 function exportPreferencesSection(
     interfaceSettingsDataSection: PreferencesSection,
     asFile: boolean = true,
     initial_value: boolean = false
-): { [key: string]: any } {
-    const section: { [key: string]: any } = {}
+): ExportedSection {
+    const section: ExportedSection = {}
     for (let key in interfaceSettingsDataSection) {
         for (let subkey in interfaceSettingsDataSection[key]) {
             if (interfaceSettingsDataSection[key][subkey].id) {
@@ -60,10 +65,10 @@ function exportPreferencesSection(
                 } else if (
                     interfaceSettingsDataSection[key][subkey].type == "list"
                 ) {
-                    const itemsList: any[] = []
+                    const itemsList: ExportedSection[] = []
                     interfaceSettingsDataSection[key][subkey].value.forEach(
                         (element: PreferencesFieldData) => {
-                            const item: any = {}
+                            const item: ExportedSection = {}
                             item.id = element.id
                             element.value.forEach((setting: PreferencesFieldData) => {
                                 item[setting.name!] = asFile

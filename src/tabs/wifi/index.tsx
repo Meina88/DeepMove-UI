@@ -36,6 +36,12 @@ import { showConfirmationModal } from "../../components/Modal"
 
 
 
+// A single row of the [ESP420]json=yes response's `data` array.
+interface ESP420Field {
+    id: string
+    value: string
+}
+
 export type SystemStats = {
     version?: string
     ip?: string
@@ -168,8 +174,8 @@ const WifiTab = () => {
         if (value !== null) setApIP(String(value))
     }
 
-    const getParam = (data: any, param: string): string | undefined => {
-        return data?.find((field: any) => field.id.replace(": ", "") === param)?.value
+    const getParam = (data: ESP420Field[] | undefined, param: string): string | undefined => {
+        return data?.find((field) => field.id.replace(": ", "") === param)?.value
     }
 
     // Load WiFi settings on component mount
@@ -210,7 +216,7 @@ const WifiTab = () => {
         setIsLoading(true)
 
         targetCommands("[ESP420]json=yes", undefined, { echo: false }, {
-            onSuccess: (result: any) => {
+            onSuccess: (result: string) => {
                 const jsonResult = JSON.parse(result)
                 if (jsonResult.cmd != 420 || jsonResult.status == "error" || !jsonResult.data) {
                     toasts.addToast({ content: T("S194"), type: "error" })
@@ -241,7 +247,7 @@ const WifiTab = () => {
                 // // about = [...jsonResult.data]
                 setIsLoading(false)
             },
-            onFail: (error: any) => {
+            onFail: (error: string) => {
                 setIsLoading(false)
                 toasts.addToast({ content: error, type: "error" })
                 console.log(error)
