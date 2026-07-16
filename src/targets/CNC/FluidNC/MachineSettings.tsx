@@ -17,7 +17,7 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { Fragment } from "preact"
+import { Fragment, JSX } from "preact"
 import { useEffect, useState } from "preact/hooks"
 import { T } from "../../../components/Translations"
 import { processor } from "./processor"
@@ -35,6 +35,7 @@ import {
 } from "../../../components/Controls"
 import { RefreshCcw, XCircle, Send, Flag } from "preact-feather"
 import { CMD } from "./CMD-source"
+import type { FeedbackFn } from "./processor"
 
 type MachineSettingElement = {
     type?: string
@@ -45,7 +46,13 @@ type MachineSettingElement = {
     haserror?: boolean
 }
 
-const machineSettings: { cache: any[] } = { cache: [] }
+interface ValidationResult {
+    message: JSX.Element | string | null
+    valid: boolean
+    modified: boolean
+}
+
+const machineSettings: { cache: MachineSettingElement[] } = { cache: [] }
 
 const MachineSettingRow = ({
     element,
@@ -55,10 +62,10 @@ const MachineSettingRow = ({
 }: {
     element: MachineSettingElement
     index: number
-    sendCommand: (element: MachineSettingElement, setvalidation: (v: any) => void) => void
-    generateValidation: (fieldData: MachineSettingElement) => any
+    sendCommand: (element: MachineSettingElement, setvalidation: (v: ValidationResult) => void) => void
+    generateValidation: (fieldData: MachineSettingElement) => ValidationResult
 }) => {
-    const [validation, setvalidation] = useState<any>()
+    const [validation, setvalidation] = useState<ValidationResult>()
 
     const button = (
         <ButtonImg
@@ -78,10 +85,14 @@ const MachineSettingRow = ({
     return (
         <div key={`field-${index}`} class="machine-settings-item">
             <Field
-                type={(element as any).type}
-                value={(element as any).value}
+                type={element.type}
+                value={element.value}
+                // element.type is a plain string (from the EEPROM dump), not a
+                // literal, so <Field>'s discriminated union can't narrow to one
+                // variant's setValue signature here - same situation as
+                // tabs/features/index.tsx's dynamically-typed usage.
                 setValue={(val: any, update: boolean = false) => {
-                    if (!update) (element as any).value = val
+                    if (!update) element.value = val
                     setvalidation(generateValidation(element))
                 }}
                 validation={validation}
@@ -102,13 +113,13 @@ const MachineSettings = () => {
         setCollected(formatFileSizeToString(total))
     }
 
-    const processFeedback = (feedback: any) => {
+    const processFeedback: FeedbackFn = (feedback) => {
         if (feedback.status) {
             if (feedback.status == "error") {
                 console.log("got error")
                 toasts.addToast({
                     content: feedback.content
-                        ? `${T("S22")}:${T(feedback.content)}`
+                        ? `${T("S22")}:${T(String(feedback.content))}`
                         : T("S4"),
                     type: "error",
                 })
@@ -119,7 +130,7 @@ const MachineSettings = () => {
         setIsLoading(false)
     }
 
-    const onCancel = (_e?: any) => {
+    const onCancel = (_e?: MouseEvent) => {
         useUiContextFn.haptic()
         toasts.addToast({
             content: T("S175"),
@@ -130,7 +141,7 @@ const MachineSettings = () => {
         setIsLoading(false)
     }
 
-    const onRefresh = (e?: any) => {
+    const onRefresh = (e?: MouseEvent) => {
         if (e) useUiContextFn.haptic()
         //get command
         const response = CMD.command("eeprom")
@@ -150,7 +161,7 @@ const MachineSettings = () => {
         }
     }
 
-    const sendCommand = (element: MachineSettingElement, setvalidation: (v: any) => void) => {
+    const sendCommand = (element: MachineSettingElement, setvalidation: (v: ValidationResult) => void) => {
         sendSerialCmd(`${element.cmd}=${(element.value || '').trim()}`, () => {
             element.initial = element.value
             setvalidation(generateValidation(element))
@@ -158,8 +169,8 @@ const MachineSettings = () => {
         //TODO: Should answer be checked ?
     }
 
-    const generateValidation = (fieldData: MachineSettingElement) => {
-        const validation: { message: any; valid: boolean; modified: boolean } = {
+    const generateValidation = (fieldData: MachineSettingElement): ValidationResult => {
+        const validation: ValidationResult = {
             message: <Flag style={{ width: "1rem", height: "1rem" }} />,
             valid: true,
             modified: true,
@@ -185,13 +196,16 @@ const MachineSettings = () => {
         return validation
     }
     useEffect(() => {
-        if (uisettings.getValue("autoload") && (machineSettings.cache as any) == "") {
+        if (uisettings.getValue("autoload") && machineSettings.cache.length === 0) {
             setIsLoading(true)
             //avoid race condition with websocket
             setTimeout(() => {
                 onRefresh()
             }, 1000)
         }
+        // Mount-only bootstrap: onRefresh/uisettings are recreated every render; adding them here
+        // would risk scheduling duplicate refresh timers on every unrelated re-render.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     return (
@@ -220,7 +234,7 @@ const MachineSettings = () => {
                                 <CenterLeft bordered>
                                     <div class="machine-settings-grid">
                                         {machineSettings.cache.map((element: MachineSettingElement, index: number) => {
-                                            if ((element as any).type == "comment")
+                                            if (element.type == "comment")
                                                 return (
                                                     <div key={`comment-${index}`} class="comment m-1">
                                                         {T(element.value)}({element.value})

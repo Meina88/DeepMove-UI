@@ -33,7 +33,10 @@ import {
     useTargetContextFn,
 } from "./TargetContext"
 import realCommandsTable from "./realCommandsTable"
+import type { RealCommand } from "./realCommandsTable"
 import variablesTable from "./variablesTable"
+import type { VariableEntry } from "./variablesTable"
+import type { GCodeParserMode } from "./gcode_parser_modes"
 import { AppLogo as WebUILogo } from "../../../components/Images/logo"
 import { AppLogo } from "./logo"
 import { addObjectItem, removeObjectItem } from "../../../components/Helpers"
@@ -46,26 +49,31 @@ const fwUrl = [
 ] as const
 
 const restartdelay = 10
+type VariableItem = RealCommand | VariableEntry
 type VariablesList = {
-    commands: any[]
-    addCommand: (variable: any) => void
+    commands: VariableItem[]
+    addCommand: (variable: VariableItem) => void
     removeCommand: (name: string) => void
-    modes: any[]
+    modes: GCodeParserMode[]
     hideFeatures: boolean
     allowEmptyLine: boolean
-    formatCommand: (command: any) => string
+    formatCommand: (command: string) => string
 }
 const variablesList: VariablesList = {
-    commands: [...(realCommandsTable as any[]), ...(variablesTable as any[])],
-    addCommand: (variable: any) =>
+    commands: [...realCommandsTable, ...variablesTable],
+    addCommand: (variable: VariableItem) =>
         addObjectItem((variablesList as VariablesList).commands, "name", variable),
     removeCommand: (name: string) =>
         removeObjectItem((variablesList as VariablesList).commands, "name", name),
-    modes: [...(gcode_parser_modes as any[])],
+    modes: [...gcode_parser_modes],
     hideFeatures: false,
     allowEmptyLine: true,
-    formatCommand: (command: any) => command && typeof command === "string" ? command : String(command || ""),
+    formatCommand: (command: string) => command && typeof command === "string" ? command : String(command || ""),
 }
+// eventsList is never subscribed to anywhere (no eventsList.on() call exists),
+// so every emit() below is currently a no-op - dead pub/sub machinery kept
+// alongside the real one (hooks/eventBus.ts), untyped since nothing depends
+// on its shape.
 type EventHandler = { fn: (...args: any[]) => void }
 type EventsMap = Record<string, EventHandler[]>
 type EventsList = {

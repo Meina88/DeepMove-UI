@@ -20,6 +20,7 @@
 import { sortedFilesList, formatStatus } from "../components/Helpers"
 import { useSettingsContextFn, useUiContextFn } from "../contexts"
 import { UrlCommand } from "../types/files.types"
+import type { FilesList } from "../types/files.types"
 
 const capabilities = {
     Process: (): boolean => false,
@@ -51,8 +52,8 @@ const commands = {
             args: { path: upath },
         }
     },
-    formatResult: (resultTxT: string): any => {
-        const res = JSON.parse(resultTxT)
+    formatResult: (resultTxT: string): FilesList => {
+        const res: FilesList = JSON.parse(resultTxT)
         if (useUiContextFn.getValue("sort_flashfs_files")){
             res.files = sortedFilesList(res.files)
         }

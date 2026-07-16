@@ -53,6 +53,10 @@ const supportedFileSystems : SupportedFileType[] = [
     }
 ] as const
 
+// FLASH.capabilities/commands and DIRECTSD.capabilities/commands are each their
+// own inferred object literal (different key sets, no shared interface), and
+// capability()/command() below dispatch into them dynamically by filesystem
+// + name - same reasoning as CMD-source.ts's registry.
 const capabilities: Record<string, any> = {
     FLASH: FLASH.capabilities,
     DIRECTSD: DIRECTSD.capabilities,

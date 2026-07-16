@@ -16,7 +16,7 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-type VariableEntry = { name: string; value: number | string }
+export type VariableEntry = { name: string; value: number | string }
 
 const variablesTable: VariableEntry[] = [
     { name: "#pos_x#", value: 0 },

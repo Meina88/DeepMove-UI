@@ -31,7 +31,7 @@ interface PrefixMode {
   label: string
 }
 
-type GCodeParserMode = ValueMode | PrefixMode
+export type GCodeParserMode = ValueMode | PrefixMode
 
 const gcode_parser_modes: readonly GCodeParserMode[] = [
   {

@@ -18,6 +18,11 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+// This file implements a string-keyed command/capability dispatch registry
+// (each entry has its own arg/return shape, looked up and invoked dynamically
+// by name in command()/capability() below) - typing it precisely would mean
+// a discriminated union per command, which isn't worth it for this small,
+// rarely-changed registry.
 type Accumulator = any[]
 
 const formatEepromLine = (acc: Accumulator, line: string): Accumulator => {

@@ -19,6 +19,7 @@
 */
 import { useSettingsContextFn } from "../../../contexts"
 import { gcode_parser_modes } from "./gcode_parser_modes"
+import type { Positions, Status, StatesMap, StreamStatus } from "../../types"
 
 /*
  * Local variables
@@ -46,9 +47,15 @@ const isStatus = (str: string): boolean => {
     return status_patern.test(str)
 }
 
+// ov/pn/a/ln/f/rpm/bf/sd are internal FluidNC status sub-fields assembled
+// on the fly from regex captures (override percentages, pin states, line
+// number, feed/speed, buffer state, SD-stream progress) - Status/Positions
+// are the two pieces of this response that are part of TargetContextValue's
+// actual public surface (see targets/types.ts), so only those get the real
+// shared type.
 interface StatusResponse {
-    positions: Record<string, any>
-    status: Record<string, any>
+    positions: Positions
+    status: Status
     ov: Record<string, any> | null
     pn: Record<string, any>
     a: Record<string, any>
@@ -250,8 +257,8 @@ const isStates = (str: string): boolean => {
     return reg_search.test(str)
 }
 
-const getStates = (str: string): Record<string, any> => {
-    let res: Record<string, any> = {}
+const getStates = (str: string): StatesMap => {
+    let res: StatesMap = {}
     let result: RegExpExecArray | null = null
     const reg_search = /\[GC:(?<states>.*)\]/g
     if ((result = reg_search.exec(str)) !== null) {
@@ -297,7 +304,7 @@ const getStates = (str: string): Record<string, any> => {
                 })
             }
             return acc
-        }, {} as Record<string, any>)
+        }, {} as StatesMap)
     }
     return res
 }
@@ -489,7 +496,7 @@ const isStreamingStatus = (str: string): boolean => {
     }
 }
 
-const getStreamingStatus = (str: string): Record<string, any> => {
+const getStreamingStatus = (str: string): StreamStatus => {
     const res = JSON.parse(str)
     if (res.data.status) return res.data
     return { status: res.data }

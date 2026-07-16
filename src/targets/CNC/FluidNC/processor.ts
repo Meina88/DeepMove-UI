@@ -21,11 +21,11 @@ import { CMD } from "./CMD-source"
 import { disableUI } from "../../../components/Helpers"
 import { eventBus } from "../../../hooks/eventBus"
 
-type FeedbackFn = (payload: {
+export type FeedbackFn = (payload: {
   status: string
   command: string
-  arg: any
-  content: any
+  arg: string | null | undefined
+  content: string | string[]
 }) => void
 
 type ChunkCb = (data: string, size: number) => void
@@ -40,7 +40,7 @@ interface OnGoingQueryState {
   feedback: FeedbackFn | null
   startTime: number
   cb: ChunkCb | null | undefined
-  arg?: any
+  arg?: string | null
 }
 
 //only one query at once
@@ -60,7 +60,7 @@ const startCatchResponse = (
   source: string,
   command: string,
   feedbackfn: FeedbackFn,
-  arg?: any,
+  arg?: string | null,
   cbfn?: ChunkCb
 ): boolean => {
   if (onGoingQuery.source != "") {
@@ -70,7 +70,7 @@ const startCatchResponse = (
   onGoingQuery.source = source
   onGoingQuery.command = command
   onGoingQuery.arg = arg
-  onGoingQuery.startTime = (window as any).performance.now()
+  onGoingQuery.startTime = window.performance.now()
   onGoingQuery.started = false
   onGoingQuery.ended = false
   onGoingQuery.content = []
@@ -113,10 +113,12 @@ const processStream = (type: string = "stream", data: string = ""): void => {
     onGoingQuery.command != "" &&
     type == "stream"
   ) {
+    // responseSteps is looked up dynamically by source ("CMD") + command
+    // ("eeprom", ...), same dynamic-registry reasoning as CMD-source.ts.
     const step = (responseSteps as any)[onGoingQuery.source][onGoingQuery.command]
     //time out
     if (
-      (window as any).performance.now() - onGoingQuery.startTime >
+      window.performance.now() - onGoingQuery.startTime >
       (onGoingQuery.started ? 60000 : 30000)
     ) {
       stopCatchResponse()
@@ -133,7 +135,7 @@ const processStream = (type: string = "stream", data: string = ""): void => {
     //started trigger detected set started flag
     if (step.start(data)) {
       onGoingQuery.started = true
-      onGoingQuery.startTime = (window as any).performance.now()
+      onGoingQuery.startTime = window.performance.now()
     }
 
     //Got final trigger on catched stream

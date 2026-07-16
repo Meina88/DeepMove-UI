@@ -21,6 +21,7 @@ import { sortedFilesList, formatStatus, filterResultFiles } from "../../../compo
 import { canProcessFile } from "../../helpers"
 import { useUiContextFn } from "../../../contexts"
 import { CmdCommand, UrlCommand } from "../../../types/files.types"
+import type { FilesList } from "../../../types/files.types"
 
 const capabilities = {
     Process: (path: string, filename: string): boolean => {
@@ -69,16 +70,20 @@ const commands = {
           args: { path },
         };
     },
-    formatResult: (resultTxT: string): any => {
-        const res = JSON.parse(resultTxT);
+    formatResult: (resultTxT: string): FilesList => {
+        const res: FilesList = JSON.parse(resultTxT);
         if (useUiContextFn.getValue("sort_sd_files")){
             res.files = sortedFilesList(res.files)
         }
         res.status = formatStatus(res.status);
         return res;
     },
-    filterResult: (data: any, path: string): any => {
-        const res: any = {};
+    // Dead code (never invoked via files.ts's command() dispatcher - see its
+    // comment); kept and typed as Partial since it deliberately never set every
+    // FilesList field, matching its original behavior rather than guessing at
+    // one now that it's unreachable.
+    filterResult: (data: FilesList, path: string): Partial<FilesList> => {
+        const res: Partial<FilesList> = {};
         res.files = sortedFilesList(filterResultFiles(data.files, path));
         res.status = formatStatus(data.status);
         return res;

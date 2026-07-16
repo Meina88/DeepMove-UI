@@ -64,7 +64,11 @@ const beautifyJSONString = (jsonstring: string): string => {
 
 interface Variable {
     name: string
-    value: string
+    // Some variables (e.g. #pos_x# and friends in variablesTable.ts) carry a
+    // live numeric value (set via parseFloat in TargetContext.tsx); .replace/
+    // .replaceAll below coerce it to a string explicitly (String() has the
+    // same result as the implicit ToString() JS already did here).
+    value: string | number
     notprintable?: boolean
 }
 
@@ -79,10 +83,10 @@ function replaceVariables(
     if (Array.isArray(arrayRef)) {
         return arrayRef.reduce((acc, curr) => {
             if (reverted) {
-                return acc.replace(curr.value, curr.name)
+                return acc.replace(String(curr.value), curr.name)
             } else {
                 if (onlyprintable && curr.notprintable) return acc
-                return acc.replaceAll(curr.name, curr.value)
+                return acc.replaceAll(curr.name, String(curr.value))
             }
         }, string)
     }

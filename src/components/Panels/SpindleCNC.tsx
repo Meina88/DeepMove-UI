@@ -78,7 +78,7 @@ const SpindleControls: FunctionalComponent<{ isLaserMode: boolean }> = ({ isLase
                                 if (Array.isArray(sv)) {
                                     displayVal = sv.map((i) => i.value).join(" ")
                                 } else {
-                                    displayVal = sv.value
+                                    displayVal = String(sv.value)
                                 }
 
                                 if (isLaserMode && element.id === "spindle_speed") {

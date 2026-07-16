@@ -22,13 +22,20 @@
 // TargetContext.tsx, consolidated from the 20 consumers that used to each
 // declare their own ad-hoc `as any` / `as unknown as {...}` shape for it.
 
+// undefined included because filters.ts's getStatus() only fills in axes
+// present in the current MPos/WPos report - every consumer already guards
+// with `typeof positions[x] !== "undefined"` or a falsy check.
 export interface Positions {
-    [axis: string]: string | number
+    [axis: string]: string | number | undefined
 }
 
 export interface Status {
     state?: string
-    code?: number
+    // A raw regex-captured status code (e.g. "Hold:0" -> code="0"), always a
+    // string in filters.ts's getStatus() - only ever templated/passed to T(),
+    // never compared numerically, so no need for the `number` this was
+    // previously (incorrectly) typed as.
+    code?: string
     power?: { value: number }
     [key: string]: any
 }
@@ -44,8 +51,11 @@ export interface StreamStatus {
 
 // A "states" entry (feed_rate, spindle_speed, active_tool, ...) is either a
 // single {value, pre?} or an array of them (active_tool can report several).
+// value is a number for feed_rate/active_tool/spindle_speed (parsed with
+// parseFloat in filters.ts's getStates()) and a string for gcode-mode entries
+// (e.g. "G54") - both current consumers already do Number(entry.value).
 export interface StateEntry {
-    value: string
+    value: string | number
     pre?: string
 }
 export type StatesMap = Record<string, StateEntry | StateEntry[]>
@@ -80,6 +90,7 @@ export interface TargetContextValue {
 // processData is optional because it's only assigned once TargetContextProvider
 // renders for the first time; isStaId is assigned unconditionally at module load.
 export interface TargetContextFn {
-    isStaId: (subsectionId: string, label: string, fieldData: any) => boolean
+    // fieldData: unknown - the one implementation (TargetContext.tsx) never reads it
+    isStaId: (subsectionId: string, label: string, fieldData: unknown) => boolean
     processData?: (type: string, data: string, noecho?: boolean) => void
 }

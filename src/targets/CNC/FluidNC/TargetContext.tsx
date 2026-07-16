@@ -75,7 +75,7 @@ const useTargetContext = (): TargetContextValue => {
 }
 const useTargetContextFn = {} as TargetContextFn
 
-useTargetContextFn.isStaId = (subsectionId: string, label: string, _fieldData: any) => {
+useTargetContextFn.isStaId = (subsectionId: string, label: string, _fieldData: unknown) => {
     if (subsectionId == "sta" && label == "SSID") return true
     return false
 }
@@ -92,6 +92,11 @@ const TargetContextProvider = ({ children }: TargetContextProviderProps) => {
         z: "?",
     })
     const [status, setStatus] = useState<Status>({ state: "?" })
+    // overrides/grblVersion/grblSettings: no consumer reads these fields off
+    // TargetContextValue today (see the audit note in types.ts), and their
+    // setters receive whatever shape the corresponding response parses to
+    // (override percentages, version/build info) - not worth inventing a
+    // shape for data nothing currently uses.
     const [overrides, setOverrides] = useState<Record<string, any>>({})
     const [pinsStates, setPinStates] = useState<PinsStates>(lastPins)
     const [states, setStates] = useState<StatesMap>({})
@@ -182,9 +187,11 @@ const TargetContextProvider = ({ children }: TargetContextProviderProps) => {
                         variablesList.addCommand({
                             name: name,
                             value: parseFloat(
-                                response.positions[element]
-                                    ? response.positions[element]
-                                    : 0
+                                String(
+                                    response.positions[element]
+                                        ? response.positions[element]
+                                        : 0
+                                )
                             ),
                         })
                     })
