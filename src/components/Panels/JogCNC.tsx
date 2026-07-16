@@ -28,164 +28,30 @@ import { useTargetCommands } from "../../hooks"
 import { useUiContextFn, useModalsContext } from "../../contexts"
 import { T } from "../Translations"
 import { Button, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
-import { useEffect, useState, useRef } from "preact/hooks"
+import { useEffect, useState } from "preact/hooks"
 import { showModal } from "../Modal"
 import { useTargetContext } from "../../targets"
 import { Joystick } from "../../targets/CNC/FluidNC/icons"
 import { useUiContext } from "../../contexts"
 import type { StateEntry } from "../../targets/types"
+import { JogQuarter } from "./Jog/JogQuarter"
+import { PositionsControls } from "./Jog/PositionsControls"
+import { useContinuousJog, jogStepsXYZ } from "./Jog/useContinuousJog"
+import { useJogKeyboardShortcuts } from "./Jog/useJogKeyboardShortcuts"
+import { useLaserFocus } from "./Jog/useLaserFocus"
 
 let currentFeedRate: Record<string, any> = {}
 let currentAxis: string = "-1"
 
-const jogStepsXYZ = [100, 10, 1, 0.1] as const
 const STEP_ANGLES = [45, 15, -15, -45]
 
 const feedList = ["XY", "Z", "A", "B", "C", "U", "V", "W"]
 const selectableAxisLettersList = ["A", "B", "C", "U", "V", "W"]
 
-const CONTINUOUS_JOG_DELAY = 200
-const CONTINUOUS_DISTANCE = 5000
-
 // === Local command templates (NO preferences) ===
 // '#' will be replaced with axis payload (e.g. "X" or "X0 Y0 Z0")
 const HOME_CMD_TEMPLATE = "$H#"
 const ZERO_CMD_TEMPLATE = "G10 L20 P1 #"
-
-const JogQuarter = ({ rotate = 0 }: { rotate?: number }) => {
-    const cx = 75
-    const cy = 41 // 82 / 2
-
-    return (
-        <svg
-            viewBox="0 0 150 82"
-            width="120"
-            height="120"
-            xmlns="http://www.w3.org/2000/svg"
-            preserveAspectRatio="xMidYMid meet"
-            style={{ display: "block" }}
-        >
-            <g transform={`rotate(${rotate} ${cx} ${cy})`}>
-
-                {/* 🔵 Fondo detrás de la flecha (controlable por CSS) */}
-                <circle
-                    cx={cx}
-                    cy={cy}
-                    r={18}
-                    class="jog-arrow-bg"
-                />
-
-                <path
-                    d="M74.5957 0C100.399 -9.84196e-07 125.326 8.48829 145.646 23.917C150.191 27.3678 150.324 33.9932 146.289 38.0283L115.955 68.3623C112.323 71.9948 106.569 72.1903 102.115 69.6299C93.814 64.857 84.3379 62.2803 74.5957 62.2803C64.8535 62.2803 55.3782 64.857 47.0771 69.6299C42.6236 72.1905 36.8698 71.9948 33.2373 68.3623L2.90229 38.0283C-1.13276 33.9932 -0.999008 27.3678 3.54585 23.917C23.8661 8.48846 48.7929 7.61396e-05 74.5957 0ZM62.9013 37.0322V39.2148L65.0292 40.8506L73.8105 32.124V26.124L62.9013 37.0322ZM74.9013 32.124L83.6835 40.8506L85.8105 39.2148V37.0322L74.9013 26.124V32.124Z"
-                    fill="#E5E5E5"
-                />
-
-            </g>
-        </svg>
-    )
-}
-
-/*
- * Local const
- *
- */
-//A separate control to avoid the full panel to be updated when the positions are updated
-interface PositionsControlsProps {
-    mode: "mpos" | "wpos"
-    onWPosClick: (letter: string, position: string) => void
-    onHomeAxis: (axis: string) => void
-    onZeroAxis: (axis: string) => void
-    onConfirmHomeAxis: (axis: string) => void
-}
-
-
-
-const PositionsControls = ({
-    mode,
-    onWPosClick,
-    onHomeAxis: _onHomeAxis,
-    onZeroAxis,
-    onConfirmHomeAxis,
-}: PositionsControlsProps) => {
-    const { positions } = useTargetContext()   // ✅ acá adentro
-    const isMPos = mode === "mpos"
-    const isWPos = mode === "wpos"
-
-
-
-    return (
-        <Fragment>
-            {["x", "y", "z"].map((letter) => {
-                const hasM = typeof positions[letter] !== "undefined"
-                const hasW = typeof positions[`w${letter}`] !== "undefined"
-
-                if (isMPos && !hasM) return null
-                if (isWPos && !hasW) return null
-                if (!useUiContextFn.getValue(`show${letter}`)) return null
-
-                const axis = letter.toUpperCase()
-
-                return (
-                    <div key={letter} class="jog-positions-ctrls m-1">
-
-                        {/* ===== MPos ===== */}
-                        {isMPos && (
-                            <div class="jog-position-row">
-                                <div class="jog-position-ctrl">
-
-                                    <Button
-                                        class="jog-position-sub-header jog-axis-clickable"
-                                        onClick={() => onConfirmHomeAxis(axis)}
-                                        title={T("CN10")}
-                                    >
-                                        {axis}
-                                        <sub class="jog-axis-sub">M</sub>
-                                    </Button>
-
-                                    <div class="jog-position-value">
-                                        {positions[letter]}
-                                    </div>
-
-                                </div>
-                            </div>
-                        )}
-
-                        {/* ===== WPos ===== */}
-                        {isWPos && (
-                            <div class="jog-position-row">
-                                <div class="jog-position-ctrl">
-
-                                    <Button
-                                        class="jog-position-sub-header jog-axis-clickable"
-                                        onClick={() => onZeroAxis(axis)}
-                                        title={T("CN19")}
-                                    >
-                                        {axis}
-                                        <sub class="jog-axis-sub jog-axis-sub-w">W</sub>
-                                    </Button>
-
-                                    <div
-                                        class="jog-position-value jog-position-clickable"
-                                        onClick={() => {
-                                            useUiContextFn.click()
-                                            onWPosClick(letter, String(positions[`w${letter}`]))
-                                        }}
-                                    >
-                                        {positions[`w${letter}`]}
-                                    </div>
-
-                                </div>
-                            </div>
-                        )}
-
-                    </div>
-                )
-            })}
-        </Fragment>
-    )
-
-}
-
 
 interface JogPanelProps {
     embedded?: boolean
@@ -197,12 +63,7 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
     const { modals } = useModalsContext()
 
     const [currentSelectedAxis, setCurrentSelectedAxis] = useState(currentAxis)
-    const [jogStepIndex, setJogStepIndex] = useState(0) // 100 mm  
-    const [laserFocus, setLaserFocus] = useState(false)
-    const jogStepRef = useRef(jogStepIndex)
-    const jogTimerRef = useRef<number | null>(null)
-    const continuousRef = useRef(false)
-    const effectiveStepRef = useRef<number>(0)
+    const [jogStepIndex, setJogStepIndex] = useState(0) // 100 mm
 
     const id = "jogPanel"
     const haptic = () => { useUiContextFn.haptic() }
@@ -220,102 +81,111 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
         currentTool != null &&
         Number(currentTool) === Number(toolNumbers.laser)
 
-    const confirmGoHome = () => {
-        showModal({
-            modals,
-            id: "confirmGoHome",
-            title: T("CN10"), // Home
-            icon: <Home />,
-            button2: {
-                text: T("S28"), // Cancel
-            },
-            button1: {
-                text: T("S252"), // OK / Apply
-                cb: () => {
-                    goToMachineZero()
-                },
-            },
-            content: (
-                <div>
-                    {T("S250")}
-                </div>
-            ),
-        })
+    const { targetCommands } = useTargetCommands()
+
+    const { laserFocus, toggleLaserFocus } = useLaserFocus({
+        isLaserMode,
+        isIdle,
+        sendGcode: targetCommands,
+    })
+
+    const confirmAxisAction = (
+        kind: "go-machine-zero" | "go-work-zero" | "home-axis" | "home-all",
+        axis?: string
+    ) => {
+        switch (kind) {
+            case "go-machine-zero":
+                showModal({
+                    modals,
+                    id: "confirmGoHome",
+                    title: T("CN10"), // Home
+                    icon: <Home />,
+                    button2: {
+                        text: T("S28"), // Cancel
+                    },
+                    button1: {
+                        text: T("S252"), // OK / Apply
+                        cb: () => {
+                            goToMachineZero()
+                        },
+                    },
+                    content: (
+                        <div>
+                            {T("S250")}
+                        </div>
+                    ),
+                })
+                break
+            case "go-work-zero":
+                showModal({
+                    modals,
+                    id: "confirmGoWork",
+                    title: T("CN19"), // Zero / Work
+                    icon: <Crosshair />,
+                    button2: {
+                        text: T("S28"), // Cancel
+                    },
+                    button1: {
+                        text: T("S252"), // OK / Apply
+                        cb: () => {
+                            goToWorkZero()
+                        },
+                    },
+                    content: (
+                        <div>
+                            {T("S251")}
+                        </div>
+                    ),
+                })
+                break
+            case "home-axis":
+                showModal({
+                    modals,
+                    id: `confirmHome${axis}`,   // ⬅️ obligatorio en ESP3D
+                    title: `${T("CN10")} ${axis}`,
+                    icon: <Home />,
+                    button2: {
+                        text: T("S28"), // Cancel
+                    },
+                    button1: {
+                        text: T("CN204"), // Home
+                        cb: () => {
+                            sendHomeCommand(axis!)
+                        },
+                    },
+                    content: (
+                        <div>
+                            {axis
+                                ? `${T("S249")} ${axis}?`
+                                : `${T("S249")}?`}
+                        </div>
+                    ),
+                })
+                break
+            case "home-all":
+                showModal({
+                    modals,
+                    id: "confirmHomeAll",
+                    title: T("CN10"), // Home
+                    icon: <Home />,
+                    button2: {
+                        text: T("S28"), // Cancel
+                    },
+                    button1: {
+                        text: T("CN204"), // Home
+                        cb: () => {
+                            sendHomeCommand("")
+                        },
+                    },
+                    content: (
+                        <div>
+                            {T("S249")}?
+                        </div>
+                    ),
+                })
+                break
+        }
     }
-
-    const confirmGoWork = () => {
-        showModal({
-            modals,
-            id: "confirmGoWork",
-            title: T("CN19"), // Zero / Work
-            icon: <Crosshair />,
-            button2: {
-                text: T("S28"), // Cancel
-            },
-            button1: {
-                text: T("S252"), // OK / Apply
-                cb: () => {
-                    goToWorkZero()
-                },
-            },
-            content: (
-                <div>
-                    {T("S251")}
-                </div>
-            ),
-        })
-    }
-
-
-    const confirmHomeAxis = (axis: string) => {
-        showModal({
-            modals,
-            id: `confirmHome${axis}`,   // ⬅️ obligatorio en ESP3D
-            title: `${T("CN10")} ${axis}`,
-            icon: <Home />,
-            button2: {
-                text: T("S28"), // Cancel
-            },
-            button1: {
-                text: T("CN204"), // Home
-                cb: () => {
-                    sendHomeCommand(axis)
-                },
-            },
-            content: (
-                <div>
-                    {axis
-                        ? `${T("S249")} ${axis}?`
-                        : `${T("S249")}?`}
-                </div>
-            ),
-        })
-    }
-
-    const confirmHomeAll = () => {
-        showModal({
-            modals,
-            id: "confirmHomeAll",
-            title: T("CN10"), // Home
-            icon: <Home />,
-            button2: {
-                text: T("S28"), // Cancel
-            },
-            button1: {
-                text: T("CN204"), // Home
-                cb: () => {
-                    sendHomeCommand("")
-                },
-            },
-            content: (
-                <div>
-                    {T("S249")}?
-                </div>
-            ),
-        })
-    }
-
-
 
     // Go to machine zero (G53)
     const goToMachineZero = () => {
@@ -345,17 +215,18 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
         })
     }
 
-
-
     const onChangeAxis = (e: any) => {
         let value = e.target ? e.target.value : e
         setCurrentSelectedAxis(value)
         currentAxis = value
     }
 
-    const { targetCommands } = useTargetCommands()
-
-
+    // Resolves the "Axis+"/"Axis-" selector placeholder to the currently
+    // selected axis letter (module-level currentAxis, shared across all
+    // JogPanel instances - see the module-level currentFeedRate/currentAxis
+    // comment below).
+    const resolveAxis = (axis: string): string =>
+        axis.startsWith("Axis") ? axis.replace("Axis", currentAxis) : axis
 
     //Send Home command
     const sendHomeCommand = (axis: string) => {
@@ -406,16 +277,13 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
 
     const sendMoveToCommand = (axis: string, targetPosition: string) => {
         let upperAxis = axis.toUpperCase()
-        let selected_axis: string
         let feedrate =
             upperAxis.startsWith("X") || upperAxis.startsWith("Y")
                 ? currentFeedRate["XY"]
                 : upperAxis.startsWith("Z")
                     ? currentFeedRate["Z"]
                     : currentFeedRate[currentAxis]
-        if (axis.startsWith("Axis"))
-            selected_axis = axis.replace("Axis", currentAxis)
-        else selected_axis = axis
+        const selected_axis = resolveAxis(axis)
         let cmd =
             `$J=G90 G21 ${selected_axis.toUpperCase()}${targetPosition} F${feedrate}`
         targetCommands(cmd)
@@ -462,30 +330,6 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
         })
     }
 
-    const sendJogCommand = (axis: string, stepIndexOverride?: number) => {
-        const effectiveIndex =
-            stepIndexOverride !== undefined
-                ? stepIndexOverride
-                : jogStepIndex
-
-        let distance = jogStepsXYZ[effectiveIndex]
-
-        const feedrate = getContinuousFeedrateForStep(
-            axis,
-            distance
-        )
-
-        const selected_axis = axis.startsWith("Axis")
-            ? axis.replace("Axis", currentAxis)
-            : axis
-
-        const cmd = `$J=G91 G21 ${selected_axis}${distance} F${feedrate}`
-        targetCommands(cmd)
-    }
-
-
-
-
     const getContinuousFeedrateForStep = (axis: string, step: number) => {
         let baseFeed =
             axis.startsWith("X") || axis.startsWith("Y")
@@ -502,80 +346,21 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
             default: return baseFeed
         }
     }
-    const cancelJog = () => {
-        // Jog Cancel es un comando realtime (un byte), NO gcode
-        targetCommands("\x85")
-    }
 
-    const forceCancelJog = () => {
-        if (jogTimerRef.current !== null) {
-            clearTimeout(jogTimerRef.current)
-            jogTimerRef.current = null
-        }
-
-        if (continuousRef.current) {
-            cancelJog()
-            continuousRef.current = false
-        }
-
-        document.body.style.overflow = ""
-    }
-
-
-    const jogPressHandlers = (axis: string) => {
-        return {
-            onPointerDown: () => {
-                useUiContextFn.haptic()
-                document.body.style.overflow = "hidden"
-
-                // capturamos el step efectivo EN EL DOWN
-                let effectiveStepIndex = jogStepRef.current
-
-                if (axis === "Z+" || axis === "Z-") {
-
-                    const currentStep = jogStepsXYZ[jogStepRef.current]
-
-                    if (currentStep === 100) {
-                        // Z safe → 100 → 10
-                        effectiveStepIndex = 1
-                        setJogStepIndex(1)
-                    }
-                }
-
-                effectiveStepRef.current = effectiveStepIndex
-                continuousRef.current = false
-
-                // armamos el timer en REF (cancelable al instante)
-                jogTimerRef.current = window.setTimeout(() => {
-                    continuousRef.current = true
-
-                    const feed = getContinuousFeedrateForStep(axis, jogStepsXYZ[effectiveStepRef.current])
-                    const cmd = `$J=G91 G21 ${axis}${CONTINUOUS_DISTANCE} F${feed}`
-                    targetCommands(cmd)
-                }, CONTINUOUS_JOG_DELAY)
-            },
-
-            onPointerUp: () => {
-                // cancelá SIEMPRE el timer por ref
-                if (jogTimerRef.current !== null) {
-                    clearTimeout(jogTimerRef.current)
-                    jogTimerRef.current = null
-                }
-
-                if (continuousRef.current) {
-                    forceCancelJog()
-                } else {
-                    // tap corto -> step exacto capturado
-                    sendJogCommand(axis, effectiveStepRef.current)
-                    document.body.style.overflow = ""
-                }
-            },
-
-            onPointerLeave: forceCancelJog,
-            onPointerCancel: forceCancelJog,
-        }
-    }
-
+    const {
+        jogPressHandlers,
+        startJog,
+        stopJog,
+        cancelJog,
+        forceCancelJog,
+        sendJogCommand,
+    } = useContinuousJog({
+        jogStepIndex,
+        setJogStepIndex,
+        getFeedrateForStep: getContinuousFeedrateForStep,
+        resolveAxis,
+        sendGcode: targetCommands,
+    })
 
     // Axis selector for additional axes (A, B, C, U, V, W)
     const selectorBtn = (type: string) => {
@@ -617,17 +402,6 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
         }
     }
 
-
-    const startJog = (axis: string) => {
-        const handlers = jogPressHandlers(axis)
-        handlers.onPointerDown()
-    }
-
-    const stopJog = (axis: string) => {
-        const handlers = jogPressHandlers(axis)
-        handlers.onPointerUp()
-    }
-
     useEffect(() => {
         if (currentAxis === "-1") {
             feedList.forEach((letter) => {
@@ -654,105 +428,12 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
         }
     }, [positions])
 
-    useEffect(() => {
-        if (!shortcuts.enabled) return
-
-        const activeKeys = new Set<string>()
-
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (activeKeys.has(e.code)) return
-
-            switch (e.code) {
-                case "ArrowRight":
-                    startJog("X+")
-                    activeKeys.add(e.code)
-                    break
-                case "ArrowLeft":
-                    startJog("X-")
-                    activeKeys.add(e.code)
-                    break
-                case "ArrowUp":
-                    startJog("Y+")
-                    activeKeys.add(e.code)
-                    break
-                case "ArrowDown":
-                    startJog("Y-")
-                    activeKeys.add(e.code)
-                    break
-                case "PageUp":
-                    startJog("Z+")
-                    activeKeys.add(e.code)
-                    break
-                case "PageDown":
-                    startJog("Z-")
-                    activeKeys.add(e.code)
-                    break
-            }
-        }
-
-        const handleKeyUp = (e: KeyboardEvent) => {
-            switch (e.code) {
-                case "ArrowRight":
-                    stopJog("X+")
-                    activeKeys.delete(e.code)
-                    break
-                case "ArrowLeft":
-                    stopJog("X-")
-                    activeKeys.delete(e.code)
-                    break
-                case "ArrowUp":
-                    stopJog("Y+")
-                    activeKeys.delete(e.code)
-                    break
-                case "ArrowDown":
-                    stopJog("Y-")
-                    activeKeys.delete(e.code)
-                    break
-                case "PageUp":
-                    stopJog("Z+")
-                    activeKeys.delete(e.code)
-                    break
-                case "PageDown":
-                    stopJog("Z-")
-                    activeKeys.delete(e.code)
-                    break
-            }
-        }
-
-        window.addEventListener("keydown", handleKeyDown)
-        window.addEventListener("keyup", handleKeyUp)
-
-
-
-        const onScroll = () => {
-            forceCancelJog()
-        }
-
-        window.addEventListener("scroll", onScroll, { passive: true })
-
-        return () => {
-            window.removeEventListener("keydown", handleKeyDown)
-            window.removeEventListener("keyup", handleKeyUp)
-            window.removeEventListener("scroll", onScroll)
-            forceCancelJog()
-        }
-
-        // startJog/stopJog/forceCancelJog are plain functions recreated every render; this component
-        // re-renders on every live position update, so adding them here would tear down and rebuild the
-        // keyboard listeners (and reset the activeKeys tracking) on every position tick, causing missed
-        // or duplicated jog start/stop events while a key is held.
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [shortcuts.enabled])
-
-    useEffect(() => {
-        jogStepRef.current = jogStepIndex
-    }, [jogStepIndex])
-
-    useEffect(() => {
-        if (!isLaserMode && laserFocus) {
-            setLaserFocus(false)
-        }
-    }, [isLaserMode, laserFocus])
+    useJogKeyboardShortcuts({
+        enabled: shortcuts.enabled,
+        startJog,
+        stopJog,
+        forceCancelJog,
+    })
 
     return (
         <div class="panel panel-dashboard" id={id} >
@@ -795,7 +476,7 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
                             class="jog-global-btn btn-with-icon"
                             onClick={() => {
                                 useUiContextFn.haptic()
-                                confirmGoHome()
+                                confirmAxisAction("go-machine-zero")
                             }}
                         >
                             {T("S252")} <Home size={"0.9rem" as any} />
@@ -807,7 +488,7 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
                             onHomeAxis={sendHomeCommand}
                             onZeroAxis={sendZeroCommand}
                             onWPosClick={showMoveToDialog}
-                            onConfirmHomeAxis={confirmHomeAxis}
+                            onConfirmHomeAxis={(axis) => confirmAxisAction("home-axis", axis)}
                         />
 
                         <Button
@@ -815,7 +496,7 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
                             class="jog-global-btn btn-with-icon"
                             onClick={() => {
                                 useUiContextFn.haptic()
-                                confirmHomeAll()
+                                confirmAxisAction("home-all")
                             }}
                         >
                             {T("CN17")} <Home size={"0.9rem" as any} />
@@ -836,7 +517,7 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
                             class="jog-global-btn btn-with-icon"
                             onClick={() => {
                                 useUiContextFn.haptic()
-                                confirmGoWork()
+                                confirmAxisAction("go-work-zero")
                             }}
                         >
                             {T("S252")} <Crosshair size={"0.9rem" as any} />
@@ -848,7 +529,7 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
                             onHomeAxis={sendHomeCommand}
                             onZeroAxis={sendZeroCommand}
                             onWPosClick={showMoveToDialog}
-                            onConfirmHomeAxis={confirmHomeAxis}
+                            onConfirmHomeAxis={(axis) => confirmAxisAction("home-axis", axis)}
                         />
 
                         <Button
@@ -877,29 +558,9 @@ const JogPanel = ({ embedded = false }: JogPanelProps) => {
                                 class={`jog-floating-side-btn ${laserFocus ? "active" : ""}`}
                                 disabled={!isIdle}
                                 onClick={(e: MouseEvent) => {
-
-                                    if (!isIdle) return
-
-                                    useUiContextFn.haptic()
-
-                                    const next = !laserFocus
-                                    setLaserFocus(next)
-
-                                    const focusPercent = Number(useUiContextFn.getValue("laserfocuspower") ?? 5)
-                                    const maxS = Number(useUiContextFn.getValue("laser_max_power") ?? 1000)
-
-                                    const focusS = Math.round(maxS * focusPercent / 100)
-
-                                    if (next) {
-                                        targetCommands(`M3 S${focusS}`)
-                                        targetCommands("G1 F1000")
+                                    if (toggleLaserFocus()) {
+                                        (e.currentTarget as HTMLElement).blur()
                                     }
-                                    else {
-                                        targetCommands("M5 S0")
-                                        targetCommands("G0")
-                                    }
-
-                                    (e.currentTarget as HTMLElement).blur()
                                 }}
                                 title="Laser Focus"
                             >
@@ -1196,4 +857,4 @@ const JogPanelElement = {
     settingid: "jog",
 }
 
-export { JogPanel, JogPanelElement, PositionsControls }
+export { JogPanel, JogPanelElement }
