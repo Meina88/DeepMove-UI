@@ -61,10 +61,47 @@
         "src/Services/PingKeepAlive.ts",
         "src/Services/SessionManager.ts",
         "src/Services/CommandQueue.ts",
-        "src/Services/LineBuffer.ts"
+        "src/Services/LineBuffer.ts",
+        "src/contexts/**/*.ts",
+        "src/contexts/**/*.tsx",
+        "src/components/Controls/**/*.ts",
+        "src/components/Controls/**/*.tsx",
+        "src/targets/**/*.ts",
+        "src/targets/**/*.tsx"
       ],
+      "excludedFiles": ["**/*.test.ts", "**/*.test.tsx"],
       "rules": {
         "@typescript-eslint/no-explicit-any": "error"
+      }
+    },
+    {
+      "files": [
+        "src/contexts/DatasContext.tsx",
+        "src/contexts/SettingsContext.tsx",
+        "src/contexts/UiContext.tsx",
+        "src/contexts/Ui/settingsTree.ts",
+        "src/components/Controls/ButtonImg.tsx",
+        "src/components/Controls/Fields/Boolean.tsx",
+        "src/components/Controls/Fields/IconSelect.tsx",
+        "src/components/Controls/Fields/Input.tsx",
+        "src/components/Controls/Fields/ItemsList.tsx",
+        "src/components/Controls/Fields/Label.tsx",
+        "src/components/Controls/Fields/Mask.tsx",
+        "src/components/Controls/Fields/PickUp.tsx",
+        "src/components/Controls/Fields/Select.tsx",
+        "src/components/Controls/Fields/Slider.tsx",
+        "src/targets/ambient.d.ts",
+        "src/targets/CNC/FluidNC/CMD-source.ts",
+        "src/targets/CNC/FluidNC/files.ts",
+        "src/targets/CNC/FluidNC/filters.ts",
+        "src/targets/CNC/FluidNC/index.ts",
+        "src/targets/CNC/FluidNC/MachineSettings.tsx",
+        "src/targets/CNC/FluidNC/processor.ts",
+        "src/targets/CNC/FluidNC/TargetContext.tsx",
+        "src/targets/types.ts"
+      ],
+      "rules": {
+        "@typescript-eslint/no-explicit-any": "warn"
       }
     }
   ]
