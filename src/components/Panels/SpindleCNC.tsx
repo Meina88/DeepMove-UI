@@ -16,11 +16,10 @@ SpindleCNC.js - ESP3D WebUI component file
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { Fragment, TargetedMouseEvent } from "preact"
-import type { FunctionalComponent, JSX } from "preact"
-import { useState, useEffect, useRef } from "preact/hooks"
+import type { FunctionalComponent } from "preact"
+import { TargetedMouseEvent } from "preact"
+import { useState } from "preact/hooks"
 import { T } from "../Translations"
-import { Zap, RotateCw, RotateCcw, Octagon } from "preact-feather"
 import { Outputs, Flare } from "../../targets/CNC/FluidNC/icons"
 import {
     useUiContext,
@@ -32,119 +31,13 @@ import { ButtonImg, FullScreenButton, CloseButton, ContainerHelper } from "../Co
 import { checkDependencies } from "../Helpers"
 import type { DependItem } from "../Helpers"
 import { useTargetCommands } from "../../hooks"
-import { eventBus } from "../../hooks/eventBus"
-
-
-/*
- * Local const
- *
- */
-
-type NumberValue = { current: number }
-const spindleSpeedValue = {} as Partial<NumberValue>
-
-// Machine-state gate on top of checkDependencies' setting/connection conditions
-// (e.g. `{ states: ["Hold"] }` to only show a button while the machine is held).
-// checkDependencies ignores entries with none of id/connection_id/orGroups (treats
-// them as always-true), so this file additionally filters on `states` itself.
-interface StatesDependItem {
-    states: string[]
-}
-type ButtonDependItem = DependItem | StatesDependItem
-const isStatesDependItem = (item: ButtonDependItem): item is StatesDependItem => "states" in item
-
-const SpindleControls: FunctionalComponent<{ isLaserMode: boolean }> = ({ isLaserMode }) => {
-    const { states } = useTargetContext()
-
-    console.log(states)
-    const { interfaceSettings, connectionSettings } = useSettingsContext()
-
-    if (!useUiContextFn.getValue("showspindlepanel")) return null
-    const states_array: { id: string; label: string; depend?: ButtonDependItem[] }[] = [
-        { id: "spindle_speed", label: isLaserMode ? "Power" : "CN64" },
-    ]
-
-    return (
-        <Fragment>
-            {states &&
-                (states.spindle_speed ||
-                    states.feed_rate ||
-                    states.spindle_mode) && (
-                    <div class="status-ctrls">
-                        {states_array.map((element) => {
-                            if (states[element.id]) {
-                                if (element.depend) {
-                                    if (
-                                        !checkDependencies(
-                                            // checkDependencies ignores entries with none of id/connection_id/orGroups
-                                            // (treats them as always-true), so StatesDependItem entries are harmless here.
-                                            element.depend as DependItem[],
-                                            interfaceSettings.current.settings,
-                                            connectionSettings.current
-                                        )
-                                    )
-                                        return null
-                                }
-                                const sv = states[element.id]
-                                let displayVal = ""
-
-                                if (Array.isArray(sv)) {
-                                    displayVal = sv.map((i) => i.value).join(" ")
-                                } else {
-                                    displayVal = String(sv.value)
-                                }
-
-                                if (isLaserMode && element.id === "spindle_speed") {
-
-                                    const sValue = Number(displayVal)
-
-                                    const laserMax =
-                                        Number(useUiContextFn.getValue("laser_max_power")) || 255
-
-                                    const percent = Math.round((sValue / laserMax) * 100)
-
-                                    displayVal = `${percent}%`
-                                }
-                                return (
-                                    <div key={element.id}
-                                        class="extra-control mt-1 tooltip tooltip-bottom"
-                                        data-tooltip={T(element.label)}
-                                    >
-                                        <div class="extra-control-header">
-                                            {T(element.label)}
-                                        </div>
-
-                                        <div class="extra-control-value">
-                                            {displayVal}
-                                        </div>
-                                    </div>
-                                )
-                            }
-                        })}
-                    </div>
-                )}
-        </Fragment>
-    )
-}
-
-type ButtonCfg = {
-    label?: string
-    tooltip?: string
-    tooltipclassic?: boolean
-    command: string
-    icon?: JSX.Element
-    iconRight?: boolean
-    useinput?: boolean
-    mode?: string
-    depend?: ButtonDependItem[]
-}
-type ButtonsGroup = {
-    label: string
-    buttons: ButtonCfg[]
-    control?: { id: string; type: string; label: string; value: Partial<NumberValue>; min?: number }
-    depend?: ButtonDependItem[]
-    tooltipclassic?: boolean
-}
+import { SpindleControls } from "./Spindle/SpindleControls"
+import { useLaserMode } from "./Spindle/useLaserMode"
+import { useLaserTest } from "./Spindle/useLaserTest"
+import { useDigitalOutputs } from "./Spindle/useDigitalOutputs"
+import { useSpindleGcodeModeSync } from "./Spindle/useSpindleGcodeModeSync"
+import { buildSpindleButtonsList } from "./Spindle/spindleButtonsConfig"
+import { spindleSpeedValue, isStatesDependItem } from "./Spindle/spindleState"
 
 interface SpindlePanelProps {
     embedded?: boolean
@@ -154,226 +47,20 @@ const SpindlePanel: FunctionalComponent<SpindlePanelProps> = ({ embedded = false
 
     const { interfaceSettings, connectionSettings } = useSettingsContext()
     const { status, states, pinsStates } = useTargetContext()
-
     const { toolNumbers } = useUiContext()
-
-    let currentTool: number | null = null
-
-    if (states?.active_tool) {
-        const toolState = states.active_tool
-
-        if (Array.isArray(toolState)) {
-            currentTool = Number(toolState[0]?.value)
-        } else {
-            currentTool = Number(toolState.value)
-        }
-    }
-
-    const isLaserMode =
-        toolNumbers?.laser != null &&
-        currentTool != null &&
-        currentTool === toolNumbers.laser
-    useEffect(() => {
-
-        if (isLaserMode) {
-            spindleSpeedValue.current = 0
-        }
-
-    }, [isLaserMode])
-    const laserMaxPower =
-        Number(useUiContextFn.getValue("laser_max_power")) || 255
-
-    const getLaserPowerValue = () => {
-
-        const percent = spindleSpeedValue.current ?? 0
-
-        return Math.round((percent / 100) * laserMaxPower)
-    }
-
-    const fireLaserTest = () => {
-
-        const power = getLaserPowerValue()
-        const duration = laserTestDuration
-
-        targetCommands(`M3 S${power}`)
-        targetCommands("G1 F1000")
-        targetCommands(`G4 P${duration}`)
-        targetCommands("M5 S0")
-        targetCommands("G0")
-    }
-
     const { targetCommands } = useTargetCommands()
     const id = "SpindlePanel"
 
-    const previousStateRef = useRef<string | undefined>(undefined)
-    // Digital outputs (estado UI)
-    const [d1, setD1] = useState(false)
-    const [d2, setD2] = useState(false)
-    const [d3, setD3] = useState(false)
-    const [d4, setD4] = useState(false)
-
-    const [laserTestDuration, setLaserTestDuration] = useState(0.5)
-
-
-
-
-
-    useEffect(() => {
-        const handler = (event: Event) => {
-            const customEvent = event as CustomEvent<{ pin: number; state: boolean }>
-            const { pin, state } = customEvent.detail
-
-            switch (pin) {
-                case 1:
-                    setD1(state)
-                    break
-                case 2:
-                    setD2(state)
-                    break
-                case 3:
-                    setD3(state)
-                    break
-                case 4:
-                    setD4(state)
-                    break
-            }
-        }
-
-        window.addEventListener("cnc-output", handler as EventListener)
-
-        return () => {
-            window.removeEventListener("cnc-output", handler as EventListener)
-        }
-    }, [])
-
-    useEffect(() => {
-        const prev = previousStateRef.current
-        const current = status?.state
-
-        if (current === "Idle" && prev !== "Idle") {
-            setTimeout(() => {
-                targetCommands("$G")
-            }, 80)
-        }
-
-        previousStateRef.current = current
-    }, [status?.state, targetCommands])
-
-    useEffect(() => {
-
-        const handler = () => {
-            setTimeout(() => {
-                targetCommands("$G")
-            }, 150)
-        }
-
-        const subId = eventBus.on("fw:reset", handler)
-
-        return () => {
-            eventBus.off("fw:reset", subId)
-        }
-
-        // targetCommands is a fresh, stateless dispatcher every render; depending on it would just
-        // resubscribe to the event bus on every render for no behavioral gain.
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
-
-    useEffect(() => {
-
-        const handler = () => {
-
-            // refrescar modals
-            targetCommands("$G")
-
-            // apagar UI localmente (estado seguro)
-            setD1(false)
-            setD2(false)
-            setD3(false)
-            setD4(false)
-
-        }
-
-        const sub = eventBus.on("fw:reset", handler)
-
-        return () => eventBus.off("fw:reset", sub)
-
-        // targetCommands is a fresh, stateless dispatcher every render; depending on it would just
-        // resubscribe to the event bus on every render for no behavioral gain.
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    const { isLaserMode, laserMaxPower } = useLaserMode(states, toolNumbers?.laser ?? null)
+    const { laserTestDuration, setLaserTestDuration, fireLaserTest } = useLaserTest(laserMaxPower, targetCommands)
+    const { d1, d2, d3, d4, toggleOutput, resetOutputs } = useDigitalOutputs(targetCommands)
+    useSpindleGcodeModeSync(status, targetCommands, resetOutputs)
 
     if (typeof spindleSpeedValue.current === "undefined") {
         spindleSpeedValue.current = useUiContextFn.getValue("spindlespeed")
     }
 
-    const toggleOutput = (pin: number, state: boolean) => {
-        targetCommands(state ? `M63 P${pin}` : `M62 P${pin}`)
-    }
-
-
-    const buttons_list: ButtonsGroup[] = [
-        {
-            label: "CN201",
-            buttons: [
-                {
-                    icon: <RotateCw />,
-                    // label: "M3",
-                    tooltip: "CN74",
-                    command: "M3 S#",
-                    useinput: true,
-                    mode: "spindle_mode",
-                },
-                {
-                    icon: <Octagon />,
-                    //label: "M5",
-                    tooltip: "CN76",
-                    command: "M5",
-                    mode: "spindle_mode",
-                },
-                {
-                    icon: <RotateCcw />,
-                    //label: "M4",
-                    tooltip: "CN75",
-                    command: "M4 S#",
-                    useinput: true,
-                    mode: "spindle_mode",
-                    depend: [{ id: "showM4ctrls", value: true }],
-                },
-            ],
-            control: {
-                id: "spindlespeedInput",
-                type: "number",
-                label: "CN59",
-                value: spindleSpeedValue,
-                min: 0,
-            },
-        },
-        {
-            label: "CN202",
-            buttons: [
-                {
-                    icon: <Zap />,
-                    tooltip: "CN81",
-                    command: "#T-SPINDLESTOP#",
-                    depend: [{ states: ["Hold"] }],
-                },
-                {
-                    label: "M7",
-                    tooltip: "CN83",
-                    command: "#T-MISTCOOLANT#",
-                    mode: "coolant_mode",
-                },
-                {
-                    label: "M8",
-                    tooltip: "CN82",
-                    tooltipclassic: true,
-                    command: "#T-FLOODCOOLANT#",
-                    mode: "coolant_mode",
-                },
-
-            ],
-        },
-    ]
+    const buttons_list = buildSpindleButtonsList()
 
     //we won't handle modified state just handle error
     //too many user cases where changing value to show button is not suitable
