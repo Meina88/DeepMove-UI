@@ -57,13 +57,26 @@ export function useToolpathFileEvents({
     // clean up separately once confirmed truly dead.
     const rafRef = useRef<number | null>(null)
 
+    // Unique per mounted instance: eventBus.on()/off() key subscriptions by a
+    // plain id, and off() removes whatever is currently registered under that
+    // id regardless of who put it there. A fixed literal id (the previous
+    // "toolpath-selected"/"toolpath-preview"/"toolpath-reset") is shared by
+    // every ToolpathPanel instance, so when two instances briefly overlap
+    // (e.g. HMI's embedded panel mounting right before the dashboard's own
+    // unmounts), the second mount's on() silently replaces the first's
+    // listener, and the first's later off() (same fixed id) then deletes the
+    // *second* instance's listener - leaving the surviving instance with no
+    // listener at all. Scoping the id per instance makes on()/off() only ever
+    // touch this instance's own registration.
+    const instanceId = useRef(`toolpath-${Math.random().toString(36).slice(2)}`)
+
     useEffect(() => {
         const id = eventBus.on(
             "toolpath:selectedFile",
             (data) => {
                 setSelectedFile(data)
             },
-            "toolpath-selected"
+            `${instanceId.current}-selected`
         )
 
         return () => eventBus.off("toolpath:selectedFile", id)
@@ -180,7 +193,7 @@ export function useToolpathFileEvents({
                     setIsRendering(false)
                 }
             },
-            "toolpath-preview"
+            `${instanceId.current}-preview`
         )
 
         return () => {
@@ -219,7 +232,7 @@ export function useToolpathFileEvents({
                 renderCurrent(visiblePresets[viewIndex], cameraRef.current, undefined, showGrid)
                 setSelectedFile(null)
             },
-            "toolpath-reset"
+            `${instanceId.current}-reset`
         )
 
         return () => {
