@@ -15,6 +15,18 @@ jobs:
         id: setuptools
         run: npm install
         continue-on-error: true
+      - name: Type-check
+        id: typecheck
+        run: npm run type-check
+        continue-on-error: false
+      - name: Lint
+        id: lint
+        run: npm run lint
+        continue-on-error: false
+      - name: Run tests
+        id: test
+        run: npm run test
+        continue-on-error: false
       - name: Build all files
         id: buildall
         run: npm run build
