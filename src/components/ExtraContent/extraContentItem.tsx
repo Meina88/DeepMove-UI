@@ -69,6 +69,13 @@ const ExtraContentItem = ({
     const { createNewRequest } = useHttpFn
     const element_id = id.replace("extra_content_", type)
     const refreshIntervalRef = useRef<number | null>(null)
+    // Unique per mounted instance: eventBus.on()/off() key subscriptions by a plain id, and
+    // off() removes whatever is currently registered under that id regardless of who put it
+    // there. A fixed `listener_${id}` shared by identity alone, combined with the off() below
+    // being commented out, meant a remount under the same config id could steal or leak a
+    // listener silently. Same bug class fixed in useToolpathFileEvents.ts (commit 58491c55)
+    // and ContainerHelper.tsx/Files.tsx.
+    const instanceId = useRef(`listener_${id}-${Math.random().toString(36).slice(2)}`)
     //console.log(`Rendering ExtraContentItem ${id} at ${Date.now()}`);
     if (visibilityState[id] === undefined) {
         visibilityState[id] = false;
@@ -162,7 +169,6 @@ const ExtraContentItem = ({
     }, [loadContent])
 
     useEffect(() => {
-        const listenerId = `listener_${id}`;
         const handleUpdateState = (msg: any) => {
             if (msg.id == id) { 
                 //console.log(`Received message for ${id} with listener ${listenerId}`, msg);
@@ -214,10 +220,9 @@ const ExtraContentItem = ({
                 }
             }
         }
-        eventBus.on("updateState", handleUpdateState, listenerId)
+        const listenerId = eventBus.on("updateState", handleUpdateState, instanceId.current)
         return () => {
-            //console.log(`Removing listener ${listenerId} for ${id}`);
-            //eventBus.off("updateState", handleUpdateState, listenerId)
+            eventBus.off("updateState", listenerId)
         }
     }, [id, type, loadContent])
 

@@ -57,6 +57,14 @@ const FilesPanel: FunctionalComponent<FilesPanelProps> = ({ embedded = false }) 
     const [selectedFile, setSelectedFile] = useState<string | null>(null)
     const [fabOpen, setFabOpen] = useState(false)
 
+    // Unique per mounted instance: the dashboard's own FilesPanel and HMI's embedded
+    // <FilesPanel embedded /> both use the same fixed `id` ("filesPanel"), so a fixed
+    // listener id here let one instance's mount steal the other's listener slot during
+    // a mount/unmount transition (e.g. entering HMI), leaving the surviving instance's
+    // fullscreen state out of sync forever. Same bug class fixed in
+    // useToolpathFileEvents.ts (commit 58491c55).
+    const instanceId = useRef(`filesPanel-fullscreen-${Math.random().toString(36).slice(2)}`)
+
     // Filesystem in error state or SD card missing: block upload / create-dir actions
     const isFilesystemError =
         state.filesList?.status === T("S22") || state.filesList?.status === T("S110")
@@ -75,7 +83,7 @@ const FilesPanel: FunctionalComponent<FilesPanelProps> = ({ embedded = false }) 
                     setIsFullScreen(data.isFullScreen)
                 }
             },
-            "filesPanel-fullscreen"
+            instanceId.current
         )
 
         return () => {

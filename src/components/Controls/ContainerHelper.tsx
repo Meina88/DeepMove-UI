@@ -20,7 +20,7 @@ ContainerHelper.tsx - ESP3D WebUI component file
 import { Fragment,  FunctionalComponent } from "preact"
 import { ModalContainer } from "../Modal"
 import { ToastsContainer } from "../Toast"
-import { useState, useEffect } from "preact/hooks"
+import { useState, useEffect, useRef } from "preact/hooks"
 import { eventBus } from "../../hooks/eventBus"
 
 interface ContainerHelperProps {
@@ -35,8 +35,17 @@ interface UpdateStateMessage {
 
 const ContainerHelper: FunctionalComponent<ContainerHelperProps> = ({ id, active = false }) => {
     const [enabled, setEnabled] = useState(active)
-    //console.log("ContainerHelper id", id ,"active", active)
-    const listenerId = `listener_containerhelper_${id}`
+    // Unique per mounted instance: eventBus.on()/off() key subscriptions by a plain id, and off()
+    // removes whatever is currently registered under that id regardless of who put it there. Every
+    // panel mounts a ContainerHelper with the same `id` prop (e.g. "filesPanel") both in the dashboard
+    // and embedded in HMI, so the fixed `listener_containerhelper_${id}` here let one instance's mount
+    // silently steal the other's listener slot, and the off() below was commented out so it was never
+    // released either - leaving whichever instance survived a mount/unmount transition (e.g. entering
+    // HMI) without a working listener. Same bug class already fixed in useToolpathFileEvents.ts
+    // (commit 58491c55); scoping the id per instance and actually calling off() on unmount makes
+    // on()/off() only ever touch this instance's own registration.
+    const instanceId = useRef(`listener_containerhelper_${id}-${Math.random().toString(36).slice(2)}`)
+
     useEffect(() => {
         const handleUpdateState = (msg: UpdateStateMessage) => {
             if ('isFullScreen' in msg) {
@@ -55,11 +64,11 @@ const ContainerHelper: FunctionalComponent<ContainerHelperProps> = ({ id, active
                 }
             }
         }
-        eventBus.on("updateState", handleUpdateState, listenerId)
+        const listenerId = eventBus.on("updateState", handleUpdateState, instanceId.current)
         return () => {
-            //eventBus.off("updateState", handleUpdateState,listenerId)
+            eventBus.off("updateState", listenerId)
         }
-    })
+    }, [id])
 
     if (enabled) return (
         <Fragment>
