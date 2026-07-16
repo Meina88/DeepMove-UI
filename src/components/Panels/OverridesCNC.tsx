@@ -32,6 +32,8 @@ import {
 import { useTargetCommands } from "../../hooks"
 import { Lock, Unlock } from "preact-feather"
 import { useState } from "preact/hooks"
+import { computeOverridesDisplay } from "./Overrides/overridesDisplay"
+import { useOverrideCommands } from "./Overrides/useOverrideCommands"
 
 
 
@@ -97,162 +99,45 @@ interface OverridesPanelProps {
 
 const OverridesPanel: FunctionalComponent<OverridesPanelProps> = ({ embedded = false }) => {
 
-    const [uiSpindleOverride, setUiSpindleOverride] = useState(100)
-    const [uiFeedOverride, setUiFeedOverride] = useState(100)
     const { targetCommands } = useTargetCommands()
     const [linked, setLinked] = useState(false)
 
     const rpmMax = Number(useUiContextFn.getValue("rpm_max")) || 24000
     const feedMax = Number(useUiContextFn.getValue("feed_max")) || 5000
     const laserMaxPower = Number(useUiContextFn.getValue("laser_max_power")) || 255
-    
-    const { status, streamStatus, states } = useTargetContext()
 
+    const { status, streamStatus, states } = useTargetContext()
     const { toolNumbers } = useUiContext()
 
-    const activeToolState = states?.active_tool
+    const {
+        isLaserMode,
+        canPause,
+        canPlay,
+        powerW,
+        powerPct,
+        powerLevel,
+        spindleVal,
+        feedVal,
+        spindleAtMax,
+        feedAtMax,
+        spindleBarHeight,
+        feedBarHeight,
+        hasRunProgress,
+        progressPct,
+        progressVisiblePct,
+    } = computeOverridesDisplay({
+        status,
+        streamStatus,
+        states,
+        laser: toolNumbers?.laser ?? null,
+        rpmMax,
+        feedMax,
+        laserMaxPower,
+    })
 
-    const currentTool =
-        activeToolState
-            ? Array.isArray(activeToolState)
-                ? activeToolState.map(i => i.value).join(" ")
-                : activeToolState.value
-            : null
+    const { uiSpindleOverride, uiFeedOverride, sendOverride } = useOverrideCommands(linked, targetCommands)
 
-    const isLaserMode =
-        toolNumbers?.laser != null &&
-        currentTool != null &&
-        Number(currentTool) === Number(toolNumbers.laser)
-        const spindleMax = isLaserMode ? laserMaxPower : rpmMax
-
-    const canResumeFromDoor =
-        status?.state === "Door" && status?.substate === 0
-
-    const isRun = status?.state === "Run"
-    const isHold = status?.state === "Hold"
-
-    const canPause = isRun
-    const canPlay = isHold || canResumeFromDoor
-
-
-    const powerW = status?.power?.value ?? 0
     const id = "OverridesPanel"
-    const MAX_POWER_W = 1500
-    const powerPct = Math.min((powerW / MAX_POWER_W) * 100, 100)
-
-    let powerLevel: "low" | "mid" | "high" = "low"
-
-    if (powerPct >= 70) {
-        powerLevel = "high"
-    } else if (powerPct >= 40) {
-        powerLevel = "mid"
-    }
-
-
-
-
-
-    const spindle = states?.spindle_speed
-    const feed = states?.feed_rate
-    /* Valores reales (string) */
-    const spindleVal = spindle
-        ? Array.isArray(spindle)
-            ? spindle.map(i => i.value).join(" ")
-            : spindle.value
-        : "--"
-
-    const feedVal = feed
-        ? Array.isArray(feed)
-            ? feed.map(i => i.value).join(" ")
-            : feed.value
-        : "--"
-
-    /* Valores reales (number) */
-    const spindleRPM = Number(spindleVal) || 0
-    const feedMM = Number(feedVal) || 0
-
-
-    // 🔒 Bloquear si el próximo +10% excede el límite
-    const spindleNextRPM = spindleRPM * 1.1
-    const feedNextMM = feedMM * 1.1
-
-const spindleAtMax = spindleNextRPM > spindleMax
-    const feedAtMax = feedNextMM > feedMax
-
-    const valueToHeight = (value: number, max: number) => {
-        if (value <= 0) return 0
-        const clamped = Math.min(value, max)
-        return (clamped / max) * 100
-    }
-
-    const spindleBarHeight = valueToHeight(spindleRPM, spindleMax)
-    const feedBarHeight = valueToHeight(feedMM, feedMax)
-
-
-
-
-
-
-
-    // ===============================
-    // Progress bar (RUN)
-    // ===============================
-    const hasRunProgress =
-        (status?.state === "Run" || status?.state === "Hold") &&
-        streamStatus?.processed !== undefined
-
-    const progressPct = (() => {
-        if (!hasRunProgress) return 0
-
-        const processed = Number(streamStatus?.processed ?? 0)
-
-        // Caso normal: processed/total
-        if (streamStatus?.total) {
-            const total = Number(streamStatus.total) || 0
-            if (total <= 0) return 0
-            return Math.max(
-                0,
-                Math.min(100, Math.round((processed / total) * 100))
-            )
-        }
-
-        // Caso alternativo: processed ya viene en %
-        return Math.max(0, Math.min(100, Math.round(processed)))
-    })()
-
-
-
-    const progressVisiblePct = Math.max(progressPct, 1)
-
-    type OverrideType = "spindle" | "feed"
-    type OverrideDelta = "+10" | "-10" | "100"
-
-    const sendOverride = (type: OverrideType, delta: OverrideDelta) => {
-        const applyDelta = (current: number) => {
-            if (delta === "100") return 100
-            if (delta === "+10") return Math.min(150, current + 10)
-            if (delta === "-10") return Math.max(50, current - 10)
-            return current
-        }
-
-        if (!linked) {
-            if (type === "spindle") {
-                setUiSpindleOverride(v => applyDelta(v))
-                targetCommands(`#SSO${delta}#`)
-            } else {
-                setUiFeedOverride(v => applyDelta(v))
-                targetCommands(`#FO${delta}#`)
-            }
-            return
-        }
-
-        // 🔒 linked
-        setUiSpindleOverride(v => applyDelta(v))
-        setUiFeedOverride(v => applyDelta(v))
-        targetCommands(`#SSO${delta}#`)
-        targetCommands(`#FO${delta}#`)
-    }
-
     const PROGRESS_GAUGE_LEN = 220
 
     return (
