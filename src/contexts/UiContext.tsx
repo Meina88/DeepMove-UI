@@ -18,38 +18,16 @@
 */
 import { createContext, FunctionalComponent, ComponentChildren } from "preact"
 import { useContext, useState, useRef, useEffect, useCallback, useMemo } from "preact/hooks"
-
-// Extend Window interface for vendor-prefixed AudioContext
-declare global {
-    interface Window {
-        webkitAudioContext?: typeof AudioContext
-        audioContext?: typeof AudioContext
-    }
-}
-
-// Type definitions
-interface Panel {
-    id: string
-    settingid?: string
-    [key: string]: unknown
-}
+import { initAudio, playTones, type SoundNote } from "./Ui/audioEngine"
+import { vibrate } from "./Ui/haptics"
+import { usePanelsVisibility, type Panel, type PanelsVisibility } from "./Ui/usePanelsVisibility"
+import { getSettingsValue, getSettingsElement } from "./Ui/settingsTree"
 
 interface ConnectionState {
     connected: boolean
     page: string
     extraMsg?: string
     updating?: boolean
-}
-
-interface SoundNote {
-    f: number // frequency
-    d?: number // duration
-}
-
-interface AudioContextManager {
-    context?: AudioContext | null
-    masterGain?: GainNode | null
-    list: SoundNote[]
 }
 
 interface UiSettingsObject {
@@ -66,19 +44,7 @@ interface UiSettings {
 
 interface UiContextValue {
     timerIDs: { current: any }
-    panels: {
-        list: Panel[]
-        set: (panels: Panel[]) => void
-        visibles: Panel[]
-        setVisibles: (panels: Panel[]) => void
-        hide: (id: string) => void
-        show: (id: string, fixed: boolean) => void
-        isVisible: (id: string) => boolean
-        initDone: boolean
-        setInitDone: (done: boolean) => void
-        setPanelsOrder: (order: any[]) => void
-        updateTrigger: number
-    }
+    panels: PanelsVisibility
     shortcuts: {
         enabled: boolean
         enable: (enabled: boolean) => void
@@ -119,7 +85,6 @@ interface UiContextFn {
 }
 
 const useUiContextFn: UiContextFn = {} as UiContextFn
-const audio: AudioContextManager = { list: [] }
 
 /*
  * Local const
@@ -139,14 +104,10 @@ interface UiContextProviderProps {
 }
 
 const UiContextProvider: FunctionalComponent<UiContextProviderProps> = ({ children }) => {
-    const [panelsList, setPanelsList] = useState<Panel[]>([])
-    const [panelsOrder, setPanelsOrder] = useState<any[]>([])
-    const visiblePanelsListRef = useRef<Panel[]>([])
-    const [updateTrigger, setUpdateTrigger] = useState<number>(0)
-    const uiRefreshPaused = useRef<any>({})
+    const panels = usePanelsVisibility()
     const timersList = useRef<any>({})
-    const [initPanelsVisibles, setInitPanelsVisibles] = useState<boolean>(false)
     const [uiSettings, setUISettings] = useState<any>()
+    const uiRefreshPaused = useRef<any>({})
     const [isKeyboardEnabled, setIsKeyboardEnabled] = useState<boolean>(false)
     const [showKeepConnected, setShowKeepConnected] = useState<boolean>(false)
     const [connectionState, setConnectionState] = useState<ConnectionState>({
@@ -162,226 +123,34 @@ const UiContextProvider: FunctionalComponent<UiContextProviderProps> = ({ childr
         laser: null,
     })
 
-    const removeFromVisibles = useCallback((id: string) => {
-        visiblePanelsListRef.current = visiblePanelsListRef.current.filter(
-            (element) => element.id != id
-        )
-        setUpdateTrigger(prev => prev + 1)
-    }, [])
-
-    const addToVisibles = useCallback((id: string, fixed: boolean) => {
-        if (fixed && panelsOrder.length > 0) {
-            const unSortedVisiblePanelsList = [
-                ...visiblePanelsListRef.current.filter((element) => element.id != id),
-                ...panelsList.filter((element) => element.id == id),
-            ]
-            visiblePanelsListRef.current = panelsOrder.reduce((acc: Panel[], panel) => {
-                const paneldesc = unSortedVisiblePanelsList.filter(
-                    (p) => p.settingid == panel.id
-                )
-                if (paneldesc.length > 0) acc.push(...paneldesc)
-                return acc
-            }, [])
-        } else {
-            visiblePanelsListRef.current = [
-                ...panelsList.filter((element) => element.id == id),
-                ...visiblePanelsListRef.current.filter((element) => element.id != id),
-            ]
-        }
-        setUpdateTrigger(prev => prev + 1)
-    }, [panelsList, panelsOrder])
-
-    const isPanelVisible = useCallback((id: string): boolean => {
-        //console.log("Checking visibility for panel " + id)
-        //console.log(visiblePanelsListRef.current)
-        return visiblePanelsListRef.current.some((element) => element.id == id)
-    }, [])
-
     const getElement = useCallback((Id: string, base: any = null): any => {
-        const settingsobject = base ? base : uiSettings
-        if (settingsobject) {
-            for (let key in settingsobject) {
-                if (Array.isArray(settingsobject[key])) {
-                    for (
-                        let index = 0;
-                        index < settingsobject[key].length;
-                        index++
-                    ) {
-                        if (settingsobject[key][index].id == Id) {
-                            return settingsobject[key][index]
-                        }
-                        if (Array.isArray(settingsobject[key][index].value)) {
-                            for (
-                                let subindex = 0;
-                                subindex <
-                                settingsobject[key][index].value.length;
-                                subindex++
-                            ) {
-                                if (
-                                    settingsobject[key][index].value[subindex]
-                                        .id == Id
-                                ) {
-                                    return settingsobject[key][index].value[
-                                        subindex
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    for (let subkey in settingsobject[key]) {
-                        if (Array.isArray(settingsobject[key][subkey])) {
-                            for (
-                                let index = 0;
-                                index < settingsobject[key][subkey].length;
-                                index++
-                            ) {
-                                if (
-                                    settingsobject[key][subkey][index].id == Id
-                                ) {
-                                    return settingsobject[key][subkey][index]
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return undefined
+        return getSettingsElement(base ? base : uiSettings, Id)
     }, [uiSettings])
 
     const getValue = useCallback((Id: string, base: any = null): any => {
-        if (!Id) return undefined
-        const settingsobject = base ? base : uiSettings
-        if (settingsobject) {
-            for (let key in settingsobject) {
-                if (Array.isArray(settingsobject[key])) {
-                    for (
-                        let index = 0;
-                        index < settingsobject[key].length;
-                        index++
-                    ) {
-                        if (settingsobject[key][index].id == Id) {
-                            return settingsobject[key][index].value
-                        }
-                        if (Array.isArray(settingsobject[key][index].value)) {
-                            for (
-                                let subindex = 0;
-                                subindex <
-                                settingsobject[key][index].value.length;
-                                subindex++
-                            ) {
-                                if (
-                                    settingsobject[key][index].value[subindex]
-                                        .id == Id
-                                ) {
-                                    return settingsobject[key][index].value[
-                                        subindex
-                                    ].value
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    for (let subkey in settingsobject[key]) {
-                        if (Array.isArray(settingsobject[key][subkey])) {
-                            for (
-                                let index = 0;
-                                index < settingsobject[key][subkey].length;
-                                index++
-                            ) {
-                                if (
-                                    settingsobject[key][subkey][index].id == Id
-                                ) {
-                                    return settingsobject[key][subkey][index]
-                                        .value
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return undefined
+        return getSettingsValue(base ? base : uiSettings, Id)
     }, [uiSettings])
 
     useUiContextFn.getValue = getValue
     useUiContextFn.getElement = getElement
 
     const haptic = (pattern?: number | number[]) => {
-        if (!window || !window.navigator || !window.navigator.vibrate) return
-        if (!getValue("hapticfeedback")) return
-
-        const vibPattern = pattern ?? 50
-        window.navigator.vibrate(vibPattern)
+        vibrate(getValue("hapticfeedback"), pattern)
     }
 
     useUiContextFn.haptic = haptic
+
+    //play sequence
+    const play = (sequence?: SoundNote[]) => {
+        if (!getValue("audio")) return
+        playTones(sequence)
+    }
+    useUiContextFn.playSound = play
 
     useUiContextFn.click = () => {
         if (!getValue("audiofeedback")) return
         play([{ f: 1800, d: 25 }])
     }
-
-    const initAudio = () => {
-        if (audio.context) return
-
-        if (typeof window.AudioContext !== "undefined") {
-            audio.context = new window.AudioContext()
-        } else if (typeof window.webkitAudioContext !== "undefined") {
-            audio.context = new window.webkitAudioContext()
-        } else if (typeof window.audioContext !== "undefined") {
-            audio.context = new window.audioContext()
-        }
-
-        if (audio.context) {
-            audio.masterGain = audio.context.createGain()
-            audio.masterGain.gain.value = 0.5 // volumen global UI
-            audio.masterGain.connect(audio.context.destination)
-        }
-    }
-
-    const play = (sequence?: SoundNote[]) => {
-        if (!getValue("audio")) return
-        if (!sequence || sequence.length === 0) return
-
-        if (!audio.context) initAudio()
-        if (!audio.context || !audio.masterGain) return
-
-        if (audio.context.state === "suspended") {
-            audio.context.resume()
-        }
-
-        const ctx = audio.context
-        const master = audio.masterGain
-        let t = ctx.currentTime + 0.001
-
-        sequence.forEach(note => {
-            const duration = (note.d ?? 50) / 1000
-
-            const osc = ctx.createOscillator()
-            const gain = ctx.createGain()
-
-            osc.type = "sine" // sonido moderno limpio
-            osc.frequency.setValueAtTime(note.f, t)
-
-            // Envelope moderno
-            gain.gain.setValueAtTime(0.0001, t)
-            gain.gain.linearRampToValueAtTime(0.35, t + 0.003)
-            gain.gain.exponentialRampToValueAtTime(0.0001, t + duration)
-
-            osc.connect(gain)
-            gain.connect(master)
-
-            osc.start(t)
-            osc.stop(t + duration + 0.01)
-
-            t += duration
-        })
-    }
-
-    //play sequence
-    useUiContextFn.playSound = play
     //beep
     useUiContextFn.beep = () => {
         play([
@@ -403,34 +172,15 @@ const UiContextProvider: FunctionalComponent<UiContextProviderProps> = ({ childr
         play(seq)
     }
 
-
-    useUiContextFn.panels = { hide: removeFromVisibles, isVisible: isPanelVisible }
-
+    useUiContextFn.panels = { hide: panels.hide, isVisible: panels.isVisible }
 
     useEffect(() => {
         initAudio()
     }, [])
 
-    const setVisibles = useCallback((newList: Panel[]) => {
-        visiblePanelsListRef.current = newList
-        setUpdateTrigger(prev => prev + 1)
-    }, [])
-
     const store: UiContextValue = useMemo(() => ({
         timerIDs: timersList,
-        panels: {
-            list: panelsList,
-            set: setPanelsList,
-            visibles: visiblePanelsListRef.current,
-            setVisibles,
-            hide: removeFromVisibles,
-            show: addToVisibles,
-            isVisible: isPanelVisible,
-            initDone: initPanelsVisibles,
-            setInitDone: setInitPanelsVisibles,
-            setPanelsOrder: setPanelsOrder,
-            updateTrigger: updateTrigger,
-        },
+        panels,
         shortcuts: {
             enabled: isKeyboardEnabled,
             enable: setIsKeyboardEnabled,
@@ -458,14 +208,19 @@ const UiContextProvider: FunctionalComponent<UiContextProviderProps> = ({ childr
         toolNumbers,
         setToolNumbers,
 
+        // Deliberately depend on panels' individual fields rather than the
+        // `panels` object itself: usePanelsVisibility() returns a fresh object
+        // every render, so depending on it directly would defeat this memo.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }), [
-        panelsList,
-        setVisibles,
-        removeFromVisibles,
-        addToVisibles,
-        isPanelVisible,
-        initPanelsVisibles,
-        updateTrigger,
+        panels.list,
+        panels.setVisibles,
+        panels.hide,
+        panels.show,
+        panels.isVisible,
+        panels.initDone,
+        panels.setPanelsOrder,
+        panels.updateTrigger,
         isKeyboardEnabled,
         uiSettings,
         getValue,
