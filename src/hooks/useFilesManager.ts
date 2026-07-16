@@ -648,6 +648,10 @@ export function useFilesManager(): [FilesManagerState, FilesManagerActions] {
             }
         }
         setupFileInput()
+        // Mount-only bootstrap: onSelectFS/setupFileInput are recreated on every call to this hook
+        // (every render of the component using it); adding them here would re-run filesystem
+        // auto-selection on every unrelated re-render.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     const openFileUploadBrowser = () => {

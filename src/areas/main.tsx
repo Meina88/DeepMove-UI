@@ -83,6 +83,9 @@ const MainContainer: FunctionalComponent = () => {
 
     useEffect(() => {
         setRoutes(newroutes())
+        // newroutes is a plain closure recreated every render that mutates `routes` in place; this
+        // effect must only fire when `uisettings` itself changes, not on every render.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [uisettings])
 
     useEffect(() => {

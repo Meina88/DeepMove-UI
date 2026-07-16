@@ -96,7 +96,7 @@ const ExtraContentItem = ({
         setHasError(false)
         setIsLoading(false)
         isLoadedState[id] = true;
-    }, [type])
+    }, [type, id])
 
     const handleContentError = useCallback((error: any) => {
         console.error(`Error loading content for ${id}:`, error)
@@ -155,7 +155,7 @@ const ExtraContentItem = ({
                 performLoad()
             }
         }
-    }, [id, source, type, createNewRequest, handleContentSuccess, handleContentError, isPaused])
+    }, [id, source, type, target, createNewRequest, handleContentSuccess, handleContentError, isPaused])
 
     useEffect(() => {
         loadContent()
@@ -219,7 +219,7 @@ const ExtraContentItem = ({
             //console.log(`Removing listener ${listenerId} for ${id}`);
             //eventBus.off("updateState", handleUpdateState, listenerId)
         }
-    }, [id, loadContent])
+    }, [id, type, loadContent])
 
     useEffect(() => {
         if (refreshtime > 0 && (type === "camera" || type === "image") && visibilityState[id] && !isPaused) {
@@ -236,16 +236,16 @@ const ExtraContentItem = ({
                 refreshIntervalRef.current = null
             }
         }
-    }, [refreshtime, type, isPaused, loadContent])
+    }, [id, refreshtime, type, isPaused, loadContent])
 
 
-    const handleError = () => {
+    const handleError = useCallback(() => {
         setHasError(true)
         setIsLoading(false)
         isLoadedState[id] = false;
-    }
+    }, [id])
 
-    const handleLoad = () => {
+    const handleLoad = useCallback(() => {
         setHasError(false)
         setIsLoading(false)
         isLoadedState[id] = true;
@@ -310,7 +310,7 @@ const ExtraContentItem = ({
                 )
             }
         }
-    }
+    }, [type, element_id, id])
 
     const captureImage = useCallback(() => {
         if (type === "camera" || type === "image") {
@@ -364,7 +364,7 @@ const ExtraContentItem = ({
             }
             return newPausedState;
         });
-    }, [refreshtime, type, loadContent]);
+    }, [id, refreshtime, type, loadContent]);
 
     const renderContent = useMemo(() => (
         (() => {

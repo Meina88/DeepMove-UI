@@ -70,6 +70,10 @@ const ScanApList: FunctionalComponent<ScanApListProps> = ({ id, setValue, refres
     useEffect(() => {
         ScanNetworks()
         refreshfn(ScanNetworks)
+        // Mount-only bootstrap: ScanNetworks/refreshfn are recreated every render, and ScanNetworks
+        // itself triggers the state updates (setIsLoading/setApList) that would cause this effect to
+        // re-fire and re-scan endlessly if added as dependencies.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
     return (
         <Fragment>

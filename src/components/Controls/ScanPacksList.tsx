@@ -68,6 +68,10 @@ const ScanPacksList = ({
     useEffect(() => {
         ScanPacks()
         refreshfn(ScanPacks)
+        // Mount-only bootstrap: ScanPacks/refreshfn are recreated every render, and ScanPacks itself
+        // triggers the state updates (setIsLoading/setPacksList) that would cause this effect to
+        // re-fire and re-scan endlessly if added as dependencies.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     return (

@@ -36,17 +36,17 @@ interface ProgressProps {
 const Progress: FunctionalComponent<ProgressProps> = ({ progressBar, max = 100, precision = -1 }) => {
     const progressValue = useRef<HTMLProgressElement>(null)
     const progressValueDisplay = useRef<HTMLLabelElement>(null)
-    let calculationDone = false
+    const calculationDone = useRef(false)
     let prec = precision != -1 ? precision : 0
     const updateProgress = (value: number) => {
         if (precision == -1) {
             if (value == 0) prec = 0
             else {
-                if (!calculationDone) {
+                if (!calculationDone.current) {
                     //if step is very small let's increase precision to show the changes
                     if ((value / max) * 100 < 0.001) prec = 2
                     else if ((value / max) * 100 < 0.01) prec = 1
-                    calculationDone = true
+                    calculationDone.current = true
                 }
             }
         }
@@ -67,8 +67,11 @@ const Progress: FunctionalComponent<ProgressProps> = ({ progressBar, max = 100, 
     }
     useEffect(() => {
         progressBar.update = updateProgress
-        calculationDone = false
+        calculationDone.current = false
         updateProgress(0)
+        // Mount-only bootstrap: this must not re-run on unrelated parent re-renders, since
+        // updateProgress(0) would visibly reset the progress bar to 0% every time.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
     return (
         <div style="text-align: center">

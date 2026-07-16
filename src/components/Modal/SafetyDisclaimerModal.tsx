@@ -78,6 +78,10 @@ const SafetyDisclaimerModal: FunctionalComponent<Props> = ({
         // 👉 solo si encontró language
         if (!found) return
 
+        // interfaceSettings is a stable ref (its identity never changes), so depending on it directly
+        // would only ever run this effect once. We deliberately depend on the `.current.settings`
+        // reference itself so this re-syncs the saved language whenever settings (re)load.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [interfaceSettings.current.settings])
 
     const saveLanguagePreference = (lang: string) => {

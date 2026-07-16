@@ -18,7 +18,7 @@
 
 import { TargetedEvent } from "preact"
 import type { FunctionalComponent } from "preact"
-import { useEffect, useRef, useState } from "preact/hooks"
+import { useCallback, useEffect, useRef, useState } from "preact/hooks"
 import { T } from "../Translations"
 import {
     MessageSquare,
@@ -52,7 +52,7 @@ const NotificationsPanel: FunctionalComponent = () => {
     const notificationsOutput = useRef<HTMLDivElement | null>(null)
     const id = "notificationsPanel"
 
-    const scrollToBottom = () => {
+    const scrollToBottom = useCallback(() => {
         if (
             notifications.isAutoScroll.current &&
             !notifications.isAutoScrollPaused.current
@@ -60,7 +60,7 @@ const NotificationsPanel: FunctionalComponent = () => {
             notificationsOutput.current!.scrollTop =
                 notificationsOutput.current!.scrollHeight
         }
-    }
+    }, [notifications])
 
     const clearNotificationList = (): void => {
         useUiContextFn.haptic()
@@ -105,7 +105,7 @@ const NotificationsPanel: FunctionalComponent = () => {
 
     useEffect(() => {
         scrollToBottom()
-    }, [notifications.list])
+    }, [notifications.list, scrollToBottom])
 
     console.log("Notifications panel")
 

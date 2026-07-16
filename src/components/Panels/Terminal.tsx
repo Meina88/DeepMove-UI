@@ -17,7 +17,7 @@
 */
 
 import { TargetedKeyboardEvent, TargetedEvent, type FunctionalComponent, type VNode } from "preact"
-import { useEffect, useRef, useState, useMemo } from "preact/hooks"
+import { useCallback, useEffect, useRef, useState, useMemo } from "preact/hooks"
 import { T } from "../Translations"
 import {
     Code,
@@ -77,7 +77,7 @@ const TerminalPanel: FunctionalComponent<TerminalPanelProps> = ({ embedded = fal
     const renderedMessages = useRef<Array<VNode | null>>([])
     const lastRenderedCount = useRef<number>(0)
     const lastFirstMessage = useRef<TerminalLine | null>(null)
-    const scrollToBottom = () => {
+    const scrollToBottom = useCallback(() => {
         if (
             terminal.isAutoScroll.current &&
             !terminal.isAutoScrollPaused.current
@@ -85,9 +85,9 @@ const TerminalPanel: FunctionalComponent<TerminalPanelProps> = ({ embedded = fal
             terminalOutput.current!.scrollTop =
                 terminalOutput.current!.scrollHeight
         }
-    }
+    }, [terminal])
 
-    const renderLine = (line: TerminalLine, index: number): VNode | null => {
+    const renderLine = useCallback((line: TerminalLine, index: number): VNode | null => {
         if (line.isAction) {
             return (
                 <pre key={index} class="action" title={line.actionType}>
@@ -132,7 +132,7 @@ const TerminalPanel: FunctionalComponent<TerminalPanelProps> = ({ embedded = fal
             return <pre key={index} class={className}>{line.content}</pre>
         }
         return null
-    }
+    }, [isVerbose])
     const historyPrev = (): void => {
         if (terminal.inputHistory.length > 0 && inputHistoryIndex.current > 0) {
             inputHistoryIndex.current--
@@ -213,12 +213,16 @@ const TerminalPanel: FunctionalComponent<TerminalPanelProps> = ({ embedded = fal
     }
     useEffect(() => {
         scrollToBottom()
-    }, [terminal.content])
+    }, [terminal.content, scrollToBottom])
     useEffect(() => {
         return () => {
             //console.log('Resetting terminal history');
             inputHistoryIndex.current = terminal.inputHistory.length - 1;
         };
+        // terminal is a stable object (useDatasContext); inputHistory is mutated in place, so the
+        // cleanup above always reads its live length at actual unmount time, not a stale mount-time
+        // value, so this effect is correctly mount/unmount-only.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const toggleVerboseMode = (): void => {
@@ -353,7 +357,7 @@ const TerminalPanel: FunctionalComponent<TerminalPanelProps> = ({ embedded = fal
                     }
 
                     return renderedMessages.current
-                }, [terminal.content, isVerbose])}
+                }, [terminal.content, renderLine])}
                 <div ref={messagesEndRef} />
             </div>
             <div class="terminal-input-bar m-2">

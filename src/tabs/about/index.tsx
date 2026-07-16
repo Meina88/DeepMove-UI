@@ -493,6 +493,10 @@ const About: FunctionalComponent = (): JSX.Element => {
         })
     }
 
+    // Intentionally runs after every render (no deps array): it's a self-terminating check
+    // (getProps only fires while props.length == 0, and setIsLoading(false) is idempotent
+    // afterwards), not a "run once" bootstrap, so adding a deps array would change its semantics.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         if (uisettings.getValue("autoload") && props.length == 0) getProps()
         else setIsLoading(false)

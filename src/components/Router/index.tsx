@@ -111,6 +111,9 @@ const Router: FunctionalComponent<RouterProps> = ({ children, routesList, parent
 
   const handleHashChange = useCallback(() => {
     setActiveRouteAndComp()
+    // Same intentional omission as the mount effect below: setActiveRouteAndComp is recreated every
+    // render, and this callback must stay referentially stable for the hashchange listener's lifetime.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {

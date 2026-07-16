@@ -30,7 +30,11 @@ useEffect(() => {
   }, timeout)
 
   return () => clearTimeout(timer)
-}, [updatedAt])
+  // remove is a fresh inline function on every ToastsContainer render; depending on it would reset
+  // this toast's auto-dismiss timer on every unrelated re-render (e.g. another toast arriving),
+  // so toasts could pile up and never auto-dismiss.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [updatedAt, index, timeout])
 
 
   return (

@@ -526,6 +526,9 @@ const WifiTab = () => {
     useEffect(() => {
         loadSettings()
         refreshWifiStats()
+        // Mount-only bootstrap: loadSettings/refreshWifiStats are recreated every render; adding them
+        // here would re-fetch WiFi settings/stats on every unrelated re-render.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     let style: string = hasChanges ? "max-height: calc(100dvh - 170px); overflow-y: scroll;" : "max-height: 100%; overflow-y: scroll;"

@@ -50,7 +50,7 @@ const ExtraContent = ({ id, source: _source, refreshtime: _refreshtime, label, t
     const iconsList = { ...iconsTarget, ...iconsFeather } as Record<string, any>
     console.log(`Extra Content ${  id}`)
 
-    const updateContentPosition = () => {
+    const updateContentPosition = useCallback(() => {
         if (!useUiContextFn.panels.isVisible(id) && target == "panel") {
             return
         }
@@ -61,11 +61,11 @@ const ExtraContent = ({ id, source: _source, refreshtime: _refreshtime, label, t
         } else {
             console.error(`Element ${  target_id  } doesn't exist`)
         }
-    }
+    }, [id, target, target_id, extra_content_id])
 
     const handleScrollAndResize = useCallback(() => {
         requestAnimationFrame(updateContentPosition)
-    }, [])
+    }, [updateContentPosition])
 
     useEffect(() => {
         if (useUiContextFn.panels.isVisible(id)) {
@@ -82,7 +82,7 @@ const ExtraContent = ({ id, source: _source, refreshtime: _refreshtime, label, t
             window.addEventListener('resize', handleScrollAndResize)
             updateContentPosition()
         }
-    }, [panels.updateTrigger])
+    }, [panels.updateTrigger, id, handleScrollAndResize, updateContentPosition])
 
     useEffect(() => {
         if (useUiContextFn.panels.isVisible(id)) {
@@ -94,7 +94,7 @@ const ExtraContent = ({ id, source: _source, refreshtime: _refreshtime, label, t
                 resizeObserver.observe(panelElement)
             })
         }
-    }, [panels.updateTrigger])
+    }, [panels.updateTrigger, id, updateContentPosition])
 
     useEffect(() => {
         if (!elementsCache.has(extra_content_id)) {
@@ -121,7 +121,7 @@ const ExtraContent = ({ id, source: _source, refreshtime: _refreshtime, label, t
             window.removeEventListener('resize', handleScrollAndResize)
             eventBus.emit('updateState', { id: extra_content_id, isVisible: false, from: "extraContent(return)" })
         }
-    }, [])
+    }, [extra_content_id, handleScrollAndResize, target, updateContentPosition])
 
     const handleRefresh = () => {
         useUiContextFn.haptic()

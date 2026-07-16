@@ -128,6 +128,9 @@ const FilesPanel: FunctionalComponent<FilesPanelProps> = ({ embedded = false }) 
         }
 
         setMenu(newMenu())
+        // actions is a plain object recreated every render by useFilesManager (not memoized); adding it
+        // here would re-run this effect (and call setMenu) on every render, causing a render loop.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [state.fileSystem])
 
 
