@@ -23,14 +23,12 @@ import { ConnectionContainer } from "./connection"
 import { MainContainer } from "./main"
 import { useUiContext } from "../contexts/UiContext"
 import { useKeepConnectedModal } from "../components/Modal"
+import { canShowMainView } from "./viewState"
 
 const ViewContainer: FunctionalComponent = () => {
-    const { connection, dialogs } = useUiContext()
+    const { connection, dialogs, ui } = useUiContext()
     useKeepConnectedModal(dialogs.showKeepConnected, dialogs.setShowKeepConnected)
-    if (
-        connection.connectionState.connected &&
-        !connection.connectionState.updating
-    )
+    if (canShowMainView(connection.connectionState, ui.ready))
         return (
             <Fragment>
                 <Menu />

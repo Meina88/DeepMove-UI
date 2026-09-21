@@ -30,6 +30,7 @@ import { espHttpURL } from "../components/Helpers"
 import { restartdelay } from "../targets"
 import { Name } from "../targets"
 import { DeepMoveIcon } from "../targets/CNC/FluidNC/icons"
+import { canShowMainView } from "./viewState"
 
 
 
@@ -42,7 +43,7 @@ import { DeepMoveIcon } from "../targets/CNC/FluidNC/icons"
 
 
 const ConnectionContainer: FunctionalComponent = () => {
-    const { connection } = useUiContext()
+    const { connection, ui } = useUiContext()
     const { connectionSettings } = useSettingsContext()
     const timerCtrl = useRef<HTMLSpanElement>(null)
 
@@ -78,10 +79,10 @@ const ConnectionContainer: FunctionalComponent = () => {
     let intervalTimer = 0
 
 
-    if (
-        !connection.connectionState.connected ||
-        connection.connectionState.updating
-    ) {
+    // Same condition ViewContainer uses to decide *not* to show the main view:
+    // this also covers "link is up but the UI settings are still loading",
+    // which falls through to the "Connecting" spinner below.
+    if (!canShowMainView(connection.connectionState, ui.ready)) {
         const refreshTimer = () => {
             if (intervalTimer > 0) {
                 intervalTimer--

@@ -12,6 +12,20 @@ export interface NotificationHandler {
 }
 
 /**
+ * True for the WebUI control messages the controller sends as *text* frames:
+ * currentID/CURRENT_ID, activeID/ACTIVE_ID, PING (a bare "PING\n" in FluidNC
+ * 4.x, "PING:<left>:<max>" as a reply), NOTIFICATION, ERROR and SENSOR.
+ *
+ * They are not part of the G-code/status stream (which arrives as binary
+ * frames) and most carry no line terminator, so if they were appended to the
+ * line buffer they would stay there and be glued in front of the next real
+ * line - typically the next status report.
+ */
+export function isControlMessage(message: string): boolean {
+    return /^(current_?id|active_?id|ping|notification|error|sensor)(:|\s*$)/i.test(message)
+}
+
+/**
  * Parses notification messages from the controller
  * Format: "NOTIFICATION:Type:Message"
  *

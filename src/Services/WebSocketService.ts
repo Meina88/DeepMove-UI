@@ -5,6 +5,7 @@ import type { Toast } from "../contexts/ToastsContext"
 
 import {
     NotificationHandler,
+    isControlMessage,
     parseNotification,
     parseError,
     createConnectionErrorToast,
@@ -77,6 +78,12 @@ export class WebSocketService {
     // Service context for dependency injection (app-level contexts)
     private serviceContext: ServiceContext | undefined
 
+    // Set once the first connection succeeds, so later ones can be told apart as reconnections
+    private hasConnectedBefore = false
+    private reconnectedListener: (() => void) | undefined
+    // Native socket that already carries our "close" listener (there is one per socket)
+    private closeListenerSocket: WebSocket | undefined
+
     constructor(wsAdapter: WebSocketAdapter, notificationHandler?: NotificationHandler) {
         this.wsAdapter = wsAdapter
         this.notificationHandler = notificationHandler
@@ -89,7 +96,7 @@ export class WebSocketService {
         })
 
         // Register main data listener
-        this.wsAdapter.addReader(this.onData)
+        this.wsAdapter.addReader(this.onTextData)
         this.wsAdapter.addReader(this._handleSystemMessage)
 
         // Register binary data listener for terminal/stream data
@@ -121,7 +128,8 @@ export class WebSocketService {
             }
 
             this.status = ControllerStatus.CONNECTED
-            this.reconnection.resetAttempts()
+            // The attempt counter is only forgotten once this link proves stable
+            this.reconnection.noteConnected()
 
             // Start ping mechanism
             this.ping.start()
@@ -134,12 +142,29 @@ export class WebSocketService {
                 this.serviceContext.extensionsNotify("notification", { isConnected: true }, "all")
             }
 
-            // Set up disconnect listener for auto-reconnection
-            this.wsAdapter.getNativeWebSocket().addEventListener("close", () => {
-                if (this.status === ControllerStatus.CONNECTED) {
-                    this._handleConnectionLost()
+            // Set up disconnect listener for auto-reconnection (once per native socket:
+            // connect() may be called again while the same socket is still open)
+            const nativeSocket = this.wsAdapter.getNativeWebSocket()
+            if (this.closeListenerSocket !== nativeSocket) {
+                this.closeListenerSocket = nativeSocket
+                nativeSocket.addEventListener("close", () => {
+                    // A late "close" from a socket that has since been replaced says nothing about the current link
+                    if (nativeSocket === this.wsAdapter.getNativeWebSocket() && this.status === ControllerStatus.CONNECTED) {
+                        this._handleConnectionLost()
+                    }
+                })
+            }
+
+            // Whatever was stopped when the previous link was lost (polling, ...) needs restarting
+            const isReconnection = this.hasConnectedBefore
+            this.hasConnectedBefore = true
+            if (isReconnection && this.reconnectedListener) {
+                try {
+                    this.reconnectedListener()
+                } catch (error) {
+                    console.error("Error in reconnected listener:", error)
                 }
-            })
+            }
 
             return this.status
         } catch (error) {
@@ -178,6 +203,11 @@ export class WebSocketService {
         this.status = ControllerStatus.CONNECTION_LOST
         this._updateConnectionState({ connected: false, page: "connectionlost" })
         this._showToast(createConnectionErrorToast("connectionlost"))
+        // Same cleanup as a final disconnect: HTTP polling would only fail (and
+        // toast) while there is no socket to route the commands to, and open
+        // modals belong to the session that just ended. Polling is restarted
+        // through the reconnected listener.
+        this._performDisconnectCleanup()
         this._scheduleReconnection()
     }
 
@@ -186,9 +216,17 @@ export class WebSocketService {
      * whichever of the three outcomes it reports.
      */
     private _scheduleReconnection(): void {
-        const result = this.reconnection.scheduleRetry(() =>
-            this.connect().catch(() => this._scheduleReconnection())
-        )
+        // One failure can be reported through several paths (socket error event,
+        // close event, a failed connect()); a retry that is already on its way
+        // must not be counted, toasted and rescheduled again for each of them.
+        if (this.reconnection.isPending()) {
+            return
+        }
+
+        // connect() schedules its own next attempt when it fails, so a failure here is not handled again
+        const result = this.reconnection.scheduleRetry(() => {
+            this.connect().catch(() => {})
+        })
 
         switch (result.kind) {
             case "skipped-manual":
@@ -320,6 +358,18 @@ export class WebSocketService {
                 break
             }
         }
+    }
+
+    /**
+     * Text frames. Anything the controller sends this way that is a control
+     * message (currentID, PING, ...) is handled by _handleSystemMessage and
+     * must stay out of the line buffer, see isControlMessage().
+     */
+    private onTextData = (data: string): void => {
+        if (isControlMessage(data)) {
+            return
+        }
+        this.onData(data)
     }
 
     private onData = (data: string): void => {
@@ -479,6 +529,14 @@ export class WebSocketService {
     }
 
     /**
+     * Sets a callback invoked after every successful connection except the
+     * first one, i.e. once the link has been re-established after a loss
+     */
+    setReconnectedListener(callback: (() => void) | undefined): void {
+        this.reconnectedListener = callback
+    }
+
+    /**
      * Sets a callback for session timeout
      */
     setSessionTimeoutListener(callback: (() => void) | undefined): void {
@@ -542,11 +600,6 @@ export class WebSocketService {
      */
     private _handleWebSocketError = (_error: Event): void => {
         console.log("WebSocket error occurred")
-        // Note: _scheduleReconnection() below also increments the attempt
-        // counter once it decides to schedule a retry, so a single
-        // WebSocket error currently counts as two attempts. Pre-existing
-        // behavior, preserved as-is (see ReconnectionManager.bumpAttempts).
-        this.reconnection.bumpAttempts()
 
         this._updateConnectionState({ connected: false, page: "error" })
         // Show error toast to user

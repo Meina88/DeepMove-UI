@@ -62,17 +62,55 @@ describe("ReconnectionManager", () => {
         expect(manager.getAttempts()).toBe(0)
     })
 
-    it("bumpAttempts increments the counter directly, without scheduling anything", () => {
-        // Pins the pre-existing WebSocketService behavior where a WebSocket
-        // error bumps the counter once directly, then scheduleRetry() bumps
-        // it again - i.e. one error currently counts as two attempts.
+    it("is no longer pending once the retry has fired", () => {
+        // A fired timer must not keep reporting "pending", or a later failure
+        // would be mistaken for one whose retry is already on its way.
         const manager = new ReconnectionManager({ maxAttempts: 4, baseDelayMs: 100 })
-        manager.bumpAttempts()
-        expect(manager.getAttempts()).toBe(1)
-        expect(manager.isPending()).toBe(false)
+        manager.scheduleRetry(vi.fn())
+        expect(manager.isPending()).toBe(true)
 
-        const result = manager.scheduleRetry(vi.fn())
-        expect(result).toEqual({ kind: "scheduled", attempt: 2, maxAttempts: 4 })
+        vi.advanceTimersByTime(100)
+        expect(manager.isPending()).toBe(false)
+    })
+
+    it("noteConnected forgets the attempts only after the link has stayed up for stableMs", () => {
+        const manager = new ReconnectionManager({ maxAttempts: 4, baseDelayMs: 100, stableMs: 15000 })
+        manager.scheduleRetry(vi.fn())
+        manager.scheduleRetry(vi.fn())
+        expect(manager.getAttempts()).toBe(2)
+
+        manager.noteConnected()
+        vi.advanceTimersByTime(14999)
+        expect(manager.getAttempts()).toBe(2)
+
+        vi.advanceTimersByTime(1)
+        expect(manager.getAttempts()).toBe(0)
+    })
+
+    it("a link that drops again before it is stable keeps counting toward exhaustion", () => {
+        // Two pages of one browser session take the socket from each other: each
+        // reconnect succeeds and is lost again within seconds. Without this the
+        // attempt counter would reset every time and they would never stop.
+        const manager = new ReconnectionManager({ maxAttempts: 3, baseDelayMs: 100, stableMs: 15000 })
+
+        for (let i = 0; i < 3; i++) {
+            expect(manager.scheduleRetry(vi.fn()).kind).toBe("scheduled")
+            vi.advanceTimersByTime(100) // reconnect attempt fires and succeeds...
+            manager.noteConnected()
+            vi.advanceTimersByTime(2000) // ...but the socket is taken away 2s later
+        }
+
+        expect(manager.scheduleRetry(vi.fn())).toEqual({ kind: "exhausted", maxAttempts: 3 })
+    })
+
+    it("cancel also stops a pending stability reset", () => {
+        const manager = new ReconnectionManager({ maxAttempts: 4, baseDelayMs: 100, stableMs: 1000 })
+        manager.scheduleRetry(vi.fn())
+        manager.noteConnected()
+
+        manager.cancel()
+        vi.advanceTimersByTime(1000)
+        expect(manager.getAttempts()).toBe(1)
     })
 
     it("setConfig updates maxAttempts and baseDelayMs", () => {

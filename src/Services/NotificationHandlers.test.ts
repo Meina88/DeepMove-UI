@@ -4,9 +4,42 @@ import {
     createConnectionStatusToast,
     createMaxReconnectionToast,
     createReconnectionToast,
+    isControlMessage,
     parseError,
     parseNotification,
 } from "./NotificationHandlers"
+
+describe("isControlMessage", () => {
+    it("recognizes the control messages of both FluidNC generations", () => {
+        for (const message of [
+            "currentID:5",
+            "CURRENT_ID:5", // sent by FluidNC 4.x next to currentID
+            "activeID:5",
+            "ACTIVE_ID:5",
+            "PING:60000:60000",
+            "PING\n", // FluidNC 4.x server keep-alive
+            "PING",
+            "NOTIFICATION:Success:File uploaded",
+            "ERROR:401:Not authenticated",
+            "SENSOR:10[C] 15[%]",
+        ]) {
+            expect(isControlMessage(message), JSON.stringify(message)).toBe(true)
+        }
+    })
+
+    it("does not swallow ordinary status/response lines", () => {
+        for (const message of [
+            "<Idle|MPos:0.000,0.000,0.000|FS:0,0>\n",
+            "ok\n",
+            "[MSG:INFO: Connected]\n",
+            "$0=10\n",
+            "pinging\n",
+            "",
+        ]) {
+            expect(isControlMessage(message), JSON.stringify(message)).toBe(false)
+        }
+    })
+})
 
 describe("parseNotification", () => {
     it("parses a well-formed NOTIFICATION message, including the Type in the content", () => {

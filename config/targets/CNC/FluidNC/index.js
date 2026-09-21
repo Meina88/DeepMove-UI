@@ -106,7 +106,9 @@ const commandsQuery = (req, res, SendWS) => {
                 Authentication: "Disabled",
                 WebCommunication: "Synchronous",
                 WebSocketIP: "localhost",
-                WebSocketPort: "82",
+                // Must be the port the mock WebSocket server actually listens on (config/server.js),
+                // because the UI now uses the reported port instead of guessing location.port + 2
+                WebSocketPort: "8090",
                 HostName: "fluidnc",
                 WiFiMode: "STA",
                 wled: "Enabled",

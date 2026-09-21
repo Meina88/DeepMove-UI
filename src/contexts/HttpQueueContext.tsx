@@ -160,8 +160,13 @@ const HttpQueueContextProvider: FunctionalComponent<HttpQueueContextProviderProp
                     if (counterNoAnswer > MaxNoAnswerNb) {
                         const ws = getWebSocketService()
                         if (ws) {
-                            ws.disconnect("connectionlost")
+                            // stopReconnect=false: the board not answering HTTP is a lost
+                            // connection to recover from, not a disconnect the user asked
+                            // for. With the default (manual) disconnect the UI would stay
+                            // down for good until the page is reloaded.
+                            ws.disconnect("connectionlost", false)
                         }
+                        counterNoAnswer = 0
                     }
                 }
             }

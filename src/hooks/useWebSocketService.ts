@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "preact/hooks";
 import { WebSocketService } from "../Services/WebSocketService";
 import { WebSocketAdapter } from "../Services/WebSocketAdapter";
+import { resolveWebSocketUrl } from "../Services/webSocketUrl";
 import { useUiContext, useToastsContext, useModalsContext, useHttpQueueContext, useSettingsContext } from "../contexts";
 import { useTargetContext } from "../targets";
 import { dispatchToExtensions } from "../components/Helpers";
@@ -30,16 +31,14 @@ export function useWebSocketService() : WebSocketService {
                 return;
             }
 
-            // Construct WebSocket URL from current location
-            const address = document.location.hostname;
-            const path =
-                connectionSettings.current.WebCommunication === "Synchronous"
-                    ? ""
-                    : "/ws"
-            const wsPort = document.location.port != ""
-                    ? parseInt(document.location.port) + 2
-                    : port
-            const wsUrl = `ws://${address}:${wsPort}${path}`;
+            // The port comes from what [ESP800] reports (HTTP port + 2 on FluidNC 3.x,
+            // the HTTP port itself on 4.x), never from the page's own port
+            const wsUrl = resolveWebSocketUrl({
+                hostname: document.location.hostname,
+                reportedPort: port,
+                locationPort: document.location.port,
+                webCommunication: connectionSettings.current.WebCommunication,
+            });
 
             const wsAdapter = new WebSocketAdapter(wsUrl);
             webSocketServiceInstance = new WebSocketService(wsAdapter);

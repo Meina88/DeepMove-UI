@@ -9,24 +9,44 @@ export type ErrorListener = (error: Event) => void;
 
 export class WebSocketAdapter {
     private ws: WebSocket;
+    private readonly url: string;
     private dataListeners: DataListener[] = [];
     private binaryDataListeners: BinaryDataListener[] = [];
     private errorListeners: ErrorListener[] = [];
     private isOpenFlag: boolean = false;
 
     constructor(url: string) {
-        this.ws = new WebSocket(url, "webui-v3");
-        this.ws.binaryType = "arraybuffer";
-        this.setupEventListeners();
+        this.url = url;
+        this.ws = this.createSocket();
     }
 
-    private setupEventListeners() {
-        this.ws.onopen = () => {
+    /**
+     * A browser WebSocket can never be reopened once it has closed, so every
+     * (re)connection needs a fresh one. The listeners registered on this
+     * adapter live on the adapter itself and carry over to each new socket.
+     */
+    private createSocket(): WebSocket {
+        const socket = new WebSocket(this.url, "webui-v3");
+        socket.binaryType = "arraybuffer";
+        this.isOpenFlag = false;
+        this.setupEventListeners(socket);
+        return socket;
+    }
+
+    private setupEventListeners(socket: WebSocket) {
+        // Events from a socket that has since been replaced must not touch the
+        // state of the current one (a late "close" would otherwise mark the
+        // new connection as closed).
+        const isCurrent = () => socket === this.ws;
+
+        socket.onopen = () => {
+            if (!isCurrent()) return;
             this.isOpenFlag = true;
             console.log("WebSocket connected");
         };
 
-        this.ws.onmessage = (event) => {
+        socket.onmessage = (event) => {
+            if (!isCurrent()) return;
             // Handle binary data
             if (event.data instanceof ArrayBuffer) {
                 this.notifyBinaryListeners(event.data);
@@ -37,12 +57,14 @@ export class WebSocketAdapter {
             }
         };
 
-        this.ws.onerror = (error) => {
+        socket.onerror = (error) => {
+            if (!isCurrent()) return;
             console.error("WebSocket error:", error);
             this.notifyErrorListeners(error);
         };
 
-        this.ws.onclose = () => {
+        socket.onclose = () => {
+            if (!isCurrent()) return;
             this.isOpenFlag = false;
             console.log("WebSocket disconnected");
         };
@@ -53,16 +75,34 @@ export class WebSocketAdapter {
     }
 
     /**
-     * Opens the WebSocket connection
-     * For WebSocket, this is essentially immediate after construction
+     * Opens the WebSocket connection, creating a new socket if the previous
+     * one has closed. Resolves once the socket is open; rejects if it closes
+     * first or does not open within `timeoutMs` (an unreachable board can
+     * leave a socket connecting for a very long time, which would otherwise
+     * block every further retry).
      */
-    async open(): Promise<void> {
+    async open(timeoutMs: number = 10000): Promise<void> {
+        if (this.ws.readyState === WebSocket.CLOSING || this.ws.readyState === WebSocket.CLOSED) {
+            this.ws = this.createSocket();
+        }
+        const socket = this.ws;
+        const startedAt = Date.now();
+
         return new Promise((resolve, reject) => {
             const checkOpen = () => {
-                if (this.isOpen()) {
+                if (socket !== this.ws) {
+                    reject(new Error("WebSocket was replaced while connecting"));
+                } else if (this.isOpen()) {
                     resolve();
-                } else if (this.ws.readyState === WebSocket.CLOSED) {
+                } else if (socket.readyState === WebSocket.CLOSING || socket.readyState === WebSocket.CLOSED) {
                     reject(new Error("WebSocket failed to connect"));
+                } else if (Date.now() - startedAt >= timeoutMs) {
+                    try {
+                        socket.close();
+                    } catch {
+                        // already closing
+                    }
+                    reject(new Error("WebSocket connection timeout"));
                 } else {
                     setTimeout(checkOpen, 100);
                 }
@@ -72,17 +112,19 @@ export class WebSocketAdapter {
     }
 
     /**
-     * Closes the WebSocket connection
+     * Closes the WebSocket connection (also one that is still connecting, so a
+     * manual disconnect cannot leave a socket that opens afterwards)
      */
     async close(): Promise<void> {
         return new Promise((resolve) => {
-            if (this.isOpen()) {
+            const socket = this.ws;
+            if (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING) {
                 const onClose = () => {
-                    this.ws.removeEventListener("close", onClose);
+                    socket.removeEventListener("close", onClose);
                     resolve();
                 };
-                this.ws.addEventListener("close", onClose);
-                this.ws.close();
+                socket.addEventListener("close", onClose);
+                socket.close();
             } else {
                 resolve();
             }

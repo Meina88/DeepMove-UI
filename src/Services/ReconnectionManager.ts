@@ -14,20 +14,26 @@ export class ReconnectionManager {
     private attempts = 0
     private maxAttempts: number
     private baseDelayMs: number
+    private stableMs: number
     private timeoutId: NodeJS.Timeout | undefined
+    private stableTimeoutId: NodeJS.Timeout | undefined
     private manualDisconnect = false
 
-    constructor(options?: { maxAttempts?: number; baseDelayMs?: number }) {
+    constructor(options?: { maxAttempts?: number; baseDelayMs?: number; stableMs?: number }) {
         this.maxAttempts = options?.maxAttempts ?? 4
         this.baseDelayMs = options?.baseDelayMs ?? 2000
+        this.stableMs = options?.stableMs ?? 15000
     }
 
-    setConfig(options: { maxAttempts?: number; baseDelayMs?: number }): void {
+    setConfig(options: { maxAttempts?: number; baseDelayMs?: number; stableMs?: number }): void {
         if (options.maxAttempts !== undefined) {
             this.maxAttempts = options.maxAttempts
         }
         if (options.baseDelayMs !== undefined) {
             this.baseDelayMs = options.baseDelayMs
+        }
+        if (options.stableMs !== undefined) {
+            this.stableMs = options.stableMs
         }
     }
 
@@ -35,6 +41,7 @@ export class ReconnectionManager {
         return this.attempts
     }
 
+    /** True while a retry has been scheduled and has not fired yet */
     isPending(): boolean {
         return this.timeoutId !== undefined
     }
@@ -52,14 +59,19 @@ export class ReconnectionManager {
     }
 
     /**
-     * Increments the attempt counter without scheduling anything.
-     * WebSocketService's WebSocket-error handler bumps this directly before
-     * also calling scheduleRetry() below - so a single WebSocket error
-     * currently counts as two attempts. That is pre-existing behavior,
-     * preserved here rather than silently fixed.
+     * Call once a connection has been established. The attempt counter is not
+     * cleared right away but only after the connection has stayed up for
+     * `stableMs`: a link that is established and immediately lost again (for
+     * example two pages of the same browser session taking the socket from
+     * each other, which the controller does by closing the older one) must
+     * keep counting, or the two would reconnect forever.
      */
-    bumpAttempts(): void {
-        this.attempts++
+    noteConnected(): void {
+        this.clearStableTimer()
+        this.stableTimeoutId = setTimeout(() => {
+            this.stableTimeoutId = undefined
+            this.attempts = 0
+        }, this.stableMs)
     }
 
     cancel(): void {
@@ -67,6 +79,7 @@ export class ReconnectionManager {
             clearTimeout(this.timeoutId)
             this.timeoutId = undefined
         }
+        this.clearStableTimer()
     }
 
     /**
@@ -86,7 +99,17 @@ export class ReconnectionManager {
 
         this.attempts++
         this.cancel()
-        this.timeoutId = setTimeout(onRetry, this.baseDelayMs)
+        this.timeoutId = setTimeout(() => {
+            this.timeoutId = undefined
+            onRetry()
+        }, this.baseDelayMs)
         return { kind: "scheduled", attempt: this.attempts, maxAttempts: this.maxAttempts }
+    }
+
+    private clearStableTimer(): void {
+        if (this.stableTimeoutId) {
+            clearTimeout(this.stableTimeoutId)
+            this.stableTimeoutId = undefined
+        }
     }
 }

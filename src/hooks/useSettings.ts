@@ -54,6 +54,8 @@ import { showModal } from "../components/Modal"
 interface UseSettingsReturn {
     getInterfaceSettings: (setLoading?: (loading: boolean) => void, next?: () => void) => void
     getConnectionSettings: (next?: () => void) => void
+    /** (Re)starts the polling commands from the loaded interface settings */
+    restartPolling: () => void
 }
 
 const useSettings = (): UseSettingsReturn => {
@@ -471,6 +473,7 @@ const useSettings = (): UseSettingsReturn => {
     return {
         getInterfaceSettings,
         getConnectionSettings,
+        restartPolling: initPolling,
     }
 }
 

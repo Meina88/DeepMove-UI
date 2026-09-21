@@ -25,6 +25,7 @@ import { defaultPanelsList } from "../../targets"
 import { ExtraPanelElement } from "../../components/Panels/ExtraPanel"
 import PanelNavigator from "../../components/Controls/PanelNavigator"
 import type { PreferencesFieldData } from "../../types/preferences.types"
+import { shouldInitPanels } from "./panelsInit"
 
 
 interface KeyTracker {
@@ -172,7 +173,7 @@ const Dashboard: FunctionalComponent = (): JSX.Element => {
     }, [shortcuts.enabled])
 
     useEffect(() => {
-        if (!panels.initDone && panels.list.length != 0) {
+        if (shouldInitPanels(panels.initDone, panels.list.length, uisettings.current !== undefined)) {
             if (isfixed && fixedPanels.length == 0) {
                 const panelOrder: PreferencesFieldData[] = uisettings.getValue("panelsorder")
                 panelOrder.forEach((panel) => {
